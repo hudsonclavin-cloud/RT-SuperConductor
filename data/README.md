@@ -17,3 +17,7 @@ Do not edit the original archives or commit extracted raw data.
 
 The 3DSC archive also contains macOS metadata entries; those are ignored during
 extraction. The 3DSC_ICSD structure archive has not been added.
+
+Run the normalization command in the repository README to create derived files
+under `data/processed/`. Use `docs/reviewing-data.md` to curate duplicate
+composition groups without altering the source archives.

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from .datasets import iter_3dsc_mp_records, iter_uci_records
 from .evidence import EvidenceRecord
+from .formula import FormulaResult, canonicalize_formula
 
 
 def composition_key(composition: str) -> str:
@@ -35,6 +36,9 @@ class PipelineSummary:
     records_with_known_pressure: int
     duplicate_composition_groups: int
     duplicate_record_count: int
+    canonical_duplicate_composition_groups: int
+    canonical_duplicate_record_count: int
+    unparseable_formula_records: int
     tc_min_k: float | None
     tc_max_k: float | None
     tc_mean_k: float | None
@@ -45,10 +49,16 @@ class PipelineSummary:
 
 def _summary(records: list[EvidenceRecord]) -> PipelineSummary:
     by_composition: defaultdict[str, list[EvidenceRecord]] = defaultdict(list)
+    by_canonical: defaultdict[str, list[EvidenceRecord]] = defaultdict(list)
+    formula_results = [canonicalize_formula(record.composition) for record in records]
     for record in records:
         by_composition[composition_key(record.composition)].append(record)
+    for record, formula in zip(records, formula_results):
+        if formula.canonical is not None:
+            by_canonical[formula.canonical].append(record)
     tc_values = [record.reported_tc_k for record in records if record.reported_tc_k is not None]
     duplicate_groups = [group for group in by_composition.values() if len(group) > 1]
+    canonical_duplicate_groups = [group for group in by_canonical.values() if len(group) > 1]
     return PipelineSummary(
         total_records=len(records),
         source_counts=dict(
@@ -65,6 +75,9 @@ def _summary(records: list[EvidenceRecord]) -> PipelineSummary:
         ),
         duplicate_composition_groups=len(duplicate_groups),
         duplicate_record_count=sum(len(group) for group in duplicate_groups),
+        canonical_duplicate_composition_groups=len(canonical_duplicate_groups),
+        canonical_duplicate_record_count=sum(len(group) for group in canonical_duplicate_groups),
+        unparseable_formula_records=sum(result.canonical is None for result in formula_results),
         tc_min_k=min(tc_values) if tc_values else None,
         tc_max_k=max(tc_values) if tc_values else None,
         tc_mean_k=(sum(tc_values) / len(tc_values)) if tc_values else None,
@@ -73,13 +86,60 @@ def _summary(records: list[EvidenceRecord]) -> PipelineSummary:
 
 def _record_dict(record: EvidenceRecord, structure_root: Path | None) -> dict[str, object]:
     value = asdict(record)
+    formula = canonicalize_formula(record.composition)
     value["evidence_kind"] = record.evidence_kind.value
     value["caveats"] = list(record.caveats)
     value["composition_key"] = composition_key(record.composition)
+    value["canonical_composition"] = formula.canonical
+    value["formula_parse_status"] = formula.status
+    value["formula_parse_reason"] = formula.reason
     if structure_root is not None and record.crystal_structure is not None:
         local_path = structure_root / Path(record.crystal_structure).name
         value["local_structure_path"] = str(local_path) if local_path.is_file() else None
     return value
+
+
+def _review_rows(records: list[EvidenceRecord]) -> list[dict[str, object]]:
+    """Build a review queue without merging or deleting source records."""
+
+    groups: defaultdict[str, list[tuple[EvidenceRecord, FormulaResult]]] = defaultdict(list)
+    rows: list[dict[str, object]] = []
+    for record in records:
+        result = canonicalize_formula(record.composition)
+        if result.canonical is None:
+            rows.append(
+                {
+                    "review_type": "formula_review",
+                    "reason": result.reason,
+                    "status": result.status,
+                    "record_id": record.record_id,
+                    "composition": record.composition,
+                    "source_reference": record.source_reference,
+                }
+            )
+        else:
+            groups[result.canonical].append((record, result))
+    for canonical, group in sorted(groups.items()):
+        if len(group) < 2:
+            continue
+        rows.append(
+            {
+                "review_type": "duplicate_composition",
+                "canonical_composition": canonical,
+                "records": [
+                    {
+                        "record_id": record.record_id,
+                        "composition": record.composition,
+                        "source_reference": record.source_reference,
+                        "reported_tc_k": record.reported_tc_k,
+                        "measurement_pressure_gpa": record.measurement_pressure_gpa,
+                        "crystal_structure": record.crystal_structure,
+                    }
+                    for record, _ in group
+                ],
+            }
+        )
+    return rows
 
 
 def run_pipeline(
@@ -89,6 +149,7 @@ def run_pipeline(
     output_path: str | Path,
     report_path: str | Path,
     structure_root: str | Path | None = None,
+    review_path: str | Path | None = None,
 ) -> PipelineSummary:
     """Normalize both supplied datasets and write JSONL plus a report."""
 
@@ -126,6 +187,13 @@ def run_pipeline(
         + "\n",
         encoding="utf-8",
     )
+    if review_path is not None:
+        review = Path(review_path)
+        review.parent.mkdir(parents=True, exist_ok=True)
+        with review.open("w", encoding="utf-8", newline="\n") as handle:
+            for row in _review_rows(records):
+                handle.write(json.dumps(row, sort_keys=True))
+                handle.write("\n")
     return summary
 
 
@@ -146,6 +214,11 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         help="local directory containing extracted 3DSC CIF files",
     )
+    parser.add_argument(
+        "--review-output",
+        type=Path,
+        help="optional JSONL duplicate and formula-review queue",
+    )
     return parser
 
 
@@ -157,6 +230,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         output_path=args.output,
         report_path=args.report,
         structure_root=args.structure_root,
+        review_path=args.review_output,
     )
     print(json.dumps(summary.as_dict(), indent=2, sort_keys=True))
     return 0

@@ -76,12 +76,15 @@ PYTHONPATH=src python -m rt_superconductor.pipeline \
   --3dsc-mp data/raw/3dsc/MP/3DSC_MP.csv \
   --structure-root data/raw/3dsc/MP/cifs \
   --output data/processed/evidence.jsonl \
-  --report data/processed/quality-report.json
+  --report data/processed/quality-report.json \
+  --review-output data/processed/review-queue.jsonl
 ```
 
 The JSONL output retains source identifiers and unknown values. The report
-summarizes coverage and exact textual composition duplicates; it does not claim
-that records with the same composition are scientifically identical.
+summarizes coverage and exact plus conservatively canonicalized composition
+duplicates; it does not claim that records with the same composition are
+scientifically identical. The review queue lists duplicate candidates and
+formulas that need human inspection before any training split is created.
 
 This repository is a software foundation for research collaboration. A computed
 score or predicted transition temperature is a hypothesis until it is supported
