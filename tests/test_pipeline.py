@@ -45,6 +45,35 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(records[0]["reported_tc_k"], 12.5)
         self.assertEqual(report_data["summary"]["records_with_structure"], 1)
 
+    def test_run_pipeline_includes_optional_supermat_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            uci = root / "unique_m.csv"
+            uci.write_text("material,critical_temp\nX2Y,12.5\n", encoding="utf-8")
+            dsc = root / "3DSC_MP.csv"
+            dsc.write_text(
+                "# generated\nformula_sc,tc,cif,material_id_2,doi_2,sc_class\n"
+                "X2Y,25,,mp-1,doi:record,Other\n",
+                encoding="utf-8",
+            )
+            supermat = root / "SuperMat-2.0.csv"
+            supermat.write_text(
+                "id,material,tcValue,pressure,me_method,filename\n"
+                ",X2Y,30 K,2 GPa,resistivity,paper.xml\n",
+                encoding="utf-8",
+            )
+
+            summary = run_pipeline(
+                uci_path=uci,
+                threedsc_path=dsc,
+                supermat_path=supermat,
+                output_path=root / "evidence.jsonl",
+                report_path=root / "report.json",
+            )
+
+        self.assertEqual(summary.total_records, 3)
+        self.assertEqual(summary.records_with_known_pressure, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

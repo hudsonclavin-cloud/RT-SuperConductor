@@ -75,6 +75,7 @@ To normalize the two received datasets and write a quality report:
 PYTHONPATH=src python -m rt_superconductor.pipeline \
   --uci data/raw/uci/extracted/unique_m.csv \
   --3dsc-mp data/raw/3dsc/MP/3DSC_MP.csv \
+  --supermat data/raw/supermat/SuperMat-2.0.csv \
   --structure-root data/raw/3dsc/MP/cifs \
   --output data/processed/evidence.jsonl \
   --report data/processed/quality-report.json \

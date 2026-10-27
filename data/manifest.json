@@ -35,6 +35,26 @@
         "Only the MP portion was supplied; ICSD structures were not added.",
         "Review Figshare and Materials Project terms before redistribution."
       ]
+    },
+    {
+      "id": "supermat-2.0",
+      "title": "SuperMat 2.0",
+      "source_url": "https://github.com/lfoppiano/SuperMat",
+      "doi": "10.1080/27660400.2021.1918396",
+      "archive": "raw/supermat/SuperMat-2.0.csv",
+      "sha256": "80e84ab67649a562a838c5a58fa8bb8025fe1e3225ad2eb664d9bcf3be8ed3ce",
+      "observed_contents": {
+        "rows": 1305,
+        "rows_with_material": 1229,
+        "rows_with_pressure": 211,
+        "rows_with_measurement_method": 339
+      },
+      "license": "CC BY 4.0 (per source repository README)",
+      "notes": [
+        "Values are literature annotations and pressure/Tc fields are free text.",
+        "Scalar values are normalized; ranges and bounds remain unknown with raw text in caveats.",
+        "The source paper and repository terms must be cited when using this data."
+      ]
     }
   ]
 }
