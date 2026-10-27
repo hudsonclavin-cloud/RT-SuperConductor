@@ -50,6 +50,8 @@ def _score(group: dict[str, object], pass_name: str, target_tc_k: float) -> floa
         return max_tc + 0.35 * structure_fraction
     if pass_name == "cross_source_evidence":
         return max_tc + 0.35 * source_bonus + 0.15 * structure_fraction
+    if pass_name == "structured_cross_source":
+        return max_tc + 0.35 * source_bonus + 0.35 * structure_fraction
     if pass_name == "information_value":
         return 0.45 * max_tc + 0.55 * spread + 0.15 * source_bonus
     raise ValueError(f"unknown triage pass: {pass_name}")
@@ -60,6 +62,7 @@ PASS_NAMES = (
     "highest_tc_with_structure",
     "cross_source_evidence",
     "information_value",
+    "structured_cross_source",
 )
 
 
@@ -76,6 +79,12 @@ def generate_triage_runs(
             pool = [group for group in groups if int(group["structure_count"]) > 0]
         elif pass_name == "cross_source_evidence":
             pool = [group for group in groups if int(group["source_count"]) >= 2]
+        elif pass_name == "structured_cross_source":
+            pool = [
+                group
+                for group in groups
+                if int(group["source_count"]) >= 2 and int(group["structure_count"]) > 0
+            ]
         ranked = sorted(
             pool,
             key=lambda group: (

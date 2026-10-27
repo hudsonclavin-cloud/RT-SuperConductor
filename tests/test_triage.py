@@ -8,7 +8,7 @@ from rt_superconductor.triage import generate_triage_runs
 
 
 class TriageTests(unittest.TestCase):
-    def test_generates_four_named_passes(self) -> None:
+    def test_generates_five_named_passes(self) -> None:
         records = [
             {
                 "canonical_composition": "BaCuO",
@@ -42,11 +42,14 @@ class TriageTests(unittest.TestCase):
                 "highest_tc_with_structure",
                 "cross_source_evidence",
                 "information_value",
+                "structured_cross_source",
             ],
         )
         self.assertEqual(runs[0]["candidates"][0]["canonical_composition"], "H2S")
         self.assertTrue(runs[1]["candidates"][0]["structure_count"] > 0)
         self.assertEqual(runs[2]["candidates"][0]["canonical_composition"], "BaCuO")
+        self.assertEqual(runs[4]["candidates"][0]["source_count"], 2)
+        self.assertGreater(runs[4]["candidates"][0]["structure_count"], 0)
 
 
 if __name__ == "__main__":

@@ -86,7 +86,7 @@ duplicates; it does not claim that records with the same composition are
 scientifically identical. The review queue lists duplicate candidates and
 formulas that need human inspection before any training split is created.
 
-After that run, generate four deterministic review passes:
+After that run, generate five deterministic review passes:
 
 ```bash
 PYTHONPATH=src python -m rt_superconductor.triage \
@@ -95,9 +95,10 @@ PYTHONPATH=src python -m rt_superconductor.triage \
   --limit 25
 ```
 
-The four passes prioritize highest reported `Tc`, highest `Tc` with structures,
-cross-source evidence, and disagreement that may have high information value.
-They are review priorities, not newly discovered materials or model predictions.
+The five passes prioritize highest reported `Tc`, highest `Tc` with structures,
+cross-source evidence, disagreement that may have high information value, and
+the intersection of structure plus cross-source evidence. They are review
+priorities, not newly discovered materials or model predictions.
 
 This repository is a software foundation for research collaboration. A computed
 score or predicted transition temperature is a hypothesis until it is supported
