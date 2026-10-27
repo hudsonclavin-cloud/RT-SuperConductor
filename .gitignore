@@ -10,5 +10,7 @@ dist/
 
 # Local datasets and calculation outputs can be large or licensed separately.
 data/raw/
+data/interim/
+data/processed/
 artifacts/
 runs/

@@ -68,6 +68,21 @@ dependencies. From the repository root:
 python -m unittest discover -s tests -v
 ```
 
+To normalize the two received datasets and write a quality report:
+
+```bash
+PYTHONPATH=src python -m rt_superconductor.pipeline \
+  --uci data/raw/uci/extracted/unique_m.csv \
+  --3dsc-mp data/raw/3dsc/MP/3DSC_MP.csv \
+  --structure-root data/raw/3dsc/MP/cifs \
+  --output data/processed/evidence.jsonl \
+  --report data/processed/quality-report.json
+```
+
+The JSONL output retains source identifiers and unknown values. The report
+summarizes coverage and exact textual composition duplicates; it does not claim
+that records with the same composition are scientifically identical.
+
 This repository is a software foundation for research collaboration. A computed
 score or predicted transition temperature is a hypothesis until it is supported
 by an appropriate physical calculation and reproducible measurement.

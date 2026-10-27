@@ -11,5 +11,8 @@ requires-python = ">=3.11"
 authors = [{name = "RT-SuperConductor contributors"}]
 dependencies = []
 
+[project.scripts]
+rt-superconductor-pipeline = "rt_superconductor.pipeline:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
