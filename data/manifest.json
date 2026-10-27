@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "received_at": "2026-10-27",
+  "sources": [
+    {
+      "id": "uci-superconductivity",
+      "title": "Superconductivity Data",
+      "source_url": "https://archive.ics.uci.edu/dataset/464/superconductivty+data",
+      "doi": "10.24432/C53P47",
+      "archive": "raw/uci/superconductivity-data.zip",
+      "sha256": "87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e",
+      "observed_contents": {
+        "train.csv_rows": 21263,
+        "unique_m.csv_rows": 21263
+      },
+      "notes": [
+        "The archive was received from the user and retained unchanged.",
+        "Review the UCI repository terms before redistribution."
+      ]
+    },
+    {
+      "id": "3dsc-mp",
+      "title": "3DSC",
+      "source_url": "https://doi.org/10.6084/m9.figshare.c.6914407",
+      "doi": "10.6084/m9.figshare.c.6914407",
+      "archive": "raw/3dsc/3DSC_MP.tar.gz",
+      "sha256": "df2575280064e9c477dac4d73280416f5c8bf063b5bf6509e8e3fc9f1dcb1650",
+      "observed_contents": {
+        "MP/3DSC_MP.csv_records": 5773,
+        "MP/cifs_files": 10904
+      },
+      "notes": [
+        "The archive was received from the user and retained unchanged.",
+        "The CSV has a one-line preamble and multiline quoted fields.",
+        "Only the MP portion was supplied; ICSD structures were not added.",
+        "Review Figshare and Materials Project terms before redistribution."
+      ]
+    }
+  ]
+}
