@@ -49,7 +49,8 @@ The first useful deliverables are:
    and EPW, followed by expert and experimental feedback.
 
 See [the architecture](docs/architecture.md) and [the roadmap](docs/roadmap.md)
-for the working design.
+for the working design. The end goal and decision gates are defined in
+[goal-and-plan.md](docs/goal-and-plan.md).
 
 ## Repository layout
 
