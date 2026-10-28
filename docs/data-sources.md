@@ -47,6 +47,10 @@ the ambient-versus-engineering-pressure target by itself.
 
 ## Supplementary sources to investigate
 
+Recent search-result leads on mechanisms and tuning are catalogued in
+[`recent-literature-leads.md`](recent-literature-leads.md). They are explicitly
+unverified and are not part of the training corpus.
+
 - NIMS SuperCon legacy catalog: a broad superconducting-material catalog that
   may provide additional records beyond the SuperCon2 extraction. Obtain an
   authorized export and inspect its current fields before assuming pressure
