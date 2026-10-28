@@ -30,6 +30,7 @@ if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
 from rt_superconductor.formula import ELEMENTS
+from rt_superconductor.descriptors import descriptor_names, formula_descriptor_vector
 from rt_superconductor.harmonized import HarmonizedRecord, load_harmonized
 
 
@@ -71,6 +72,9 @@ def _composition_features(records: list[HarmonizedRecord]) -> tuple[np.ndarray, 
 
 def build_features(records: list[HarmonizedRecord]) -> tuple[np.ndarray, list[str], str]:
     composition, names, backend = _composition_features(records)
+    formula_descriptors = np.asarray(
+        [formula_descriptor_vector(record.formula)[0] for record in records], dtype=float
+    )
     known_hulls = [record.energy_above_hull for record in records if record.energy_above_hull is not None]
     fill_hull = float(np.median(known_hulls)) if known_hulls else 0.0
     pressure = np.asarray([record.applied_pressure_gpa for record in records], dtype=float).reshape(-1, 1)
@@ -81,8 +85,12 @@ def build_features(records: list[HarmonizedRecord]) -> tuple[np.ndarray, list[st
     hull_missing = np.asarray([
         record.energy_above_hull is None for record in records
     ], dtype=float).reshape(-1, 1)
-    features = np.hstack((composition, pressure, hull, hull_missing))
-    return features, names + ["applied_pressure_gpa", "energy_above_hull", "energy_above_hull_missing"], backend
+    features = np.hstack((composition, formula_descriptors, pressure, hull, hull_missing))
+    return (
+        features,
+        names + descriptor_names() + ["applied_pressure_gpa", "energy_above_hull", "energy_above_hull_missing"],
+        f"{backend}+formula_shell_orbital_descriptors",
+    )
 
 
 def _model(random_state: int) -> RandomForestRegressor:

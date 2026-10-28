@@ -44,6 +44,11 @@ jobs:
           python scripts/validate_harmonized.py \
             --input data/training/harmonized_supercon.csv \
             --report data/processed/continuous-training/harmonized-report.json
+      - name: Compute formula shell and bonding descriptors
+        run: |
+          python scripts/compute_formula_descriptors.py \
+            --input data/training/harmonized_supercon.csv \
+            --output data/processed/continuous-training/formula-descriptors.csv
       - name: Download the pinned UCI training snapshot
         run: |
           mkdir -p /tmp/uci

@@ -49,6 +49,11 @@ MgB2, and hydride records found through the public NIMS and SuperMat sources.
 It includes calculated and extreme-pressure leads for coverage, but those must
 remain separate from measured ambient-pressure evidence.
 
+`harmonized_formula_descriptors.csv` is a derived descriptor table. It records
+neutral-atom shell and orbital proxies, Lewis-dot outer-electron proxies, and
+explicit status fields for structure-dependent bonding. It is not a substitute
+for crystal-structure or electronic-density analysis.
+
 The continuous-training workflow validates this directory and the harmonized
 schema on every run. The Phase 2 surrogate is trained from the harmonized file;
 the legacy reviewed-record workflow remains available for paper-level curation.

@@ -17,10 +17,17 @@ rows remain available for fixtures, candidate-screen smoke tests, and gate
 plumbing, but never enter model fitting or cross-validation metrics.
 
 The pipeline uses Matminer's `ElementProperty.from_preset("magpie")` elemental
-composition statistics, `applied_pressure_gpa`, and Materials Project
-`energy_above_hull`. It fits a random-forest surrogate and reports strict
+composition statistics, formula-level shell and orbital descriptors,
+`applied_pressure_gpa`, and Materials Project `energy_above_hull`. It fits a
+random-forest surrogate and reports strict
 `GroupKFold` evaluation by `chemical_family`, along with out-of-fold and full-fit
 predictions.
+
+The formula descriptor artifact records neutral-atom electron configurations,
+shell fill percentages, and Lewis-dot outer-electron proxies. Sigma and pi
+bond counts, oxidation states, and charge transfer remain explicit unknowns for
+formula-only records; those require a crystal structure and electronic-density
+analysis.
 
 ```bash
 python -m pip install -e '.[ml,mp]'
