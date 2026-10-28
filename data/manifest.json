@@ -57,6 +57,30 @@
       ]
     },
     {
+      "id": "supercon2-nims",
+      "title": "SuperCon2 NIMS export",
+      "source_url": "https://mdr.nims.go.jp/datasets/2169a31f-ca73-4391-aceb-7acf15066f78",
+      "archive": "raw/supercon2/archive.zip",
+      "sha256": "6f29029502d31ab229260ea93162d098345bcd0cbc385d2923392a3171edecbf",
+      "observed_contents": {
+        "supercon2_v22.12.03.csv_records": 40324,
+        "supercon2_1203_papers.csv_records": 11761,
+        "records_with_pressure_text": 2052,
+        "records_with_measurement_method": 3602,
+        "records_with_doi": 33611,
+        "records_with_formula": 29320,
+        "observed_main_csv_columns": 23
+      },
+      "license": "CC BY 4.0 (per supplied NIMS dataset documentation)",
+      "notes": [
+        "The archive was uploaded by the user and retained unchanged.",
+        "The export is automatically extracted from scientific literature using grobid-superconductors and requires paper-level verification.",
+        "The supplied data dictionary describes 28 attributes, while this observed CSV export has 23 columns; reconcile versions before relying on absent fields.",
+        "The archive includes pressure, measurement method, synthesis-related text, and bibliographic metadata, but extracted values can attach unrelated transitions to a material.",
+        "Cite Foppiano et al. (2022), Automatic extraction of materials and properties from superconductors scientific literature, and the NIMS dataset when using this source."
+      ]
+    },
+    {
       "id": "kaggle-supercon-snapshot",
       "title": "SUPERCON Dataset (Kaggle snapshot)",
       "source_url": "https://www.kaggle.com/datasets/chaozhuang/supercon-dataset",

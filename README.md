@@ -77,6 +77,7 @@ PYTHONPATH=src python -m rt_superconductor.pipeline \
   --3dsc-mp data/raw/3dsc/MP/3DSC_MP.csv \
   --supermat data/raw/supermat/SuperMat-2.0.csv \
   --kaggle-supercon data/raw/kaggle-supercon/raw.tsv \
+  --supercon2 data/raw/supercon2/supercon2_v22.12.03.csv \
   --structure-root data/raw/3dsc/MP/cifs \
   --output data/processed/evidence.jsonl \
   --report data/processed/quality-report.json \
@@ -88,6 +89,12 @@ summarizes coverage and exact plus conservatively canonicalized composition
 duplicates; it does not claim that records with the same composition are
 scientifically identical. The review queue lists duplicate candidates and
 formulas that need human inspection before any training split is created.
+
+SuperCon2 is automatically extracted literature data. Its pressure and
+temperature values are useful for finding papers to review, but they are not
+validated experimental claims. In particular, an extracted temperature can be
+magnetic or structural rather than superconducting; verify the original paper
+before using a row as a candidate or training label.
 
 After that run, generate five deterministic review passes:
 

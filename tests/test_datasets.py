@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 from rt_superconductor.datasets import (
     iter_3dsc_mp_records,
     iter_kaggle_supercon_records,
+    iter_supercon2_records,
     iter_uci_records,
 )
 
@@ -68,3 +69,35 @@ class DatasetImporterTests(unittest.TestCase):
         self.assertEqual(records[0].publication_reference, "Example, 1(2020)1")
         self.assertEqual(records[0].material_family, "Y123")
         self.assertIsNone(records[0].measurement_pressure_gpa)
+
+    def test_supercon2_normalizes_pressure_and_preserves_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "supercon2.csv"
+            fieldnames = [
+                "id", "rawMaterial", "materialId", "name", "formula", "doping", "shape",
+                "materialClass", "fabrication", "substrate", "variables", "criticalTemperature",
+                "criticalTemperatureMeasurementMethod", "appliedPressure", "section", "subsection",
+                "hash", "title", "doi", "authors", "publisher", "journal", "year",
+            ]
+            with path.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerow(
+                    {
+                        "id": "abc", "rawMaterial": "LaH10", "materialId": "mat-1",
+                        "name": "lanthanum hydride", "formula": "LaH10", "materialClass": "hydride",
+                        "fabrication": "annealed", "substrate": "diamond", "variables": "x=1",
+                        "criticalTemperature": "290 K", "criticalTemperatureMeasurementMethod": "resistivity",
+                        "appliedPressure": "1 atm", "section": "body", "subsection": "figure",
+                        "hash": "h", "title": "title", "doi": "10.example/doi", "authors": "a",
+                        "publisher": "b", "journal": "c", "year": "2022",
+                    }
+                )
+            records = list(iter_supercon2_records(path))
+
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].reported_tc_k, 290.0)
+        self.assertAlmostEqual(records[0].measurement_pressure_gpa, 0.000101325)
+        self.assertEqual(records[0].publication_reference, "10.example/doi")
+        self.assertEqual(records[0].measurement_method, "resistivity")
+        self.assertIn("fabrication=annealed", records[0].synthesis_conditions or "")

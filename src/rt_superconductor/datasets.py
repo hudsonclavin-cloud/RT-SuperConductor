@@ -14,6 +14,7 @@ UCI_SOURCE = "doi:10.24432/C53P47"
 THREEDSC_SOURCE = "doi:10.6084/m9.figshare.c.6914407"
 SUPERMAT_SOURCE = "doi:10.1080/27660400.2021.1918396"
 KAGGLE_SUPERCON_SOURCE = "https://www.kaggle.com/datasets/chaozhuang/supercon-dataset"
+SUPERCON2_SOURCE = "https://mdr.nims.go.jp/datasets/2169a31f-ca73-4391-aceb-7acf15066f78"
 
 
 def _optional_float(value: str | None) -> float | None:
@@ -80,6 +81,85 @@ def _parse_kaggle_tc(value: str, unit: str) -> tuple[float | None, str | None]:
     if not re.fullmatch(r"\d+(?:\.\d*)?|\.\d+", text):
         return None, f"raw_tc_value={value!r}; could not parse one scalar"
     return float(Decimal(text)), None
+
+
+def _parse_supercon2_tc(value: str) -> tuple[float | None, str | None]:
+    """Parse one extracted Kelvin value while flagging ambiguous text."""
+
+    text = value.strip().replace("−", "-").replace("–", "-")
+    if not text:
+        return None, None
+    if not re.search(r"k\b", text, flags=re.IGNORECASE):
+        return None, f"raw_tc_value={value!r}; missing Kelvin unit"
+    if any(token in text.casefold() for token in ("<", ">", " to ", "±", "-")):
+        return None, f"raw_tc_value={value!r}; non-scalar value retained for review"
+    matches = re.findall(r"(?<![\d.])(\d+(?:\.\d*)?|\.\d+)", text)
+    if len(matches) != 1:
+        return None, f"raw_tc_value={value!r}; could not parse one scalar"
+    scale = 0.001 if re.search(r"mk\b", text, flags=re.IGNORECASE) else 1.0
+    caveat = f"raw_tc_value={value!r}; approximate value" if "~" in text else None
+    return float(Decimal(matches[0]) * Decimal(str(scale))), caveat
+
+
+def _parse_supercon2_pressure(value: str) -> tuple[float | None, str | None]:
+    """Parse scalar SuperCon2 pressure text into GPa conservatively."""
+
+    text = " ".join(value.strip().replace("−", "-").split())
+    if not text:
+        return None, None
+    lowered = text.casefold().replace("- ", "-").replace(" -", "-")
+    ambient = {
+        "ambient",
+        "ambient pressure",
+        "ambient conditions",
+        "ambient pressures",
+        "atmospheric pressure",
+        "normal pressure",
+        "zero pressure",
+        "ambient-pressure",
+        "ambient pres",
+        "ambient pres- sure",
+        "atmo- spheric pressure",
+    }
+    if lowered in ambient:
+        pressure = 0.0 if lowered == "zero pressure" else ATMOSPHERIC_PRESSURE_GPA
+        return pressure, None
+    if any(token in lowered for token in ("<", ">", " to ", " and ", ",", "~", "∼")):
+        return None, f"raw_pressure={value!r}; bound or range retained for review"
+    if re.search(r"\d\s*-\s*\d", lowered):
+        return None, f"raw_pressure={value!r}; range retained for review"
+    match = re.fullmatch(
+        r"(?:pressure\s*)?([0-9]+(?:\.\d*)?|\.\d+)\s*"
+        r"(gpa|mpa|kbar|mbar|bar|mtorr|torr|atm|pa)?(?:\s*pressure)?",
+        lowered,
+    )
+    if match is None:
+        return None, f"raw_pressure={value!r}; could not parse one scalar"
+    amount = Decimal(match.group(1))
+    unit = match.group(2)
+    if unit is None:
+        return None, f"raw_pressure={value!r}; missing pressure unit"
+    factor = {
+        "gpa": Decimal(1),
+        "mpa": Decimal("0.001"),
+        "kbar": Decimal("0.1"),
+        "bar": Decimal("0.0001"),
+        "mbar": Decimal("0.0000001"),
+        "mtorr": Decimal("0.000000000133322"),
+        "torr": Decimal("0.000000133322"),
+        "atm": Decimal("0.000101325"),
+        "pa": Decimal("0.000000001"),
+    }[unit]
+    return float(amount * factor), None
+
+
+def _supercon2_synthesis(row: dict[str, str]) -> str | None:
+    parts = []
+    for label in ("fabrication", "shape", "substrate", "doping", "variables"):
+        value = row.get(label, "").strip()
+        if value:
+            parts.append(f"{label}={value}")
+    return "; ".join(parts) or None
 
 
 def iter_uci_records(path: str | Path) -> Iterator[EvidenceRecord]:
@@ -217,5 +297,69 @@ def iter_kaggle_supercon_records(path: str | Path) -> Iterator[EvidenceRecord]:
                 material_family=row["str3"].strip() or row["name"].strip() or None,
                 reported_tc_k=tc,
                 sample_identifier=row["num"].strip() or None,
+                caveats=tuple(caveats),
+            )
+
+
+def iter_supercon2_records(path: str | Path) -> Iterator[EvidenceRecord]:
+    """Yield conservatively normalized records from the NIMS SuperCon2 export."""
+
+    with Path(path).open(newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        required = {
+            "id",
+            "rawMaterial",
+            "materialId",
+            "name",
+            "formula",
+            "materialClass",
+            "fabrication",
+            "criticalTemperature",
+            "criticalTemperatureMeasurementMethod",
+            "appliedPressure",
+            "section",
+            "subsection",
+            "title",
+            "doi",
+            "journal",
+            "year",
+        }
+        if not required.issubset(reader.fieldnames or ()):
+            raise ValueError(f"SuperCon2 file is missing columns: {sorted(required)}")
+        for row_number, row in enumerate(reader, start=2):
+            raw_material = row["rawMaterial"].strip()
+            composition = row["formula"].strip() or raw_material
+            caveats = [
+                "SuperCon2 is automatically extracted literature data; verify the claim against the original paper.",
+            ]
+            if not composition:
+                composition = f"unknown-material:supercon2:{row_number}"
+                caveats.append("The source row has no material expression or formula.")
+            if not row["formula"].strip() and raw_material:
+                caveats.append(f"raw_material_expression={raw_material!r}")
+            tc, tc_caveat = _parse_supercon2_tc(row["criticalTemperature"])
+            pressure, pressure_caveat = _parse_supercon2_pressure(row["appliedPressure"])
+            if tc_caveat:
+                caveats.append(tc_caveat)
+            if pressure_caveat:
+                caveats.append(pressure_caveat)
+            if row["section"].strip() or row["subsection"].strip():
+                caveats.append(
+                    f"extracted_from={row['section'].strip()}/{row['subsection'].strip()}"
+                )
+            if not row["doi"].strip():
+                caveats.append("The source row has no DOI link.")
+            yield EvidenceRecord(
+                record_id=f"supercon2:{row['id'].strip() or row_number}",
+                composition=composition,
+                source_reference=SUPERCON2_SOURCE,
+                evidence_kind=EvidenceKind.EXPERIMENTAL,
+                publication_reference=(row["doi"].strip() or row["title"].strip() or None),
+                material_family=row["materialClass"].strip() or row["name"].strip() or None,
+                reported_tc_k=tc,
+                measurement_pressure_gpa=pressure,
+                synthesis_conditions=_supercon2_synthesis(row),
+                measurement_method=row["criticalTemperatureMeasurementMethod"].strip() or None,
+                sample_identifier=row["materialId"].strip() or row["id"].strip() or None,
                 caveats=tuple(caveats),
             )

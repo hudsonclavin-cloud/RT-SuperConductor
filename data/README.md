@@ -16,6 +16,8 @@ Do not edit the original archives or commit extracted raw data.
   archive parses to 5,773 CSV records and contains 10,904 CIF files.
 - `raw/supermat/`: SuperMat 2.0 literature annotations with free-text `Tc`,
   pressure, measurement method, and source-paper filename fields.
+- `raw/supercon2/`: NIMS SuperCon2 automatic literature extraction with
+  pressure, measurement-method, synthesis-related, and bibliographic fields.
 
 The 3DSC archive also contains macOS metadata entries; those are ignored during
 extraction. The 3DSC_ICSD structure archive has not been added.

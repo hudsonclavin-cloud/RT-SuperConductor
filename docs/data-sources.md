@@ -1,6 +1,24 @@
 # Data sources for pressure-aware research
 
-## Immediate source: SuperMat 2.0
+## Immediate source: NIMS SuperCon2
+
+[SuperCon2](https://mdr.nims.go.jp/datasets/2169a31f-ca73-4391-aceb-7acf15066f78)
+is the strongest current source for the pressure-aware milestone. The supplied
+export contains 40,324 records with extracted critical temperatures, applied
+pressure text, measurement methods, synthesis-related fields, formulas, DOIs,
+and publication metadata. The source is described as CC BY 4.0.
+
+SuperCon2 is automatically extracted literature data. It can contain values
+from unrelated magnetic or structural transitions, malformed pressure strings,
+and duplicated passages from one paper. Scalar values are normalized
+conservatively; ranges and ambiguous values remain unknown with their original
+text in caveats. Every shortlist row must be checked against its cited paper.
+
+The archive's observed main CSV has 23 columns, even though one supplied data
+dictionary lists 28. Treat the observed export as versioned input and reconcile
+the difference before training a model.
+
+## Secondary pressure source: SuperMat 2.0
 
 [SuperMat](https://github.com/lfoppiano/SuperMat) is the best next import for
 the pressure-aware milestone. Its `SuperMat-2.0.csv` file has `material`,
@@ -29,8 +47,10 @@ the ambient-versus-engineering-pressure target by itself.
 
 ## Supplementary sources to investigate
 
-- NIMS SuperCon: a broad superconducting-material catalog. Obtain an authorized
-  export and inspect its current fields before assuming pressure coverage.
+- NIMS SuperCon legacy catalog: a broad superconducting-material catalog that
+  may provide additional records beyond the SuperCon2 extraction. Obtain an
+  authorized export and inspect its current fields before assuming pressure
+  coverage.
 - Materials Project: computed structures and properties for enriching candidates;
   it is not an experimental pressure/Tc evidence source. API access requires a
   user key and its terms must be followed.
@@ -40,12 +60,12 @@ the ambient-versus-engineering-pressure target by itself.
 
 ## Import order
 
-1. Normalize SuperMat pressure and measurement fields and link each row to its
+1. Normalize SuperCon2 pressure, methods, synthesis text, and publication
+   metadata; keep automatic-extraction caveats attached to each row.
+2. Normalize SuperMat pressure and measurement fields and link each row to its
    source-paper filename.
-2. Add the Kaggle SuperCon raw table for literature and citation coverage while
+3. Add the Kaggle SuperCon raw table for literature and citation coverage while
    keeping pressure unknown.
-3. Resolve material names and formulas conservatively; preserve unresolved rows.
-4. Link records to 3DSC or Materials Project structures where the match is
+4. Resolve material names and formulas conservatively; preserve unresolved rows.
+5. Link records to 3DSC or Materials Project structures where the match is
    reviewable.
-5. Add NIMS SuperCon only after obtaining an authorized export and documenting
-   its fields and terms.

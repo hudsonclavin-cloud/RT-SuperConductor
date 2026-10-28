@@ -1,3 +1,4 @@
+import csv
 import json
 import sys
 import tempfile
@@ -105,6 +106,49 @@ class PipelineTests(unittest.TestCase):
 
         self.assertEqual(summary.total_records, 3)
         self.assertEqual(summary.records_with_known_pressure, 0)
+
+    def test_run_pipeline_includes_optional_supercon2_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            uci = root / "unique_m.csv"
+            uci.write_text("material,critical_temp\nX2Y,12.5\n", encoding="utf-8")
+            dsc = root / "3DSC_MP.csv"
+            dsc.write_text(
+                "# generated\n"
+                "formula_sc,tc,cif,material_id_2,doi_2,sc_class\n"
+                "X2Y,25,,mp-1,doi:record,Other\n",
+                encoding="utf-8",
+            )
+            supercon2 = root / "supercon2.csv"
+            fieldnames = [
+                "id", "rawMaterial", "materialId", "name", "formula", "doping", "shape",
+                "materialClass", "fabrication", "substrate", "variables", "criticalTemperature",
+                "criticalTemperatureMeasurementMethod", "appliedPressure", "section", "subsection",
+                "hash", "title", "doi", "authors", "publisher", "journal", "year",
+            ]
+            with supercon2.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerow(
+                    {
+                        "id": "abc", "rawMaterial": "X2Y", "materialId": "mat-1", "formula": "X2Y",
+                        "criticalTemperature": "30 K", "criticalTemperatureMeasurementMethod": "resistivity",
+                        "appliedPressure": "2 GPa", "section": "body", "subsection": "paragraph",
+                        "hash": "h", "title": "title", "doi": "10.example/doi", "authors": "a",
+                        "publisher": "b", "journal": "c", "year": "2022",
+                    }
+                )
+
+            summary = run_pipeline(
+                uci_path=uci,
+                threedsc_path=dsc,
+                supercon2_path=supercon2,
+                output_path=root / "evidence.jsonl",
+                report_path=root / "report.json",
+            )
+
+        self.assertEqual(summary.total_records, 3)
+        self.assertEqual(summary.records_with_known_pressure, 1)
 
 
 if __name__ == "__main__":

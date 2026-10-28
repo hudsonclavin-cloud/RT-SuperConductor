@@ -14,6 +14,7 @@ from .datasets import (
     iter_3dsc_mp_records,
     iter_kaggle_supercon_records,
     iter_supermat_records,
+    iter_supercon2_records,
     iter_uci_records,
 )
 from .evidence import EvidenceRecord
@@ -153,6 +154,7 @@ def run_pipeline(
     threedsc_path: str | Path,
     supermat_path: str | Path | None = None,
     kaggle_supercon_path: str | Path | None = None,
+    supercon2_path: str | Path | None = None,
     output_path: str | Path,
     report_path: str | Path,
     structure_root: str | Path | None = None,
@@ -168,6 +170,8 @@ def run_pipeline(
         records.extend(iter_supermat_records(supermat_path))
     if kaggle_supercon_path is not None:
         records.extend(iter_kaggle_supercon_records(kaggle_supercon_path))
+    if supercon2_path is not None:
+        records.extend(iter_supercon2_records(supercon2_path))
     if len({record.record_id for record in records}) != len(records):
         raise ValueError("source records contain duplicate record IDs")
 
@@ -193,6 +197,7 @@ def run_pipeline(
                     "kaggle_supercon": (
                         str(kaggle_supercon_path) if kaggle_supercon_path is not None else None
                     ),
+                    "supercon2": str(supercon2_path) if supercon2_path is not None else None,
                 },
                 "summary": summary.as_dict(),
             },
@@ -228,6 +233,11 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         help="optional raw.tsv from Kaggle's SuperCon dataset",
     )
+    parser.add_argument(
+        "--supercon2",
+        type=Path,
+        help="optional NIMS SuperCon2 CSV export",
+    )
     parser.add_argument("--output", required=True, type=Path, help="normalized JSONL output")
     parser.add_argument("--report", required=True, type=Path, help="quality report JSON output")
     parser.add_argument(
@@ -250,6 +260,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         threedsc_path=args.threedsc_mp,
         supermat_path=args.supermat,
         kaggle_supercon_path=args.kaggle_supercon,
+        supercon2_path=args.supercon2,
         output_path=args.output,
         report_path=args.report,
         structure_root=args.structure_root,
