@@ -1,13 +1,25 @@
 # Reviewed training data
 
 This directory is reserved for human-reviewed labels that are safe to use in
-model training. Keep each submitted file accompanied by its source DOI or
-record identifier, reviewer, review date, and any exclusions.
+model training. Put confirmed records in `reviewed/reviewed_records.csv` (or
+another CSV in that directory) using the header in the template. Every row
+must include its source DOI or record identifier, reviewer, review date, and
+measurement context.
 
 Automatically extracted SuperCon2 rows do not belong here until a reviewer has
 confirmed that the reported transition is superconducting, identified the
 measurement method, and verified the pressure and sample context.
 
-The continuous-training workflow currently retrains the composition baseline
-from the pinned UCI snapshot. A future trainer will merge reviewed files from
-this directory only after their schema and provenance pass validation.
+The continuous-training workflow validates this directory on every run and
+reports the number of accepted records. It currently retrains the composition
+baseline from the pinned UCI snapshot; a pressure-aware trainer will merge
+these validated records in the next milestone.
+
+Required review decisions:
+
+- `evidence_status` must be `confirmed`.
+- `measurement_method` must identify the evidence for the transition.
+- `pressure_condition` must be `ambient`, `known`, `unknown`, or
+  `not_reported`; use `known` only with a numeric `pressure_gpa`.
+- `source_doi`, `source_record_id`, `reviewer`, and `review_date` are required.
+- Unknown pressure stays explicit and is not silently treated as ambient.

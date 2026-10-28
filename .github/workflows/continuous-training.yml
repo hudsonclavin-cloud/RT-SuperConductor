@@ -30,6 +30,12 @@ jobs:
           python-version: "3.12"
       - name: Install machine-learning dependencies
         run: python -m pip install --upgrade pip '.[ml]'
+      - name: Validate reviewed training records
+        run: |
+          mkdir -p data/processed/continuous-training
+          python scripts/validate_reviewed_training.py \
+            --input-dir data/training/reviewed \
+            --report data/processed/continuous-training/reviewed-training-report.json
       - name: Download the pinned UCI training snapshot
         run: |
           mkdir -p /tmp/uci
@@ -52,11 +58,13 @@ jobs:
           from pathlib import Path
 
           metrics = json.loads(Path("data/processed/continuous-training/baseline-metrics.json").read_text())
+          reviewed = json.loads(Path("data/processed/continuous-training/reviewed-training-report.json").read_text())
           model = metrics["model_metrics"]
           baseline = metrics["baseline_metrics"]
           summary = (
               f"### Continuous training\n"
               f"- Rows: {metrics['rows']}\n"
+              f"- Validated reviewed records: {reviewed['record_count']}\n"
               f"- Grouped test rows: {metrics['test_rows']}\n"
               f"- Model MAE: {model['mae_k']:.3f} K\n"
               f"- Mean baseline MAE: {baseline['mae_k']:.3f} K\n"
