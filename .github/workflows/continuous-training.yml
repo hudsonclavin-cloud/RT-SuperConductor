@@ -50,6 +50,11 @@ jobs:
           python scripts/train_baseline.py \
             --input /tmp/uci/extracted/unique_m.csv \
             --output-dir data/processed/continuous-training
+      - name: Fit pressure-aware reviewed-data prototype
+        run: |
+          python scripts/train_pressure_aware.py \
+            --input-dir data/training/reviewed \
+            --output-dir data/processed/continuous-training/pressure-aware
       - name: Publish run summary
         run: |
           python - <<'PY'

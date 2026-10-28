@@ -17,7 +17,9 @@ the NIMS export. Its rows are hypotheses for paper review, not labels. Use
 The continuous-training workflow validates this directory on every run and
 reports the number of accepted records. It currently retrains the composition
 baseline from the pinned UCI snapshot; a pressure-aware trainer will merge
-these validated records in the next milestone.
+these validated records into a separate exploratory prototype. The prototype
+is saved with an explicit evaluation and promotion status; it does not replace
+the benchmark model.
 
 Required review decisions:
 
