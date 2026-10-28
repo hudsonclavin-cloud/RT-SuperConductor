@@ -1,0 +1,50 @@
+name: Low-budget materials screen
+
+on:
+  workflow_dispatch:
+    inputs:
+      minimum_tc_k:
+        description: "Minimum extracted Tc in kelvin"
+        required: false
+        default: "70"
+      mp_limit:
+        description: "Number of formulas to query in Materials Project"
+        required: false
+        default: "5"
+
+permissions:
+  contents: read
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    env:
+      MP_API_KEY: ${{ secrets.Materials_Project_API }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project and Materials Project client
+        run: python -m pip install --upgrade pip mp-api .
+      - name: Download SuperCon2 source export
+        run: |
+          mkdir -p data/raw/supercon2
+          curl --fail --location --retry 3 \
+            --output data/raw/supercon2/supercon2_v22.12.03.csv \
+            https://raw.githubusercontent.com/lfoppiano/supercon/main/supercon2_v22.12.03.csv
+      - name: Run pressure-aware screen
+        env:
+          MINIMUM_TC_K: ${{ inputs.minimum_tc_k }}
+          MP_LIMIT: ${{ inputs.mp_limit }}
+        run: |
+          python scripts/low_budget_pipeline.py \
+            --minimum-tc-k "$MINIMUM_TC_K" \
+            --mp-limit "$MP_LIMIT"
+      - name: Upload screening artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: low-budget-screen
+          path: data/processed/low-budget-screen/

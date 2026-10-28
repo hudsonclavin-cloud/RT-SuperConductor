@@ -130,8 +130,9 @@ def _parse_supercon2_pressure(value: str) -> tuple[float | None, str | None]:
         return None, f"raw_pressure={value!r}; range retained for review"
     match = re.fullmatch(
         r"(?:pressure\s*)?([0-9]+(?:\.\d*)?|\.\d+)\s*"
-        r"(gpa|mpa|kbar|mbar|bar|mtorr|torr|atm|pa)?(?:\s*pressure)?",
-        lowered,
+        r"(GPa|MPa|kbar|Mbar|mbar|bar|mTorr|Torr|atm|Pa)?(?:\s*pressure)?",
+        text,
+        flags=re.IGNORECASE,
     )
     if match is None:
         return None, f"raw_pressure={value!r}; could not parse one scalar"
@@ -139,7 +140,13 @@ def _parse_supercon2_pressure(value: str) -> tuple[float | None, str | None]:
     unit = match.group(2)
     if unit is None:
         return None, f"raw_pressure={value!r}; missing pressure unit"
-    factor = {
+    unit_key = unit.casefold()
+    # Preserve the capital M in Mbar: megabar is 100 GPa, while mbar is
+    # 1e-7 GPa. Other supported units are case-insensitive in the source.
+    if unit == "Mbar":
+        factor = Decimal("100")
+    else:
+        factor = {
         "gpa": Decimal(1),
         "mpa": Decimal("0.001"),
         "kbar": Decimal("0.1"),
@@ -149,7 +156,7 @@ def _parse_supercon2_pressure(value: str) -> tuple[float | None, str | None]:
         "torr": Decimal("0.000000133322"),
         "atm": Decimal("0.000101325"),
         "pa": Decimal("0.000000001"),
-    }[unit]
+        }[unit_key]
     return float(amount * factor), None
 
 

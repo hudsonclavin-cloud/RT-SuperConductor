@@ -122,3 +122,9 @@ stable composition-screen tasks for later ML, DFT, quantum, or laboratory
 backends. See the [active-learning guide](docs/active-learning.md) and
 [founding charter](docs/founding-charter.md) for the staged AI and simulation
 plan.
+
+For a no-terminal Materials Project run, open the repository's **Actions** tab,
+choose **Low-budget materials screen**, select **Run workflow**, and download
+the resulting `low-budget-screen` artifact. The workflow reads the
+`Materials_Project_API` GitHub secret as a runtime-only `MP_API_KEY`; it never
+writes the key to the repository or to an artifact.
