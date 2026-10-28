@@ -11,6 +11,9 @@ requires-python = ">=3.11"
 authors = [{name = "RT-SuperConductor contributors"}]
 dependencies = []
 
+[project.optional-dependencies]
+ml = ["joblib>=1.3", "numpy>=1.24", "scikit-learn>=1.4"]
+
 [project.scripts]
 rt-superconductor-pipeline = "rt_superconductor.pipeline:main"
 

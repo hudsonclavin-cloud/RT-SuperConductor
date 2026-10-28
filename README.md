@@ -115,6 +115,12 @@ This repository is a software foundation for research collaboration. A computed
 score or predicted transition temperature is a hypothesis until it is supported
 by an appropriate physical calculation and reproducible measurement.
 
+The first AI baseline is documented in [modeling.md](docs/modeling.md) and can
+be run after installing `.[ml]` with `PYTHONPATH=src python scripts/train_baseline.py`. It is a
+composition-only benchmark with grouped evaluation and ensemble uncertainty;
+it is a starting point for the active-learning engine, not a pressure-aware
+superconductivity predictor.
+
 The first active-learning spine is available in `rt_superconductor.search`.
 It keeps proposed candidates separate from observations, applies the pressure
 ceiling explicitly, ranks a batch using uncertainty and feasibility, and emits
