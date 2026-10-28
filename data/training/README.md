@@ -54,6 +54,11 @@ neutral-atom shell and orbital proxies, Lewis-dot outer-electron proxies, and
 explicit status fields for structure-dependent bonding. It is not a substitute
 for crystal-structure or electronic-density analysis.
 
+Structure-dependent inputs are produced by the manual **Structure and density
+inputs** workflow. Its artifact contains Materials Project CIF references and
+an electronic-analysis manifest. Bader, ELF, COHP, and Wannier status remains
+pending until a real DFT calculation is run and its outputs are attached.
+
 The continuous-training workflow validates this directory and the harmonized
 schema on every run. The Phase 2 surrogate is trained from the harmonized file;
 the legacy reviewed-record workflow remains available for paper-level curation.

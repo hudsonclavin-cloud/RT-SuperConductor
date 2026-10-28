@@ -1,0 +1,50 @@
+name: Structure and density inputs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/fetch_materials_project_structures.py"
+      - "scripts/prepare_electronic_density_manifest.py"
+      - "docs/electronic-density.md"
+      - ".github/workflows/structure-analysis.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    env:
+      MP_API_KEY: ${{ secrets.Materials_Project_API }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install structure dependencies
+        run: python -m pip install --upgrade pip '.[ml,mp]'
+      - name: Enrich harmonized records with Materials Project ids
+        run: |
+          mkdir -p data/processed/structure-analysis
+          python scripts/enrich_materials_project.py \
+            --input data/training/harmonized_supercon.csv \
+            --output data/processed/structure-analysis/harmonized_enriched.csv \
+            --report data/processed/structure-analysis/materials-project-report.json
+      - name: Retrieve reference CIF structures
+        run: |
+          python scripts/fetch_materials_project_structures.py \
+            --input data/processed/structure-analysis/harmonized_enriched.csv \
+            --output-dir data/processed/structure-analysis/structures
+      - name: Prepare external DFT analysis manifest
+        run: |
+          python scripts/prepare_electronic_density_manifest.py \
+            --input-dir data/processed/structure-analysis/structures \
+            --output data/processed/structure-analysis/electronic-analysis-manifest.csv
+      - name: Upload structure and analysis inputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: structure-electronic-analysis-${{ github.run_id }}
+          path: data/processed/structure-analysis/

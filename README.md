@@ -139,6 +139,12 @@ The [continuous-training workflow](docs/continuous-training.md) retrains this
 benchmark weekly or from the GitHub Actions interface and uploads each model,
 prediction file, and metric report as a reviewable artifact.
 
+The [structure and density workflow](docs/electronic-density.md) retrieves
+Materials Project CIF references and prepares a manifest for Quantum ESPRESSO,
+Bader, ELF, COHP, and Wannier/EPW calculations. It intentionally stops before
+DFT post-processing because those calculations require external executables,
+pseudopotentials, and compute resources.
+
 The first active-learning spine is available in `rt_superconductor.search`.
 It keeps proposed candidates separate from observations, applies the pressure
 ceiling explicitly, ranks a batch using uncertainty and feasibility, and emits
