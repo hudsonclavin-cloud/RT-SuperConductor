@@ -20,6 +20,8 @@ concurrency:
 jobs:
   evaluate:
     runs-on: ubuntu-latest
+    outputs:
+      gate_status: ${{ steps.capture_gate_status.outputs.gate_status }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -37,12 +39,27 @@ jobs:
             --input data/training/harmonized_supercon.csv \
             --output-dir data/processed/promotion-candidate
       - name: Evaluate strict promotion gate
+        id: promotion_gate
+        continue-on-error: true
         run: |
           python scripts/promotion_gate.py \
             --predictions data/processed/promotion-candidate/promotion_predictions.csv \
             --model data/processed/promotion-candidate/pressure-aware-model.joblib \
             --report data/processed/promotion-candidate/promotion-gate.json
+      - name: Capture promotion-gate status
+        id: capture_gate_status
+        if: always()
+        run: |
+          if [ "${{ steps.promotion_gate.outcome }}" = "success" ]; then
+            echo "gate_status=pass" >> "$GITHUB_OUTPUT"
+            echo "### Promotion gate passed" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "gate_status=fail" >> "$GITHUB_OUTPUT"
+            echo "### Promotion gate blocked" >> "$GITHUB_STEP_SUMMARY"
+            echo "The model artifact was evaluated and retained, but promotion is skipped until all thresholds pass." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload evaluated candidate artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pressure-aware-candidate-${{ github.run_id }}
@@ -51,7 +68,7 @@ jobs:
   promote:
     needs: evaluate
     runs-on: ubuntu-latest
-    if: needs.evaluate.result == 'success'
+    if: needs.evaluate.outputs.gate_status == 'pass'
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
