@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from enrich_materials_project import enrich_csv
+from bridge_reviewed_records import bridge_reviewed_records
 from generate_qe_inputs import generate_inputs
 from promotion_gate import evaluate_gate
 from rt_superconductor.harmonized import load_harmonized
@@ -23,12 +24,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path("data/training/harmonized_supercon.csv"))
     parser.add_argument("--enriched-output", type=Path, default=Path("data/training/harmonized_supercon_enriched.csv"))
+    parser.add_argument("--reviewed", type=Path, default=Path("data/training/reviewed/reviewed_records.csv"))
     parser.add_argument("--output-dir", type=Path, default=Path("data/processed/pressure-aware"))
     parser.add_argument("--qe-output-dir", type=Path, default=Path("data/processed/qe-inputs"))
     parser.add_argument("--skip-enrichment", action="store_true", help="do not call the Materials Project API")
     args = parser.parse_args()
 
-    print("--- Step 1: Validating harmonized multi-source data ---")
+    print("--- Step 1: Bridging verified reviewed records and validating data ---")
+    bridge = bridge_reviewed_records(args.input, args.reviewed)
+    print(f"Bridged {bridge['bridged_record_count']} new reviewed records; {bridge['reviewed_record_count']} reviewed records available.")
     records = load_harmonized(args.input)
     print(f"Validated {len(records)} rows from {len({record.source_db for record in records})} source databases.")
 
@@ -45,7 +49,15 @@ def main() -> int:
         print("\n--- Step 2: Materials Project enrichment skipped (set MP_API_KEY to enable) ---")
 
     print("\n--- Step 3: Training family-grouped pressure-aware surrogate ---")
-    train_pressure_aware(input_path=training_input, output_dir=args.output_dir)
+    try:
+        training_report = train_pressure_aware(input_path=training_input, output_dir=args.output_dir)
+    except ValueError as exc:
+        print(f"Training blocked: {exc}")
+        print("Add confirmed empirical records from a second chemical family before running the promotion gate.")
+        return 1
+    if training_report.get("training_status") != "ready":
+        print(f"Training blocked: {training_report.get('blocked_reason', 'insufficient empirical data')}")
+        return 1
     predictions = args.output_dir / "promotion_predictions.csv"
     model = args.output_dir / "pressure-aware-model.joblib"
 

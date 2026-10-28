@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .formula import canonicalize_formula
+from .reviewed import ReviewedRecord, load_reviewed_records
 
 
 REQUIRED_COLUMNS = (
@@ -26,6 +27,8 @@ REQUIRED_COLUMNS = (
     "sample_form",
     "doi",
     "review_status",
+    "provenance",
+    "is_synthetic",
 )
 OPTIONAL_COLUMNS = (
     "chemical_family",
@@ -44,6 +47,7 @@ MEASUREMENT_METHODS = {
 }
 SAMPLE_FORMS = {"single_crystal", "polycrystalline", "thin_film", "powder", "unknown"}
 REVIEW_STATUSES = {"pending", "confirmed", "excluded"}
+PROVENANCE_VALUES = {"literature", "synthetic_demo", "curated"}
 HASH_RE = re.compile(r"^[0-9a-f]{16,64}$")
 
 
@@ -58,6 +62,8 @@ class HarmonizedRecord:
     sample_form: str
     doi: str
     review_status: str
+    provenance: str
+    is_synthetic: int
     chemical_family: str = "Unknown"
     mp_id: str = ""
     energy_above_hull: float | None = None
@@ -90,6 +96,15 @@ def _optional_int(value: str, field: str, row_number: int) -> int | None:
     except ValueError as exc:
         raise ValueError(f"row {row_number}: {field} must be an integer") from exc
     return parsed
+
+
+def _binary(value: str, field: str, row_number: int) -> int:
+    normalized = value.strip().lower()
+    if normalized in {"0", "false"}:
+        return 0
+    if normalized in {"1", "true"}:
+        return 1
+    raise ValueError(f"row {row_number}: {field} must be 0/1 or false/true")
 
 
 def validate_row(row: dict[str, str], row_number: int) -> HarmonizedRecord:
@@ -129,6 +144,14 @@ def validate_row(row: dict[str, str], row_number: int) -> HarmonizedRecord:
     review_status = row["review_status"].strip().lower()
     if review_status not in REVIEW_STATUSES:
         raise ValueError(f"row {row_number}: invalid review_status {review_status!r}")
+    provenance = row["provenance"].strip().lower()
+    if provenance not in PROVENANCE_VALUES:
+        raise ValueError(f"row {row_number}: invalid provenance {provenance!r}")
+    is_synthetic = _binary(row["is_synthetic"], "is_synthetic", row_number)
+    if (provenance == "synthetic_demo") != bool(is_synthetic):
+        raise ValueError(
+            f"row {row_number}: provenance={provenance!r} must agree with is_synthetic={is_synthetic}"
+        )
     hull = _float(row.get("energy_above_hull", ""), "energy_above_hull", row_number, allow_blank=True)
     if hull is not None and hull < 0:
         raise ValueError(f"row {row_number}: energy_above_hull cannot be negative")
@@ -145,6 +168,8 @@ def validate_row(row: dict[str, str], row_number: int) -> HarmonizedRecord:
         sample_form=sample_form,
         doi=doi,
         review_status=review_status,
+        provenance=provenance,
+        is_synthetic=is_synthetic,
         chemical_family=row.get("chemical_family", "").strip() or "Unknown",
         mp_id=row.get("mp_id", "").strip(),
         energy_above_hull=hull,
@@ -189,8 +214,103 @@ def write_harmonized(path: Path, records: list[HarmonizedRecord]) -> None:
                 "sample_form": record.sample_form,
                 "doi": record.doi,
                 "review_status": record.review_status,
+                "provenance": record.provenance,
+                "is_synthetic": record.is_synthetic,
                 "chemical_family": record.chemical_family,
                 "mp_id": record.mp_id,
                 "energy_above_hull": "" if record.energy_above_hull is None else f"{record.energy_above_hull:g}",
                 "spacegroup_number": "" if record.spacegroup_number is None else record.spacegroup_number,
             })
+
+
+_REVIEWED_FORMULA_OVERRIDES = {
+    "supercon2-review-016": "YBa2Cu3O7",
+    "supercon2-review-017": "YBa2Cu3O6.94",
+    "supercon2-review-018": "YBa2Cu3O7",
+    "supercon2-review-019": "YBa2Cu4O8",
+    "supercon2-review-020": "YBa2Cu4O8",
+}
+
+
+def _reviewed_formula(record: ReviewedRecord) -> str:
+    try:
+        return _REVIEWED_FORMULA_OVERRIDES[record.record_id]
+    except KeyError as exc:
+        raise ValueError(f"no conservative formula mapping for reviewed record {record.record_id!r}") from exc
+
+
+def _reviewed_method(value: str) -> str:
+    normalized = value.casefold()
+    if "suscept" in normalized or "quadrupole" in normalized:
+        return "magnetic_susceptibility"
+    if "resist" in normalized or "transport" in normalized:
+        return "resistivity"
+    return "unknown"
+
+
+def _reviewed_sample_form(value: str) -> str:
+    normalized = value.casefold()
+    if "single crystal" in normalized:
+        return "single_crystal"
+    if "polycrystal" in normalized or "ceramic" in normalized:
+        return "polycrystalline"
+    if "powder" in normalized:
+        return "powder"
+    return "unknown"
+
+
+def reviewed_to_harmonized(record: ReviewedRecord) -> HarmonizedRecord:
+    """Convert a confirmed reviewed row without inventing missing metadata."""
+
+    formula = _reviewed_formula(record)
+    if record.pressure_gpa is None:
+        raise ValueError(f"reviewed record {record.record_id!r} has no numeric pressure for the harmonized schema")
+    pressure = record.pressure_gpa
+    return HarmonizedRecord(
+        record_id=stable_record_id("supercon2", formula, record.source_doi, record.tc_kelvin, pressure),
+        source_db="supercon2",
+        formula=formula,
+        tc_kelvin=record.tc_kelvin,
+        applied_pressure_gpa=pressure,
+        measurement_method=_reviewed_method(record.measurement_method),
+        sample_form=_reviewed_sample_form(record.sample_form),
+        doi=record.source_doi,
+        review_status="confirmed",
+        provenance="literature",
+        is_synthetic=0,
+        chemical_family="Cuprates",
+    )
+
+
+def bridge_reviewed_records(harmonized_path: Path, reviewed_path: Path) -> dict[str, object]:
+    """Idempotently append confirmed reviewed records to the harmonized table."""
+
+    records = load_harmonized(harmonized_path)
+    reviewed = load_reviewed_records(reviewed_path.parent)
+    unsupported = sorted({record.record_id for record in reviewed if record.record_id not in _REVIEWED_FORMULA_OVERRIDES})
+    if unsupported:
+        raise ValueError(
+            "reviewed records need an explicit conservative formula mapping before ingestion: "
+            + ", ".join(unsupported)
+        )
+    existing_ids = {record.record_id for record in records}
+    bridged = [
+        reviewed_to_harmonized(record)
+        for record in reviewed
+        if stable_record_id(
+            "supercon2",
+            _reviewed_formula(record),
+            record.source_doi,
+            record.tc_kelvin,
+            record.pressure_gpa if record.pressure_gpa is not None else 0.0,
+        ) not in existing_ids
+    ]
+    if bridged:
+        write_harmonized(harmonized_path, records + bridged)
+    return {
+        "harmonized_path": str(harmonized_path),
+        "reviewed_path": str(reviewed_path),
+        "reviewed_record_count": len(reviewed),
+        "bridged_record_count": len(bridged),
+        "bridged_record_ids": [record.record_id for record in bridged],
+    }

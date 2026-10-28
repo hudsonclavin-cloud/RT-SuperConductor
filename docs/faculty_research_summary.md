@@ -11,14 +11,17 @@ thermodynamic stability, and electronic-structure calculations as separate but
 auditable stages. A model score is therefore treated as a prioritization signal,
 not as evidence that a material is superconducting.
 
-The current Phase 2/3 implementation harmonizes literature and benchmark data
+The current Phase 4 implementation harmonizes literature and benchmark data
 from SuperCon2, 3DSC, SuperMat, and the UCI superconductivity dataset. Every row
 has a deterministic record identifier, normalized formula, critical temperature
 in kelvin, applied/hydrostatic pressure in GPa, measurement method, sample form,
-DOI or source identifier, review status, and a chemical-family label. Controlled
+DOI or source identifier, review status, provenance, `is_synthetic`, and a
+chemical-family label. Controlled
 vocabularies and range checks make malformed or ambiguous rows fail at the data
 boundary. Pending and excluded rows remain visible for review and gate testing;
-they are not silently promoted into the training set.
+synthetic demonstration rows remain available for fixture coverage but are not
+silently promoted into empirical model weights. Confirmed reviewed records are
+bridged with `provenance="literature"` and `is_synthetic=0`.
 
 ### Data curation and Materials Project enrichment
 
@@ -39,7 +42,8 @@ schema.
 
 ### Pressure-aware surrogate model
 
-The surrogate predicts reported \(T_c\) in kelvin from two classes of inputs:
+The surrogate predicts reported \(T_c\) in kelvin from two classes of inputs,
+after filtering to `review_status="confirmed"` and `is_synthetic=0`:
 
 1. Matminer's Magpie elemental-composition statistics, which summarize the
    chemical makeup without leaking a material's measured target; and

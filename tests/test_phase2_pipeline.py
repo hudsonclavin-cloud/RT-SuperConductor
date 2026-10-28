@@ -11,14 +11,46 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from enrich_materials_project import enrich_csv, select_lowest_energy_polymorph
 from generate_qe_inputs import generate_inputs
-from rt_superconductor.harmonized import load_harmonized
+from rt_superconductor.harmonized import bridge_reviewed_records, load_harmonized
+from train_pressure_aware import select_training_records, train_pressure_aware
 
 
 def test_harmonized_fixture_has_all_sources_and_valid_rows():
     records = load_harmonized(ROOT / "data/training/harmonized_supercon.csv")
-    assert len(records) == 21
+    assert len(records) == 26
     assert {record.source_db for record in records} == {"supercon2", "3dsc", "supermat", "uci"}
     assert all(0 < record.tc_kelvin <= 300 for record in records)
+    assert sum(record.is_synthetic for record in records) == 21
+    assert sum(record.provenance == "literature" for record in records) == 5
+    empirical = select_training_records(records)
+    assert len(empirical) == 5
+    assert all(record.provenance == "literature" and record.is_synthetic == 0 for record in empirical)
+
+
+def test_reviewed_bridge_is_idempotent(tmp_path):
+    source = ROOT / "data/training/harmonized_supercon.csv"
+    target = tmp_path / "harmonized.csv"
+    lines = source.read_text(encoding="utf-8").splitlines()
+    target.write_text("\n".join(lines[:22]) + "\n", encoding="utf-8")
+    reviewed = ROOT / "data/training/reviewed/reviewed_records.csv"
+
+    first = bridge_reviewed_records(target, reviewed)
+    second = bridge_reviewed_records(target, reviewed)
+    assert first["bridged_record_count"] == 5
+    assert second["bridged_record_count"] == 0
+    assert sum(record.provenance == "literature" for record in load_harmonized(target)) == 5
+
+
+def test_training_blocks_without_two_empirical_families(tmp_path):
+    report = train_pressure_aware(
+        input_path=ROOT / "data/training/harmonized_supercon.csv",
+        output_dir=tmp_path / "model",
+        allow_insufficient_data=True,
+    )
+    assert report["training_status"] == "blocked_insufficient_empirical_data"
+    assert report["empirical_training_record_count"] == 5
+    assert report["synthetic_record_count"] == 21
+    assert report["training_filter"] == "review_status == 'confirmed' and is_synthetic == 0"
 
 
 def test_materials_project_selects_lowest_energy_polymorph():

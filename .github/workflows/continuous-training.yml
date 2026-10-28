@@ -38,6 +38,9 @@ jobs:
             --report data/processed/continuous-training/reviewed-training-report.json
       - name: Validate harmonized Phase 2 schema
         run: |
+          python scripts/bridge_reviewed_records.py \
+            --harmonized data/training/harmonized_supercon.csv \
+            --reviewed data/training/reviewed/reviewed_records.csv
           python scripts/validate_harmonized.py \
             --input data/training/harmonized_supercon.csv \
             --report data/processed/continuous-training/harmonized-report.json
@@ -59,7 +62,8 @@ jobs:
         run: |
           python scripts/train_pressure_aware.py \
             --input data/training/harmonized_supercon.csv \
-            --output-dir data/processed/continuous-training/pressure-aware
+            --output-dir data/processed/continuous-training/pressure-aware \
+            --allow-insufficient-data
       - name: Publish run summary
         run: |
           python - <<'PY'

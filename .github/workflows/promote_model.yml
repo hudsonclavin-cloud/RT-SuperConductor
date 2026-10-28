@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "data/training/harmonized_supercon.csv"
+      - "data/training/reviewed/**"
       - "scripts/train_pressure_aware.py"
       - "scripts/promotion_gate.py"
       - "src/rt_superconductor/harmonized.py"
@@ -32,12 +33,17 @@ jobs:
       - name: Install ML dependencies
         run: python -m pip install --upgrade pip '.[ml]'
       - name: Validate harmonized training schema
-        run: python scripts/validate_harmonized.py --input data/training/harmonized_supercon.csv
+        run: |
+          python scripts/bridge_reviewed_records.py \
+            --harmonized data/training/harmonized_supercon.csv \
+            --reviewed data/training/reviewed/reviewed_records.csv
+          python scripts/validate_harmonized.py --input data/training/harmonized_supercon.csv
       - name: Train family-grouped surrogate
         run: |
           python scripts/train_pressure_aware.py \
             --input data/training/harmonized_supercon.csv \
-            --output-dir data/processed/promotion-candidate
+            --output-dir data/processed/promotion-candidate \
+            --allow-insufficient-data
       - name: Evaluate strict promotion gate
         id: promotion_gate
         continue-on-error: true

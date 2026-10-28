@@ -26,6 +26,9 @@ def main() -> int:
         "required_columns": list(REQUIRED_COLUMNS),
         "source_counts": {source: sum(record.source_db == source for record in records) for source in sorted({record.source_db for record in records})},
         "review_status_counts": {status: sum(record.review_status == status for record in records) for status in sorted({record.review_status for record in records})},
+        "provenance_counts": {provenance: sum(record.provenance == provenance for record in records) for provenance in sorted({record.provenance for record in records})},
+        "synthetic_record_count": sum(record.is_synthetic for record in records),
+        "empirical_confirmed_record_count": sum(record.review_status == "confirmed" and record.is_synthetic == 0 for record in records),
         "chemical_family_count": len({record.chemical_family for record in records}),
     }
     if args.report:

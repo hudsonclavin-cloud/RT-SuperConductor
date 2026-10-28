@@ -113,14 +113,14 @@ def _write_predictions(path: Path, records: Iterable[HarmonizedRecord], predicti
         writer = csv.writer(handle)
         writer.writerow((
             "record_id", "formula", "chemical_family", "tc_kelvin", "predicted_tc_kelvin",
-            "applied_pressure_gpa", "energy_above_hull", "review_status", "split",
+            "applied_pressure_gpa", "energy_above_hull", "review_status", "provenance", "is_synthetic", "split",
         ))
         for record, prediction in zip(records, predictions):
             writer.writerow((
                 record.record_id, record.formula, record.chemical_family, record.tc_kelvin,
                 f"{float(prediction):.8g}", record.applied_pressure_gpa,
                 "" if record.energy_above_hull is None else record.energy_above_hull,
-                record.review_status, split,
+                record.review_status, record.provenance, record.is_synthetic, split,
             ))
 
 
@@ -131,15 +131,54 @@ def _write_mixed_predictions(path: Path, rows: Iterable[tuple[HarmonizedRecord, 
         writer = csv.writer(handle)
         writer.writerow((
             "record_id", "formula", "chemical_family", "tc_kelvin", "predicted_tc_kelvin",
-            "applied_pressure_gpa", "energy_above_hull", "review_status", "split",
+            "applied_pressure_gpa", "energy_above_hull", "review_status", "provenance", "is_synthetic", "split",
         ))
         for record, prediction, split in rows:
             writer.writerow((
                 record.record_id, record.formula, record.chemical_family, record.tc_kelvin,
                 f"{float(prediction):.8g}", record.applied_pressure_gpa,
                 "" if record.energy_above_hull is None else record.energy_above_hull,
-                record.review_status, split,
+                record.review_status, record.provenance, record.is_synthetic, split,
             ))
+
+
+def select_training_records(records: list[HarmonizedRecord]) -> list[HarmonizedRecord]:
+    """Return only confirmed empirical records eligible for model fitting."""
+
+    return [
+        record for record in records
+        if record.review_status == "confirmed" and record.is_synthetic == 0
+    ]
+
+
+def _blocked_report(
+    *,
+    input_path: Path,
+    output_dir: Path,
+    records: list[HarmonizedRecord],
+    reason: str,
+) -> dict[str, object]:
+    confirmed = [record for record in records if record.review_status == "confirmed"]
+    training_records = select_training_records(records)
+    report: dict[str, object] = {
+        "training_status": "blocked_insufficient_empirical_data",
+        "blocked_reason": reason,
+        "dataset": str(input_path),
+        "record_count": len(records),
+        "confirmed_record_count": len(confirmed),
+        "synthetic_record_count": sum(record.is_synthetic for record in records),
+        "confirmed_synthetic_excluded_count": sum(record.review_status == "confirmed" and record.is_synthetic == 1 for record in records),
+        "empirical_training_record_count": len(training_records),
+        "empirical_training_record_ids": [record.record_id for record in training_records],
+        "chemical_family_count": len({record.chemical_family for record in training_records}),
+        "training_filter": "review_status == 'confirmed' and is_synthetic == 0",
+        "promotion_status": "not_eligible",
+    }
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "pressure-aware-report.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return report
 
 
 def train_pressure_aware(
@@ -148,22 +187,30 @@ def train_pressure_aware(
     output_dir: Path = Path("data/processed/pressure-aware"),
     random_state: int = 42,
     n_splits: int = 5,
+    allow_insufficient_data: bool = False,
 ) -> dict[str, object]:
     records = load_harmonized(input_path)
     confirmed = [record for record in records if record.review_status == "confirmed"]
-    if len(confirmed) < 2:
-        raise ValueError("at least two confirmed harmonized records are required for training")
-    groups = np.asarray([record.chemical_family for record in confirmed])
+    training_records = select_training_records(records)
+    if len(training_records) < 2:
+        reason = "at least two confirmed empirical records (is_synthetic=0) are required for training"
+        if allow_insufficient_data:
+            return _blocked_report(input_path=input_path, output_dir=output_dir, records=records, reason=reason)
+        raise ValueError(reason)
+    groups = np.asarray([record.chemical_family for record in training_records])
     unique_groups = sorted(set(groups))
     if len(unique_groups) < 2:
-        raise ValueError("GroupKFold requires at least two chemical_family groups")
+        reason = "GroupKFold requires at least two empirical chemical_family groups"
+        if allow_insufficient_data:
+            return _blocked_report(input_path=input_path, output_dir=output_dir, records=records, reason=reason)
+        raise ValueError(reason)
     if n_splits < 2:
         raise ValueError("n_splits must be at least 2")
     n_splits = min(n_splits, len(unique_groups))
-    X, feature_names, feature_backend = build_features(confirmed)
-    y = np.asarray([record.tc_kelvin for record in confirmed], dtype=float)
+    X, feature_names, feature_backend = build_features(training_records)
+    y = np.asarray([record.tc_kelvin for record in training_records], dtype=float)
 
-    oof = np.full(len(confirmed), np.nan, dtype=float)
+    oof = np.full(len(training_records), np.nan, dtype=float)
     fold_results: list[dict[str, object]] = []
     splitter = GroupKFold(n_splits=n_splits)
     for fold, (train_idx, test_idx) in enumerate(splitter.split(X, y, groups=groups), start=1):
@@ -194,11 +241,11 @@ def train_pressure_aware(
         "random_state": random_state,
     }, model_path)
     oof_path = output_dir / "grouped-oof-predictions.csv"
-    _write_predictions(oof_path, confirmed, oof, split="grouped_oof")
+    _write_predictions(oof_path, training_records, oof, split="grouped_oof")
     prediction_path = output_dir / "candidate_predictions.csv"
     _write_predictions(prediction_path, records, all_predictions, split="full_fit")
     promotion_path = output_dir / "promotion_predictions.csv"
-    confirmed_oof = {record.record_id: float(prediction) for record, prediction in zip(confirmed, oof)}
+    confirmed_oof = {record.record_id: float(prediction) for record, prediction in zip(training_records, oof)}
     mixed_rows = [
         (record, confirmed_oof[record.record_id], "grouped_oof")
         if record.record_id in confirmed_oof
@@ -218,6 +265,10 @@ def train_pressure_aware(
         "dataset_sha256": digest,
         "record_count": len(records),
         "confirmed_record_count": len(confirmed),
+        "synthetic_record_count": sum(record.is_synthetic for record in records),
+        "confirmed_synthetic_excluded_count": sum(record.review_status == "confirmed" and record.is_synthetic == 1 for record in records),
+        "empirical_training_record_count": len(training_records),
+        "empirical_training_record_ids": [record.record_id for record in training_records],
         "chemical_family_count": len(unique_groups),
         "group_column": "chemical_family",
         "cv": "GroupKFold",
@@ -229,6 +280,8 @@ def train_pressure_aware(
         "output_candidate_predictions": str(prediction_path),
         "output_promotion_predictions": str(promotion_path),
         "random_state": random_state,
+        "training_filter": "review_status == 'confirmed' and is_synthetic == 0",
+        "training_status": "ready",
         "promotion_status": "not_promoted",
         "interpretation": (
             "OOF metrics are family-held-out estimates. The full-fit artifact is a screening surrogate; "
@@ -248,6 +301,11 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, default=Path("data/processed/pressure-aware"))
     parser.add_argument("--random-state", type=int, default=42)
     parser.add_argument("--n-splits", type=int, default=5)
+    parser.add_argument(
+        "--allow-insufficient-data",
+        action="store_true",
+        help="write a blocked report and exit successfully when empirical GroupKFold data is insufficient",
+    )
     args = parser.parse_args()
     if args.input_dir is not None:
         parser.error("--input-dir is obsolete; use --input data/training/harmonized_supercon.csv")
@@ -256,6 +314,7 @@ def main() -> int:
         output_dir=args.output_dir,
         random_state=args.random_state,
         n_splits=args.n_splits,
+        allow_insufficient_data=args.allow_insufficient_data,
     )
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0

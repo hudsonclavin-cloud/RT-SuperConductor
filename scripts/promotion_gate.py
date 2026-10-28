@@ -110,7 +110,21 @@ def main() -> int:
     parser.add_argument("--model", type=Path, default=Path("data/processed/pressure-aware/pressure-aware-model.joblib"))
     parser.add_argument("--report", type=Path, default=Path("data/processed/pressure-aware/promotion-gate.json"))
     args = parser.parse_args()
-    report = evaluate_gate(predictions_path=args.predictions, model_path=args.model)
+    try:
+        report = evaluate_gate(predictions_path=args.predictions, model_path=args.model)
+    except (OSError, ValueError) as exc:
+        report = {
+            "status": "fail",
+            "checks": {
+                "model_artifact_exists": args.model.is_file(),
+                "ambient_mae": False,
+                "hydride_trend": False,
+                "excluded_false_positive_rate": False,
+            },
+            "model_artifact": str(args.model),
+            "predictions": str(args.predictions),
+            "error": f"{type(exc).__name__}: {exc}",
+        }
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2, sort_keys=True))

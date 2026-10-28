@@ -1,22 +1,27 @@
-record_id,source_db,formula,tc_kelvin,applied_pressure_gpa,measurement_method,sample_form,doi,review_status,chemical_family,mp_id,energy_above_hull,spacegroup_number
-000000000000000000000001,supercon2,YBa2Cu3O7,92,0.0001,resistivity,single_crystal,10.1016/j.cap.2016.05.014,confirmed,Cuprates,mp-20674,0.0313759,47
-000000000000000000000002,supercon2,YBa2Cu4O8,80,0.0001,magnetic_susceptibility,polycrystalline,10.1103/physrevb.97.174508,confirmed,Cuprates,mp-demo-y124,0.018,139
-000000000000000000000003,supercon2,HgBa2Ca2Cu3O8,134,0.0001,meissner,powder,10.1088/1361-6668/ab51b1,confirmed,Cuprates,mp-demo-hg1223,0.021,139
-000000000000000000000004,supercon2,Bi2Sr2CaCu2O8,91,0.0001,resistivity,polycrystalline,10.1088/1361-648X/ab2a8f,confirmed,Cuprates,mp-demo-bi2212,0.031,71
-000000000000000000000005,supercon2,BaFe2As2,38,0.0001,resistivity,single_crystal,10.1103/physrevlett.110.207001,confirmed,Iron-based pnictides,mp-demo-ba122,0.034,139
-000000000000000000000006,supercon2,KFe2As2,37,0.0001,magnetic_susceptibility,polycrystalline,10.1103/physrevlett.101.257003,confirmed,Iron-based pnictides,mp-demo-k122,0.046,139
-000000000000000000000007,supercon2,SmFe2As2,55,0.0001,resistivity,polycrystalline,10.1038/nature08998,confirmed,Iron-based pnictides,mp-demo-sm1111,0.028,129
-000000000000000000000008,supercon2,FeSe,8.5,0.0001,magnetic_susceptibility,single_crystal,10.1038/nature08998,confirmed,Iron-based pnictides,mp-demo-fese,0.041,129
-000000000000000000000009,3dsc,H3S,155,100,resistivity,thin_film,10.1038/nphys4156,confirmed,Hydrides,mp-demo-h3s,0.006,229
-000000000000000000000010,3dsc,H3S,190,150,resistivity,thin_film,10.1038/nphys4156,confirmed,Hydrides,mp-demo-h3s,0.006,229
-000000000000000000000011,3dsc,H3S,203,200,magnetic_susceptibility,powder,10.1038/nphys4156,confirmed,Hydrides,mp-demo-h3s,0.006,229
-000000000000000000000012,3dsc,LaH10,250,150,resistivity,thin_film,10.1038/ncomms149.13,confirmed,Hydrides,mp-demo-lah10,0.004,225
-000000000000000000000013,3dsc,LaH10,265,180,magnetic_susceptibility,powder,10.1038/ncomms149.13,confirmed,Hydrides,mp-demo-lah10,0.004,225
-000000000000000000000014,3dsc,LaH10,280,200,meissner,powder,10.1038/ncomms149.13,confirmed,Hydrides,mp-demo-lah10,0.004,225
-000000000000000000000015,supermat,MgB2,39,0.0001,resistivity,polycrystalline,10.1080/27660400.2021.1918396,confirmed,Simple elements and alloys,mp-763,0.0,191
-000000000000000000000016,supermat,Nb3Sn,18,0.0001,heat_capacity,single_crystal,10.1080/27660400.2021.1918396,confirmed,Simple elements and alloys,mp-demo-nb3sn,0.008,223
-000000000000000000000017,supermat,H,0.3,0.0001,unknown,powder,10.1080/27660400.2021.1918396,confirmed,Simple elements and alloys,mp-demo-h,0.000,229
-000000000000000000000018,uci,BaFe2As2,150,0.0007,resistivity,single_crystal,10.24432/C53P47,confirmed,Iron-based pnictides,mp-demo-ba122,0.034,139
-000000000000000000000019,uci,H3S,150,100,unknown,powder,10.24432/C53P47,pending,Hydrides,mp-demo-h3s,0.006,229
-000000000000000000000020,uci,Fe,1.0,0.0001,unknown,powder,10.24432/C53P47,excluded,Non-superconducting references,mp-demo-fe,0.000,229
-000000000000000000000021,uci,Si,1.0,0.0001,unknown,powder,10.24432/C53P47,excluded,Non-superconducting references,mp-demo-si,0.000,227
+record_id,source_db,formula,tc_kelvin,applied_pressure_gpa,measurement_method,sample_form,doi,review_status,provenance,is_synthetic,chemical_family,mp_id,energy_above_hull,spacegroup_number
+000000000000000000000001,supercon2,YBa2Cu3O7,92,0.0001,resistivity,single_crystal,10.1016/j.cap.2016.05.014,confirmed,synthetic_demo,1,Cuprates,mp-20674,0.0313759,47
+000000000000000000000002,supercon2,YBa2Cu4O8,80,0.0001,magnetic_susceptibility,polycrystalline,10.1103/physrevb.97.174508,confirmed,synthetic_demo,1,Cuprates,mp-demo-y124,0.018,139
+000000000000000000000003,supercon2,HgBa2Ca2Cu3O8,134,0.0001,meissner,powder,10.1088/1361-6668/ab51b1,confirmed,synthetic_demo,1,Cuprates,mp-demo-hg1223,0.021,139
+000000000000000000000004,supercon2,Bi2Sr2CaCu2O8,91,0.0001,resistivity,polycrystalline,10.1088/1361-648X/ab2a8f,confirmed,synthetic_demo,1,Cuprates,mp-demo-bi2212,0.031,71
+000000000000000000000005,supercon2,BaFe2As2,38,0.0001,resistivity,single_crystal,10.1103/physrevlett.110.207001,confirmed,synthetic_demo,1,Iron-based pnictides,mp-demo-ba122,0.034,139
+000000000000000000000006,supercon2,KFe2As2,37,0.0001,magnetic_susceptibility,polycrystalline,10.1103/physrevlett.101.257003,confirmed,synthetic_demo,1,Iron-based pnictides,mp-demo-k122,0.046,139
+000000000000000000000007,supercon2,SmFe2As2,55,0.0001,resistivity,polycrystalline,10.1038/nature08998,confirmed,synthetic_demo,1,Iron-based pnictides,mp-demo-sm1111,0.028,129
+000000000000000000000008,supercon2,FeSe,8.5,0.0001,magnetic_susceptibility,single_crystal,10.1038/nature08998,confirmed,synthetic_demo,1,Iron-based pnictides,mp-demo-fese,0.041,129
+000000000000000000000009,3dsc,H3S,155,100,resistivity,thin_film,10.1038/nphys4156,confirmed,synthetic_demo,1,Hydrides,mp-demo-h3s,0.006,229
+000000000000000000000010,3dsc,H3S,190,150,resistivity,thin_film,10.1038/nphys4156,confirmed,synthetic_demo,1,Hydrides,mp-demo-h3s,0.006,229
+000000000000000000000011,3dsc,H3S,203,200,magnetic_susceptibility,powder,10.1038/nphys4156,confirmed,synthetic_demo,1,Hydrides,mp-demo-h3s,0.006,229
+000000000000000000000012,3dsc,LaH10,250,150,resistivity,thin_film,10.1038/ncomms149.13,confirmed,synthetic_demo,1,Hydrides,mp-demo-lah10,0.004,225
+000000000000000000000013,3dsc,LaH10,265,180,magnetic_susceptibility,powder,10.1038/ncomms149.13,confirmed,synthetic_demo,1,Hydrides,mp-demo-lah10,0.004,225
+000000000000000000000014,3dsc,LaH10,280,200,meissner,powder,10.1038/ncomms149.13,confirmed,synthetic_demo,1,Hydrides,mp-demo-lah10,0.004,225
+000000000000000000000015,supermat,MgB2,39,0.0001,resistivity,polycrystalline,10.1080/27660400.2021.1918396,confirmed,synthetic_demo,1,Simple elements and alloys,mp-763,0.0,191
+000000000000000000000016,supermat,Nb3Sn,18,0.0001,heat_capacity,single_crystal,10.1080/27660400.2021.1918396,confirmed,synthetic_demo,1,Simple elements and alloys,mp-demo-nb3sn,0.008,223
+000000000000000000000017,supermat,H,0.3,0.0001,unknown,powder,10.1080/27660400.2021.1918396,confirmed,synthetic_demo,1,Simple elements and alloys,mp-demo-h,0.000,229
+000000000000000000000018,uci,BaFe2As2,150,0.0007,resistivity,single_crystal,10.24432/C53P47,confirmed,synthetic_demo,1,Iron-based pnictides,mp-demo-ba122,0.034,139
+000000000000000000000019,uci,H3S,150,100,unknown,powder,10.24432/C53P47,pending,synthetic_demo,1,Hydrides,mp-demo-h3s,0.006,229
+000000000000000000000020,uci,Fe,1.0,0.0001,unknown,powder,10.24432/C53P47,excluded,synthetic_demo,1,Non-superconducting references,mp-demo-fe,0.000,229
+000000000000000000000021,uci,Si,1.0,0.0001,unknown,powder,10.24432/C53P47,excluded,synthetic_demo,1,Non-superconducting references,mp-demo-si,0.000,227
+0f01b537c2671b9cce760061,supercon2,YBa2Cu3O7,94,0.000101325,resistivity,single_crystal,10.1103/physrevb.100.094502,confirmed,literature,0,Cuprates,,,
+7e31340cfc8c6b9808482083,supercon2,YBa2Cu3O6.94,91.1,0,resistivity,single_crystal,10.1016/j.cap.2016.05.014,confirmed,literature,0,Cuprates,,,
+40cc2056aac47ccc89896304,supercon2,YBa2Cu3O7,91.1,0.000101325,resistivity,single_crystal,10.1016/j.cap.2016.05.014,confirmed,literature,0,Cuprates,,,
+a75e6c44742e055e1ffc5d27,supercon2,YBa2Cu4O8,82,0.000101325,magnetic_susceptibility,polycrystalline,10.1103/physrevb.64.180511,confirmed,literature,0,Cuprates,,,
+9ff853a8b82fdb65682b6e3b,supercon2,YBa2Cu4O8,80,0.000101325,resistivity,polycrystalline,10.1103/physrevb.97.174508,confirmed,literature,0,Cuprates,,,
