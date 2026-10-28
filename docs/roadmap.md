@@ -12,6 +12,8 @@ conditions and unknown values represented explicitly.
 
 ## Phase 2: honest baselines (days 16–30)
 
+- Implement the model-agnostic active-learning spine and stable simulation-task
+  contracts.
 - Select one material family with a prospective research partner.
 - Implement a composition baseline and uncertainty calibration.
 - Add grouped, family-held-out, and chronological evaluation splits.

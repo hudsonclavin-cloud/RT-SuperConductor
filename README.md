@@ -48,8 +48,9 @@ The first useful deliverables are:
 5. Interfaces for established calculations such as Quantum ESPRESSO, Wannier90,
    and EPW, followed by expert and experimental feedback.
 
-See [the architecture](docs/architecture.md) and [the roadmap](docs/roadmap.md)
-for the working design. The end goal and decision gates are defined in
+See the [founding charter](docs/founding-charter.md),
+[architecture](docs/architecture.md), and [roadmap](docs/roadmap.md) for the
+working design. The end goal and decision gates are defined in
 [goal-and-plan.md](docs/goal-and-plan.md).
 
 ## Repository layout
@@ -113,3 +114,11 @@ priorities, not newly discovered materials or model predictions.
 This repository is a software foundation for research collaboration. A computed
 score or predicted transition temperature is a hypothesis until it is supported
 by an appropriate physical calculation and reproducible measurement.
+
+The first active-learning spine is available in `rt_superconductor.search`.
+It keeps proposed candidates separate from observations, applies the pressure
+ceiling explicitly, ranks a batch using uncertainty and feasibility, and emits
+stable composition-screen tasks for later ML, DFT, quantum, or laboratory
+backends. See the [active-learning guide](docs/active-learning.md) and
+[founding charter](docs/founding-charter.md) for the staged AI and simulation
+plan.

@@ -50,6 +50,13 @@ synthesis feasibility, pressure requirements, and the information value of a
 result. Hard constraints exclude candidates outside a collaborator's available
 chemistry, equipment, or pressure range.
 
+The active-learning spine represents each proposed material as a
+`CandidateHypothesis`. `propose_batch` applies a transparent acquisition
+function and returns reviewer-readable reasons. `SimulationTask` gives each
+composition, structure, physics, or experiment stage a stable identifier and
+input revision. A task result remains a `SimulationResult` until it is reviewed
+and promoted to evidence.
+
 ### Physics workflows
 
 Adapters will run selected candidates through reproducible calculation manifests.
@@ -62,6 +69,14 @@ must not be presented as universal superconductivity predictions.
 Every proposed experiment receives a stable identifier. Measurements, failures,
 unsuccessful syntheses, and inconclusive results return to the evidence store
 without being collapsed into the same label.
+
+### Hybrid backends
+
+`SimulationBackend` is the shared contract for composition models, structure
+screeners, Quantum ESPRESSO/Wannier90/EPW workflows, quantum-computing adapters,
+and laboratory integrations. The initial implementation is dependency-free and
+does not pretend to execute any of those backends; it defines the provenance
+boundary they must satisfy.
 
 ## Initial domain model
 
