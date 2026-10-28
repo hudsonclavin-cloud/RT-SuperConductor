@@ -27,3 +27,19 @@ This model predicts critical temperature from composition only. It does not
 predict pressure feasibility, crystal stability, synthesis success, magnetic
 evidence, or room-temperature superconductivity. Those become separate tasks
 after the baseline and its failure modes are understood.
+
+## Pressure-aware reviewed-data prototype
+
+The workflow also fits `scripts/train_pressure_aware.py` from confirmed rows in
+`data/training/reviewed/`. It uses elemental fractions, applied pressure, and
+measurement method. Its report includes source duplication, pressure coverage,
+target-window coverage, and the concrete data gaps that block a credible
+family-held-out evaluation. The current five records are only a pipeline
+prototype: they span two composition families, four papers, and one pressure
+level. Its training fit is diagnostic only and the model is never promoted.
+
+Before evaluating this model, grow the reviewed set to at least 50 independent
+records from at least 10 composition families, with multiple pressure levels
+and explicit examples in the 273.15–298.15 K target window. Then add a
+source-grouped and family-held-out evaluation before using its rankings to
+choose computational work.

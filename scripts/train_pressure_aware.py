@@ -79,7 +79,13 @@ def train_pressure_aware(*, input_dir: Path, output_dir: Path, random_state: int
     )
     model.fit(X, y)
     predictions = model.predict(X)
-    family_count = len({tuple(sorted(composition_fractions(record.formula))) for record in records})
+    composition_families = {tuple(sorted(composition_fractions(record.formula))) for record in records}
+    family_count = len(composition_families)
+    doi_counts: dict[str, int] = {}
+    for record in records:
+        doi_counts[record.source_doi] = doi_counts.get(record.source_doi, 0) + 1
+    pressure_values = sorted({record.pressure_gpa for record in records if record.pressure_gpa is not None})
+    target_window_count = sum(273.15 <= record.tc_kelvin <= 298.15 for record in records)
     evaluation_ready = len(records) >= MIN_RECORDS_FOR_EVALUATION and family_count >= MIN_FAMILIES_FOR_EVALUATION
     output_dir.mkdir(parents=True, exist_ok=True)
     model_path = output_dir / "pressure-aware-prototype.joblib"
@@ -97,8 +103,22 @@ def train_pressure_aware(*, input_dir: Path, output_dir: Path, random_state: int
         "record_count": len(records),
         "independent_composition_family_count": family_count,
         "source_doi_count": len({record.source_doi for record in records}),
+        "records_per_source_doi": dict(sorted(doi_counts.items())),
+        "duplicate_source_record_count": sum(count - 1 for count in doi_counts.values() if count > 1),
         "pressure_known_count": sum(record.pressure_gpa is not None for record in records),
         "pressure_unknown_count": sum(record.pressure_gpa is None for record in records),
+        "distinct_known_pressure_levels_gpa": pressure_values,
+        "target_window_record_count_273_15_to_298_15_k": target_window_count,
+        "data_gaps": [
+            gap
+            for gap, missing in (
+                ("at least 50 confirmed records", len(records) < MIN_RECORDS_FOR_EVALUATION),
+                ("at least 10 composition families", family_count < MIN_FAMILIES_FOR_EVALUATION),
+                ("records spanning multiple pressure levels", len(pressure_values) < 2),
+                ("records in the 273.15–298.15 K target window", target_window_count == 0),
+            )
+            if missing
+        ],
         "training_data_sha256": hashlib.sha256(source_text.encode()).hexdigest(),
         "random_state": random_state,
         "evaluation_status": "ready" if evaluation_ready else "blocked_insufficient_independent_data",
