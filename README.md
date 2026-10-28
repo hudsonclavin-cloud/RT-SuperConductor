@@ -145,6 +145,11 @@ Bader, ELF, COHP, and Wannier/EPW calculations. It intentionally stops before
 DFT post-processing because those calculations require external executables,
 pseudopotentials, and compute resources.
 
+The data fields to collect before expanding the training run are prioritized in
+[data-requirements.md](docs/data-requirements.md). The list emphasizes
+transition evidence, synthesis reproducibility, structure quality, and
+calculation provenance before adding more formula-only features.
+
 The first active-learning spine is available in `rt_superconductor.search`.
 It keeps proposed candidates separate from observations, applies the pressure
 ceiling explicitly, ranks a batch using uncertainty and feasibility, and emits
