@@ -1,0 +1,80 @@
+name: Promote pressure-aware surrogate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "data/training/harmonized_supercon.csv"
+      - "scripts/train_pressure_aware.py"
+      - "scripts/promotion_gate.py"
+      - "src/rt_superconductor/harmonized.py"
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: promote-pressure-aware-model
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ML dependencies
+        run: python -m pip install --upgrade pip '.[ml]'
+      - name: Validate harmonized training schema
+        run: python scripts/validate_harmonized.py --input data/training/harmonized_supercon.csv
+      - name: Train family-grouped surrogate
+        run: |
+          python scripts/train_pressure_aware.py \
+            --input data/training/harmonized_supercon.csv \
+            --output-dir data/processed/promotion-candidate
+      - name: Evaluate strict promotion gate
+        run: |
+          python scripts/promotion_gate.py \
+            --predictions data/processed/promotion-candidate/promotion_predictions.csv \
+            --model data/processed/promotion-candidate/pressure-aware-model.joblib \
+            --report data/processed/promotion-candidate/promotion-gate.json
+      - name: Upload evaluated candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pressure-aware-candidate-${{ github.run_id }}
+          path: data/processed/promotion-candidate/
+
+  promote:
+    needs: evaluate
+    runs-on: ubuntu-latest
+    if: needs.evaluate.result == 'success'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Download the gate-approved artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pressure-aware-candidate-${{ github.run_id }}
+          path: promoted-model
+      - name: Mark artifact as promotion eligible
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("promoted-model/promotion-gate.json")
+          report = json.loads(path.read_text(encoding="utf-8"))
+          if report.get("status") != "pass":
+              raise SystemExit("promotion artifact is not gate-approved")
+          (Path("promoted-model") / "PROMOTED").write_text(
+              "Strict Phase 2/3 promotion gate passed.\n", encoding="utf-8"
+          )
+          PY
+      - name: Upload promoted model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pressure-aware-promoted-${{ github.run_id }}
+          path: promoted-model/

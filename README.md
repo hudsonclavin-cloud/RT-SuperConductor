@@ -121,6 +121,20 @@ composition-only benchmark with grouped evaluation and ensemble uncertainty;
 it is a starting point for the active-learning engine, not a pressure-aware
 superconductivity predictor.
 
+The Phase 2/3 pipeline is documented in [modeling.md](docs/modeling.md). Run
+the full validated workflow from the repository root with:
+
+```bash
+python -m pip install -e '.[ml,mp]'
+python orchestrator.py
+```
+
+Set `MP_API_KEY` to enable Materials Project enrichment. The workflow writes
+family-grouped model reports, a strict promotion-gate report, and candidate
+folders containing Quantum ESPRESSO SCF/phonon and EPW starter inputs. The QE
+positions are explicitly marked as placeholders until a relaxed structure is
+attached.
+
 The [continuous-training workflow](docs/continuous-training.md) retrains this
 benchmark weekly or from the GitHub Actions interface and uploads each model,
 prediction file, and metric report as a reviewable artifact.

@@ -1,0 +1,33 @@
+! Quantum ESPRESSO SCF template emitted by generate_qe_inputs.py
+! Replace PLACEHOLDER_* structure values with a relaxed candidate structure.
+&CONTROL
+  calculation = 'scf',
+  prefix = 'PLACEHOLDER_CANDIDATE_ID',
+  pseudo_dir = './pseudo',
+  outdir = './tmp',
+  tstress = .true.,
+  tprnfor = .true.,
+/
+&SYSTEM
+  ibrav = 0,
+  nat = PLACEHOLDER_NAT,
+  ntyp = PLACEHOLDER_NTYP,
+  ecutwfc = 80.0,
+  ecutrho = 640.0,
+  occupations = 'smearing',
+  smearing = 'mv',
+  degauss = 0.02,
+/
+&ELECTRONS
+  conv_thr = 1.0d-10,
+  electron_maxstep = 200,
+  mixing_beta = 0.7,
+/
+ATOMIC_SPECIES
+PLACEHOLDER_ATOMIC_SPECIES
+CELL_PARAMETERS angstrom
+PLACEHOLDER_CELL_PARAMETERS
+ATOMIC_POSITIONS crystal
+PLACEHOLDER_ATOMIC_POSITIONS
+K_POINTS automatic
+  8 8 8 0 0 0

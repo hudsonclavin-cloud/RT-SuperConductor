@@ -36,6 +36,11 @@ jobs:
           python scripts/validate_reviewed_training.py \
             --input-dir data/training/reviewed \
             --report data/processed/continuous-training/reviewed-training-report.json
+      - name: Validate harmonized Phase 2 schema
+        run: |
+          python scripts/validate_harmonized.py \
+            --input data/training/harmonized_supercon.csv \
+            --report data/processed/continuous-training/harmonized-report.json
       - name: Download the pinned UCI training snapshot
         run: |
           mkdir -p /tmp/uci
@@ -50,10 +55,10 @@ jobs:
           python scripts/train_baseline.py \
             --input /tmp/uci/extracted/unique_m.csv \
             --output-dir data/processed/continuous-training
-      - name: Fit pressure-aware reviewed-data prototype
+      - name: Train pressure-aware family-grouped surrogate
         run: |
           python scripts/train_pressure_aware.py \
-            --input-dir data/training/reviewed \
+            --input data/training/harmonized_supercon.csv \
             --output-dir data/processed/continuous-training/pressure-aware
       - name: Publish run summary
         run: |
