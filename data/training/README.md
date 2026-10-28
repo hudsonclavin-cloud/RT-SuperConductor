@@ -44,6 +44,11 @@ The file `review_queue_supercon2.csv` is a pending work list generated from
 the NIMS export. Its rows are hypotheses for paper review, not labels. Use
 `scripts/build_supercon2_review_queue.py` to regenerate it from a fresh export.
 
+`review_queue_family_leads.csv` is a second pending queue for iron-based,
+MgB2, and hydride records found through the public NIMS and SuperMat sources.
+It includes calculated and extreme-pressure leads for coverage, but those must
+remain separate from measured ambient-pressure evidence.
+
 The continuous-training workflow validates this directory and the harmonized
 schema on every run. The Phase 2 surrogate is trained from the harmonized file;
 the legacy reviewed-record workflow remains available for paper-level curation.
