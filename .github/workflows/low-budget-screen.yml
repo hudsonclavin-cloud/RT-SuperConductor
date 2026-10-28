@@ -32,9 +32,11 @@ jobs:
       - name: Download SuperCon2 source export
         run: |
           mkdir -p data/raw/supercon2
-          curl --fail --location --retry 3 \
+          curl --fail --location --retry 3 --retry-delay 2 \
             --output data/raw/supercon2/supercon2_v22.12.03.csv \
-            https://raw.githubusercontent.com/lfoppiano/supercon/main/supercon2_v22.12.03.csv
+            "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
+          echo "ed55ea8f43a0984d77b5c29576164e06  data/raw/supercon2/supercon2_v22.12.03.csv" \
+            | md5sum --check
       - name: Run pressure-aware screen
         env:
           MINIMUM_TC_K: ${{ inputs.minimum_tc_k }}
