@@ -1,0 +1,72 @@
+name: Continuous AI training
+
+on:
+  schedule:
+    - cron: "17 3 * * 0"
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/train_baseline.py"
+      - "src/rt_superconductor/**"
+      - "pyproject.toml"
+      - "data/training/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: continuous-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install machine-learning dependencies
+        run: python -m pip install --upgrade pip '.[ml]'
+      - name: Download the pinned UCI training snapshot
+        run: |
+          mkdir -p /tmp/uci
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --output /tmp/uci/superconductivity-data.zip \
+            "https://archive.ics.uci.edu/static/public/464/superconductivty+data.zip"
+          echo "87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e  /tmp/uci/superconductivity-data.zip" \
+            | sha256sum --check
+          unzip -q /tmp/uci/superconductivity-data.zip -d /tmp/uci/extracted
+      - name: Train grouped composition baseline
+        run: |
+          python scripts/train_baseline.py \
+            --input /tmp/uci/extracted/unique_m.csv \
+            --output-dir data/processed/continuous-training
+      - name: Publish run summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          metrics = json.loads(Path("data/processed/continuous-training/baseline-metrics.json").read_text())
+          model = metrics["model_metrics"]
+          baseline = metrics["baseline_metrics"]
+          summary = (
+              f"### Continuous training\n"
+              f"- Rows: {metrics['rows']}\n"
+              f"- Grouped test rows: {metrics['test_rows']}\n"
+              f"- Model MAE: {model['mae_k']:.3f} K\n"
+              f"- Mean baseline MAE: {baseline['mae_k']:.3f} K\n"
+              f"- Model R²: {model['r2']:.3f}\n"
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary)
+          PY
+      - name: Upload model and metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: continuous-training-${{ github.run_id }}
+          path: data/processed/continuous-training/
