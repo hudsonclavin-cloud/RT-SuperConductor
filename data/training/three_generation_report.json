@@ -1,0 +1,319 @@
+{
+  "generations": [
+    {
+      "high_risk_count": 1,
+      "input_count": 20,
+      "name": "review_queue_triage",
+      "pending_review_count": 20
+    },
+    {
+      "input_count": 20,
+      "name": "pressure_target_acquisition",
+      "pressure_ceiling_gpa": 0.1,
+      "proposal_count": 10,
+      "proposals": [
+        {
+          "candidate_id": "supercon2-review-001",
+          "composition": "MnP",
+          "predicted_tc_k": 290.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 1,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is inside the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.545,
+          "uncertainty_k": 160.0
+        },
+        {
+          "candidate_id": "supercon2-review-002",
+          "composition": "BaFe 2 As 2",
+          "predicted_tc_k": 150.0,
+          "pressure_gpa": 0.0007,
+          "rank": 2,
+          "reasons": [
+            "known pressure=0.0007 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "synthesis feasibility has supporting evidence",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.2705537090562589,
+          "uncertainty_k": 80.0
+        },
+        {
+          "candidate_id": "supercon2-review-006",
+          "composition": "Hg 2 Ba 2 Ca 2 Cu 3 O 10+\u03b4 8",
+          "predicted_tc_k": 135.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 3,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.263930653274876,
+          "uncertainty_k": 105.0
+        },
+        {
+          "candidate_id": "supercon2-review-009",
+          "composition": "HgBa 2 Ca 2 Cu 3 O 8+\u03b4",
+          "predicted_tc_k": 135.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 4,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.263930653274876,
+          "uncertainty_k": 105.0
+        },
+        {
+          "candidate_id": "supercon2-review-016",
+          "composition": "YBa 2 Cu 3 O y",
+          "predicted_tc_k": 94.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 5,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.2533376589427331,
+          "uncertainty_k": 105.0
+        },
+        {
+          "candidate_id": "supercon2-review-003",
+          "composition": "CuO 2",
+          "predicted_tc_k": 138.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 6,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.22510125949724197,
+          "uncertainty_k": 80.0
+        },
+        {
+          "candidate_id": "supercon2-review-004",
+          "composition": "GeH 4",
+          "predicted_tc_k": 138.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 7,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.22510125949724197,
+          "uncertainty_k": 80.0
+        },
+        {
+          "candidate_id": "supercon2-review-005",
+          "composition": "Hg0.8Tl0.2Ba2Ca2Cu3O8.33",
+          "predicted_tc_k": 138.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 8,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.22510125949724197,
+          "uncertainty_k": 80.0
+        },
+        {
+          "candidate_id": "supercon2-review-007",
+          "composition": "HgBa 2 Ca 2 Cu 3 O 8 (83",
+          "predicted_tc_k": 135.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 9,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.22393065327487605,
+          "uncertainty_k": 80.0
+        },
+        {
+          "candidate_id": "supercon2-review-008",
+          "composition": "HgBa 2 Ca 2 Cu 3 O 8+",
+          "predicted_tc_k": 135.0,
+          "pressure_gpa": 0.000101325,
+          "rank": 10,
+          "reasons": [
+            "known pressure=0.000101325 GPa",
+            "predicted temperature is below the target window",
+            "a structure is available or structurally plausible",
+            "the candidate adds novelty or information value"
+          ],
+          "review_required": true,
+          "score": 0.22393065327487605,
+          "uncertainty_k": 80.0
+        }
+      ]
+    },
+    {
+      "name": "composition_screen_task_emission",
+      "task_count": 10,
+      "tasks": [
+        {
+          "candidate_id": "supercon2-review-001",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:3ee74f7c044679cc"
+        },
+        {
+          "candidate_id": "supercon2-review-002",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:ed351d2b00bd8246"
+        },
+        {
+          "candidate_id": "supercon2-review-006",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:edcd7b4d89a0e5d4"
+        },
+        {
+          "candidate_id": "supercon2-review-009",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:ba71d12d9480e829"
+        },
+        {
+          "candidate_id": "supercon2-review-016",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:280a30a688bc6c2c"
+        },
+        {
+          "candidate_id": "supercon2-review-003",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:aa807335d5ab6d48"
+        },
+        {
+          "candidate_id": "supercon2-review-004",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:43c7d6402b61ce0b"
+        },
+        {
+          "candidate_id": "supercon2-review-005",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:07651bfc04ef3570"
+        },
+        {
+          "candidate_id": "supercon2-review-007",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:b4e2a8a61022ea75"
+        },
+        {
+          "candidate_id": "supercon2-review-008",
+          "input_revision": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+          "requested_outputs": [
+            "predicted_tc_k",
+            "tc_uncertainty_k",
+            "pressure_feasibility"
+          ],
+          "review_required": true,
+          "stage": "composition_screen",
+          "status": "queued",
+          "task_id": "composition_screen:fcd4e8e2bdbba819"
+        }
+      ]
+    }
+  ],
+  "input": "data/training/review_queue_supercon2.csv",
+  "input_sha256": "d11739522a3ee7a542c4f47873480c483764cae36f53efb51f518ba5419244fd",
+  "interpretation": "Virtual ranking and task emission only. Pending literature records are not training labels and no experiment is authorized by this report.",
+  "pipeline_version": 1
+}

@@ -36,3 +36,9 @@ The emitted `SimulationTask` values can later be sent to a composition model,
 structure service, Quantum ESPRESSO workflow, quantum backend, or laboratory
 integration. Results remain `SimulationResult` objects until a reviewer decides
 whether they belong in the evidence store.
+
+`scripts/run_three_generation_campaign.py` exercises this spine in three
+explicit generations over the pending SuperCon2 review queue: triage, pressure
+and target acquisition, then stable task emission. Its output remains a
+review artifact; it does not promote extracted literature into training data
+or claim that a candidate is superconducting.
