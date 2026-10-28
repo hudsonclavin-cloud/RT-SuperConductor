@@ -55,6 +55,33 @@
         "Scalar values are normalized; ranges and bounds remain unknown with raw text in caveats.",
         "The source paper and repository terms must be cited when using this data."
       ]
+    },
+    {
+      "id": "kaggle-supercon-snapshot",
+      "title": "SUPERCON Dataset (Kaggle snapshot)",
+      "source_url": "https://www.kaggle.com/datasets/chaozhuang/supercon-dataset",
+      "archive": "raw/kaggle-supercon/archive.zip",
+      "sha256": "67f90e371365e9c18ddaf3976b06844104b5a93ee57070ac503fc7f2e3c69b79",
+      "observed_contents": {
+        "raw.tsv_rows": 26321,
+        "featurized.csv_rows": 16521,
+        "raw.tsv_fields": [
+          "num",
+          "name",
+          "element",
+          "str3",
+          "utc",
+          "tc",
+          "journal"
+        ],
+        "raw_rows_with_pressure": 0
+      },
+      "notes": [
+        "The archive was uploaded by the user and retained unchanged.",
+        "The raw table is imported as experimental literature evidence with unknown pressure and method.",
+        "The featurized table is retained for future benchmark comparison and is not imported as duplicate evidence records.",
+        "Review Kaggle dataset terms and the original SuperCon source terms before redistribution."
+      ]
     }
   ]
 }

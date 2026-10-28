@@ -24,6 +24,7 @@ class EvidenceRecord:
     composition: str
     source_reference: str
     evidence_kind: EvidenceKind
+    publication_reference: str | None = None
     crystal_structure: str | None = None
     material_family: str | None = None
     reported_tc_k: float | None = None

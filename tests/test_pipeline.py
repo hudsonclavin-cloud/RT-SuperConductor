@@ -74,6 +74,38 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(summary.total_records, 3)
         self.assertEqual(summary.records_with_known_pressure, 1)
 
+    def test_run_pipeline_includes_optional_kaggle_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            uci = root / "unique_m.csv"
+            uci.write_text("material,critical_temp\nX2Y,12.5\n", encoding="utf-8")
+            dsc = root / "3DSC_MP.csv"
+            dsc.write_text(
+                "# generated\n"
+                "formula_sc,tc,cif,material_id_2,doi_2,sc_class\n"
+                "X2Y,25,,mp-1,doi:record,Other\n",
+                encoding="utf-8",
+            )
+            kaggle = root / "raw.tsv"
+            kaggle.write_text(
+                "1\t4\t6\t67\t85\t92\t198\n"
+                "data number\tcommon formula of materials\tchemical formula\tcommon name of structure\tunit of Tc\tTc (of this sample) recommended\tjournal\n"
+                "num\tname\telement\tstr3\tutc\ttc\tjournal\n"
+                "7\tYBCO\tY1Ba2Cu3O7\tY123\tK\t92\tExample, 1(2020)1\n",
+                encoding="utf-8",
+            )
+
+            summary = run_pipeline(
+                uci_path=uci,
+                threedsc_path=dsc,
+                kaggle_supercon_path=kaggle,
+                output_path=root / "evidence.jsonl",
+                report_path=root / "report.json",
+            )
+
+        self.assertEqual(summary.total_records, 3)
+        self.assertEqual(summary.records_with_known_pressure, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

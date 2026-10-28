@@ -17,6 +17,12 @@ no crystal structures, and many rows have no material annotation.
 - UCI Superconductivity Data: useful composition features and `Tc`, but no
   row-level pressure or measurement method.
 - 3DSC_MP: `Tc` plus Materials Project structures, but no pressure field.
+- Kaggle's [SUPERCON Dataset snapshot](https://www.kaggle.com/datasets/chaozhuang/supercon-dataset):
+  a raw tab-separated SuperCon literature table with 26,321 rows, sample IDs,
+  common names, structure labels, and journal citations. It does not provide
+  row-level pressure or measurement-method fields, so it is useful for
+  provenance and benchmark coverage rather than pressure screening. Its
+  featurized file is retained separately and is not treated as new evidence.
 
 These remain valuable for structure and baseline modeling, but neither can label
 the ambient-versus-engineering-pressure target by itself.
@@ -36,8 +42,10 @@ the ambient-versus-engineering-pressure target by itself.
 
 1. Normalize SuperMat pressure and measurement fields and link each row to its
    source-paper filename.
-2. Resolve material names and formulas conservatively; preserve unresolved rows.
-3. Link records to 3DSC or Materials Project structures where the match is
+2. Add the Kaggle SuperCon raw table for literature and citation coverage while
+   keeping pressure unknown.
+3. Resolve material names and formulas conservatively; preserve unresolved rows.
+4. Link records to 3DSC or Materials Project structures where the match is
    reviewable.
-4. Add NIMS SuperCon only after obtaining an authorized export and documenting
+5. Add NIMS SuperCon only after obtaining an authorized export and documenting
    its fields and terms.

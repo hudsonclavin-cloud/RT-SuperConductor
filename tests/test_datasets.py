@@ -6,7 +6,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
-from rt_superconductor.datasets import iter_3dsc_mp_records, iter_uci_records
+from rt_superconductor.datasets import (
+    iter_3dsc_mp_records,
+    iter_kaggle_supercon_records,
+    iter_uci_records,
+)
 
 
 class DatasetImporterTests(unittest.TestCase):
@@ -46,3 +50,21 @@ class DatasetImporterTests(unittest.TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].crystal_structure, "data/final/MP/cifs/X2Y.cif")
         self.assertEqual(records[0].source_reference, "10.example/record")
+
+    def test_kaggle_supercon_keeps_journal_and_unknown_pressure(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "raw.tsv"
+            path.write_text(
+                "1\t4\t6\t67\t85\t92\t198\n"
+                "data number\tcommon formula of materials\tchemical formula\tcommon name of structure\tunit of Tc\tTc (of this sample) recommended\tjournal\n"
+                "num\tname\telement\tstr3\tutc\ttc\tjournal\n"
+                "7\tYBCO\tY1Ba2Cu3O7\tY123\tK\t92\tExample, 1(2020)1\n",
+                encoding="utf-8",
+            )
+            records = list(iter_kaggle_supercon_records(path))
+
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].reported_tc_k, 92.0)
+        self.assertEqual(records[0].publication_reference, "Example, 1(2020)1")
+        self.assertEqual(records[0].material_family, "Y123")
+        self.assertIsNone(records[0].measurement_pressure_gpa)

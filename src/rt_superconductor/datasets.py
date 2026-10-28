@@ -13,6 +13,7 @@ from .targets import ATMOSPHERIC_PRESSURE_GPA
 UCI_SOURCE = "doi:10.24432/C53P47"
 THREEDSC_SOURCE = "doi:10.6084/m9.figshare.c.6914407"
 SUPERMAT_SOURCE = "doi:10.1080/27660400.2021.1918396"
+KAGGLE_SUPERCON_SOURCE = "https://www.kaggle.com/datasets/chaozhuang/supercon-dataset"
 
 
 def _optional_float(value: str | None) -> float | None:
@@ -64,6 +65,21 @@ def _parse_supermat_pressure(value: str) -> tuple[float | None, str | None]:
     }[unit]
     caveat = f"raw_pressure={value!r}; approximate value" if any(marker in lowered for marker in ("~", "∼")) else None
     return float(amount * factor), caveat
+
+
+def _parse_kaggle_tc(value: str, unit: str) -> tuple[float | None, str | None]:
+    """Parse the scalar temperature in the Kaggle SuperCon snapshot."""
+
+    text = value.strip().replace("−", "-")
+    if not text:
+        return None, None
+    if unit.strip().casefold() != "k":
+        return None, f"raw_tc_unit={unit!r}; unsupported unit retained for review"
+    if any(token in text.casefold() for token in ("<", ">", " to ", "–", "±", "-")):
+        return None, f"raw_tc_value={value!r}; non-scalar value retained for review"
+    if not re.fullmatch(r"\d+(?:\.\d*)?|\.\d+", text):
+        return None, f"raw_tc_value={value!r}; could not parse one scalar"
+    return float(Decimal(text)), None
 
 
 def iter_uci_records(path: str | Path) -> Iterator[EvidenceRecord]:
@@ -157,5 +173,49 @@ def iter_supermat_records(path: str | Path) -> Iterator[EvidenceRecord]:
                 measurement_pressure_gpa=pressure,
                 measurement_method=row["me_method"].strip() or None,
                 sample_identifier=row["filename"].strip() or None,
+                caveats=tuple(caveats),
+            )
+
+
+def iter_kaggle_supercon_records(path: str | Path) -> Iterator[EvidenceRecord]:
+    """Yield rows from Kaggle's raw SuperCon literature snapshot.
+
+    The file has three header rows followed by tab-separated literature records.
+    It contains no row-level pressure field, so pressure remains unknown even
+    when a material is known to have been measured under pressure elsewhere.
+    """
+
+    with Path(path).open(newline="", encoding="utf-8-sig") as handle:
+        # The first two rows are display metadata; the third supplies keys.
+        for _ in range(2):
+            handle.readline()
+        fieldnames = handle.readline().rstrip("\r\n").split("\t")
+        required = {"num", "name", "element", "str3", "utc", "tc", "journal"}
+        if not required.issubset(fieldnames):
+            raise ValueError(f"Kaggle SuperCon file is missing columns: {sorted(required)}")
+        reader = csv.DictReader(handle, fieldnames=fieldnames, delimiter="\t")
+        for row_number, row in enumerate(reader, start=4):
+            composition = row["element"].strip()
+            caveats = [
+                "Kaggle snapshot of the SuperCon literature table; verify the row against the original publication.",
+                "The source does not provide row-level pressure or measurement-method metadata.",
+            ]
+            if not composition:
+                composition = f"unknown-material:kaggle-supercon:{row_number}"
+                caveats.append("The source row has no chemical formula.")
+            tc, tc_caveat = _parse_kaggle_tc(row["tc"], row["utc"])
+            if tc_caveat:
+                caveats.append(tc_caveat)
+            if row["name"].strip():
+                caveats.append(f"common_material_name={row['name'].strip()!r}")
+            yield EvidenceRecord(
+                record_id=f"kaggle_supercon:{row['num'].strip() or row_number}",
+                composition=composition,
+                source_reference=KAGGLE_SUPERCON_SOURCE,
+                evidence_kind=EvidenceKind.EXPERIMENTAL,
+                publication_reference=row["journal"].strip() or None,
+                material_family=row["str3"].strip() or row["name"].strip() or None,
+                reported_tc_k=tc,
+                sample_identifier=row["num"].strip() or None,
                 caveats=tuple(caveats),
             )
