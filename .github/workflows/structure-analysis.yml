@@ -6,6 +6,9 @@ on:
     paths:
       - "scripts/fetch_materials_project_structures.py"
       - "scripts/prepare_electronic_density_manifest.py"
+      - "scripts/build_structure_registry.py"
+      - "scripts/build_external_dft_manifest.py"
+      - "scripts/ingest_dft_results.py"
       - "docs/electronic-density.md"
       - ".github/workflows/structure-analysis.yml"
 
