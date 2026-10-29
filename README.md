@@ -150,6 +150,9 @@ The data fields to collect before expanding the training run are prioritized in
 transition evidence, synthesis reproducibility, structure quality, and
 calculation provenance before adding more formula-only features.
 
+The detailed execution plan for the next phase is the
+[structure-aware discovery checklist](docs/structure-aware-phase-checklist.md).
+
 The first active-learning spine is available in `rt_superconductor.search`.
 It keeps proposed candidates separate from observations, applies the pressure
 ceiling explicitly, ranks a batch using uncertainty and feasibility, and emits
