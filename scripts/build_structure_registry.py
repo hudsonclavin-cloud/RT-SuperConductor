@@ -10,7 +10,10 @@ def run(root: Path, harmonized: Path, out: Path) -> dict:
         from pymatgen.core import Structure
     except ImportError as exc:
         raise RuntimeError("Install project extras with pip install -e '.[ml]'") from exc
-    manifest=json.loads((root/'structure-manifest.json').read_text())
+    manifest_path=root/'structure-manifest.json'
+    if not manifest_path.exists():
+        manifest_path=root/'structures'/'structure-manifest.json'
+    manifest=json.loads(manifest_path.read_text())
     with harmonized.open(newline='',encoding='utf-8-sig') as f: records=list(csv.DictReader(f))
     lineage=defaultdict(list)
     for r in records:
