@@ -12,9 +12,14 @@ checksums the UCI and NIMS SuperCon2 snapshots. It checks out the public SuperMa
 repository and records that source revision and input checksums. It creates up
 to 1,000 SuperCon2 paper-review leads and a full SuperMat review queue, grouping
 records into within-ceiling, high-pressure, and unknown-pressure buckets. It
-then trains the grouped UCI composition baseline and attempts the pressure-aware
-surrogate using only confirmed empirical rows. Metrics, source coverage, queues,
-predictions, and blocked-data reports are uploaded in a run-specific artifact.
+then creates ten paper-review tasks prioritized by source-evidence risks; this
+triage produces no candidate Tc predictions and completes zero learning cycles.
+The workflow trains the grouped UCI composition baseline and attempts the
+pressure-aware surrogate using only confirmed empirical rows. Metrics, source
+coverage, queues, review tasks, predictions from the separate UCI benchmark,
+and blocked-data reports are uploaded in a run-specific artifact. The UCI
+benchmark predictions are for held-out benchmark rows, not the literature
+review queue.
 
 Automatically extracted SuperCon2 and SuperMat rows do not enter training until
 a reviewer confirms the transition, measurement method, pressure, and sample

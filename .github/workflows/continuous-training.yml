@@ -9,6 +9,8 @@ on:
       - "scripts/train_baseline.py"
       - "scripts/build_supercon2_review_queue.py"
       - "scripts/build_supermat_review_queue.py"
+      - "scripts/build_review_campaign.py"
+      - "scripts/run_three_generation_campaign.py"
       - "src/rt_superconductor/**"
       - "pyproject.toml"
       - "data/training/**"
@@ -81,6 +83,10 @@ jobs:
             --input /tmp/supermat/SuperMat-2.0.csv \
             --output data/processed/continuous-training/evidence-intake/supermat-review-queue.csv \
             --manifest data/processed/continuous-training/evidence-intake/supermat-intake-manifest.json
+          python scripts/build_review_campaign.py \
+            --input data/processed/continuous-training/evidence-intake/supercon2-review-queue.csv \
+            --output data/processed/continuous-training/evidence-intake/paper-review-campaign.json \
+            --batch-size 10
           sha256sum /tmp/supercon2.csv /tmp/supermat/SuperMat-2.0.csv \
             > data/processed/continuous-training/evidence-intake/source-checksums.txt
       - name: Train grouped composition baseline
@@ -104,6 +110,7 @@ jobs:
           metrics = json.loads(Path("data/processed/continuous-training/baseline-metrics.json").read_text())
           reviewed = json.loads(Path("data/processed/continuous-training/reviewed-training-report.json").read_text())
           supermat = json.loads(Path("data/processed/continuous-training/evidence-intake/supermat-intake-manifest.json").read_text())
+          campaign = json.loads(Path("data/processed/continuous-training/evidence-intake/paper-review-campaign.json").read_text())
           supercon2_rows = sum(1 for _ in Path("data/processed/continuous-training/evidence-intake/supercon2-review-queue.csv").open(encoding="utf-8")) - 1
           model = metrics["model_metrics"]
           baseline = metrics["baseline_metrics"]
@@ -113,6 +120,8 @@ jobs:
               f"- Validated reviewed records: {reviewed['record_count']}\n"
               f"- New paper-review leads: SuperCon2 {supercon2_rows}; SuperMat {supermat['candidate_rows']} (not training labels)\n"
               f"- SuperMat pressure buckets: {supermat['counts']}\n"
+              f"- Paper-review tasks prepared: {campaign['stages'][2]['task_count']}\n"
+              f"- Model inference: {campaign['model_inference_status']}; learning cycles completed: {campaign['learning_cycles_completed']}\n"
               f"- Grouped test rows: {metrics['test_rows']}\n"
               f"- Model MAE: {model['mae_k']:.3f} K\n"
               f"- Mean baseline MAE: {baseline['mae_k']:.3f} K\n"

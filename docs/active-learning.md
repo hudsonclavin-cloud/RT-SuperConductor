@@ -37,8 +37,22 @@ structure service, Quantum ESPRESSO workflow, quantum backend, or laboratory
 integration. Results remain `SimulationResult` objects until a reviewer decides
 whether they belong in the evidence store.
 
-`scripts/run_three_generation_campaign.py` exercises this spine in three
-explicit generations over the pending SuperCon2 review queue: triage, pressure
-and target acquisition, then stable task emission. Its output remains a
-review artifact; it does not promote extracted literature into training data
-or claim that a candidate is superconducting.
+`scripts/build_review_campaign.py` is a **three-stage paper-review
+triage**, not three learning generations. It inventories the pending queue,
+prioritizes source-verification risks, and emits paper-review tasks. It reports
+`learning_cycles_completed=0` and blocks model inference until a validated
+candidate model and compatible feature matrix exist. Extracted Tc is retained
+only as `extracted_tc_kelvin`; it is never copied into a prediction field and
+the workflow emits no hand-assigned “prediction uncertainty.”
+
+A genuine learning cycle requires new reviewed or calculated evidence to return
+to the evidence store, followed by validation, a new model fit, evaluation, and
+candidate inference. The present repository does not yet complete that cycle:
+the pressure-aware model is blocked by too little confirmed, family-diverse
+training evidence, and calculation outputs are still external/pending. Do not
+interpret review triage, ranking based on extracted Tc, or task creation as AI
+training or discovery.
+
+The old `scripts/run_three_generation_campaign.py` path remains only as a
+compatibility entry point. It prints a warning and invokes this review-only
+workflow, whose report explicitly states that zero learning cycles ran.
