@@ -107,7 +107,9 @@ def fetch_structures(
                     except ImportError as exc:
                         raise RuntimeError("pymatgen is required to write CIF files") from exc
                     CifWriter(structure).write_file(cif_path)
-                    entry["cif_path"] = str(cif_path)
+                    # Keep the artifact portable: consumers should resolve this
+                    # path relative to the structures directory after download.
+                    entry["cif_path"] = filename
                     entry["structure_status"] = "retrieved"
                 except Exception as exc:  # preserve other candidates and report failures
                     entry["structure_status"] = "retrieval_error"

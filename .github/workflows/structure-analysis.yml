@@ -43,8 +43,21 @@ jobs:
           python scripts/prepare_electronic_density_manifest.py \
             --input-dir data/processed/structure-analysis/structures \
             --output data/processed/structure-analysis/electronic-analysis-manifest.csv
+      - name: Put manifests at artifact top level
+        run: |
+          cp data/processed/structure-analysis/structures/structure-manifest.json \
+            data/processed/structure-analysis/structure-manifest.json
+          cat > data/processed/structure-analysis/ARTIFACT-INDEX.txt <<'EOF'
+          Start here:
+          - materials-project-report.json: enrichment and API error report
+          - structure-manifest.json: one row per candidate and retrieved CIF status
+          - electronic-analysis-manifest.csv: DFT/Bader/ELF/COHP/Wannier status
+          - structures/: retrieved CIF files
+          EOF
+          find data/processed/structure-analysis -maxdepth 2 -type f -print | sort
       - name: Upload structure and analysis inputs
         uses: actions/upload-artifact@v4
         with:
           name: structure-electronic-analysis-${{ github.run_id }}
           path: data/processed/structure-analysis/
+          if-no-files-found: error

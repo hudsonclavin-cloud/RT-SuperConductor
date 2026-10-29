@@ -86,6 +86,17 @@ def enrich_csv(
     # Validate before making remote calls so malformed rows cannot be emitted.
     records = load_harmonized(input_path)
     formulas = sorted({record.formula for record in records})
+    # Preserve IDs already attached to the harmonized source.  A temporary API
+    # miss must not erase a known structure link and leave the next workflow
+    # stage with nothing to retrieve.
+    existing_matches: dict[str, MaterialsProjectMatch] = {}
+    for record in records:
+        if record.mp_id and record.formula not in existing_matches:
+            existing_matches[record.formula] = MaterialsProjectMatch(
+                mp_id=record.mp_id,
+                energy_above_hull=record.energy_above_hull,
+                spacegroup_number=record.spacegroup_number,
+            )
     own_client = client is None
     context_manager = None
     if client is None:
@@ -101,10 +112,11 @@ def enrich_csv(
                     formula=formula,
                     fields=["material_id", "energy_above_hull", "symmetry"],
                 )
-                matches[formula] = select_lowest_energy_polymorph(documents)
+                selected = select_lowest_energy_polymorph(documents)
+                matches[formula] = selected if selected.mp_id else existing_matches.get(formula, MaterialsProjectMatch())
             except Exception as exc:  # preserve other formulas and report the failure
                 errors[formula] = f"{type(exc).__name__}: {exc}"
-                matches[formula] = MaterialsProjectMatch()
+                matches[formula] = existing_matches.get(formula, MaterialsProjectMatch())
             if request_delay_seconds:
                 time.sleep(request_delay_seconds)
     finally:
@@ -120,9 +132,12 @@ def enrich_csv(
             fieldnames.append(field)
     for row in rows:
         match = matches[row["formula"]]
-        row["mp_id"] = match.mp_id
-        row["energy_above_hull"] = "" if match.energy_above_hull is None else f"{match.energy_above_hull:.8g}"
-        row["spacegroup_number"] = "" if match.spacegroup_number is None else str(match.spacegroup_number)
+        if match.mp_id:
+            row["mp_id"] = match.mp_id
+        if match.energy_above_hull is not None:
+            row["energy_above_hull"] = f"{match.energy_above_hull:.8g}"
+        if match.spacegroup_number is not None:
+            row["spacegroup_number"] = str(match.spacegroup_number)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
