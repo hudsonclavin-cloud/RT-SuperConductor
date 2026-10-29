@@ -1,0 +1,20 @@
+element,recommended_pslibrary_family,version,functional_to_select,source_pattern,library_source_revision,license,availability,notes
+As,n,1.0.0,PBE,As.$fct-n-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Choose PAW or ultrasoft family and validate cutoffs.
+B,n,1.0.0,PBE,B.$fct-n-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Choose PAW or ultrasoft family and validate cutoffs.
+Ba,spn,1.0.0,PBE,Ba.$fct-spn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Semicore states included in suggested family.
+Bi,dn,1.0.0,PBE,Bi.$fct-dn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Choose PAW or ultrasoft family and validate cutoffs.
+Ca,spn,1.0.0,PBE,Ca.$fct-spn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Semicore states included in suggested family.
+Cu,dn,1.0.0,PBE,Cu.$fct-dn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,d states included; validate magnetic and correlated-state behavior.
+Fe,n,1.0.0,PBE,Fe.$fct-n-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Validate magnetic state and semicore treatment.
+H,,1.0.0,PBE,H.$fct-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Choose PAW or ultrasoft family and high-pressure convergence.
+Hg,n,1.0.0,PBE,Hg.$fct-n-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Check relativistic treatment; spin-orbit effects may matter.
+K,spn,1.0.0,PBE,K.$fct-spn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Semicore states included in suggested family.
+Mg,spnl,1.0.0,PBE,Mg.$fct-spnl-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Validate cutoff and semicore treatment.
+Nb,spn,1.0.0,PBE,Nb.$fct-spn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Check PBE compatibility and convergence.
+O,n,1.0.0,PBE,O.$fct-n-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Choose PAW or ultrasoft family and validate cutoffs.
+S,nl,1.0.0,PBE,S.$fct-nl-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Validate cutoff and nonlinear core correction.
+Se,n,1.0.0,PBE,Se.$fct-n-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Check relativistic treatment for target properties.
+Si,nl,1.0.0,PBE,Si.$fct-nl-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,PSlibrary notes PBE family compatibility; verify tests.
+Sn,dn,1.0.0,PBE,Sn.$fct-dn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,d states included; validate cutoff.
+Sr,spn,1.0.0,PBE,Sr.$fct-spn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Semicore states included in suggested family.
+Y,spn,1.0.0,PBE,Y.$fct-spn-*_psl.1.0.0,835dd6477c90fa9d59524914de50901d4be73e36,"GPL-2.0 source repository; verify generated UPF terms",generator_inputs_only,Semicore states included in suggested family.

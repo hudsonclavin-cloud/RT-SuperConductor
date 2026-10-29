@@ -24,10 +24,13 @@ python scripts/build_external_dft_manifest.py \
   --output calculation-manifest.csv
 ```
 
-The pseudopotential manifest must include at least an `element` column. A
-production system should extend it with file path, checksum, functional, and
-license/source metadata. Do not start a calculation from this minimal manifest
-until those fields and convergence settings are reviewed.
+The project records candidate element-specific PBE families from the
+user-provided PSLibrary source in `data/pseudopotentials/`. PSLibrary's GitHub
+repository contains generator inputs and scripts, not ready-to-use UPF files.
+The family patterns are a starting reference, not a validated set. The
+pseudopotential manifest must include element, actual UPF file, checksum,
+functional, source/license, and cutoff metadata. Do not start calculations until
+the PAW/ultrasoft choice and convergence settings are reviewed.
 
 After copying actual outputs into a results directory, run:
 
