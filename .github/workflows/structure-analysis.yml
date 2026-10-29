@@ -11,6 +11,9 @@ on:
       - "scripts/ingest_dft_results.py"
       - "scripts/build_research_decision_package.py"
       - "docs/electronic-density.md"
+      - "docs/superconductivity-variables.md"
+      - "data/training/external-data-sources.csv"
+      - "data/pseudopotentials/pslibrary-catalog.csv"
       - ".github/workflows/structure-analysis.yml"
 
 permissions:
@@ -68,6 +71,8 @@ jobs:
             --output data/processed/structure-analysis/electronic-analysis-manifest.csv
       - name: Put manifests at artifact top level
         run: |
+          cp data/training/external-data-sources.csv data/processed/structure-analysis/external-data-sources.csv
+          cp data/pseudopotentials/pslibrary-catalog.csv data/processed/structure-analysis/pslibrary-catalog.csv
           cp data/processed/structure-analysis/structures/structure-manifest.json \
             data/processed/structure-analysis/structure-manifest.json
           cat > data/processed/structure-analysis/ARTIFACT-INDEX.txt <<'EOF'
@@ -77,6 +82,9 @@ jobs:
           - electronic-analysis-manifest.csv: DFT/Bader/ELF/COHP/Wannier status
           - unique-structures.csv and structure-lineage.csv: deduplicated structures and evidence lineage
           - structure-qc.csv and structure-features.csv: parsed CIF checks/features
+          - feature-coverage.json: coverage of available structure and MP variables
+          - external-data-sources.csv: open sources to add next
+          - pslibrary-catalog.csv: source patterns for available elements
           - structure-resolution-review.csv: unresolved mappings requiring review
           - calculation-manifest.csv: external DFT jobs and blockers
           - electronic-analysis-results.csv: empty-by-design result status template
@@ -101,7 +109,8 @@ jobs:
               f"- CIFs retrieved: {manifest.get('retrieved_count', 0)}",
               "- Status counts: " + ", ".join(f"`{key}`={value}" for key, value in sorted(counts.items())),
               "",
-              "The artifact root contains the deduplicated registry, QC, features, and external calculation manifest.",
+              "The artifact root contains the deduplicated registry, QC, feature coverage, and external calculation manifest.",
+              "- Feature coverage: " + ", ".join(f"{key}={value}/{manifest.get('retrieved_count', 0)}" for key,value in sorted(json.loads(Path("data/processed/structure-analysis/feature-coverage.json").read_text())["nonmissing_count_by_feature"].items())),
           ]
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
               handle.write("\n".join(lines) + "\n")
