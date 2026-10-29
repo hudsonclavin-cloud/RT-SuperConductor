@@ -30,6 +30,14 @@ Its pressure and transition values are free-text literature annotations. They
 must be parsed conservatively and checked against the cited paper. It contains
 no crystal structures, and many rows have no material annotation.
 
+The weekly evidence loop reads the CSV from the public `lfoppiano/SuperMat`
+repository and records the checked-out source revision and input checksum in
+its artifact. The current upstream CSV is small (about 1,300 annotated rows),
+not a massive training corpus. It has no DOI column; `filename` points toward
+the paper record. The workflow creates a paper-review queue and never treats
+these annotations as verified labels. The repository states CC BY 4.0 for the
+dataset; retain attribution to the SuperMat authors and its cited publication.
+
 ## Sources already imported
 
 - UCI Superconductivity Data: useful composition features and `Tc`, but no

@@ -7,9 +7,14 @@ on:
   push:
     paths:
       - "scripts/train_baseline.py"
+      - "scripts/build_supercon2_review_queue.py"
+      - "scripts/build_supermat_review_queue.py"
       - "src/rt_superconductor/**"
       - "pyproject.toml"
       - "data/training/**"
+      - "docs/continuous-training.md"
+      - "docs/faculty_research_summary.md"
+      - "data/results/**"
 
 permissions:
   contents: read
@@ -58,6 +63,26 @@ jobs:
           echo "87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e  /tmp/uci/superconductivity-data.zip" \
             | sha256sum --check
           unzip -q /tmp/uci/superconductivity-data.zip -d /tmp/uci/extracted
+      - name: Refresh literature review queues from SuperCon2 and SuperMat
+        run: |
+          mkdir -p /tmp/supermat data/processed/continuous-training/evidence-intake
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --output /tmp/supercon2.csv \
+            "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
+          echo "ed55ea8f43a0984d77b5c29576164e06  /tmp/supercon2.csv" | md5sum --check
+          git clone --depth 1 https://github.com/lfoppiano/SuperMat.git /tmp/supermat/repo
+          cp /tmp/supermat/repo/data/csv/SuperMat-2.0.csv /tmp/supermat/SuperMat-2.0.csv
+          git -C /tmp/supermat/repo rev-parse HEAD > data/processed/continuous-training/evidence-intake/supermat-source-revision.txt
+          python scripts/build_supercon2_review_queue.py \
+            --input /tmp/supercon2.csv \
+            --output data/processed/continuous-training/evidence-intake/supercon2-review-queue.csv \
+            --limit 1000
+          python scripts/build_supermat_review_queue.py \
+            --input /tmp/supermat/SuperMat-2.0.csv \
+            --output data/processed/continuous-training/evidence-intake/supermat-review-queue.csv \
+            --manifest data/processed/continuous-training/evidence-intake/supermat-intake-manifest.json
+          sha256sum /tmp/supercon2.csv /tmp/supermat/SuperMat-2.0.csv \
+            > data/processed/continuous-training/evidence-intake/source-checksums.txt
       - name: Train grouped composition baseline
         run: |
           python scripts/train_baseline.py \
@@ -78,12 +103,16 @@ jobs:
 
           metrics = json.loads(Path("data/processed/continuous-training/baseline-metrics.json").read_text())
           reviewed = json.loads(Path("data/processed/continuous-training/reviewed-training-report.json").read_text())
+          supermat = json.loads(Path("data/processed/continuous-training/evidence-intake/supermat-intake-manifest.json").read_text())
+          supercon2_rows = sum(1 for _ in Path("data/processed/continuous-training/evidence-intake/supercon2-review-queue.csv").open(encoding="utf-8")) - 1
           model = metrics["model_metrics"]
           baseline = metrics["baseline_metrics"]
           summary = (
               f"### Continuous training\n"
               f"- Rows: {metrics['rows']}\n"
               f"- Validated reviewed records: {reviewed['record_count']}\n"
+              f"- New paper-review leads: SuperCon2 {supercon2_rows}; SuperMat {supermat['candidate_rows']} (not training labels)\n"
+              f"- SuperMat pressure buckets: {supermat['counts']}\n"
               f"- Grouped test rows: {metrics['test_rows']}\n"
               f"- Model MAE: {model['mae_k']:.3f} K\n"
               f"- Mean baseline MAE: {baseline['mae_k']:.3f} K\n"
