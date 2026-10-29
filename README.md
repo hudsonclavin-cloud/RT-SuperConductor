@@ -152,6 +152,9 @@ calculation provenance before adding more formula-only features.
 
 The detailed execution plan for the next phase is the
 [structure-aware discovery checklist](docs/structure-aware-phase-checklist.md).
+External calculations and result ingestion are described in
+[external-compute.md](docs/external-compute.md), with the current evidence and
+calculation status in [phase-structure-aware-results.md](docs/phase-structure-aware-results.md).
 
 The first active-learning spine is available in `rt_superconductor.search`.
 It keeps proposed candidates separate from observations, applies the pressure

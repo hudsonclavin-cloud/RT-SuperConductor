@@ -38,6 +38,18 @@ jobs:
           python scripts/fetch_materials_project_structures.py \
             --input data/processed/structure-analysis/harmonized_enriched.csv \
             --output-dir data/processed/structure-analysis/structures
+      - name: Deduplicate structures and run CIF quality checks
+        run: |
+          python scripts/build_structure_registry.py \
+            --artifact-root data/processed/structure-analysis \
+            --harmonized data/processed/structure-analysis/harmonized_enriched.csv \
+            --output-dir data/processed/structure-analysis
+      - name: Prepare blocked-by-default external DFT manifest
+        run: |
+          python scripts/build_external_dft_manifest.py \
+            --registry data/processed/structure-analysis/unique-structures.csv \
+            --cif-dir data/processed/structure-analysis/structures \
+            --output data/processed/structure-analysis/calculation-manifest.csv
       - name: Prepare external DFT analysis manifest
         run: |
           python scripts/prepare_electronic_density_manifest.py \
@@ -52,6 +64,9 @@ jobs:
           - materials-project-report.json: enrichment and API error report
           - structure-manifest.json: one row per candidate and retrieved CIF status
           - electronic-analysis-manifest.csv: DFT/Bader/ELF/COHP/Wannier status
+          - unique-structures.csv and structure-lineage.csv: deduplicated structures and evidence lineage
+          - structure-qc.csv and structure-features.csv: parsed CIF checks/features
+          - calculation-manifest.csv: external DFT jobs and blockers
           - structures/: retrieved CIF files
           EOF
           find data/processed/structure-analysis -maxdepth 2 -type f -print | sort
@@ -72,7 +87,7 @@ jobs:
               f"- CIFs retrieved: {manifest.get('retrieved_count', 0)}",
               "- Status counts: " + ", ".join(f"`{key}`={value}" for key, value in sorted(counts.items())),
               "",
-              "The artifact root contains `ARTIFACT-INDEX.txt`, `structure-manifest.json`, and `electronic-analysis-manifest.csv`.",
+              "The artifact root contains the deduplicated registry, QC, features, and external calculation manifest.",
           ]
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
               handle.write("\n".join(lines) + "\n")
