@@ -55,6 +55,29 @@ jobs:
           - structures/: retrieved CIF files
           EOF
           find data/processed/structure-analysis -maxdepth 2 -type f -print | sort
+      - name: Publish structure retrieval summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from collections import Counter
+          from pathlib import Path
+
+          manifest = json.loads(Path("data/processed/structure-analysis/structure-manifest.json").read_text())
+          entries = manifest.get("entries", [])
+          counts = Counter(entry.get("structure_status", "unknown") for entry in entries)
+          lines = [
+              "## Structure retrieval",
+              f"- Records examined: {len(entries)}",
+              f"- CIFs retrieved: {manifest.get('retrieved_count', 0)}",
+              "- Status counts: " + ", ".join(f"`{key}`={value}" for key, value in sorted(counts.items())),
+              "",
+              "The artifact root contains `ARTIFACT-INDEX.txt`, `structure-manifest.json`, and `electronic-analysis-manifest.csv`.",
+          ]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
       - name: Upload structure and analysis inputs
         uses: actions/upload-artifact@v4
         with:
