@@ -9,6 +9,7 @@ on:
       - "scripts/build_structure_registry.py"
       - "scripts/build_external_dft_manifest.py"
       - "scripts/ingest_dft_results.py"
+      - "scripts/build_research_decision_package.py"
       - "docs/electronic-density.md"
       - ".github/workflows/structure-analysis.yml"
 
@@ -53,6 +54,13 @@ jobs:
             --registry data/processed/structure-analysis/unique-structures.csv \
             --cif-dir data/processed/structure-analysis/structures \
             --output data/processed/structure-analysis/calculation-manifest.csv
+      - name: Build research decision package
+        run: |
+          python scripts/build_research_decision_package.py \
+            --harmonized data/processed/structure-analysis/harmonized_enriched.csv \
+            --registry data/processed/structure-analysis/unique-structures.csv \
+            --calculations data/processed/structure-analysis/calculation-manifest.csv \
+            --output-dir data/processed/structure-analysis/research-decision-package
       - name: Prepare external DFT analysis manifest
         run: |
           python scripts/prepare_electronic_density_manifest.py \
@@ -69,7 +77,10 @@ jobs:
           - electronic-analysis-manifest.csv: DFT/Bader/ELF/COHP/Wannier status
           - unique-structures.csv and structure-lineage.csv: deduplicated structures and evidence lineage
           - structure-qc.csv and structure-features.csv: parsed CIF checks/features
+          - structure-resolution-review.csv: unresolved mappings requiring review
           - calculation-manifest.csv: external DFT jobs and blockers
+          - electronic-analysis-results.csv: empty-by-design result status template
+          - research-decision-package/: concise run status and limitations
           - structures/: retrieved CIF files
           EOF
           find data/processed/structure-analysis -maxdepth 2 -type f -print | sort

@@ -19,10 +19,11 @@ default external calculation manifest.
 - **Open uncertainties:** polymorph matching, defects, synthesis conditions,
   convergence, and pressure constraints remain to be established.
 
-The registry script reports some high-value geometry features (cell volume,
-density, minimum distance, symmetry, occupancy, formula) and explicitly labels
-coordination, dimensionality, prototype similarity, and formation energy as
-uncomputed when no trusted calculation/source is available. DFT jobs remain
+The registry script reports high-value geometry features (cell volume,
+density, minimum distance, symmetry, occupancy, formula, and a cutoff-based
+cutoff coordination estimate) and labels dimensionality, prototype similarity,
+and formation energy as uncomputed when no trusted calculation/source exists.
+The coordination estimate is geometry-only and cutoff-dependent. DFT jobs remain
 blocked until pseudopotential files, hashes, functional, settings, and an
 external compute target are supplied.
 
