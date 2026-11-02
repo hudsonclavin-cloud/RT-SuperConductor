@@ -2,9 +2,10 @@
 """Attach the lowest-energy Materials Project polymorph to each formula.
 
 The script reads the validated harmonized table and writes a new CSV with
-``mp_id``, ``energy_above_hull`` (eV/atom), and ``spacegroup_number``.  It is
-safe to rerun: existing enrichment columns are replaced from the current API
-response, while all provenance and review fields are retained.
+``mp_id``, ``energy_above_hull`` (eV/atom), ``spacegroup_number``, and optional
+formation energy, band gap, metallicity, magnetization, density, and volume.
+It is safe to rerun: API misses preserve existing structure links and other
+known values, while provenance and review fields are retained.
 """
 
 from __future__ import annotations
@@ -30,6 +31,12 @@ class MaterialsProjectMatch:
     mp_id: str = ""
     energy_above_hull: float | None = None
     spacegroup_number: int | None = None
+    formation_energy_per_atom: float | None = None
+    band_gap_ev: float | None = None
+    is_metal: bool | None = None
+    total_magnetization_muB: float | None = None
+    density_g_cm3: float | None = None
+    volume_angstrom3: float | None = None
 
 
 def _value(document: Any, name: str, default: Any = None) -> Any:
@@ -60,7 +67,21 @@ def select_lowest_energy_polymorph(documents: Iterable[Any]) -> MaterialsProject
         mp_id=str(mp_id) if mp_id is not None else "",
         energy_above_hull=float(_value(selected, "energy_above_hull")),
         spacegroup_number=_spacegroup_number(selected),
+        formation_energy_per_atom=_optional_float(_value(selected, "formation_energy_per_atom")),
+        band_gap_ev=_optional_float(_value(selected, "band_gap")),
+        is_metal=_optional_bool(_value(selected, "is_metal")),
+        total_magnetization_muB=_optional_float(_value(selected, "total_magnetization")),
+        density_g_cm3=_optional_float(_value(selected, "density")),
+        volume_angstrom3=_optional_float(_value(selected, "volume")),
     )
+
+
+def _optional_float(value: Any) -> float | None:
+    return float(value) if value is not None else None
+
+
+def _optional_bool(value: Any) -> bool | None:
+    return bool(value) if value is not None else None
 
 
 def _make_client(api_key: str | None):
@@ -86,6 +107,16 @@ def enrich_csv(
     # Validate before making remote calls so malformed rows cannot be emitted.
     records = load_harmonized(input_path)
     formulas = sorted({record.formula for record in records})
+    # Keep links already in the source when the API has a temporary miss or
+    # returns no usable polymorph for a formula.
+    existing_matches: dict[str, MaterialsProjectMatch] = {}
+    for record in records:
+        if record.mp_id and record.formula not in existing_matches:
+            existing_matches[record.formula] = MaterialsProjectMatch(
+                mp_id=record.mp_id,
+                energy_above_hull=record.energy_above_hull,
+                spacegroup_number=record.spacegroup_number,
+            )
     own_client = client is None
     context_manager = None
     if client is None:
@@ -99,12 +130,17 @@ def enrich_csv(
             try:
                 documents = client.materials.summary.search(
                     formula=formula,
-                    fields=["material_id", "energy_above_hull", "symmetry"],
+                    fields=[
+                        "material_id", "energy_above_hull", "formation_energy_per_atom",
+                        "symmetry", "band_gap", "is_metal", "total_magnetization",
+                        "density", "volume",
+                    ],
                 )
-                matches[formula] = select_lowest_energy_polymorph(documents)
+                selected = select_lowest_energy_polymorph(documents)
+                matches[formula] = selected if selected.mp_id else existing_matches.get(formula, MaterialsProjectMatch())
             except Exception as exc:  # preserve other formulas and report the failure
                 errors[formula] = f"{type(exc).__name__}: {exc}"
-                matches[formula] = MaterialsProjectMatch()
+                matches[formula] = existing_matches.get(formula, MaterialsProjectMatch())
             if request_delay_seconds:
                 time.sleep(request_delay_seconds)
     finally:
@@ -115,14 +151,25 @@ def enrich_csv(
         reader = csv.DictReader(handle)
         rows = list(reader)
         fieldnames = list(reader.fieldnames or [])
-    for field in ("mp_id", "energy_above_hull", "spacegroup_number"):
+    output_fields = (
+        "mp_id", "energy_above_hull", "spacegroup_number", "formation_energy_per_atom",
+        "band_gap_ev", "is_metal", "total_magnetization_muB", "density_g_cm3", "volume_angstrom3",
+    )
+    for field in output_fields:
         if field not in fieldnames:
             fieldnames.append(field)
     for row in rows:
         match = matches[row["formula"]]
-        row["mp_id"] = match.mp_id
-        row["energy_above_hull"] = "" if match.energy_above_hull is None else f"{match.energy_above_hull:.8g}"
-        row["spacegroup_number"] = "" if match.spacegroup_number is None else str(match.spacegroup_number)
+        if match.mp_id:
+            row["mp_id"] = match.mp_id
+        if match.energy_above_hull is not None:
+            row["energy_above_hull"] = f"{match.energy_above_hull:.8g}"
+        if match.spacegroup_number is not None:
+            row["spacegroup_number"] = str(match.spacegroup_number)
+        for field in output_fields[3:]:
+            value = getattr(match, field)
+            if value is not None:
+                row[field] = str(value)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)

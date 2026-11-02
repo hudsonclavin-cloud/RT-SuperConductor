@@ -134,6 +134,45 @@ The metrics are a reproducibility checkpoint, not a promotion result. The run
 artifacts are temporary and are not committed; the source and harmonized input
 hashes above identify the exact data used.
 
+### Magpie-feature rerun
+
+After installing Matminer 0.10.1, the same pinned 3DSC input and harmonized
+dataset were rerun with `feature_backend="matminer.magpie"`, `random_state=42`,
+and five family-held-out folds. This supersedes the fraction-fallback metrics
+for the Magpie backend. The pressure column remains the 3DSC ambient-pressure
+assumption, not a measured pressure feature. Of 5,773 rows, 175 have `Tc > 77 K`;
+all are in the Cuprate family. Because Cuprates are wholly held out in one fold,
+the model cannot train on any `Tc > 77 K` examples in that fold, and the pooled
+out-of-fold ROC-AUC for that threshold is not estimable. Its value is recorded
+as JSON `null`, not as a fabricated score.
+
+```json
+{
+  "run": "train_pressure_aware.py; matminer=0.10.1; random_state=42; n_splits=5",
+  "source_sha256": "353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24",
+  "harmonized_dataset_sha256": "9000678ded8098e2c48c9d5d0abbf9c68d530b839831062cb167b4ec4d6f29fc",
+  "records": 5773,
+  "zero_tc_records": 1778,
+  "chemical_family_groups": 9,
+  "feature_backend": "matminer.magpie",
+  "grouped_cv": {"mae_k": 10.4617443549, "rmse_k": 21.0354380924, "r2": -0.2204556849},
+  "mean_predictor": {"mae_k": 16.0524879254, "rmse_k": 22.1364901460, "r2": -0.3515633822},
+  "roc_auc_tc_gt_0k": 0.5809187103,
+  "roc_auc_tc_gt_77k": null,
+  "roc_auc_tc_gt_77k_status": "not estimable: all positive records are in the held-out Cuprate family; no positive class is available to train that fold",
+  "mean_predictor_roc_auc_tc_gt_0k": 0.5,
+  "mean_predictor_roc_auc_tc_gt_77k": 0.5,
+  "folds": [
+    {"fold": 1, "held_out_families": ["Other"], "test_rows": 3529, "mae_k": 4.8810086485, "rmse_k": 7.8772670691, "r2": -0.2046492628, "roc_auc_tc_gt_0k": 0.5689222704},
+    {"fold": 2, "held_out_families": ["Cuprates"], "test_rows": 874, "mae_k": 33.8837070569, "rmse_k": 47.6690893589, "r2": -0.8244397562, "roc_auc_tc_gt_0k": 0.6326289849},
+    {"fold": 3, "held_out_families": ["Ferrites"], "test_rows": 517, "mae_k": 12.5494139690, "rmse_k": 18.1359170405, "r2": -0.4916536218, "roc_auc_tc_gt_0k": 0.5551857276},
+    {"fold": 4, "held_out_families": ["Heavy-fermion", "Heavy-fermion/Chevrel"], "test_rows": 425, "mae_k": 1.6183434106, "rmse_k": 2.2446631672, "r2": -0.3107241340, "roc_auc_tc_gt_0k": 0.5905472410},
+    {"fold": 5, "held_out_families": ["Carbon-based", "Chevrel", "Oxides", "Oxides/Heavy-fermion"], "test_rows": 428, "mae_k": 14.9074011697, "rmse_k": 20.3530768374, "r2": -7.5922795445, "roc_auc_tc_gt_0k": 0.6666214137}
+  ],
+  "interpretation": "Magpie improves aggregate MAE relative to the mean predictor, but R2 remains negative, the held-out cuprate MAE is 33.88 K, and the >77 K ROC-AUC cannot be estimated. This is an exploratory benchmark, not a useful room-temperature predictor or pressure validation."
+}
+```
+
 ## Structure-aware comparison
 
 `scripts/evaluate_structure_features.py` adds Matminer's

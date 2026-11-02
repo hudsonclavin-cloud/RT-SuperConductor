@@ -1,6 +1,8 @@
 # Reviewed training data
 
-## Harmonized schema and trust tiers
+## Phase 2 harmonized schema
+
+The schema's current trust tiers and training boundary are described below.
 
 `harmonized_supercon.csv` is the validated multi-source boundary for the
 pressure-aware surrogate. It combines SuperCon2, 3DSC, SuperMat, and UCI rows.
@@ -62,12 +64,30 @@ The file `review_queue_supercon2.csv` is a pending work list generated from
 the NIMS export. Its rows are hypotheses for paper review, not labels. Use
 `scripts/build_supercon2_review_queue.py` to regenerate it from a fresh export.
 
+`review_queue_family_leads.csv` is a second pending queue for iron-based,
+MgB2, and hydride records found through the public NIMS and SuperMat sources.
+It includes calculated and extreme-pressure leads for coverage, but those must
+remain separate from measured ambient-pressure evidence.
+
+`harmonized_formula_descriptors.csv` is a derived descriptor table. It records
+neutral-atom shell and orbital proxies, Lewis-dot outer-electron proxies, and
+explicit status fields for structure-dependent bonding. It is not a substitute
+for crystal-structure or electronic-density analysis.
+
+Structure-dependent inputs are produced by the manual **Structure and density
+inputs** workflow. Its artifact contains Materials Project CIF references and
+an electronic-analysis manifest. Bader, ELF, COHP, and Wannier status remains
+pending until a real DFT calculation is run and its outputs are attached.
+
 The continuous-training workflow validates this directory and the harmonized
 schema on every run. The active-learning cycle trains the UCI composition
 baseline and the 3DSC pressure-aware model with family-held-out `GroupKFold`,
 then emits a metrics report and ranked candidate CSV. Missing optional
 structures or Materials Project credentials produce explicit blocked/degraded
 reports rather than fabricated values.
+
+The Phase 2 surrogate is trained from the harmonized file; the legacy
+reviewed-record workflow remains available for paper-level curation.
 
 Required review decisions:
 

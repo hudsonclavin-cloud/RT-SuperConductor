@@ -130,9 +130,14 @@ Every run preserves dataset SHA-256 values. The headline numbers are held-out
 chemical-family metrics; mean-predictor comparisons and random/secondary
 checks are not substitutes for that evaluation.
 
-The legacy Phase 2/3 pipeline is documented in [modeling.md](docs/modeling.md).
-For the current full workflow, run the command above. The older orchestrator
-remains available for QE-input smoke tests:
+The first AI baseline is documented in [modeling.md](docs/modeling.md) and can
+be run after installing `.[ml]` with `PYTHONPATH=src python scripts/train_baseline.py`. It is a
+composition-only benchmark with grouped evaluation and ensemble uncertainty;
+it is a starting point for the active-learning engine, not a pressure-aware
+superconductivity predictor.
+
+The Phase 2/3 pipeline is documented in [modeling.md](docs/modeling.md). Run
+the full validated workflow from the repository root with:
 
 ```bash
 python -m pip install -e '.[ml,mp]'
@@ -144,6 +149,34 @@ family-grouped model reports, a strict promotion-gate report, and candidate
 folders containing Quantum ESPRESSO SCF/phonon and EPW starter inputs. The QE
 positions are explicitly marked as placeholders until a relaxed structure is
 attached.
+
+This older orchestrator remains available for QE-input smoke tests;
+the current full workflow is `python scripts/run_active_learning.py` above.
+
+The [continuous-training workflow](docs/continuous-training.md) retrains this
+benchmark weekly or from the GitHub Actions interface and uploads each model,
+prediction file, and metric report as a reviewable artifact.
+
+It also refreshes the SuperCon2 and SuperMat paper-review queues before the
+active-learning cycle; those queue annotations remain review leads, not
+training labels.
+
+The [structure and density workflow](docs/electronic-density.md) retrieves
+Materials Project CIF references and prepares a manifest for Quantum ESPRESSO,
+Bader, ELF, COHP, and Wannier/EPW calculations. It intentionally stops before
+DFT post-processing because those calculations require external executables,
+pseudopotentials, and compute resources.
+
+The data fields to collect before expanding the training run are prioritized in
+[data-requirements.md](docs/data-requirements.md). The list emphasizes
+transition evidence, synthesis reproducibility, structure quality, and
+calculation provenance before adding more formula-only features.
+
+The detailed execution plan for the next phase is the
+[structure-aware discovery checklist](docs/structure-aware-phase-checklist.md).
+External calculations and result ingestion are described in
+[external-compute.md](docs/external-compute.md), with the current evidence and
+calculation status in [phase-structure-aware-results.md](docs/phase-structure-aware-results.md).
 
 The [continuous-training workflow](docs/continuous-training.md) runs the same
 download → ingest → train → rank cycle weekly or from the GitHub Actions

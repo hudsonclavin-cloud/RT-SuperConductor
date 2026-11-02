@@ -20,8 +20,10 @@ chemical-family label. Controlled
 vocabularies and range checks make malformed or ambiguous rows fail at the data
 boundary. Pending and excluded rows remain visible for review and gate testing;
 synthetic demonstration rows remain available for fixture coverage but are not
-silently promoted into empirical model weights. Confirmed reviewed records are
-bridged with `provenance="literature"` and `is_synthetic=0`.
+silently promoted into empirical model weights. The current trainer admits
+confirmed literature and curated-database rows only when `is_synthetic=0`, and
+excludes automatic SuperCon2 extraction. Confirmed reviewed records are bridged
+with `provenance="literature"` and `is_synthetic=0`.
 
 ### Data curation and Materials Project enrichment
 
@@ -43,7 +45,8 @@ schema.
 ### Pressure-aware surrogate model
 
 The surrogate predicts reported \(T_c\) in kelvin from two classes of inputs,
-after filtering to `review_status="confirmed"` and `is_synthetic=0`:
+after filtering to `review_status` of `confirmed` or `curated_database` and
+`is_synthetic=0`:
 
 1. Matminer's Magpie elemental-composition statistics, which summarize the
    chemical makeup without leaking a material's measured target; and
@@ -100,6 +103,49 @@ production calculations. This is a deliberate safety boundary: it makes the
 handoff automatable while preventing a placeholder geometry from being mistaken
 for a validated structure. The EPW input is correspondingly a starter template
 for electron-phonon matrix elements and \(\lambda\), not a completed calculation.
+
+### NC State outreach and compute-access plan
+
+The following contact ranking and approach are leads supplied by the student;
+verify current appointments, research fit, and availability from NC State's
+current faculty/group pages before outreach. No contact has endorsed the
+project, confirmed Quantum ESPRESSO use, or offered compute access.
+
+1. **Alexander “Lex” Kemper (Physics)** is the first scientific-fit request
+because his reported work includes computational superconductivity, cuprates,
+and iron-based systems. Ask for a 15–20 minute reality check on the YBCO
+structure ambiguity and whether the proposed descriptors or DFT route make
+physical sense.
+2. **Douglas Irving (Materials Science and Engineering)** is a strong methods
+and materials-informatics contact for guidance on narrowing the workflow,
+choosing defensible structures, and setting convergence criteria. Ask whether
+there is a suitable course or group opportunity for learning DFT.
+3. **Benjamin Beeler (Nuclear Engineering)** is a relevant undergraduate-path
+and atomistic/DFT contact. Ask for a learning path or referral to a
+superconductivity researcher rather than assuming his group works on this
+project's material families.
+
+In parallel, contact NC State Libraries' Research Facilitation Service about
+trial access to Hazel HPC and its onboarding process. Faculty mentorship and
+compute access are separate requests; an undergraduate may be able to explore
+trial access without presenting the full project as established research.
+
+Keep the first message modest and candid: introduce yourself as a first-year
+engineering student intending to study nuclear engineering; explain that this
+is an independent project organizing superconductivity evidence and exploring
+whether computational descriptors can support candidate ranking; say you are
+new to DFT and want to validate the physics before spending compute; ask for a
+short conversation or graduate-student referral. Bring one concrete case,
+oxygen-deficient YBa₂Cu₃O₆.₉₄, and ask how vacancy ordering and phase identity
+should be represented. Do not lead with a claim that an AI found a material or
+ask a professor to review the entire database.
+
+While compute access is pending, continue paper-level verification of
+measurement method, pressure, sample form, DOI, and the definition of the
+reported transition. Once a mentor reviews the structure, jointly choose the
+method, pseudopotentials, and convergence tests. Reviewed observations and
+genuine computational outputs can return to the project with provenance and
+uncertainty; extracted literature leads remain pending.
 
 ### Faculty collaboration and next research increments
 

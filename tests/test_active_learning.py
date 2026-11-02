@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -11,6 +12,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from ingest_3dsc import ingest_3dsc
 import evaluate_structure_features as structure_eval
+import enrich_materials_project as mp_enrichment
 import rank_candidates as candidate_ranker
 from rt_superconductor.search import CandidateHypothesis, acquisition_score
 from rt_superconductor.harmonized import HarmonizedRecord, load_harmonized, write_harmonized
@@ -180,6 +182,73 @@ class ActiveLearningTests(unittest.TestCase):
         self.assertLess(implausible_score, plausible_score)
         self.assertTrue(any("capped" in reason for reason in implausible_reasons))
         self.assertTrue(any("weighted by plausibility" in reason for reason in implausible_reasons))
+
+    def test_materials_project_api_miss_preserves_known_mp_id(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            input_path = root / "input.csv"
+            output_path = root / "output.csv"
+            write_harmonized(input_path, [HarmonizedRecord(
+                record_id="c" * 24, source_db="3dsc", formula="MgB2", tc_kelvin=39,
+                applied_pressure_gpa=0.000101325, measurement_method="unknown", sample_form="unknown",
+                doi="10.6084/m9.figshare.c.6914407", review_status="curated_database",
+                provenance="curated", is_synthetic=0, chemical_family="Borides", mp_id="mp-known",
+                energy_above_hull=0.012, spacegroup_number=191,
+            )])
+
+            class Summary:
+                def search(self, *, formula: str, fields: list[str]):
+                    raise RuntimeError("temporary Materials Project API failure")
+
+            client = type("Client", (), {"materials": type("Materials", (), {"summary": Summary()})()})()
+            report = mp_enrichment.enrich_csv(input_path, output_path, client=client)
+            with output_path.open(newline="", encoding="utf-8") as handle:
+                row = next(csv.DictReader(handle))
+
+            self.assertIn("MgB2", report["errors"])
+            self.assertEqual(row["mp_id"], "mp-known")
+            self.assertEqual(row["energy_above_hull"], "0.012")
+            self.assertEqual(row["spacegroup_number"], "191")
+
+    def test_materials_project_exports_additional_summary_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            input_path = root / "input.csv"
+            output_path = root / "output.csv"
+            write_harmonized(input_path, [HarmonizedRecord(
+                record_id="d" * 24, source_db="3dsc", formula="MgB2", tc_kelvin=39,
+                applied_pressure_gpa=0.000101325, measurement_method="unknown", sample_form="unknown",
+                doi="10.6084/m9.figshare.c.6914407", review_status="curated_database",
+                provenance="curated", is_synthetic=0, chemical_family="Borides",
+            )])
+
+            class Summary:
+                fields_requested: list[str] = []
+
+                def search(self, *, formula: str, fields: list[str]):
+                    self.fields_requested = fields
+                    return [SimpleNamespace(
+                        material_id="mp-new", energy_above_hull=0.01,
+                        symmetry=SimpleNamespace(number=191), formation_energy_per_atom=-0.5,
+                        band_gap=0.0, is_metal=True, total_magnetization=1.2,
+                        density=4.5, volume=20.0,
+                    )]
+
+            summary = Summary()
+            client = type("Client", (), {"materials": type("Materials", (), {"summary": summary})()})()
+            mp_enrichment.enrich_csv(input_path, output_path, client=client)
+            with output_path.open(newline="", encoding="utf-8") as handle:
+                row = next(csv.DictReader(handle))
+
+            self.assertEqual(row["mp_id"], "mp-new")
+            self.assertEqual(row["formation_energy_per_atom"], "-0.5")
+            self.assertEqual(row["band_gap_ev"], "0.0")
+            self.assertEqual(row["is_metal"], "True")
+            self.assertEqual(row["total_magnetization_muB"], "1.2")
+            self.assertEqual(row["density_g_cm3"], "4.5")
+            self.assertEqual(row["volume_angstrom3"], "20.0")
+            self.assertIn("formation_energy_per_atom", summary.fields_requested)
+            self.assertIn("total_magnetization", summary.fields_requested)
 
 
 if __name__ == "__main__":
