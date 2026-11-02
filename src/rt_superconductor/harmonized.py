@@ -31,6 +31,7 @@ REQUIRED_COLUMNS = (
     "is_synthetic",
 )
 OPTIONAL_COLUMNS = (
+    "synthesis_pressure_gpa",
     "chemical_family",
     "mp_id",
     "energy_above_hull",
@@ -64,6 +65,7 @@ class HarmonizedRecord:
     review_status: str
     provenance: str
     is_synthetic: int
+    synthesis_pressure_gpa: float | None = None
     chemical_family: str = "Unknown"
     mp_id: str = ""
     energy_above_hull: float | None = None
@@ -132,6 +134,14 @@ def validate_row(row: dict[str, str], row_number: int) -> HarmonizedRecord:
     assert pressure is not None
     if pressure < 0:
         raise ValueError(f"row {row_number}: applied_pressure_gpa cannot be negative")
+    synthesis_pressure = _float(
+        row.get("synthesis_pressure_gpa", "") or "",
+        "synthesis_pressure_gpa",
+        row_number,
+        allow_blank=True,
+    )
+    if synthesis_pressure is not None and synthesis_pressure < 0:
+        raise ValueError(f"row {row_number}: synthesis_pressure_gpa cannot be negative")
     method = row["measurement_method"].strip().lower()
     if method not in MEASUREMENT_METHODS:
         raise ValueError(f"row {row_number}: invalid measurement_method {method!r}")
@@ -170,6 +180,7 @@ def validate_row(row: dict[str, str], row_number: int) -> HarmonizedRecord:
         review_status=review_status,
         provenance=provenance,
         is_synthetic=is_synthetic,
+        synthesis_pressure_gpa=synthesis_pressure,
         chemical_family=row.get("chemical_family", "").strip() or "Unknown",
         mp_id=row.get("mp_id", "").strip(),
         energy_above_hull=hull,
@@ -216,6 +227,7 @@ def write_harmonized(path: Path, records: list[HarmonizedRecord]) -> None:
                 "review_status": record.review_status,
                 "provenance": record.provenance,
                 "is_synthetic": record.is_synthetic,
+                "synthesis_pressure_gpa": "" if record.synthesis_pressure_gpa is None else f"{record.synthesis_pressure_gpa:g}",
                 "chemical_family": record.chemical_family,
                 "mp_id": record.mp_id,
                 "energy_above_hull": "" if record.energy_above_hull is None else f"{record.energy_above_hull:g}",
@@ -278,6 +290,7 @@ def reviewed_to_harmonized(record: ReviewedRecord) -> HarmonizedRecord:
         review_status="confirmed",
         provenance="literature",
         is_synthetic=0,
+        synthesis_pressure_gpa=record.synthesis_pressure_gpa,
         chemical_family="Cuprates",
     )
 

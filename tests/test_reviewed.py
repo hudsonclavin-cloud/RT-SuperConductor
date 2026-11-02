@@ -35,6 +35,18 @@ class ReviewedTrainingTests(unittest.TestCase):
         record = validate_row(_row(), 2)
         self.assertEqual(record.tc_kelvin, 92.0)
         self.assertEqual(record.pressure_gpa, 0.0)
+        self.assertIsNone(record.synthesis_pressure_gpa)
+
+    def test_synthesis_pressure_is_separate_optional_field(self):
+        record = validate_row(_row(synthesis_pressure_gpa="6.0"), 2)
+        self.assertEqual(record.pressure_gpa, 0.0)
+        self.assertEqual(record.synthesis_pressure_gpa, 6.0)
+
+    def test_synthesis_pressure_must_be_nonnegative_numeric(self):
+        with self.assertRaisesRegex(ValueError, "synthesis_pressure_gpa must be numeric"):
+            validate_row(_row(synthesis_pressure_gpa="high"), 2)
+        with self.assertRaisesRegex(ValueError, "synthesis_pressure_gpa cannot be negative"):
+            validate_row(_row(synthesis_pressure_gpa="-1"), 2)
 
     def test_rejects_unconfirmed_record(self):
         with self.assertRaisesRegex(ValueError, "confirmed"):
@@ -56,6 +68,12 @@ class ReviewedTrainingTests(unittest.TestCase):
                 load_reviewed_records(Path(tmp))
 
     def test_empty_template_is_valid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "records.csv"
+            path.write_text(",".join((*REQUIRED_COLUMNS, "synthesis_pressure_gpa")) + "\n", encoding="utf-8")
+            self.assertEqual(load_reviewed_records(Path(tmp)), [])
+
+    def test_legacy_reviewed_header_remains_valid(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "records.csv"
             path.write_text(",".join(REQUIRED_COLUMNS) + "\n", encoding="utf-8")
