@@ -17,6 +17,7 @@ AMBIENT_PRESSURE_MAX_GPA = 0.000101325
 AMBIENT_MAE_MAX_K = 12.0
 HYDRIDE_TREND_MIN_PEARSON_R = 0.80
 FALSE_POSITIVE_MAX_RATE = 0.05
+AMBIENT_MEAN_IMPROVEMENT_MIN = 0.25
 PREDICTED_TC_FILTER_K = 77.0
 BENCHMARK_FORMULAS = {
     "H3S": {"H3S"},
@@ -30,7 +31,7 @@ def _read_predictions(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
         rows = list(csv.DictReader(handle))
     required = {
-        "formula", "tc_kelvin", "predicted_tc_kelvin", "applied_pressure_gpa", "review_status",
+        "formula", "chemical_family", "tc_kelvin", "predicted_tc_kelvin", "applied_pressure_gpa", "review_status",
         "provenance", "is_synthetic",
     }
     if not rows or not required.issubset(rows[0]):
@@ -50,6 +51,43 @@ def _pearson(actual: list[float], predicted: list[float]) -> float | None:
     return None if denominator == 0 else numerator / denominator
 
 
+def _mae(actual: list[float], predicted: list[float]) -> float | None:
+    if not actual:
+        return None
+    return sum(abs(observed - estimate) for observed, estimate in zip(actual, predicted)) / len(actual)
+
+
+def _ambient_family_metrics(rows: list[dict[str, str]]) -> dict[str, dict[str, object]]:
+    """Compare the model with an in-family mean predictor at ambient pressure."""
+
+    grouped: dict[str, list[dict[str, str]]] = {}
+    for row in rows:
+        grouped.setdefault(row["chemical_family"].strip() or "Unknown", []).append(row)
+
+    result: dict[str, dict[str, object]] = {}
+    for family, family_rows in sorted(grouped.items()):
+        actual = [float(row["tc_kelvin"]) for row in family_rows]
+        predicted = [float(row["predicted_tc_kelvin"]) for row in family_rows]
+        family_mean = sum(actual) / len(actual)
+        model_mae = _mae(actual, predicted)
+        mean_mae = _mae(actual, [family_mean] * len(actual))
+        improvement = (
+            (mean_mae - model_mae) / mean_mae
+            if model_mae is not None and mean_mae is not None and mean_mae > 0
+            else None
+        )
+        result[family] = {
+            "row_count": len(family_rows),
+            "model_mae_k": model_mae,
+            "mean_predictor_mae_k": mean_mae,
+            "improvement_fraction": improvement,
+            "meets_25pct_improvement": (
+                improvement is not None and improvement >= AMBIENT_MEAN_IMPROVEMENT_MIN
+            ),
+        }
+    return result
+
+
 def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, object]:
     rows = _read_predictions(predictions_path)
     eligible_statuses = {"confirmed", "curated_database"}
@@ -65,6 +103,16 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
     ambient_mae = (
         sum(abs(float(row["tc_kelvin"]) - float(row["predicted_tc_kelvin"])) for row in ambient) / len(ambient)
         if ambient else None
+    )
+    ambient_by_family = _ambient_family_metrics(ambient)
+    ambient_actual = [float(row["tc_kelvin"]) for row in ambient]
+    ambient_predictions = [float(row["predicted_tc_kelvin"]) for row in ambient]
+    ambient_mean = sum(ambient_actual) / len(ambient_actual) if ambient_actual else None
+    ambient_mean_mae = _mae(ambient_actual, [ambient_mean] * len(ambient_actual)) if ambient_mean is not None else None
+    ambient_improvement = (
+        (ambient_mean_mae - ambient_mae) / ambient_mean_mae
+        if ambient_mae is not None and ambient_mean_mae is not None and ambient_mean_mae > 0
+        else None
     )
     trend: dict[str, float | None] = {}
     trend_rows: dict[str, int] = {}
@@ -86,6 +134,12 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
     checks = {
         "model_artifact_exists": model_path.is_file(),
         "ambient_mae": ambient_mae is not None and ambient_mae <= AMBIENT_MAE_MAX_K,
+        "ambient_mean_improvement_25pct": (
+            ambient_improvement is not None
+            and ambient_improvement >= AMBIENT_MEAN_IMPROVEMENT_MIN
+            and bool(ambient_by_family)
+            and all(item["meets_25pct_improvement"] for item in ambient_by_family.values())
+        ),
         "hydride_trend": all(value is not None and value >= HYDRIDE_TREND_MIN_PEARSON_R for value in trend.values()),
         "excluded_false_positive_rate": false_positive_rate is not None and false_positive_rate < FALSE_POSITIVE_MAX_RATE,
     }
@@ -95,6 +149,7 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
         "thresholds": {
             "ambient_pressure_max_gpa": AMBIENT_PRESSURE_MAX_GPA,
             "ambient_mae_max_k": AMBIENT_MAE_MAX_K,
+            "ambient_mean_improvement_min_fraction": AMBIENT_MEAN_IMPROVEMENT_MIN,
             "hydride_trend_min_pearson_r": HYDRIDE_TREND_MIN_PEARSON_R,
             "false_positive_rate_strictly_less_than": FALSE_POSITIVE_MAX_RATE,
             "predicted_tc_positive_filter_k": PREDICTED_TC_FILTER_K,
@@ -106,6 +161,9 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
         # includes both confirmed and curated_database empirical rows.
         "ambient_confirmed_rows": len(ambient),
         "ambient_mae_k": ambient_mae,
+        "ambient_mean_predictor_mae_k": ambient_mean_mae,
+        "ambient_mean_improvement_fraction": ambient_improvement,
+        "ambient_by_family": ambient_by_family,
         "hydride_trend_pearson_r": trend,
         "hydride_benchmark_rows": trend_rows,
         "excluded_reference_rows": len(excluded),
@@ -128,6 +186,7 @@ def main() -> int:
             "checks": {
                 "model_artifact_exists": args.model.is_file(),
                 "ambient_mae": False,
+                "ambient_mean_improvement_25pct": False,
                 "hydride_trend": False,
                 "excluded_false_positive_rate": False,
             },

@@ -120,6 +120,64 @@ class ActiveLearningTests(unittest.TestCase):
             self.assertAlmostEqual(float(row["uncertainty_k"]), 2.0)
             self.assertEqual(row["status"], "review_required_hypothesis")
 
+    def test_family_ranker_filters_nonmetals_and_avoids_room_temperature_target_fit(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            input_path = root / "records.csv"
+            write_harmonized(input_path, [HarmonizedRecord(
+                record_id="f" * 24, source_db="3dsc", formula="Fe2O3",
+                tc_kelvin=10, applied_pressure_gpa=0, measurement_method="unknown",
+                sample_form="unknown", doi="10.0000/example", review_status="curated_database",
+                provenance="curated", is_synthetic=0, chemical_family="Ferrites",
+            )])
+            model_dir = root / "model"
+            model_dir.mkdir()
+            (model_dir / "pressure-aware-report.json").write_text(
+                '{"training_status":"ready"}', encoding="utf-8"
+            )
+            (model_dir / "pressure-aware-model.joblib").write_bytes(b"placeholder")
+
+            class Tree:
+                def __init__(self, value: float) -> None:
+                    self.value = value
+
+                def predict(self, features: np.ndarray) -> np.ndarray:
+                    return np.full(len(features), self.value)
+
+            artifact = {
+                "model": type("Forest", (), {"estimators_": [Tree(30), Tree(34)]})(),
+                "hull_fill": 0.0,
+                "dataset_sha256": "b" * 64,
+            }
+            candidates = [
+                {"formula": "Fe3O4", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
+                {"formula": "FeO", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
+            ]
+            output_path = root / "candidates" / "ferrites_top25.csv"
+            with (
+                patch.object(candidate_ranker, "enumerate_substitution_candidates", return_value=candidates),
+                patch.object(candidate_ranker, "_mp_matches", return_value=(
+                    {
+                        "Fe3O4": {"mp_id": "mp-1", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
+                        "FeO": {"mp_id": "mp-2", "energy_above_hull": 0.01, "band_gap_ev": 0.2, "is_metal": False},
+                    }, "ready", None,
+                )),
+                patch.object(candidate_ranker.joblib, "load", return_value=artifact),
+                patch.object(candidate_ranker, "build_features", return_value=(np.zeros((1, 2)), [], "test")),
+            ):
+                report = candidate_ranker.rank_candidates(
+                    input_path=input_path, model_dir=model_dir, output_path=output_path,
+                    batch_size=25, family="Ferrites", api_key="test-key",
+                )
+
+            self.assertEqual(report["score_mode"], "within_family_predicted_tc_and_uncertainty")
+            self.assertEqual(report["rejected_nonmetal_count"], 1)
+            with output_path.open(newline="", encoding="utf-8") as handle:
+                row = next(csv.DictReader(handle))
+            self.assertEqual(row["formula"], "Fe3O4")
+            self.assertEqual(row["band_gap_ev"], "")
+            self.assertIn("family mode does not use distance", row["reasons"])
+
     def test_structure_feature_evaluation_reports_family_holdout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -169,9 +227,9 @@ class ActiveLearningTests(unittest.TestCase):
             root = Path(directory)
             predictions = root / "predictions.csv"
             predictions.write_text(
-                "formula,tc_kelvin,predicted_tc_kelvin,applied_pressure_gpa,review_status,provenance,is_synthetic\n"
-                "YBa2Cu3O7,92,90,0.000101325,curated_database,curated,0\n"
-                "MgB2,39,38,0.000101326,curated_database,curated,0\n",
+                "formula,chemical_family,tc_kelvin,predicted_tc_kelvin,applied_pressure_gpa,review_status,provenance,is_synthetic\n"
+                "YBa2Cu3O7,Cuprates,92,90,0.000101325,curated_database,curated,0\n"
+                "MgB2,Borides,39,38,0.000101326,curated_database,curated,0\n",
                 encoding="utf-8",
             )
             model = root / "model.joblib"
@@ -181,6 +239,29 @@ class ActiveLearningTests(unittest.TestCase):
             self.assertEqual(promotion_gate.AMBIENT_PRESSURE_MAX_GPA, 0.000101325)
             self.assertEqual(report["ambient_eligible_rows"], 1)
             self.assertAlmostEqual(report["ambient_mae_k"], 2.0)
+            self.assertIn("Cuprates", report["ambient_by_family"])
+
+    def test_promotion_gate_requires_twenty_five_percent_in_family_mean_improvement(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            predictions = root / "predictions.csv"
+            predictions.write_text(
+                "formula,chemical_family,tc_kelvin,predicted_tc_kelvin,applied_pressure_gpa,review_status,provenance,is_synthetic\n"
+                "Fe2O3,Ferrites,100,95,0.000101325,curated_database,curated,0\n"
+                "Fe3O4,Ferrites,20,25,0.000101325,curated_database,curated,0\n"
+                "YBa2Cu3O7,Cuprates,100,60,0.000101325,curated_database,curated,0\n"
+                "YBa2Cu4O8,Cuprates,20,60,0.000101325,curated_database,curated,0\n",
+                encoding="utf-8",
+            )
+            model = root / "model.joblib"
+            model.write_bytes(b"placeholder")
+
+            report = promotion_gate.evaluate_gate(predictions_path=predictions, model_path=model)
+
+            self.assertFalse(report["checks"]["ambient_mean_improvement_25pct"])
+            self.assertTrue(report["ambient_by_family"]["Ferrites"]["meets_25pct_improvement"])
+            self.assertFalse(report["ambient_by_family"]["Cuprates"]["meets_25pct_improvement"])
+            self.assertAlmostEqual(report["ambient_by_family"]["Ferrites"]["mean_predictor_mae_k"], 40.0)
 
     def test_supercon2_queue_skips_source_records_already_reviewed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
