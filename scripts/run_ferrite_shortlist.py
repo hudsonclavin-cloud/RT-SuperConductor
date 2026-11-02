@@ -17,6 +17,7 @@ if str(ROOT / "scripts") not in sys.path:
 from download_training_data import download_training_data
 from ingest_3dsc import ingest_3dsc
 from prepare_ferrite_dft import prepare_dft
+import promotion_gate
 from rank_candidates import rank_candidates
 from train_pressure_aware import train_pressure_aware
 from validate_ferrite_shortlist import validate_shortlist
@@ -30,6 +31,13 @@ def _run_or_block(name: str, report_path: Path, action: Callable[[], dict[str, o
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         return report
+
+
+def _evaluate_gate(predictions_path: Path, model_path: Path, report_path: Path) -> dict[str, object]:
+    report = promotion_gate.evaluate_gate(predictions_path=predictions_path, model_path=model_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return report
 
 
 def run_cycle(
@@ -67,6 +75,15 @@ def run_cycle(
         "training",
         output_root / "model/pressure-aware-report.json",
         lambda: train_pressure_aware(input_path=harmonized, output_dir=output_root / "model"),
+    )
+    gate = _run_or_block(
+        "promotion_gate",
+        output_root / "model/promotion-gate.json",
+        lambda: _evaluate_gate(
+            predictions_path=output_root / "model/promotion_predictions.csv",
+            model_path=output_root / "model/pressure-aware-model.joblib",
+            report_path=output_root / "model/promotion-gate.json",
+        ),
     )
     ranking = _run_or_block(
         "ranking",
@@ -116,6 +133,7 @@ def run_cycle(
         "download": download,
         "ingestion": ingestion,
         "training": training,
+        "promotion_gate": gate,
         "ranking": ranking,
         "literature_validation": validation,
         "dft_preparation": dft,

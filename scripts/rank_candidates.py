@@ -100,16 +100,16 @@ def _database_flags(
     supercon2_path: Path | None,
     supermat_path: Path | None,
     mp_exists: bool | None,
+    source_sets: dict[str, set[str] | None] | None = None,
 ) -> dict[str, bool | None]:
     canonical = _canonical_formula(formula) or formula
-    source_sets: dict[str, set[str] | None] = {
-        "3dsc": {
-            record.formula for record in records if record.source_db == "3dsc"
-        },
-        "uci": _read_formula_set(uci_path, ("material", "formula")),
-        "supercon2": _read_formula_set(supercon2_path, ("formula", "rawMaterial", "material")),
-        "supermat": _read_formula_set(supermat_path, ("material", "formula")),
-    }
+    if source_sets is None:
+        source_sets = {
+            "3dsc": {record.formula for record in records if record.source_db == "3dsc"},
+            "uci": _read_formula_set(uci_path, ("material", "formula")),
+            "supercon2": _read_formula_set(supercon2_path, ("formula", "rawMaterial", "material")),
+            "supermat": _read_formula_set(supermat_path, ("material", "formula")),
+        }
     flags: dict[str, bool | None] = {
         "mp_exists": mp_exists,
         "3dsc_exists": canonical in source_sets["3dsc"],
@@ -276,6 +276,12 @@ def rank_candidates(
     supermat_path = supermat_path or _default_source_path("data/raw/SuperMat-2.0.csv", "data/raw/supermat/SuperMat-2.0.csv")
     candidates = enumerate_substitution_candidates(records, family=family, max_candidates=max_candidates)
     matches, mp_status, mp_note = _mp_matches([candidate["formula"] for candidate in candidates], api_key or os.environ.get("MP_API_KEY"))
+    source_sets = {
+        "3dsc": {record.formula for record in records if record.source_db == "3dsc"},
+        "uci": _read_formula_set(uci_path, ("material", "formula")),
+        "supercon2": _read_formula_set(supercon2_path, ("formula", "rawMaterial", "material")),
+        "supermat": _read_formula_set(supermat_path, ("material", "formula")),
+    }
     screened: list[dict[str, Any]] = []
     rejected_hull = 0
     rejected_nonmetal = 0
@@ -301,6 +307,7 @@ def rank_candidates(
             supercon2_path=supercon2_path,
             supermat_path=supermat_path,
             mp_exists=(candidate["formula"] in matches) if mp_query_available else None,
+            source_sets=source_sets,
         )
         known_status, known_sources = _status_from_flags(flags)
         screened.append({

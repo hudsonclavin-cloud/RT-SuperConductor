@@ -198,3 +198,17 @@ choose **Low-budget materials screen**, select **Run workflow**, and download
 the resulting `low-budget-screen` artifact. The workflow reads the
 `Materials_Project_API` GitHub secret as a runtime-only `MP_API_KEY`; it never
 writes the key to the repository or to an artifact.
+
+For the within-family ferrite cycle, run:
+
+```bash
+python scripts/run_ferrite_shortlist.py
+```
+
+This command writes the Magpie/elemental-system metrics, the 25-row
+`data/processed/candidates/ferrites_top25.csv` shortlist, a pending literature
+review queue, and a blocked QE hand-off report. Materials Project lookup is
+optional: without `MP_API_KEY`, the reports use `degraded_no_mp_api_key` and do
+not treat unknown hull, band-gap, metallicity, or novelty values as negative
+evidence. See [ferrite-shortlist.md](docs/ferrite-shortlist.md) for how to read
+the metrics and DFT boundary.
