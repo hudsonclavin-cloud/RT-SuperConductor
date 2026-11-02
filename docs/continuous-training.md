@@ -60,9 +60,11 @@ provenance recorded before retraining.
 
 The **Run workflow** form has an optional `family` input. Leaving it empty runs
 the ordinary cross-family cycle. Setting it to `Ferrites` (or an exact family
-label present in the harmonized table) runs `rank_candidates.py --family` after
-training and uploads the family CSV plus `candidate-ranking-report.json` as a
-separate artifact. The step receives `MP_API_KEY` from the
-`Materials_Project_API` secret; when that secret is unavailable, the artifact
-records `degraded_no_mp_api_key` and keeps MP existence, hull, band-gap, and
-metallicity unknown.
+label present in the harmonized table) runs `run_ferrite_shortlist.py` after
+training with the SuperCon2 and SuperMat files downloaded earlier in the job.
+The artifact contains the combined family CSV, stable validation and hypothesis
+CSVs, the matching report, and the run report. The step receives `MP_API_KEY`
+from the `Materials_Project_API` secret through the environment; no command
+line argument writes or echoes the key. When that secret is unavailable, the
+artifact records `degraded_no_mp_api_key` and keeps MP existence, hull, band-gap,
+and metallicity unknown.

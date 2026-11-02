@@ -178,6 +178,69 @@ class ActiveLearningTests(unittest.TestCase):
             self.assertEqual(row["band_gap_ev"], "")
             self.assertIn("family mode does not use distance", row["reasons"])
 
+    def test_family_ranker_always_writes_validation_and_hypothesis_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            input_path = root / "records.csv"
+            write_harmonized(input_path, [HarmonizedRecord(
+                record_id="f" * 24, source_db="3dsc", formula="Fe2O3",
+                tc_kelvin=10, applied_pressure_gpa=0, measurement_method="unknown",
+                sample_form="unknown", doi="10.0000/example", review_status="curated_database",
+                provenance="curated", is_synthetic=0, chemical_family="Ferrites",
+            )])
+            model_dir = root / "model"
+            model_dir.mkdir()
+            (model_dir / "pressure-aware-report.json").write_text('{"training_status":"ready"}', encoding="utf-8")
+            (model_dir / "pressure-aware-model.joblib").write_bytes(b"placeholder")
+
+            class Tree:
+                def __init__(self, value: float) -> None:
+                    self.value = value
+
+                def predict(self, features: np.ndarray) -> np.ndarray:
+                    return np.full(len(features), self.value)
+
+            artifact = {
+                "model": type("Forest", (), {"estimators_": [Tree(30), Tree(32)]})(),
+                "hull_fill": 0.0,
+                "dataset_sha256": "c" * 64,
+            }
+            candidates = [
+                {"formula": "Fe3O4", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
+                {"formula": "FeO", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
+            ]
+            uci = root / "unique_m.csv"
+            uci.write_text("material,critical_temp\nFe3O4,30\n", encoding="utf-8")
+            output = root / "ferrites_top25.csv"
+            validation = root / "ferrites_validation.csv"
+            hypotheses = root / "ferrites_hypotheses.csv"
+            with (
+                patch.object(candidate_ranker, "enumerate_substitution_candidates", return_value=candidates),
+                patch.object(candidate_ranker, "_mp_matches", return_value=(
+                    {
+                        "Fe3O4": {"mp_id": "mp-1", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
+                        "FeO": {"mp_id": "mp-2", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
+                    }, "ready", None,
+                )),
+                patch.object(candidate_ranker.joblib, "load", return_value=artifact),
+                patch.object(candidate_ranker, "build_features", return_value=(np.zeros((2, 2)), [], "test")),
+            ):
+                report = candidate_ranker.rank_candidates(
+                    input_path=input_path, model_dir=model_dir, output_path=output,
+                    batch_size=25, family="Ferrites", api_key="test-key",
+                    uci_path=uci, stanev_path=root / "missing-stanev.csv",
+                    validation_output_path=validation, hypotheses_output_path=hypotheses,
+                )
+
+            self.assertEqual(report["validation_count"], 1)
+            self.assertEqual(report["hypotheses_count"], 1)
+            with validation.open(newline="", encoding="utf-8") as handle:
+                validation_rows = list(csv.DictReader(handle))
+            with hypotheses.open(newline="", encoding="utf-8") as handle:
+                hypothesis_rows = list(csv.DictReader(handle))
+            self.assertEqual(validation_rows[0]["formula"], "Fe3O4")
+            self.assertEqual(hypothesis_rows[0]["formula"], "FeO")
+
     def test_structure_feature_evaluation_reports_family_holdout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -113,7 +113,7 @@ jobs:
           python scripts/compute_formula_descriptors.py \
             --input data/training/harmonized_supercon.csv \
             --output data/processed/continuous-training/formula-descriptors.csv
-      - name: Rank requested within-family shortlist
+      - name: Run requested within-family shortlist
         if: ${{ inputs.family != '' }}
         env:
           MP_API_KEY: ${{ secrets.Materials_Project_API }}
@@ -121,13 +121,14 @@ jobs:
         run: |
           family_slug="$(printf '%s' "$REQUESTED_FAMILY" | tr '[:upper:] ' '[:lower:]_')"
           mkdir -p "data/processed/continuous-training/family-${family_slug}"
-          python scripts/rank_candidates.py \
-            --input data/training/harmonized_supercon.csv \
-            --model-dir data/processed/continuous-training/pressure-aware \
-            --output "data/processed/continuous-training/family-${family_slug}/${family_slug}_top25.csv" \
+          python scripts/run_ferrite_shortlist.py \
             --family "$REQUESTED_FAMILY" \
-            --api-key "$MP_API_KEY" \
-            --batch-size 25
+            --data-root data/raw \
+            --output-root "data/processed/continuous-training/family-${family_slug}" \
+            --candidates "data/processed/continuous-training/family-${family_slug}/${family_slug}_top25.csv" \
+            --supercon2 /tmp/supercon2.csv \
+            --supermat /tmp/supermat/SuperMat-2.0.csv \
+            --skip-download
       - name: Upload requested family shortlist
         if: ${{ inputs.family != '' }}
         uses: actions/upload-artifact@v4

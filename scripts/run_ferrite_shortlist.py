@@ -33,8 +33,20 @@ def _run_or_block(name: str, report_path: Path, action: Callable[[], dict[str, o
         return report
 
 
-def _evaluate_gate(predictions_path: Path, model_path: Path, report_path: Path) -> dict[str, object]:
-    report = promotion_gate.evaluate_gate(predictions_path=predictions_path, model_path=model_path)
+def _evaluate_gate(
+    predictions_path: Path,
+    model_path: Path,
+    report_path: Path,
+    *,
+    family: str | None = None,
+    within_family_predictions_path: Path | None = None,
+) -> dict[str, object]:
+    report = promotion_gate.evaluate_gate(
+        predictions_path=predictions_path,
+        model_path=model_path,
+        family=family,
+        within_family_predictions_path=within_family_predictions_path,
+    )
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return report
@@ -42,14 +54,22 @@ def _evaluate_gate(predictions_path: Path, model_path: Path, report_path: Path) 
 
 def run_cycle(
     *,
+    family: str = "Ferrites",
     data_root: Path = Path("data/raw"),
     output_root: Path = Path("data/processed/ferrite-shortlist"),
     candidate_path: Path = Path("data/processed/candidates/ferrites_top25.csv"),
+    validation_output_path: Path | None = None,
+    hypotheses_output_path: Path | None = None,
+    stanev_path: Path | None = None,
     supercon2_path: Path | None = None,
     supermat_path: Path | None = None,
     api_key: str | None = None,
     skip_download: bool = False,
 ) -> dict[str, object]:
+    family_slug = "".join(character.lower() if character.isalnum() else "_" for character in family).strip("_")
+    validation_output_path = validation_output_path or candidate_path.with_name(f"{family_slug}_validation.csv")
+    hypotheses_output_path = hypotheses_output_path or candidate_path.with_name(f"{family_slug}_hypotheses.csv")
+    review_queue_path = Path("data/training") / f"review_queue_{family_slug}_shortlist.csv"
     output_root.mkdir(parents=True, exist_ok=True)
     download = {"status": "skipped"}
     if not skip_download:
@@ -83,6 +103,8 @@ def run_cycle(
             predictions_path=output_root / "model/promotion_predictions.csv",
             model_path=output_root / "model/pressure-aware-model.joblib",
             report_path=output_root / "model/promotion-gate.json",
+            family=family,
+            within_family_predictions_path=output_root / "model/within-family-oof-predictions.csv",
         ),
     )
     ranking = _run_or_block(
@@ -94,20 +116,26 @@ def run_cycle(
             output_path=candidate_path,
             batch_size=25,
             max_candidates=3000,
-            family="Ferrites",
+            family=family,
             api_key=api_key or os.environ.get("MP_API_KEY"),
             uci_path=data_root / "uci/extracted/unique_m.csv",
+            stanev_path=stanev_path or data_root / "3dsc/Supercon_data_by_2018_Stanev.csv",
             supercon2_path=supercon2_path,
             supermat_path=supermat_path,
+            validation_output_path=validation_output_path,
+            hypotheses_output_path=hypotheses_output_path,
         ),
     )
     validation = _run_or_block(
         "literature_validation",
         output_root / "ferrite-literature-validation.json",
         lambda: validate_shortlist(
-            candidates_path=candidate_path,
-            output_path=Path("data/training/review_queue_ferrite_shortlist.csv"),
+            candidates_path=validation_output_path,
+            output_path=review_queue_path,
             report_path=output_root / "ferrite-literature-validation.json",
+            training_path=harmonized,
+            uci_path=data_root / "uci/extracted/unique_m.csv",
+            stanev_path=stanev_path or data_root / "3dsc/Supercon_data_by_2018_Stanev.csv",
             supercon2_path=supercon2_path,
             supermat_path=supermat_path,
         ),
@@ -129,7 +157,7 @@ def run_cycle(
         overall = "degraded_no_mp_api_key"
     report = {
         "status": overall,
-        "family": "Ferrites",
+            "family": family,
         "download": download,
         "ingestion": ingestion,
         "training": training,
@@ -138,6 +166,8 @@ def run_cycle(
         "literature_validation": validation,
         "dft_preparation": dft,
         "candidate_path": str(candidate_path),
+        "validation_output_path": str(validation_output_path),
+        "hypotheses_output_path": str(hypotheses_output_path),
         "interpretation": "All shortlist rows are hypotheses. No candidate is a claim of superconductivity and no DFT was executed.",
     }
     (output_root / "ferrite-shortlist-run.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -146,18 +176,26 @@ def run_cycle(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--family", default="Ferrites")
     parser.add_argument("--data-root", type=Path, default=Path("data/raw"))
     parser.add_argument("--output-root", type=Path, default=Path("data/processed/ferrite-shortlist"))
     parser.add_argument("--candidates", type=Path, default=Path("data/processed/candidates/ferrites_top25.csv"))
+    parser.add_argument("--validation-output", type=Path)
+    parser.add_argument("--hypotheses-output", type=Path)
+    parser.add_argument("--stanev", type=Path)
     parser.add_argument("--supercon2", type=Path)
     parser.add_argument("--supermat", type=Path)
     parser.add_argument("--api-key", default=os.environ.get("MP_API_KEY"))
     parser.add_argument("--skip-download", action="store_true")
     args = parser.parse_args()
     print(json.dumps(run_cycle(
+        family=args.family,
         data_root=args.data_root,
         output_root=args.output_root,
         candidate_path=args.candidates,
+        validation_output_path=args.validation_output,
+        hypotheses_output_path=args.hypotheses_output,
+        stanev_path=args.stanev,
         supercon2_path=args.supercon2,
         supermat_path=args.supermat,
         api_key=args.api_key,

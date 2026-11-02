@@ -136,6 +136,7 @@ def evaluate_within_family(
     n_splits: int,
     random_state: int,
     minimum_family_rows: int = 100,
+    prediction_sink: dict[str, float] | None = None,
 ) -> dict[str, object]:
     """Evaluate interpolation within large families, grouping whole element systems."""
 
@@ -200,6 +201,9 @@ def evaluate_within_family(
             "spearman_rho": rho,
             "folds": fold_reports,
         })
+        if prediction_sink is not None:
+            for local_index, record in enumerate(family_records):
+                prediction_sink[record.record_id] = float(predictions[local_index])
         family_reports[family] = family_report
 
     if not family_reports:
@@ -440,8 +444,14 @@ def train_pressure_aware(
             "classification_mean_predictor": classification_baseline_fold,
         })
 
+    within_family_predictions: dict[str, float] = {}
     within_family_report = evaluate_within_family(
-        training_records, X, y, n_splits=n_splits, random_state=random_state
+        training_records,
+        X,
+        y,
+        n_splits=n_splits,
+        random_state=random_state,
+        prediction_sink=within_family_predictions,
     )
 
     model = _model(random_state)
@@ -464,6 +474,14 @@ def train_pressure_aware(
     }, model_path)
     oof_path = output_dir / "grouped-oof-predictions.csv"
     _write_predictions(oof_path, training_records, oof, split="grouped_oof", uncertainties=oof_uncertainty)
+    within_family_path = output_dir / "within-family-oof-predictions.csv"
+    within_family_records = [record for record in training_records if record.record_id in within_family_predictions]
+    _write_predictions(
+        within_family_path,
+        within_family_records,
+        [within_family_predictions[record.record_id] for record in within_family_records],
+        split="within_family_oof",
+    )
     prediction_path = output_dir / "candidate_predictions.csv"
     _write_predictions(prediction_path, records, all_predictions, split="full_fit", uncertainties=all_uncertainties)
     promotion_path = output_dir / "promotion_predictions.csv"
@@ -517,6 +535,7 @@ def train_pressure_aware(
         },
         "output_model": str(model_path),
         "output_oof_predictions": str(oof_path),
+        "output_within_family_predictions": str(within_family_path),
         "output_candidate_predictions": str(prediction_path),
         "output_promotion_predictions": str(promotion_path),
         "random_state": random_state,
