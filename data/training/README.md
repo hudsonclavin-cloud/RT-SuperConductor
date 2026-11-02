@@ -11,6 +11,11 @@ The required columns are `record_id`, `source_db`, `formula`, `tc_kelvin`,
 `review_status`, `provenance`, and `is_synthetic`. `chemical_family` is required
 by the grouped model, while `mp_id`, `energy_above_hull`, and
 `spacegroup_number` are enrichment columns.
+`applied_pressure_gpa` records pressure during the superconducting measurement.
+The optional `synthesis_pressure_gpa` records pressure used to synthesize or
+process the sample. Keep the two values separate: high-pressure synthesis does
+not mean the superconducting transition was measured under high pressure. A
+missing synthesis pressure remains blank/unknown.
 
 Validate it with:
 
@@ -95,5 +100,8 @@ Required review decisions:
 - `measurement_method` must identify the evidence for the transition.
 - `pressure_condition` must be `ambient`, `known`, `unknown`, or
   `not_reported`; use `known` only with a numeric `pressure_gpa`.
+- `pressure_gpa` is measurement/applied pressure. The optional
+  `synthesis_pressure_gpa` records synthesis pressure independently; when given,
+  it must be a nonnegative numeric value in GPa. Do not infer one from the other.
 - `source_doi`, `source_record_id`, `reviewer`, and `review_date` are required.
 - Unknown pressure stays explicit and is not silently treated as ambient.

@@ -24,6 +24,7 @@ REQUIRED_COLUMNS = (
     "evidence_status",
     "notes",
 )
+OPTIONAL_COLUMNS = ("synthesis_pressure_gpa",)
 PRESSURE_CONDITIONS = {"ambient", "known", "unknown", "not_reported"}
 
 
@@ -45,6 +46,7 @@ class ReviewedRecord:
     review_date: str
     evidence_status: str
     notes: str
+    synthesis_pressure_gpa: float | None = None
 
 
 def _required(value: str, field: str, row_number: int) -> str:
@@ -81,6 +83,19 @@ def _parse_pressure(value: str, condition: str, row_number: int) -> float | None
         return pressure
     if condition != "known":
         raise ValueError(f"row {row_number}: pressure_gpa requires pressure_condition=known")
+    return pressure
+
+
+def _parse_synthesis_pressure(value: str | None, row_number: int) -> float | None:
+    value = (value or "").strip()
+    if not value:
+        return None
+    try:
+        pressure = float(value)
+    except ValueError as exc:
+        raise ValueError(f"row {row_number}: synthesis_pressure_gpa must be numeric") from exc
+    if pressure < 0:
+        raise ValueError(f"row {row_number}: synthesis_pressure_gpa cannot be negative")
     return pressure
 
 
@@ -121,6 +136,7 @@ def validate_row(row: dict[str, str], row_number: int) -> ReviewedRecord:
         review_date=_parse_review_date(row["review_date"], row_number),
         evidence_status=status,
         notes=row["notes"].strip(),
+        synthesis_pressure_gpa=_parse_synthesis_pressure(row.get("synthesis_pressure_gpa"), row_number),
     )
 
 
@@ -132,7 +148,7 @@ def load_reviewed_records(input_dir: Path) -> list[ReviewedRecord]:
     for path in sorted(input_dir.glob("*.csv")):
         with path.open(newline="", encoding="utf-8-sig") as handle:
             reader = csv.DictReader(handle)
-            if reader.fieldnames != list(REQUIRED_COLUMNS):
+            if reader.fieldnames not in (list(REQUIRED_COLUMNS), list(REQUIRED_COLUMNS) + list(OPTIONAL_COLUMNS)):
                 raise ValueError(f"{path}: columns must exactly match the reviewed training schema")
             for row_number, row in enumerate(reader, start=2):
                 record = validate_row(row, row_number)
