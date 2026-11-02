@@ -16,6 +16,7 @@ import hashlib
 import json
 import sys
 from collections import Counter
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -88,6 +89,19 @@ def _spacegroup_from_cif(path: Path) -> int | None:
     return int(SpacegroupAnalyzer(structure, symprec=0.1).get_space_group_number())
 
 
+@lru_cache(maxsize=64)
+def _spacegroup_symbol_number(symbol: str) -> int | None:
+    if not symbol:
+        return None
+    try:
+        from pymatgen.symmetry.groups import SpaceGroup
+
+        number = int(SpaceGroup(symbol.replace(" ", "")).int_number)
+        return number if 1 <= number <= 230 else None
+    except Exception:
+        return None
+
+
 def _spacegroup(row: dict[str, str], cif_path: Path | None) -> tuple[int | None, str]:
     for name in ("spacegroup_number_2", "spacegroup_number"):
         value = row.get(name, "").strip()
@@ -104,22 +118,13 @@ def _spacegroup(row: dict[str, str], cif_path: Path | None) -> tuple[int | None,
             return _spacegroup_from_cif(cif_path), "cif"
         except Exception:
             if table_symbol:
-                try:
-                    from pymatgen.symmetry.groups import SpaceGroup
-
-                    number = int(SpaceGroup(table_symbol.replace(" ", "")).int_number)
-                    return number, "table_symbol"
-                except Exception:
-                    return None, "cif_unreadable"
+                number = _spacegroup_symbol_number(table_symbol)
+                return (number, "table_symbol") if number is not None else (None, "cif_unreadable")
             return None, "cif_unreadable"
     if table_symbol:
-        try:
-            from pymatgen.symmetry.groups import SpaceGroup
-
-            number = int(SpaceGroup(table_symbol.replace(" ", "")).int_number)
+        number = _spacegroup_symbol_number(table_symbol)
+        if number is not None:
             return number, "table_symbol"
-        except Exception:
-            pass
     return None, "missing_cif"
 
 

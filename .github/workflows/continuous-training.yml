@@ -39,6 +39,9 @@ jobs:
       - name: Run one reproducible active-learning cycle
         env:
           MP_API_KEY: ${{ secrets.Materials_Project_API }}
+          # The downloader enforces these hashes before extraction/ingestion.
+          UCI_ARCHIVE_SHA256: 87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e
+          THREEDSC_TABLE_SHA256: 353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24
         run: |
           python scripts/run_active_learning.py \
             --data-root data/raw \

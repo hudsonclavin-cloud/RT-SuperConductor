@@ -90,7 +90,7 @@ def _classifier(X: np.ndarray, y: np.ndarray, threshold: float, random_state: in
     if len(np.unique(labels)) < 2:
         return None
     model = RandomForestClassifier(
-        n_estimators=200,
+        n_estimators=100,
         min_samples_leaf=2,
         random_state=random_state,
         n_jobs=-1,
@@ -120,7 +120,7 @@ def train_baseline(*, input_path: Path, output_dir: Path, random_state: int = 42
     splitter = GroupKFold(n_splits=n_splits)
     for fold, (train_idx, test_idx) in enumerate(splitter.split(X, y, groups=groups), start=1):
         model = RandomForestRegressor(
-            n_estimators=200,
+            n_estimators=100,
             min_samples_leaf=2,
             random_state=random_state + fold,
             n_jobs=-1,
@@ -154,7 +154,7 @@ def train_baseline(*, input_path: Path, output_dir: Path, random_state: int = 42
         })
 
     final_model = RandomForestRegressor(
-        n_estimators=300,
+        n_estimators=100,
         min_samples_leaf=2,
         random_state=random_state,
         n_jobs=-1,

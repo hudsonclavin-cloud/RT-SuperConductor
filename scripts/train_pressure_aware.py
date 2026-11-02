@@ -90,7 +90,7 @@ def build_features(
 
 def _model(random_state: int) -> RandomForestRegressor:
     return RandomForestRegressor(
-        n_estimators=300,
+        n_estimators=150,
         min_samples_leaf=1,
         max_features=1.0,
         random_state=random_state,
@@ -133,7 +133,7 @@ def _fit_classifier(X: np.ndarray, y: np.ndarray, threshold: float, random_state
     if len(np.unique(labels)) < 2:
         return None
     classifier = RandomForestClassifier(
-        n_estimators=200,
+        n_estimators=100,
         min_samples_leaf=1,
         max_features=1.0,
         random_state=random_state,
