@@ -221,9 +221,14 @@ substitutions, removes observed formulas, queries Materials Project when
 `MP_API_KEY` is available, and rejects known candidates at or above
 `0.05 eV/atom`. Without a key it degrades explicitly: hull energy remains
 unknown, plausibility is zero, and every shortlist row carries a stability
-review reason. The acquisition function caps the uncertainty reward and
-multiplies it by plausibility, so uncertainty alone cannot promote an
-implausible row.
+review reason. Fractional candidates with no exact MP composition match may
+include `parent_mp_id` and `parent_energy_above_hull`; these columns are marked
+`parent_proxy_status` and refer only to the integer lineage parent. They never
+populate the candidate's `mp_id` or `energy_above_hull` and are never used as
+candidate stability features. Rows with `uncertainty_k > predicted_tc_kelvin`
+are flagged `high_uncertainty` and placed in their own lower-priority ranking
+group. The acquisition function caps the uncertainty reward and multiplies it
+by plausibility, so uncertainty alone cannot promote an implausible row.
 
 `data/processed/candidates/top_k.csv` is a shortlist for human review. Its
 prediction is a hypothesis from the full-fit ensemble, not a measurement or a
