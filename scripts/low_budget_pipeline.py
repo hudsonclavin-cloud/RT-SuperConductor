@@ -7,9 +7,14 @@ import argparse
 import csv
 import json
 import os
+import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
 from rt_superconductor.datasets import _parse_supercon2_pressure, _parse_supercon2_tc
+from rt_superconductor.materials_project import audit_materials_project_queries
 from rt_superconductor.targets import ENGINEERING_PRESSURE_CEILING_GPA
 
 
@@ -80,38 +85,54 @@ def _write_csv(path: Path, rows: list[dict[str, str]]) -> None:
         writer.writerows(rows)
 
 
-def _query_materials_project(rows: list[dict[str, str]], output: Path, limit: int) -> str:
+def _query_materials_project(rows: list[dict[str, str]], output: Path, limit: int) -> dict[str, object]:
+    """Write a per-query, composition-validated Materials Project audit."""
+
     api_key = os.environ.get("MP_API_KEY") or os.environ.get("Materials_Project_API")
     if not api_key:
-        return "Materials Project skipped: no MP_API_KEY or Materials_Project_API runtime secret."
+        report = audit_materials_project_queries(
+            rows,
+            summary_client=None,
+            query_limit=limit,
+            error_detail="Materials Project API key is unavailable in the runtime environment",
+        )
+        report["status"] = "degraded_no_mp_api_key"
+        report["error_detail"] = "Materials Project API key is unavailable in the runtime environment"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return report
     try:
         from mp_api.client import MPRester
     except ImportError:
-        return "Materials Project skipped: install mp-api in the runtime first."
-
-    formulas = []
-    for row in rows:
-        formula = row["formula"]
-        if formula and formula not in formulas:
-            formulas.append(formula)
-    matches: list[dict[str, object]] = []
-    with MPRester(api_key) as mpr:
-        for formula in formulas[:limit]:
-            try:
-                docs = mpr.materials.summary.search(formula=formula)
-                for doc in docs:
-                    matches.append(
-                        {
-                            "query_formula": formula,
-                            "material_id": str(doc.material_id),
-                            "formula_pretty": doc.formula_pretty,
-                            "energy_above_hull": doc.energy_above_hull,
-                        }
-                    )
-            except Exception as error:  # keep one malformed formula from aborting the batch
-                matches.append({"query_formula": formula, "error": str(error)})
-    output.write_text(json.dumps(matches, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return f"Materials Project wrote {len(matches)} matches to {output}"
+        report = audit_materials_project_queries(
+            rows,
+            summary_client=None,
+            query_limit=limit,
+            error_detail="mp-api is not installed in the runtime environment",
+        )
+        report["status"] = "degraded_mp_api_unavailable"
+        report["error_detail"] = "mp-api is not installed in the runtime environment"
+    else:
+        try:
+            with MPRester(api_key) as mpr:
+                report = audit_materials_project_queries(
+                    rows,
+                    summary_client=mpr.materials.summary,
+                    query_limit=limit,
+                    error_secrets=(api_key,),
+                )
+        except Exception as error:  # preserve a sanitized batch-level API failure
+            report = audit_materials_project_queries(
+                rows,
+                summary_client=None,
+                query_limit=limit,
+                error_detail=f"Materials Project client initialization failed: {type(error).__name__}",
+            )
+            report["status"] = "degraded_mp_query_error"
+            report["error_detail"] = f"Materials Project client initialization failed: {type(error).__name__}"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return report
 
 
 def main() -> int:
@@ -135,7 +156,11 @@ def main() -> int:
     print(f"Found {len(known_rows)} high-Tc records with known <=0.1 GPa pressure.")
     print(f"Wrote {review_path}")
     print(f"Wrote {known_path}")
-    print(_query_materials_project(known_rows, args.output_dir / "materials_project_matches.json", args.mp_limit))
+    report = _query_materials_project(known_rows, args.output_dir / "materials_project_audit.json", args.mp_limit)
+    print(json.dumps({key: report[key] for key in (
+        "status", "queried_formula_count", "safe_match_count", "rejected_mismatch_count",
+        "skipped_ambiguous_formula_count", "api_error_count", "no_match_count",
+    )}, indent=2, sort_keys=True))
     return 0
 
 

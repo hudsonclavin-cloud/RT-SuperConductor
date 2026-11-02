@@ -195,9 +195,16 @@ plan.
 
 For a no-terminal Materials Project run, open the repository's **Actions** tab,
 choose **Low-budget materials screen**, select **Run workflow**, and download
-the resulting `low-budget-screen` artifact. The workflow reads the
-`Materials_Project_API` GitHub secret as a runtime-only `MP_API_KEY`; it never
-writes the key to the repository or to an artifact.
+the resulting `low-budget-screen` artifact. The artifact contains
+`materials_project_audit.json`, an auditable per-query record rather than a
+flattened list of API hits. It reports safe composition matches, rejected
+mismatches, skipped ambiguous formulas, no-match responses, and API errors
+separately. Formula matching is conservative and does not interpret variables,
+mixed phases, sample labels, or oxidation-state annotations. The workflow reads
+the `Materials_Project_API` GitHub secret as a runtime-only `MP_API_KEY`; it
+never writes the key to the repository or to an artifact. A match is a computed
+database reference for review, not AI training, DFT, experimental validation,
+or a superconductivity prediction.
 
 For the within-family ferrite cycle, run:
 

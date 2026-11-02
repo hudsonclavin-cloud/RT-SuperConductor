@@ -229,10 +229,28 @@ implausible row.
 prediction is a hypothesis from the full-fit ensemble, not a measurement or a
 claim that any candidate superconducts.
 
-`scripts/enrich_materials_project.py` appends the lowest-energy polymorph's
-`mp_id`, `energy_above_hull`, and `spacegroup_number` using `MP_API_KEY`. The
-promotion workflow then applies the ambient MAE, hydride pressure-trend, and
-excluded-reference false-positive thresholds in `scripts/promotion_gate.py`.
+`scripts/enrich_materials_project.py` and the low-budget screen use the shared
+auditor in `rt_superconductor.materials_project`. Before a query, it accepts
+only an unambiguous fixed elemental composition: variables, mixed phases,
+sample labels, charge/oxidation annotations, grouping syntax, and malformed
+tokens are recorded as `ambiguous_input` and are not sent to the API. For a
+returned document, the reduced element/amount signature must exactly equal the
+query signature; an API search hit alone is not accepted. Every query is
+retained in `materials_project_audit.json` with source record IDs, original and
+normalized formula, query status, validation status, returned candidates, and
+sanitized error detail. Multiple validated polymorphs remain separate in the
+audit; enrichment selects the lowest-hull validated alternative only for its
+legacy one-row CSV projection. The low-budget artifact reports queried,
+matched, no-match, rejected, ambiguous, and API-error counts separately.
+
+The `KD 2 PO 4` → `KP(HO2)2` example is therefore unresolved before querying
+because `D` is not silently interpreted as another element; if a fuzzy API
+response is returned for a parseable formula, the same composition check rejects
+it. The screen establishes only a database-reference hypothesis. It is not AI
+training, DFT, experimental validation, or a superconductivity prediction.
+
+The promotion workflow then applies the ambient MAE, hydride pressure-trend,
+and excluded-reference false-positive thresholds in `scripts/promotion_gate.py`.
 
 The model is a prioritization tool, not evidence of superconductivity. A
 candidate must still receive structure-aware relaxation and experimental or
