@@ -1,21 +1,29 @@
 # Continuous training workflow
 
-`.github/workflows/continuous-training.yml` runs the first AI benchmark on a
-weekly schedule, on changes to the trainer or reviewed training data, and from
-the GitHub Actions **Run workflow** button.
+`.github/workflows/continuous-training.yml` runs one active-learning cycle on a
+weekly schedule, on changes to the trainer or training data, and from the
+GitHub Actions **Run workflow** button. The same cycle is available locally:
+
+```bash
+python scripts/run_active_learning.py
+```
 
 Each run:
 
 1. checks out the code;
 2. installs the optional machine-learning dependencies;
-3. validates human-reviewed records under `data/training/reviewed/`;
-4. bridges confirmed reviewed records into the provenance-aware harmonized CSV;
-5. validates provenance and `is_synthetic` metadata;
-6. downloads and SHA-256 verifies the pinned UCI snapshot;
-7. trains the grouped composition baseline;
-8. attempts the pressure-aware surrogate using only confirmed empirical rows;
-9. writes metrics, predictions, and blocked-data reports; and
-10. uploads them as a run-specific artifact and GitHub job summary.
+3. downloads and SHA-256 verifies the pinned UCI archive and 3DSC table;
+4. fetches a deterministic, stratified CIF subset from the pinned 3DSC commit;
+5. bridges reviewed records and ingests the 3DSC table into the harmonized CSV;
+6. trains the UCI composition baseline with family-held-out `GroupKFold`;
+7. trains the pressure-aware 3DSC surrogate with curated `Tc=0` negatives;
+8. compares Matminer structure features against composition-only when coverage
+   supports two held-out families;
+9. enumerates substitutions, applies the Materials Project hull filter when
+   credentials exist, and writes `candidates/top_k.csv`;
+10. writes metrics, dataset hashes, degraded/blocked reports, and model
+    artifacts; and
+11. uploads the complete run as a run-specific artifact and GitHub job summary.
 
 The workflow deliberately does not replace a model in production or treat
 automatically extracted literature as reviewed labels. New records should be
@@ -25,5 +33,7 @@ for fixtures and screening smoke tests but are excluded from model weights and
 cross-validation metrics. The reviewed-record validator and bridge run before
 training so an incomplete or ambiguous label cannot silently enter the model.
 The pressure-aware trainer emits a blocked report when empirical records do not
-yet span at least two chemical families; this keeps CI informative without
-silently falling back to synthetic data.
+yet span at least two chemical families; candidate ranking then emits a header-only
+shortlist rather than silently falling back to synthetic data. Missing
+Materials Project credentials are a visible degraded state: hull energy stays
+unknown and the shortlist says that stability review is required.

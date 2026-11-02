@@ -115,14 +115,24 @@ This repository is a software foundation for research collaboration. A computed
 score or predicted transition temperature is a hypothesis until it is supported
 by an appropriate physical calculation and reproducible measurement.
 
-The first AI baseline is documented in [modeling.md](docs/modeling.md) and can
-be run after installing `.[ml]` with `PYTHONPATH=src python scripts/train_baseline.py`. It is a
-composition-only benchmark with grouped evaluation and ensemble uncertainty;
-it is a starting point for the active-learning engine, not a pressure-aware
-superconductivity predictor.
+The reproducible active-learning cycle is documented in
+[modeling.md](docs/modeling.md). After installing `.[ml]`, run:
 
-The Phase 2/3 pipeline is documented in [modeling.md](docs/modeling.md). Run
-the full validated workflow from the repository root with:
+```bash
+python scripts/run_active_learning.py
+```
+
+It downloads the pinned UCI and 3DSC inputs into ignored `data/raw/`, ingests
+real curated 3DSC records (including `Tc=0` negatives), trains family-held-out
+composition and pressure-aware models, evaluates CIF features when coverage
+permits, and writes JSON metrics plus `data/processed/active-learning/candidates/top_k.csv`.
+Every run preserves dataset SHA-256 values. The headline numbers are held-out
+chemical-family metrics; mean-predictor comparisons and random/secondary
+checks are not substitutes for that evaluation.
+
+The legacy Phase 2/3 pipeline is documented in [modeling.md](docs/modeling.md).
+For the current full workflow, run the command above. The older orchestrator
+remains available for QE-input smoke tests:
 
 ```bash
 python -m pip install -e '.[ml,mp]'
@@ -135,9 +145,12 @@ folders containing Quantum ESPRESSO SCF/phonon and EPW starter inputs. The QE
 positions are explicitly marked as placeholders until a relaxed structure is
 attached.
 
-The [continuous-training workflow](docs/continuous-training.md) retrains this
-benchmark weekly or from the GitHub Actions interface and uploads each model,
-prediction file, and metric report as a reviewable artifact.
+The [continuous-training workflow](docs/continuous-training.md) runs the same
+download → ingest → train → rank cycle weekly or from the GitHub Actions
+interface and uploads each model, dataset hash, metric report, blocked/degraded
+report, and top-k shortlist as a reviewable artifact. A shortlist row is a
+model hypothesis requiring structure, first-principles, and experimental review;
+the repository makes no claim that a room-temperature superconductor exists.
 
 The first active-learning spine is available in `rt_superconductor.search`.
 It keeps proposed candidates separate from observations, applies the pressure

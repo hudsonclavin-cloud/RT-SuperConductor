@@ -7,6 +7,12 @@ on:
   push:
     paths:
       - "scripts/train_baseline.py"
+      - "scripts/train_pressure_aware.py"
+      - "scripts/run_active_learning.py"
+      - "scripts/download_training_data.py"
+      - "scripts/ingest_3dsc.py"
+      - "scripts/rank_candidates.py"
+      - "scripts/evaluate_structure_features.py"
       - "src/rt_superconductor/**"
       - "pyproject.toml"
       - "data/training/**"
@@ -29,41 +35,17 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install machine-learning dependencies
-        run: python -m pip install --upgrade pip '.[ml]'
-      - name: Validate reviewed training records
+        run: python -m pip install --upgrade pip '.[ml,mp]'
+      - name: Run one reproducible active-learning cycle
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
         run: |
-          mkdir -p data/processed/continuous-training
-          python scripts/validate_reviewed_training.py \
-            --input-dir data/training/reviewed \
-            --report data/processed/continuous-training/reviewed-training-report.json
-      - name: Validate harmonized Phase 2 schema
-        run: |
-          python scripts/bridge_reviewed_records.py \
+          python scripts/run_active_learning.py \
+            --data-root data/raw \
             --harmonized data/training/harmonized_supercon.csv \
-            --reviewed data/training/reviewed/reviewed_records.csv
-          python scripts/validate_harmonized.py \
-            --input data/training/harmonized_supercon.csv \
-            --report data/processed/continuous-training/harmonized-report.json
-      - name: Download the pinned UCI training snapshot
-        run: |
-          mkdir -p /tmp/uci
-          curl --fail --location --retry 3 --retry-delay 2 \
-            --output /tmp/uci/superconductivity-data.zip \
-            "https://archive.ics.uci.edu/static/public/464/superconductivty+data.zip"
-          echo "87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e  /tmp/uci/superconductivity-data.zip" \
-            | sha256sum --check
-          unzip -q /tmp/uci/superconductivity-data.zip -d /tmp/uci/extracted
-      - name: Train grouped composition baseline
-        run: |
-          python scripts/train_baseline.py \
-            --input /tmp/uci/extracted/unique_m.csv \
-            --output-dir data/processed/continuous-training
-      - name: Train pressure-aware family-grouped surrogate
-        run: |
-          python scripts/train_pressure_aware.py \
-            --input data/training/harmonized_supercon.csv \
-            --output-dir data/processed/continuous-training/pressure-aware \
-            --allow-insufficient-data
+            --output-dir data/processed/continuous-training \
+            --cif-limit 96 \
+            --batch-size 25
       - name: Publish run summary
         run: |
           python - <<'PY'
@@ -71,24 +53,26 @@ jobs:
           import os
           from pathlib import Path
 
-          metrics = json.loads(Path("data/processed/continuous-training/baseline-metrics.json").read_text())
-          reviewed = json.loads(Path("data/processed/continuous-training/reviewed-training-report.json").read_text())
-          model = metrics["model_metrics"]
-          baseline = metrics["baseline_metrics"]
+          run = json.loads(Path("data/processed/continuous-training/active-learning-run.json").read_text())
+          baseline = run["baseline"]
+          pressure = run["pressure_aware"]
+          ranking = run["candidate_ranking"]
           summary = (
               f"### Continuous training\n"
-              f"- Rows: {metrics['rows']}\n"
-              f"- Validated reviewed records: {reviewed['record_count']}\n"
-              f"- Grouped test rows: {metrics['test_rows']}\n"
-              f"- Model MAE: {model['mae_k']:.3f} K\n"
-              f"- Mean baseline MAE: {baseline['mae_k']:.3f} K\n"
-              f"- Model R²: {model['r2']:.3f}\n"
+              f"- Run status: {run['status']}\n"
+              f"- UCI baseline: {baseline.get('rows', 'blocked')} rows\n"
+              f"- 3DSC empirical training rows: {pressure.get('empirical_training_record_count', 'blocked')}\n"
+              f"- Family-held-out pressure model: {pressure.get('training_status', 'blocked')}\n"
+              f"- Ranked candidates: {ranking.get('ranked_count', 0)}\n"
+              f"- Candidate artifact: `data/processed/candidates/top_k.csv`\n"
           )
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
               handle.write(summary)
           PY
-      - name: Upload model and metrics artifact
+      - name: Upload model, metrics, and candidate shortlist
         uses: actions/upload-artifact@v4
         with:
           name: continuous-training-${{ github.run_id }}
-          path: data/processed/continuous-training/
+          path: |
+            data/processed/continuous-training/
+            data/processed/candidates/
