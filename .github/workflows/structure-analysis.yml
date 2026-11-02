@@ -1,0 +1,124 @@
+name: Structure and density inputs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/fetch_materials_project_structures.py"
+      - "scripts/prepare_electronic_density_manifest.py"
+      - "scripts/build_structure_registry.py"
+      - "scripts/build_external_dft_manifest.py"
+      - "scripts/ingest_dft_results.py"
+      - "scripts/build_research_decision_package.py"
+      - "docs/electronic-density.md"
+      - "docs/superconductivity-variables.md"
+      - "data/training/external-data-sources.csv"
+      - "data/pseudopotentials/pslibrary-catalog.csv"
+      - ".github/workflows/structure-analysis.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    env:
+      MP_API_KEY: ${{ secrets.Materials_Project_API }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install structure dependencies
+        run: python -m pip install --upgrade pip '.[ml,mp]'
+      - name: Enrich harmonized records with Materials Project ids
+        run: |
+          mkdir -p data/processed/structure-analysis
+          python scripts/enrich_materials_project.py \
+            --input data/training/harmonized_supercon.csv \
+            --output data/processed/structure-analysis/harmonized_enriched.csv \
+            --report data/processed/structure-analysis/materials-project-report.json
+      - name: Retrieve reference CIF structures
+        run: |
+          python scripts/fetch_materials_project_structures.py \
+            --input data/processed/structure-analysis/harmonized_enriched.csv \
+            --output-dir data/processed/structure-analysis/structures
+      - name: Deduplicate structures and run CIF quality checks
+        run: |
+          python scripts/build_structure_registry.py \
+            --artifact-root data/processed/structure-analysis \
+            --harmonized data/processed/structure-analysis/harmonized_enriched.csv \
+            --output-dir data/processed/structure-analysis
+      - name: Prepare blocked-by-default external DFT manifest
+        run: |
+          python scripts/build_external_dft_manifest.py \
+            --registry data/processed/structure-analysis/unique-structures.csv \
+            --cif-dir data/processed/structure-analysis/structures \
+            --output data/processed/structure-analysis/calculation-manifest.csv
+      - name: Build research decision package
+        run: |
+          python scripts/build_research_decision_package.py \
+            --harmonized data/processed/structure-analysis/harmonized_enriched.csv \
+            --registry data/processed/structure-analysis/unique-structures.csv \
+            --calculations data/processed/structure-analysis/calculation-manifest.csv \
+            --output-dir data/processed/structure-analysis/research-decision-package
+      - name: Prepare external DFT analysis manifest
+        run: |
+          python scripts/prepare_electronic_density_manifest.py \
+            --input-dir data/processed/structure-analysis/structures \
+            --output data/processed/structure-analysis/electronic-analysis-manifest.csv
+      - name: Put manifests at artifact top level
+        run: |
+          cp data/training/external-data-sources.csv data/processed/structure-analysis/external-data-sources.csv
+          cp data/pseudopotentials/pslibrary-catalog.csv data/processed/structure-analysis/pslibrary-catalog.csv
+          cp data/processed/structure-analysis/structures/structure-manifest.json \
+            data/processed/structure-analysis/structure-manifest.json
+          cat > data/processed/structure-analysis/ARTIFACT-INDEX.txt <<'EOF'
+          Start here:
+          - materials-project-report.json: enrichment and API error report
+          - structure-manifest.json: one row per candidate and retrieved CIF status
+          - electronic-analysis-manifest.csv: DFT/Bader/ELF/COHP/Wannier status
+          - unique-structures.csv and structure-lineage.csv: deduplicated structures and evidence lineage
+          - structure-qc.csv and structure-features.csv: parsed CIF checks/features
+          - feature-coverage.json: coverage of available structure and MP variables
+          - external-data-sources.csv: open sources to add next
+          - pslibrary-catalog.csv: source patterns for available elements
+          - structure-resolution-review.csv: unresolved mappings requiring review
+          - calculation-manifest.csv: external DFT jobs and blockers
+          - electronic-analysis-results.csv: empty-by-design result status template
+          - research-decision-package/: concise run status and limitations
+          - structures/: retrieved CIF files
+          EOF
+          find data/processed/structure-analysis -maxdepth 2 -type f -print | sort
+      - name: Publish structure retrieval summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from collections import Counter
+          from pathlib import Path
+
+          manifest = json.loads(Path("data/processed/structure-analysis/structure-manifest.json").read_text())
+          entries = manifest.get("entries", [])
+          counts = Counter(entry.get("structure_status", "unknown") for entry in entries)
+          lines = [
+              "## Structure retrieval",
+              f"- Records examined: {len(entries)}",
+              f"- CIFs retrieved: {manifest.get('retrieved_count', 0)}",
+              "- Status counts: " + ", ".join(f"`{key}`={value}" for key, value in sorted(counts.items())),
+              "",
+              "The artifact root contains the deduplicated registry, QC, feature coverage, and external calculation manifest.",
+              "- Feature coverage: " + ", ".join(f"{key}={value}/{manifest.get('retrieved_count', 0)}" for key,value in sorted(json.loads(Path("data/processed/structure-analysis/feature-coverage.json").read_text())["nonmissing_count_by_feature"].items())),
+          ]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
+      - name: Upload structure and analysis inputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: structure-electronic-analysis-${{ github.run_id }}
+          path: data/processed/structure-analysis/
+          if-no-files-found: error
