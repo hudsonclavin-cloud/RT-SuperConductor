@@ -389,7 +389,13 @@ def train_pressure_aware(
     n_splits = min(n_splits, len(unique_groups))
     known_hulls = [record.energy_above_hull for record in training_records if record.energy_above_hull is not None]
     hull_fill = float(np.median(known_hulls)) if known_hulls else 0.0
-    X, feature_names, feature_backend = build_features(training_records, hull_fill=hull_fill)
+    # Featurize the complete harmonized table once.  The empirical training
+    # rows are a strict slice of that matrix, and the full-fit artifact reuses
+    # the same columns.  This keeps the required Magpie backend reproducible
+    # without paying for repeated 5k-row featurization passes.
+    all_X, feature_names, feature_backend = build_features(records, hull_fill=hull_fill)
+    positions = {record.record_id: index for index, record in enumerate(records)}
+    X = all_X[np.asarray([positions[record.record_id] for record in training_records], dtype=int)]
     y = np.asarray([record.tc_kelvin for record in training_records], dtype=float)
 
     oof = np.full(len(training_records), np.nan, dtype=float)
@@ -440,7 +446,6 @@ def train_pressure_aware(
 
     model = _model(random_state)
     model.fit(X, y)
-    all_X, _, _ = build_features(records, hull_fill=hull_fill)
     all_tree_predictions = np.asarray([tree.predict(all_X) for tree in model.estimators_])
     all_predictions = all_tree_predictions.mean(axis=0)
     all_uncertainties = all_tree_predictions.std(axis=0)
