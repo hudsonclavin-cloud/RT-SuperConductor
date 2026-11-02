@@ -120,6 +120,116 @@ class ActiveLearningTests(unittest.TestCase):
             self.assertAlmostEqual(float(row["uncertainty_k"]), 2.0)
             self.assertEqual(row["status"], "review_required_hypothesis")
 
+    def test_fractional_candidate_reports_parent_mp_values_as_proxy_only(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            input_path = root / "records.csv"
+            write_harmonized(input_path, [HarmonizedRecord(
+                record_id="b" * 24, source_db="supermat", formula="Nb3Sn",
+                tc_kelvin=18, applied_pressure_gpa=0, measurement_method="resistivity",
+                sample_form="polycrystalline", doi="10.0000/nb3sn", review_status="confirmed",
+                provenance="literature", is_synthetic=0, chemical_family="Other",
+            )])
+            model_dir = root / "model"
+            model_dir.mkdir()
+            (model_dir / "pressure-aware-report.json").write_text('{"training_status":"ready"}', encoding="utf-8")
+            (model_dir / "pressure-aware-model.joblib").write_bytes(b"placeholder")
+
+            class Tree:
+                def predict(self, features):
+                    return np.full(len(features), 20.0)
+
+            artifact = {"model": SimpleNamespace(estimators_=[Tree()]), "hull_fill": 0.01}
+            candidate = {
+                "formula": "Nb3Sn0.8Sb0.2", "chemical_family": "Other", "parent_record_id": "b" * 24,
+            }
+            calls = []
+
+            def mp_matches(formulas, api_key):
+                calls.append(list(formulas))
+                if len(calls) == 1:
+                    return {}, "ready", "candidate exact-composition search"
+                return ({"Nb3Sn": {
+                    "mp_id": "mp-parent", "energy_above_hull": 0.004,
+                    "band_gap_ev": 0.0, "is_metal": True,
+                }}, "ready", "parent integer-composition search")
+
+            output = root / "candidate.csv"
+            with (
+                patch.object(candidate_ranker, "enumerate_substitution_candidates", return_value=[candidate]),
+                patch.object(candidate_ranker, "_mp_matches", side_effect=mp_matches),
+                patch.object(candidate_ranker.joblib, "load", return_value=artifact),
+                patch.object(candidate_ranker, "build_features", return_value=(np.zeros((1, 1)), [], "test")),
+            ):
+                candidate_ranker.rank_candidates(
+                    input_path=input_path, model_dir=model_dir, output_path=output,
+                    batch_size=1, api_key="test-key",
+                )
+
+            self.assertEqual(calls[1], ["Nb3Sn"])
+            with output.open(newline="", encoding="utf-8") as handle:
+                row = next(csv.DictReader(handle))
+            self.assertEqual(row["mp_id"], "")
+            self.assertEqual(row["energy_above_hull"], "")
+            self.assertEqual(row["parent_formula"], "Nb3Sn")
+            self.assertEqual(row["parent_mp_id"], "mp-parent")
+            self.assertEqual(row["parent_energy_above_hull"], "0.004")
+            self.assertEqual(row["parent_proxy_status"], "matched_parent_proxy")
+            self.assertIn("parent compound proxy only", row["reasons"])
+
+    def test_uncertainty_larger_than_prediction_is_separately_grouped(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            input_path = root / "records.csv"
+            write_harmonized(input_path, [HarmonizedRecord(
+                record_id="c" * 24, source_db="3dsc", formula="Nb3Sn",
+                tc_kelvin=18, applied_pressure_gpa=0, measurement_method="unknown",
+                sample_form="unknown", doi="10.0000/nb3sn", review_status="curated_database",
+                provenance="curated", is_synthetic=0, chemical_family="Other",
+            )])
+            model_dir = root / "model"
+            model_dir.mkdir()
+            (model_dir / "pressure-aware-report.json").write_text('{"training_status":"ready"}', encoding="utf-8")
+            (model_dir / "pressure-aware-model.joblib").write_bytes(b"placeholder")
+
+            class Tree:
+                def __init__(self, first, second):
+                    self.values = np.asarray([first, second], dtype=float)
+
+                def predict(self, features):
+                    return self.values
+
+            artifact = {
+                "model": SimpleNamespace(estimators_=[Tree(290, 0), Tree(292, 0), Tree(294, 30)]),
+                "hull_fill": 0.01,
+            }
+            candidates = [
+                {"formula": "Ta3Sn", "chemical_family": "Other", "parent_record_id": "c" * 24},
+                {"formula": "W3Sn", "chemical_family": "Other", "parent_record_id": "c" * 24},
+            ]
+            output = root / "candidate.csv"
+            with (
+                patch.object(candidate_ranker, "enumerate_substitution_candidates", return_value=candidates),
+                patch.object(candidate_ranker, "_mp_matches", return_value=({}, "ready", None)),
+                patch.object(candidate_ranker.joblib, "load", return_value=artifact),
+                patch.object(candidate_ranker, "build_features", return_value=(np.asarray([[0], [1]]), [], "test")),
+            ):
+                report = candidate_ranker.rank_candidates(
+                    input_path=input_path, model_dir=model_dir, output_path=output,
+                    batch_size=2, family="Other", api_key="test-key",
+                )
+
+            self.assertEqual(report["high_uncertainty_screened_count"], 1)
+            self.assertEqual(report["high_uncertainty_ranked_count"], 1)
+            with output.open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            by_formula = {row["formula"]: row for row in rows}
+            self.assertEqual(by_formula["Ta3Sn"]["high_uncertainty"], "false")
+            self.assertNotEqual(by_formula["Ta3Sn"]["ranking_group"], "high_uncertainty")
+            self.assertEqual(by_formula["W3Sn"]["high_uncertainty"], "true")
+            self.assertEqual(by_formula["W3Sn"]["ranking_group"], "high_uncertainty")
+            self.assertEqual(by_formula["W3Sn"]["group_rank"], "1")
+
     def test_family_ranker_filters_nonmetals_and_avoids_room_temperature_target_fit(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

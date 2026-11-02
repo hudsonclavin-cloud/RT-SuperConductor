@@ -35,7 +35,8 @@ FAMILY_PREDICTION_WEIGHT = 0.80
 FAMILY_UNCERTAINTY_WEIGHT = 0.20
 TOP_K_COLUMNS = (
     "rank", "candidate_id", "formula", "predicted_tc_kelvin", "uncertainty_k",
-    "chemical_family", "energy_above_hull", "band_gap_ev", "is_metal", "mp_id", "mp_exists",
+    "high_uncertainty", "chemical_family", "energy_above_hull", "band_gap_ev", "is_metal", "mp_id", "mp_exists",
+    "parent_formula", "parent_mp_id", "parent_energy_above_hull", "parent_proxy_status",
     "3dsc_exists", "3dsc_stanev_exists", "uci_exists", "supercon2_exists", "supermat_exists", "known_in_database",
     "measured_tc_kelvin", "measured_tc_sources", "validation_match_basis",
     "ranking_group", "group_rank", "acquisition_score", "plausibility", "pressure_gpa",
@@ -59,6 +60,66 @@ def _candidate_formula(amounts: dict[str, float], old: str, replacement: str) ->
     formula = Composition(changed).reduced_formula
     result = canonicalize_formula(formula)
     return result.canonical if result.status == "parsed" else None
+
+
+def _has_fractional_stoichiometry(formula: str) -> bool:
+    """Return whether any element count is nonintegral, without rounding it."""
+
+    try:
+        return any(
+            not np.isclose(float(amount), round(float(amount)), rtol=0.0, atol=1e-8)
+            for amount in _elements(formula).values()
+        )
+    except (ValueError, TypeError):
+        return False
+
+
+def _parent_proxy_matches(
+    candidates: list[dict[str, str]],
+    records: list[HarmonizedRecord],
+    candidate_matches: dict[str, dict[str, Any]],
+    api_key: str | None,
+) -> tuple[dict[str, dict[str, Any]], str | None]:
+    """Find MP entries for integer lineage parents of unmatched fractional candidates.
+
+    Parent values are returned separately and must never be used as candidate
+    properties, filters, or model features.
+    """
+
+    records_by_id = {record.record_id: record for record in records}
+    parent_by_candidate: dict[str, str] = {}
+    proxies: dict[str, dict[str, Any]] = {}
+    for candidate in candidates:
+        formula = candidate["formula"]
+        if formula in candidate_matches or not _has_fractional_stoichiometry(formula):
+            continue
+        parent = records_by_id.get(candidate.get("parent_record_id", ""))
+        if parent is None or _has_fractional_stoichiometry(parent.formula):
+            proxies[formula] = {
+                "parent_formula": "",
+                "parent_mp_id": "",
+                "parent_energy_above_hull": None,
+                "parent_proxy_status": "no_integer_parent_record",
+            }
+            continue
+        parent_by_candidate[formula] = parent.formula
+
+    if not parent_by_candidate:
+        return proxies, None
+
+    parent_matches, status, note = _mp_matches(sorted(set(parent_by_candidate.values())), api_key)
+    for candidate_formula, parent_formula in parent_by_candidate.items():
+        parent_match = parent_matches.get(parent_formula)
+        proxy_status = "matched_parent_proxy" if parent_match else (
+            "parent_query_unavailable" if status != "ready" else "integer_parent_no_mp_match"
+        )
+        proxies[candidate_formula] = {
+            "parent_formula": parent_formula,
+            "parent_mp_id": "" if not parent_match else parent_match.get("mp_id", ""),
+            "parent_energy_above_hull": None if not parent_match else parent_match.get("energy_above_hull"),
+            "parent_proxy_status": proxy_status,
+        }
+    return proxies, note
 
 
 def _canonical_formula(value: str) -> str | None:
@@ -296,6 +357,9 @@ def rank_candidates(
     supermat_path = supermat_path or _default_source_path("data/raw/SuperMat-2.0.csv", "data/raw/supermat/SuperMat-2.0.csv")
     candidates = enumerate_substitution_candidates(records, family=family, max_candidates=max_candidates)
     matches, mp_status, mp_note = _mp_matches([candidate["formula"] for candidate in candidates], api_key or os.environ.get("MP_API_KEY"))
+    parent_proxies, parent_mp_note = _parent_proxy_matches(
+        candidates, records, matches, api_key or os.environ.get("MP_API_KEY")
+    )
     measurement_evidence, measurement_source_status = load_measurement_evidence(
         uci_path=uci_path,
         stanev_path=stanev_path,
@@ -340,7 +404,7 @@ def rank_candidates(
         known_status, known_sources = _status_from_flags(flags)
         exact_measurements, _ = match_measurement_evidence(candidate["formula"], measurement_evidence)
         screened.append({
-            **candidate, **match, "plausibility": plausibility,
+            **candidate, **match, **parent_proxies.get(candidate["formula"], {}), "plausibility": plausibility,
             "database_flags": flags, "known_status": known_status, "known_sources": known_sources,
             "exact_measurements": exact_measurements,
         })
@@ -410,10 +474,14 @@ def rank_candidates(
             family_proposals.append(CandidateProposal(candidate=hypothesis, score=score, reasons=reasons))
         proposals = family_proposals
 
-    def group_order(proposal: CandidateProposal) -> tuple[int, float, str]:
+    def _high_uncertainty(proposal: CandidateProposal) -> bool:
+        return proposal.candidate.tc_uncertainty_k > proposal.candidate.predicted_tc_k
+
+    def group_order(proposal: CandidateProposal) -> tuple[int, int, float, str]:
         item = lookup.get(proposal.candidate.candidate_id, {})
         order = {"new": 0, "known": 1, "unknown": 2}.get(item.get("known_status", "unknown"), 2)
-        return order, -proposal.score, proposal.candidate.candidate_id
+        # Keep high-uncertainty proposals visible, but in a distinct lower-priority block.
+        return int(_high_uncertainty(proposal)), order, -proposal.score, proposal.candidate.candidate_id
 
     lookup = {hypothesis.candidate_id: item for hypothesis, item in zip(hypotheses, screened)}
     proposals = sorted(proposals, key=group_order)[:batch_size]
@@ -452,7 +520,14 @@ def rank_candidates(
             reasons.append("no exact measured compound match in the supplied validation sources; hypothesis output")
         if mp_note:
             reasons.append(mp_note)
-        group = item["known_status"]
+        if parent_mp_note and item.get("parent_formula"):
+            reasons.append(f"parent-proxy Materials Project lookup: {parent_mp_note}")
+        if item.get("parent_proxy_status") == "matched_parent_proxy":
+            reasons.append(
+                "parent compound proxy only; parent MP hull energy is not the candidate's hull energy"
+            )
+        high_uncertainty = proposal.candidate.tc_uncertainty_k > proposal.candidate.predicted_tc_k
+        group = "high_uncertainty" if high_uncertainty else item["known_status"]
         group_ranks[group] += 1
         ranked_rows.append({
             "rank": rank,
@@ -460,11 +535,16 @@ def rank_candidates(
             "formula": proposal.candidate.composition,
             "predicted_tc_kelvin": f"{proposal.candidate.predicted_tc_k:.8g}",
             "uncertainty_k": f"{proposal.candidate.tc_uncertainty_k:.8g}",
+            "high_uncertainty": _text_bool(high_uncertainty),
             "chemical_family": item["chemical_family"],
             "energy_above_hull": "" if item.get("energy_above_hull") is None else f"{float(item['energy_above_hull']):.8g}",
             "band_gap_ev": "" if item.get("band_gap_ev") is None else f"{float(item['band_gap_ev']):.8g}",
             "is_metal": _text_bool(item.get("is_metal")),
             "mp_id": item.get("mp_id", ""),
+            "parent_formula": item.get("parent_formula", ""),
+            "parent_mp_id": item.get("parent_mp_id", ""),
+            "parent_energy_above_hull": "" if item.get("parent_energy_above_hull") is None else f"{float(item['parent_energy_above_hull']):.8g}",
+            "parent_proxy_status": item.get("parent_proxy_status", "not_applicable"),
             "mp_exists": _text_bool(flags.get("mp_exists")),
             "3dsc_exists": _text_bool(flags.get("3dsc_exists")),
             "3dsc_stanev_exists": _text_bool(flags.get("3dsc_stanev_exists")),
@@ -529,6 +609,11 @@ def rank_candidates(
         "known_count": sum(item["known_status"] == "known" for item in screened),
         "new_count": sum(item["known_status"] == "new" for item in screened),
         "unknown_database_status_count": sum(item["known_status"] == "unknown" for item in screened),
+        "high_uncertainty_screened_count": sum(
+            hypothesis.tc_uncertainty_k > hypothesis.predicted_tc_k
+            for hypothesis in hypotheses
+        ),
+        "high_uncertainty_ranked_count": sum(row["high_uncertainty"] == "true" for row in ranked_rows),
         "output": str(output_path),
         "interpretation": "Every row is a model hypothesis requiring human review and structure/experimental validation; no row is evidence of superconductivity.",
     }
