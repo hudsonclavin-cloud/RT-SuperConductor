@@ -1,9 +1,8 @@
 import csv
+import math
 import sys
 from pathlib import Path
 from types import SimpleNamespace
-
-import pytest
 
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -61,7 +60,7 @@ def test_materials_project_selects_lowest_energy_polymorph():
     ]
     match = select_lowest_energy_polymorph(documents)
     assert match.mp_id == "mp-low"
-    assert match.energy_above_hull == pytest.approx(0.01)
+    assert math.isclose(match.energy_above_hull, 0.01, rel_tol=1e-9)
     assert match.spacegroup_number == 225
 
 
