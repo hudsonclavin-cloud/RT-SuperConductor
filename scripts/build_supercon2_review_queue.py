@@ -14,11 +14,6 @@ import csv
 import re
 import sys
 from pathlib import Path
-import sys
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(ROOT / "src"))
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "src") not in sys.path:
@@ -66,7 +61,24 @@ def _risk(row: dict[str, str], tc_kelvin: float) -> str:
     return ";".join(risks) or "context_requires_verification"
 
 
-def build_queue(input_path: Path, output_path: Path, limit: int) -> int:
+def _reviewed_source_record_ids(reviewed_path: Path) -> set[str]:
+    if not reviewed_path.is_file():
+        return set()
+    with reviewed_path.open(newline="", encoding="utf-8-sig") as handle:
+        return {
+            row.get("source_record_id", "").strip()
+            for row in csv.DictReader(handle)
+            if row.get("source_record_id", "").strip()
+        }
+
+
+def build_queue(
+    input_path: Path,
+    output_path: Path,
+    limit: int,
+    reviewed_path: Path = Path("data/training/reviewed/reviewed_records.csv"),
+) -> int:
+    reviewed_ids = _reviewed_source_record_ids(reviewed_path)
     candidates: list[dict[str, str | float]] = []
     seen_formulas: set[str] = set()
     with input_path.open(newline="", encoding="utf-8-sig") as handle:
@@ -74,6 +86,9 @@ def build_queue(input_path: Path, output_path: Path, limit: int) -> int:
             tc_kelvin = _parse_scalar(_parse_supercon2_tc, row.get("criticalTemperature", ""))
             pressure_gpa = _parse_scalar(_parse_supercon2_pressure, row.get("appliedPressure", ""))
             formula = row.get("formula", "").strip()
+            source_record_id = row.get("id", "").strip()
+            if source_record_id and source_record_id in reviewed_ids:
+                continue
             doi = row.get("doi", "").strip()
             title = row.get("title", "").strip()
             if tc_kelvin is None or pressure_gpa is None or tc_kelvin < 70 or tc_kelvin > 350:
@@ -86,7 +101,7 @@ def build_queue(input_path: Path, output_path: Path, limit: int) -> int:
             seen_formulas.add(formula_key)
             candidates.append(
                 {
-                    "source_record_id": row.get("id", "").strip(),
+                    "source_record_id": source_record_id,
                     "formula": formula,
                     "extracted_tc_kelvin": tc_kelvin,
                     "extracted_pressure_gpa": pressure_gpa,
@@ -117,8 +132,14 @@ def main() -> int:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=20)
+    parser.add_argument(
+        "--reviewed",
+        type=Path,
+        default=Path("data/training/reviewed/reviewed_records.csv"),
+        help="reviewed-record CSV whose source_record_id values are already handled",
+    )
     args = parser.parse_args()
-    print(f"Wrote {build_queue(args.input, args.output, args.limit)} pending review records")
+    print(f"Wrote {build_queue(args.input, args.output, args.limit, args.reviewed)} pending review records")
     return 0
 
 

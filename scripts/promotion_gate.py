@@ -13,7 +13,7 @@ import json
 import math
 from pathlib import Path
 
-AMBIENT_PRESSURE_MAX_GPA = 0.0001
+AMBIENT_PRESSURE_MAX_GPA = 0.000101325
 AMBIENT_MAE_MAX_K = 12.0
 HYDRIDE_TREND_MIN_PEARSON_R = 0.80
 FALSE_POSITIVE_MAX_RATE = 0.05
@@ -101,6 +101,9 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
         },
         "model_artifact": str(model_path),
         "predictions": str(predictions_path),
+        "ambient_eligible_rows": len(ambient),
+        # Retain the historical key for downstream consumers; the count now
+        # includes both confirmed and curated_database empirical rows.
         "ambient_confirmed_rows": len(ambient),
         "ambient_mae_k": ambient_mae,
         "hydride_trend_pearson_r": trend,

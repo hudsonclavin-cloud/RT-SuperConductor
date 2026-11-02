@@ -74,8 +74,8 @@ model. Positive metrics are computed from family-held-out out-of-fold
 predictions; excluded controls are scored with the fitted artifact. The gate
 requires:
 
-- ambient-pressure \(T_c\) MAE no greater than 12 K for rows at
-  \(P \le 0.0001\) GPa;
+- ambient-pressure \(T_c\) MAE no greater than 12 K for confirmed or curated,
+  non-synthetic rows at \(P \le 0.000101325\) GPa;
 - Pearson correlation \(r \ge 0.80\) for the high-pressure \(T_c(P)\) trends
   of benchmark H\(_3\)S and LaH\(_{10}\); and
 - a false-positive rate below 5% on excluded, non-superconducting reference

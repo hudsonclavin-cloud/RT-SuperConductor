@@ -15,6 +15,7 @@ import csv
 import hashlib
 import json
 import math
+import re
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -24,6 +25,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, roc_auc_score
 from sklearn.model_selection import GroupKFold
+from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "src") not in sys.path:
@@ -117,6 +119,101 @@ def _metrics(actual: np.ndarray, predicted: np.ndarray) -> dict[str, float | Non
     else:
         result["r2"] = None
     return result
+
+
+def elemental_system_signature(formula: str) -> str:
+    """Return the sorted element set used to keep a chemical system in one fold."""
+
+    elements = set(re.findall(r"[A-Z][a-z]?", formula)) & ELEMENTS
+    return "-".join(sorted(elements)) if elements else "unknown"
+
+
+def evaluate_within_family(
+    records: list[HarmonizedRecord],
+    X: np.ndarray,
+    y: np.ndarray,
+    *,
+    n_splits: int,
+    random_state: int,
+    minimum_family_rows: int = 100,
+) -> dict[str, object]:
+    """Evaluate interpolation within large families, grouping whole element systems."""
+
+    family_indices: dict[str, list[int]] = {}
+    for index, record in enumerate(records):
+        family_indices.setdefault(record.chemical_family, []).append(index)
+
+    family_reports: dict[str, dict[str, object]] = {}
+    for family_index, (family, indices) in enumerate(sorted(family_indices.items())):
+        if len(indices) < minimum_family_rows:
+            continue
+        family_records = [records[index] for index in indices]
+        groups = np.asarray([elemental_system_signature(record.formula) for record in family_records])
+        unique_groups = sorted(set(groups))
+        family_report: dict[str, object] = {
+            "row_count": len(indices),
+            "elemental_system_count": len(unique_groups),
+            "group_column": "elemental_system_signature",
+            "grouped_cv_metrics": None,
+            "mae_k": None,
+            "mean_predictor_mae_k": None,
+            "spearman_rho": None,
+            "cv_splits": min(n_splits, len(unique_groups)),
+        }
+        if len(unique_groups) < 2:
+            family_report["status"] = "blocked_insufficient_elemental_systems"
+            family_reports[family] = family_report
+            continue
+
+        family_X = X[indices]
+        family_y = y[indices]
+        predictions = np.full(len(indices), np.nan, dtype=float)
+        mean_predictions = np.full(len(indices), np.nan, dtype=float)
+        fold_reports: list[dict[str, object]] = []
+        splitter = GroupKFold(n_splits=min(n_splits, len(unique_groups)))
+        for fold, (train_idx, test_idx) in enumerate(splitter.split(family_X, family_y, groups=groups), 1):
+            model = _model(random_state + (family_index + 1) * 100 + fold)
+            model.fit(family_X[train_idx], family_y[train_idx])
+            fold_predictions = model.predict(family_X[test_idx])
+            predictions[test_idx] = fold_predictions
+            mean_predictions[test_idx] = float(family_y[train_idx].mean())
+            fold_reports.append({
+                "fold": fold,
+                "train_rows": int(len(train_idx)),
+                "test_rows": int(len(test_idx)),
+                "held_out_elemental_systems": sorted(set(groups[test_idx])),
+                "metrics": _metrics(family_y[test_idx], fold_predictions),
+                "mean_predictor_mae_k": float(mean_absolute_error(
+                    family_y[test_idx], np.full(len(test_idx), family_y[train_idx].mean())
+                )),
+            })
+
+        rho: float | None = None
+        if len(np.unique(family_y)) > 1 and len(np.unique(predictions)) > 1:
+            value = float(spearmanr(family_y, predictions).statistic)
+            rho = value if math.isfinite(value) else None
+        family_report.update({
+            "status": "ready",
+            "grouped_cv_metrics": _metrics(family_y, predictions),
+            "mae_k": float(mean_absolute_error(family_y, predictions)),
+            "mean_predictor_mae_k": float(mean_absolute_error(family_y, mean_predictions)),
+            "spearman_rho": rho,
+            "folds": fold_reports,
+        })
+        family_reports[family] = family_report
+
+    if not family_reports:
+        status = "not_applicable_no_family_with_100_rows"
+    elif any(report["status"] == "ready" for report in family_reports.values()):
+        status = "ready"
+    else:
+        status = "blocked_insufficient_elemental_systems"
+    return {
+        "status": status,
+        "grouping": "GroupKFold by sorted elemental-system signature within each chemical_family",
+        "minimum_family_rows": minimum_family_rows,
+        "families": family_reports,
+    }
 
 
 def _classification_metrics(actual: np.ndarray, scores: np.ndarray, threshold: float) -> dict[str, float | int | None]:
@@ -243,6 +340,20 @@ def _blocked_report(
         "training_filter": "review_status in {'confirmed', 'curated_database'} and is_synthetic == 0 and not (source_db == 'supercon2' and provenance != 'literature')",
         "promotion_status": "not_eligible",
     }
+    if any(sum(record.chemical_family == family for record in training_records) >= 100
+           for family in {record.chemical_family for record in training_records}):
+        blocked_X, _, _ = build_features(training_records)
+        blocked_y = np.asarray([record.tc_kelvin for record in training_records], dtype=float)
+        report["within_family_evaluation"] = evaluate_within_family(
+            training_records, blocked_X, blocked_y, n_splits=5, random_state=42
+        )
+    else:
+        report["within_family_evaluation"] = {
+            "status": "not_applicable_no_family_with_100_rows",
+            "grouping": "GroupKFold by sorted elemental-system signature within each chemical_family",
+            "minimum_family_rows": 100,
+            "families": {},
+        }
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "pressure-aware-report.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -323,6 +434,10 @@ def train_pressure_aware(
             "classification_mean_predictor": classification_baseline_fold,
         })
 
+    within_family_report = evaluate_within_family(
+        training_records, X, y, n_splits=n_splits, random_state=random_state
+    )
+
     model = _model(random_state)
     model.fit(X, y)
     all_X, _, _ = build_features(records, hull_fill=hull_fill)
@@ -389,6 +504,7 @@ def train_pressure_aware(
         "folds": fold_results,
         "grouped_cv_metrics": _metrics(y, oof),
         "mean_predictor_metrics": _metrics(y, mean_oof),
+        "within_family_evaluation": within_family_report,
         "classification": classification_report,
         "comparison": {
             "mae_delta_model_minus_mean": _metrics(y, oof)["mae_k"] - _metrics(y, mean_oof)["mae_k"],

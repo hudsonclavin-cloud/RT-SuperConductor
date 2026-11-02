@@ -11,6 +11,9 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from ingest_3dsc import ingest_3dsc
+from build_supercon2_review_queue import build_queue as build_supercon2_queue
+import promotion_gate
+import train_pressure_aware as pressure_training
 import evaluate_structure_features as structure_eval
 import enrich_materials_project as mp_enrichment
 import rank_candidates as candidate_ranker
@@ -159,6 +162,86 @@ class ActiveLearningTests(unittest.TestCase):
             self.assertEqual(len(report["folds"]), 3)
             self.assertEqual(report["structure_record_count"], 3)
             self.assertTrue(report_path.is_file())
+
+
+    def test_promotion_gate_includes_curated_database_at_one_atmosphere(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            predictions = root / "predictions.csv"
+            predictions.write_text(
+                "formula,tc_kelvin,predicted_tc_kelvin,applied_pressure_gpa,review_status,provenance,is_synthetic\n"
+                "YBa2Cu3O7,92,90,0.000101325,curated_database,curated,0\n"
+                "MgB2,39,38,0.000101326,curated_database,curated,0\n",
+                encoding="utf-8",
+            )
+            model = root / "model.joblib"
+            model.write_bytes(b"placeholder")
+            report = promotion_gate.evaluate_gate(predictions_path=predictions, model_path=model)
+
+            self.assertEqual(promotion_gate.AMBIENT_PRESSURE_MAX_GPA, 0.000101325)
+            self.assertEqual(report["ambient_eligible_rows"], 1)
+            self.assertAlmostEqual(report["ambient_mae_k"], 2.0)
+
+    def test_supercon2_queue_skips_source_records_already_reviewed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "supercon2.csv"
+            source.write_text(
+                "id,formula,criticalTemperature,appliedPressure,doi,title,year,criticalTemperatureMeasurementMethod,shape,materialClass\n"
+                "reviewed-id,YBa2Cu3O7,92 K,ambient,10.1/example,Reviewed source,2020,resistivity,pellet,cuprate\n"
+                "new-id,H3S,200 K,ambient,10.1/new,Unreviewed source,2021,resistivity,pellet,hydride\n",
+                encoding="utf-8",
+            )
+            reviewed = root / "reviewed_records.csv"
+            reviewed.write_text(
+                "record_id,source_record_id\nreviewed-row,reviewed-id\n",
+                encoding="utf-8",
+            )
+            output = root / "queue.csv"
+
+            count = build_supercon2_queue(source, output, limit=20, reviewed_path=reviewed)
+
+            self.assertEqual(count, 1)
+            with output.open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertEqual([row["source_record_id"] for row in rows], ["new-id"])
+
+    def test_within_family_evaluation_groups_whole_elemental_systems(self) -> None:
+        records = [
+            SimpleNamespace(
+                chemical_family="Test family",
+                formula=formula,
+            )
+            for formula in ("H2O", "NaCl", "FeSe", "MgB2", "Nb3Sn")
+            for _ in range(20)
+        ]
+        y = np.arange(100, dtype=float)
+        X = y.reshape(-1, 1)
+
+        class FeatureModel:
+            def fit(self, features: np.ndarray, targets: np.ndarray) -> "FeatureModel":
+                return self
+
+            def predict(self, features: np.ndarray) -> np.ndarray:
+                return features[:, 0]
+
+        with patch.object(pressure_training, "_model", side_effect=lambda _: FeatureModel()):
+            report = pressure_training.evaluate_within_family(
+                records, X, y, n_splits=5, random_state=7,
+            )
+
+        family = report["families"]["Test family"]
+        self.assertEqual(report["status"], "ready")
+        self.assertEqual(family["row_count"], 100)
+        self.assertEqual(family["elemental_system_count"], 5)
+        self.assertEqual(len(family["folds"]), 5)
+        self.assertAlmostEqual(family["mae_k"], 0.0)
+        self.assertGreater(family["mean_predictor_mae_k"], 0.0)
+        self.assertAlmostEqual(family["spearman_rho"], 1.0)
+        all_test_groups = [
+            group for fold in family["folds"] for group in fold["held_out_elemental_systems"]
+        ]
+        self.assertEqual(sorted(all_test_groups), ["B-Mg", "Cl-Na", "Fe-Se", "H-O", "Nb-Sn"])
 
     def test_uncertainty_is_capped_and_plausibility_weighted(self) -> None:
         implausible = CandidateHypothesis(
