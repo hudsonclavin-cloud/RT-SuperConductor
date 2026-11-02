@@ -455,7 +455,7 @@ class ActiveLearningTests(unittest.TestCase):
                 def search(self, *, formula: str, fields: list[str]):
                     self.fields_requested = fields
                     return [SimpleNamespace(
-                        material_id="mp-new", energy_above_hull=0.01,
+                        material_id="mp-new", formula_pretty=formula, energy_above_hull=0.01,
                         symmetry=SimpleNamespace(number=191), formation_energy_per_atom=-0.5,
                         band_gap=0.0, is_metal=True, total_magnetization=1.2,
                         density=4.5, volume=20.0,

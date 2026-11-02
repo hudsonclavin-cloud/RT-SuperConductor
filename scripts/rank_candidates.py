@@ -21,6 +21,7 @@ if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
 from rt_superconductor.harmonized import HarmonizedRecord, load_harmonized
+from rt_superconductor.materials_project import audit_materials_project_queries, normalize_fixed_formula, validated_candidates
 from rt_superconductor.search import CandidateHypothesis, CandidateProposal, propose_batch
 from rt_superconductor.targets import ATMOSPHERIC_PRESSURE_GPA
 
@@ -197,32 +198,37 @@ def _mp_matches(formulas: list[str], api_key: str | None) -> tuple[dict[str, dic
     matches: dict[str, dict[str, Any]] = {}
     try:
         with MPRester(api_key) as client:
-            for formula in sorted(set(formulas)):
-                try:
-                    documents = client.materials.summary.search(
-                        formula=formula,
-                        fields=["material_id", "energy_above_hull", "symmetry", "band_gap", "is_metal"],
-                    )
-                    usable = list(documents)
-                    if not usable:
-                        continue
-                    with_hull = [document for document in usable if getattr(document, "energy_above_hull", None) is not None]
-                    selected = min(with_hull, key=lambda document: float(document.energy_above_hull)) if with_hull else usable[0]
-                    symmetry = getattr(selected, "symmetry", None)
-                    band_gap = getattr(selected, "band_gap", None)
-                    is_metal = getattr(selected, "is_metal", None)
-                    matches[formula] = {
-                        "mp_id": str(getattr(selected, "material_id", "")),
-                        "energy_above_hull": None if getattr(selected, "energy_above_hull", None) is None else float(selected.energy_above_hull),
-                        "band_gap_ev": None if band_gap is None else float(band_gap),
-                        "is_metal": None if is_metal is None else bool(is_metal),
-                        "spacegroup_number": getattr(symmetry, "number", None),
-                    }
-                except Exception:
-                    continue
+            audit = audit_materials_project_queries(
+                [{"record_id": f"candidate:{index}", "formula": formula} for index, formula in enumerate(sorted(set(formulas)))],
+                summary_client=client.materials.summary,
+                error_secrets=(api_key,),
+            )
+        safe_by_formula = validated_candidates(audit)
+        for formula in sorted(set(formulas)):
+            parsed = normalize_fixed_formula(formula)
+            alternatives = safe_by_formula.get(parsed.normalized or "", [])
+            if not alternatives:
+                continue
+            finite_hull = [item for item in alternatives if item.get("energy_above_hull") is not None]
+            selected = min(finite_hull, key=lambda item: float(item["energy_above_hull"])) if finite_hull else alternatives[0]
+            matches[formula] = {
+                "mp_id": selected.get("material_id", ""),
+                "energy_above_hull": selected.get("energy_above_hull"),
+                "band_gap_ev": selected.get("band_gap_ev"),
+                "is_metal": None if selected.get("is_metal") is None else bool(selected.get("is_metal")),
+                "spacegroup_number": selected.get("spacegroup_number"),
+                "mp_alternatives": alternatives,
+            }
     except Exception as exc:
         return matches, "degraded_mp_query_error", f"Materials Project query failed: {type(exc).__name__}: {exc}"
-    return matches, "ready", None
+    note = (
+        "Materials Project composition audit: "
+        f"queried={audit['queried_formula_count']}, safe_matches={audit['safe_match_count']}, "
+        f"rejected_mismatches={audit['rejected_mismatch_count']}, "
+        f"skipped_ambiguous={audit['skipped_ambiguous_formula_count']}, "
+        f"api_errors={audit['api_error_count']}"
+    )
+    return matches, "ready", note
 
 
 def _write_empty(path: Path, report: dict[str, Any], *additional_paths: Path) -> None:

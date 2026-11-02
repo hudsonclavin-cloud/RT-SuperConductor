@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from rt_superconductor.harmonized import load_harmonized
+from rt_superconductor.materials_project import audit_materials_project_queries, normalize_fixed_formula, validated_candidates
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,27 +126,49 @@ def enrich_csv(
         client = client.__enter__()
     matches: dict[str, MaterialsProjectMatch] = {}
     errors: dict[str, str] = {}
+    audit: dict[str, object]
     try:
-        for formula in formulas:
-            try:
-                documents = client.materials.summary.search(
-                    formula=formula,
-                    fields=[
-                        "material_id", "energy_above_hull", "formation_energy_per_atom",
-                        "symmetry", "band_gap", "is_metal", "total_magnetization",
-                        "density", "volume",
-                    ],
-                )
-                selected = select_lowest_energy_polymorph(documents)
-                matches[formula] = selected if selected.mp_id else existing_matches.get(formula, MaterialsProjectMatch())
-            except Exception as exc:  # preserve other formulas and report the failure
-                errors[formula] = f"{type(exc).__name__}: {exc}"
-                matches[formula] = existing_matches.get(formula, MaterialsProjectMatch())
-            if request_delay_seconds:
-                time.sleep(request_delay_seconds)
+        audit = audit_materials_project_queries(
+            [{"record_id": record.record_id, "formula": record.formula} for record in records],
+            summary_client=client.materials.summary,
+            error_secrets=(api_key or os.environ.get("MP_API_KEY") or "",),
+            request_delay_seconds=request_delay_seconds,
+        )
     finally:
         if context_manager is not None:
             context_manager.__exit__(None, None, None)
+
+    safe_by_formula = validated_candidates(audit)
+    query_by_formula = {
+        query.get("normalized_formula"): query
+        for query in audit.get("query_records", [])
+        if query.get("normalized_formula")
+    }
+    for formula in formulas:
+        parsed = normalize_fixed_formula(formula)
+        alternatives = safe_by_formula.get(parsed.normalized or "", [])
+        if alternatives:
+            selected = min(
+                alternatives,
+                key=lambda item: float(item["energy_above_hull"])
+                if item.get("energy_above_hull") is not None else float("inf"),
+            )
+            matches[formula] = MaterialsProjectMatch(
+                mp_id=str(selected.get("material_id", "")),
+                energy_above_hull=selected.get("energy_above_hull"),
+                spacegroup_number=selected.get("spacegroup_number"),
+                formation_energy_per_atom=selected.get("formation_energy_per_atom"),
+                band_gap_ev=selected.get("band_gap_ev"),
+                is_metal=selected.get("is_metal"),
+                total_magnetization_muB=selected.get("total_magnetization_muB"),
+                density_g_cm3=selected.get("density_g_cm3"),
+                volume_angstrom3=selected.get("volume_angstrom3"),
+            )
+        else:
+            matches[formula] = existing_matches.get(formula, MaterialsProjectMatch())
+        query = query_by_formula.get(parsed.normalized or "")
+        if query and query.get("query_status") == "query_error":
+            errors[formula] = str(query.get("error_detail") or "Materials Project query failed")
 
     with input_path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
@@ -154,19 +177,27 @@ def enrich_csv(
     output_fields = (
         "mp_id", "energy_above_hull", "spacegroup_number", "formation_energy_per_atom",
         "band_gap_ev", "is_metal", "total_magnetization_muB", "density_g_cm3", "volume_angstrom3",
+        "mp_query_status", "mp_validation_status", "mp_candidate_structures",
     )
     for field in output_fields:
         if field not in fieldnames:
             fieldnames.append(field)
     for row in rows:
         match = matches[row["formula"]]
+        parsed = normalize_fixed_formula(row["formula"])
+        query = query_by_formula.get(parsed.normalized or "")
+        row["mp_query_status"] = query.get("query_status", "ambiguous_input") if query else "ambiguous_input"
+        row["mp_validation_status"] = query.get("validation_status", "not_applicable") if query else "not_applicable"
+        row["mp_candidate_structures"] = json.dumps(
+            safe_by_formula.get(parsed.normalized or "", []), sort_keys=True
+        )
         if match.mp_id:
             row["mp_id"] = match.mp_id
         if match.energy_above_hull is not None:
             row["energy_above_hull"] = f"{match.energy_above_hull:.8g}"
         if match.spacegroup_number is not None:
             row["spacegroup_number"] = str(match.spacegroup_number)
-        for field in output_fields[3:]:
+        for field in output_fields[3:9]:
             value = getattr(match, field)
             if value is not None:
                 row[field] = str(value)
@@ -181,6 +212,13 @@ def enrich_csv(
         "unique_formula_count": len(formulas),
         "matched_formula_count": sum(bool(matches[formula].mp_id) for formula in formulas),
         "errors": errors,
+        "query_status_counts": {
+            status: sum(query.get("query_status") == status for query in audit.get("query_records", []))
+            for status in ("matched", "no_match", "ambiguous_input", "query_error", "not_queried")
+        },
+        "safe_match_count": audit.get("safe_match_count", 0),
+        "rejected_mismatch_count": audit.get("rejected_mismatch_count", 0),
+        "audit": audit,
     }
 
 

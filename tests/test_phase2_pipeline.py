@@ -74,7 +74,7 @@ def test_materials_project_enrichment_queries_unique_formulas(tmp_path):
 
         def search(self, *, formula, fields):
             self.formulas.append(formula)
-            return [SimpleNamespace(material_id="mp-test", energy_above_hull=0.02, symmetry=SimpleNamespace(number=1))]
+            return [SimpleNamespace(material_id="mp-test", formula_pretty=formula, energy_above_hull=0.02, symmetry=SimpleNamespace(number=1))]
 
     summary = Summary()
     client = SimpleNamespace(materials=SimpleNamespace(summary=summary))
