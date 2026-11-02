@@ -106,7 +106,6 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
     )
     ambient_by_family = _ambient_family_metrics(ambient)
     ambient_actual = [float(row["tc_kelvin"]) for row in ambient]
-    ambient_predictions = [float(row["predicted_tc_kelvin"]) for row in ambient]
     ambient_mean = sum(ambient_actual) / len(ambient_actual) if ambient_actual else None
     ambient_mean_mae = _mae(ambient_actual, [ambient_mean] * len(ambient_actual)) if ambient_mean is not None else None
     ambient_improvement = (
