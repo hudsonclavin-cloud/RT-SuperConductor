@@ -1,9 +1,8 @@
 import csv
+import math
 import sys
 from pathlib import Path
 from types import SimpleNamespace
-
-import pytest
 
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -50,7 +49,8 @@ def test_training_blocks_without_two_empirical_families(tmp_path):
     assert report["training_status"] == "blocked_insufficient_empirical_data"
     assert report["empirical_training_record_count"] == 5
     assert report["synthetic_record_count"] == 21
-    assert report["training_filter"] == "review_status == 'confirmed' and is_synthetic == 0"
+    assert "curated_database" in report["training_filter"]
+    assert "source_db == 'supercon2'" in report["training_filter"]
 
 
 def test_materials_project_selects_lowest_energy_polymorph():
@@ -60,7 +60,7 @@ def test_materials_project_selects_lowest_energy_polymorph():
     ]
     match = select_lowest_energy_polymorph(documents)
     assert match.mp_id == "mp-low"
-    assert match.energy_above_hull == pytest.approx(0.01)
+    assert math.isclose(match.energy_above_hull, 0.01, rel_tol=1e-9)
     assert match.spacegroup_number == 225
 
 

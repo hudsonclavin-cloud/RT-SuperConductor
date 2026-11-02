@@ -1,5 +1,17 @@
 # Active-learning spine
 
+The runnable cycle is:
+
+```bash
+python scripts/run_active_learning.py
+```
+
+It downloads the pinned UCI and 3DSC inputs, trains family-held-out models,
+and emits `data/processed/candidates/top_k.csv`. The row-level fields include
+prediction, ensemble uncertainty, chemical family, MP hull energy when
+available, and a human-readable reasons string. The file is a review queue;
+it is not an experimental result.
+
 The first search layer is dependency-free and intentionally model-agnostic. A
 future ML model supplies `predicted_tc_k` and `tc_uncertainty_k`; the selection
 logic then applies the target and feasibility constraints.
@@ -31,6 +43,11 @@ pressures are excluded by default and can be included only with
 `allow_unknown_pressure=True`, which adds an explicit review reason. This keeps
 the target constraint visible while still allowing an information-gathering
 campaign.
+
+The production acquisition path additionally caps uncertainty at 100 K and
+multiplies its reward by structural/stability plausibility. A missing MP API
+key therefore produces an explicit degraded shortlist with unknown hull energy;
+it does not turn high uncertainty into a stability claim.
 
 The emitted `SimulationTask` values can later be sent to a composition model,
 structure service, Quantum ESPRESSO workflow, quantum backend, or laboratory

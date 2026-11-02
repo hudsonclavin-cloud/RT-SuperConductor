@@ -31,6 +31,7 @@ def _read_predictions(path: Path) -> list[dict[str, str]]:
         rows = list(csv.DictReader(handle))
     required = {
         "formula", "tc_kelvin", "predicted_tc_kelvin", "applied_pressure_gpa", "review_status",
+        "provenance", "is_synthetic",
     }
     if not rows or not required.issubset(rows[0]):
         raise ValueError(f"{path}: prediction CSV must include {sorted(required)}")
@@ -51,9 +52,15 @@ def _pearson(actual: list[float], predicted: list[float]) -> float | None:
 
 def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, object]:
     rows = _read_predictions(predictions_path)
+    eligible_statuses = {"confirmed", "curated_database"}
+    eligible = lambda row: (
+        row["review_status"] in eligible_statuses
+        and int(row["is_synthetic"]) == 0
+        and not (row.get("source_db", "") == "supercon2" and row["provenance"] != "literature")
+    )
     ambient = [
         row for row in rows
-        if row["review_status"] == "confirmed" and float(row["applied_pressure_gpa"]) <= AMBIENT_PRESSURE_MAX_GPA
+        if eligible(row) and float(row["applied_pressure_gpa"]) <= AMBIENT_PRESSURE_MAX_GPA
     ]
     ambient_mae = (
         sum(abs(float(row["tc_kelvin"]) - float(row["predicted_tc_kelvin"])) for row in ambient) / len(ambient)
@@ -66,7 +73,7 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
             row for row in rows
             if row["formula"] in aliases
             and float(row["applied_pressure_gpa"]) > AMBIENT_PRESSURE_MAX_GPA
-            and row["review_status"] == "confirmed"
+            and eligible(row)
         ]
         trend_rows[benchmark_name] = len(benchmark)
         trend[benchmark_name] = _pearson(

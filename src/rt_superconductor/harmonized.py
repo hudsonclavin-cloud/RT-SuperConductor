@@ -46,7 +46,7 @@ MEASUREMENT_METHODS = {
     "unknown",
 }
 SAMPLE_FORMS = {"single_crystal", "polycrystalline", "thin_film", "powder", "unknown"}
-REVIEW_STATUSES = {"pending", "confirmed", "excluded"}
+REVIEW_STATUSES = {"pending", "confirmed", "curated_database", "excluded"}
 PROVENANCE_VALUES = {"literature", "synthetic_demo", "curated"}
 HASH_RE = re.compile(r"^[0-9a-f]{16,64}$")
 
@@ -126,8 +126,8 @@ def validate_row(row: dict[str, str], row_number: int) -> HarmonizedRecord:
         raise ValueError(f"row {row_number}: formula must not contain whitespace")
     tc_kelvin = _float(row["tc_kelvin"], "tc_kelvin", row_number)
     assert tc_kelvin is not None
-    if not 0 < tc_kelvin <= 300:
-        raise ValueError(f"row {row_number}: tc_kelvin must satisfy 0 < Tc <= 300 K")
+    if not 0 <= tc_kelvin <= 300:
+        raise ValueError(f"row {row_number}: tc_kelvin must satisfy 0 <= Tc <= 300 K")
     pressure = _float(row["applied_pressure_gpa"], "applied_pressure_gpa", row_number)
     assert pressure is not None
     if pressure < 0:

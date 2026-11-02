@@ -21,8 +21,8 @@ from typing import Iterable
 
 import joblib
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, roc_auc_score
 from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,16 +70,19 @@ def _composition_features(records: list[HarmonizedRecord]) -> tuple[np.ndarray, 
         return _fraction_features(records)
 
 
-def build_features(records: list[HarmonizedRecord]) -> tuple[np.ndarray, list[str], str]:
+def build_features(
+    records: list[HarmonizedRecord], *, hull_fill: float | None = None
+) -> tuple[np.ndarray, list[str], str]:
     composition, names, backend = _composition_features(records)
     formula_descriptors = np.asarray(
         [formula_descriptor_vector(record.formula)[0] for record in records], dtype=float
     )
     known_hulls = [record.energy_above_hull for record in records if record.energy_above_hull is not None]
-    fill_hull = float(np.median(known_hulls)) if known_hulls else 0.0
+    if hull_fill is None:
+        hull_fill = float(np.median(known_hulls)) if known_hulls else 0.0
     pressure = np.asarray([record.applied_pressure_gpa for record in records], dtype=float).reshape(-1, 1)
     hull = np.asarray([
-        record.energy_above_hull if record.energy_above_hull is not None else fill_hull
+        record.energy_above_hull if record.energy_above_hull is not None else hull_fill
         for record in records
     ], dtype=float).reshape(-1, 1)
     hull_missing = np.asarray([
@@ -95,7 +98,7 @@ def build_features(records: list[HarmonizedRecord]) -> tuple[np.ndarray, list[st
 
 def _model(random_state: int) -> RandomForestRegressor:
     return RandomForestRegressor(
-        n_estimators=300,
+        n_estimators=150,
         min_samples_leaf=1,
         max_features=1.0,
         random_state=random_state,
@@ -116,17 +119,60 @@ def _metrics(actual: np.ndarray, predicted: np.ndarray) -> dict[str, float | Non
     return result
 
 
-def _write_predictions(path: Path, records: Iterable[HarmonizedRecord], predictions: Iterable[float], *, split: str) -> None:
+def _classification_metrics(actual: np.ndarray, scores: np.ndarray, threshold: float) -> dict[str, float | int | None]:
+    all_labels = (actual > threshold).astype(int)
+    labels = all_labels
+    finite = np.isfinite(scores)
+    usable_labels = labels[finite]
+    usable_scores = scores[finite]
+    auc = None
+    if len(usable_labels) and len(np.unique(usable_labels)) == 2:
+        auc = float(roc_auc_score(usable_labels, usable_scores))
+    return {
+        "threshold_k": threshold,
+        "positive_count": int(all_labels.sum()),
+        "row_count": int(len(all_labels)),
+        "roc_auc": auc,
+    }
+
+
+def _fit_classifier(X: np.ndarray, y: np.ndarray, threshold: float, random_state: int) -> RandomForestClassifier | None:
+    labels = (y > threshold).astype(int)
+    if len(np.unique(labels)) < 2:
+        return None
+    classifier = RandomForestClassifier(
+        n_estimators=100,
+        min_samples_leaf=1,
+        max_features=1.0,
+        random_state=random_state,
+        n_jobs=-1,
+    )
+    classifier.fit(X, labels)
+    return classifier
+
+
+def _write_predictions(
+    path: Path,
+    records: Iterable[HarmonizedRecord],
+    predictions: Iterable[float],
+    *,
+    split: str,
+    uncertainties: Iterable[float] | None = None,
+) -> None:
+    uncertainties = iter(uncertainties) if uncertainties is not None else None
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
         writer.writerow((
             "record_id", "formula", "chemical_family", "tc_kelvin", "predicted_tc_kelvin",
-            "applied_pressure_gpa", "energy_above_hull", "review_status", "provenance", "is_synthetic", "split",
+            "uncertainty_k", "applied_pressure_gpa", "energy_above_hull", "review_status",
+            "provenance", "is_synthetic", "split",
         ))
         for record, prediction in zip(records, predictions):
+            uncertainty = next(uncertainties) if uncertainties is not None else None
             writer.writerow((
                 record.record_id, record.formula, record.chemical_family, record.tc_kelvin,
-                f"{float(prediction):.8g}", record.applied_pressure_gpa,
+                f"{float(prediction):.8g}", "" if uncertainty is None else f"{float(uncertainty):.8g}",
+                record.applied_pressure_gpa,
                 "" if record.energy_above_hull is None else record.energy_above_hull,
                 record.review_status, record.provenance, record.is_synthetic, split,
             ))
@@ -139,23 +185,36 @@ def _write_mixed_predictions(path: Path, rows: Iterable[tuple[HarmonizedRecord, 
         writer = csv.writer(handle)
         writer.writerow((
             "record_id", "formula", "chemical_family", "tc_kelvin", "predicted_tc_kelvin",
-            "applied_pressure_gpa", "energy_above_hull", "review_status", "provenance", "is_synthetic", "split",
+            "uncertainty_k", "applied_pressure_gpa", "energy_above_hull", "review_status",
+            "provenance", "is_synthetic", "split",
         ))
-        for record, prediction, split in rows:
+        for record, prediction, split, uncertainty in rows:
             writer.writerow((
                 record.record_id, record.formula, record.chemical_family, record.tc_kelvin,
-                f"{float(prediction):.8g}", record.applied_pressure_gpa,
+                f"{float(prediction):.8g}", "" if uncertainty is None else f"{float(uncertainty):.8g}",
+                record.applied_pressure_gpa,
                 "" if record.energy_above_hull is None else record.energy_above_hull,
                 record.review_status, record.provenance, record.is_synthetic, split,
             ))
 
 
+TRAINABLE_REVIEW_STATUSES = {"confirmed", "curated_database"}
+
+
 def select_training_records(records: list[HarmonizedRecord]) -> list[HarmonizedRecord]:
-    """Return only confirmed empirical records eligible for model fitting."""
+    """Return only empirical database records eligible for model fitting.
+
+    Automatic SuperCon2 extraction is never a training source, even if a row
+    is later marked confirmed. The five human-reviewed literature rows are
+    retained as ``provenance=literature`` and may enter through ``confirmed``;
+    curated database rows enter through the explicit ``curated_database`` tier.
+    """
 
     return [
         record for record in records
-        if record.review_status == "confirmed" and record.is_synthetic == 0
+        if record.review_status in TRAINABLE_REVIEW_STATUSES
+        and record.is_synthetic == 0
+        and not (record.source_db == "supercon2" and record.provenance != "literature")
     ]
 
 
@@ -166,7 +225,8 @@ def _blocked_report(
     records: list[HarmonizedRecord],
     reason: str,
 ) -> dict[str, object]:
-    confirmed = [record for record in records if record.review_status == "confirmed"]
+    eligible_statuses = TRAINABLE_REVIEW_STATUSES
+    confirmed = [record for record in records if record.review_status in eligible_statuses]
     training_records = select_training_records(records)
     report: dict[str, object] = {
         "training_status": "blocked_insufficient_empirical_data",
@@ -175,11 +235,12 @@ def _blocked_report(
         "record_count": len(records),
         "confirmed_record_count": len(confirmed),
         "synthetic_record_count": sum(record.is_synthetic for record in records),
-        "confirmed_synthetic_excluded_count": sum(record.review_status == "confirmed" and record.is_synthetic == 1 for record in records),
+        "confirmed_synthetic_excluded_count": sum(record.review_status in eligible_statuses and record.is_synthetic == 1 for record in records),
+        "supercon2_automatic_excluded_count": sum(record.source_db == "supercon2" and record.provenance != "literature" for record in records),
         "empirical_training_record_count": len(training_records),
         "empirical_training_record_ids": [record.record_id for record in training_records],
         "chemical_family_count": len({record.chemical_family for record in training_records}),
-        "training_filter": "review_status == 'confirmed' and is_synthetic == 0",
+        "training_filter": "review_status in {'confirmed', 'curated_database'} and is_synthetic == 0 and not (source_db == 'supercon2' and provenance != 'literature')",
         "promotion_status": "not_eligible",
     }
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -198,10 +259,10 @@ def train_pressure_aware(
     allow_insufficient_data: bool = False,
 ) -> dict[str, object]:
     records = load_harmonized(input_path)
-    confirmed = [record for record in records if record.review_status == "confirmed"]
+    confirmed = [record for record in records if record.review_status in TRAINABLE_REVIEW_STATUSES]
     training_records = select_training_records(records)
     if len(training_records) < 2:
-        reason = "at least two confirmed empirical records (is_synthetic=0) are required for training"
+        reason = "at least two eligible empirical records are required for training"
         if allow_insufficient_data:
             return _blocked_report(input_path=input_path, output_dir=output_dir, records=records, reason=reason)
         raise ValueError(reason)
@@ -215,29 +276,60 @@ def train_pressure_aware(
     if n_splits < 2:
         raise ValueError("n_splits must be at least 2")
     n_splits = min(n_splits, len(unique_groups))
-    X, feature_names, feature_backend = build_features(training_records)
+    known_hulls = [record.energy_above_hull for record in training_records if record.energy_above_hull is not None]
+    hull_fill = float(np.median(known_hulls)) if known_hulls else 0.0
+    X, feature_names, feature_backend = build_features(training_records, hull_fill=hull_fill)
     y = np.asarray([record.tc_kelvin for record in training_records], dtype=float)
 
     oof = np.full(len(training_records), np.nan, dtype=float)
+    oof_uncertainty = np.full(len(training_records), np.nan, dtype=float)
+    mean_oof = np.full(len(training_records), np.nan, dtype=float)
+    classification_oof = {
+        0.0: np.full(len(training_records), np.nan, dtype=float),
+        77.0: np.full(len(training_records), np.nan, dtype=float),
+    }
     fold_results: list[dict[str, object]] = []
     splitter = GroupKFold(n_splits=n_splits)
     for fold, (train_idx, test_idx) in enumerate(splitter.split(X, y, groups=groups), start=1):
         model = _model(random_state + fold)
         model.fit(X[train_idx], y[train_idx])
-        prediction = model.predict(X[test_idx])
+        tree_predictions = np.asarray([tree.predict(X[test_idx]) for tree in model.estimators_])
+        prediction = tree_predictions.mean(axis=0)
+        uncertainty = tree_predictions.std(axis=0)
         oof[test_idx] = prediction
+        oof_uncertainty[test_idx] = uncertainty
+        mean_oof[test_idx] = float(y[train_idx].mean())
+        classification_fold: dict[str, object] = {}
+        classification_baseline_fold: dict[str, object] = {}
+        for threshold in classification_oof:
+            classifier = _fit_classifier(X[train_idx], y[train_idx], threshold, random_state + fold)
+            scores = np.full(len(test_idx), np.nan, dtype=float)
+            if classifier is not None:
+                scores = classifier.predict_proba(X[test_idx])[:, 1]
+                classification_oof[threshold][test_idx] = scores
+            name = "superconducts_above_0k" if threshold == 0.0 else "high_tc_above_77k"
+            classification_fold[name] = _classification_metrics(y[test_idx], scores, threshold)
+            classification_baseline_fold[name] = _classification_metrics(
+                y[test_idx], np.full(len(test_idx), 0.5), threshold
+            )
         fold_results.append({
             "fold": fold,
             "held_out_families": sorted(set(groups[test_idx])),
             "train_rows": int(len(train_idx)),
             "test_rows": int(len(test_idx)),
             "metrics": _metrics(y[test_idx], prediction),
+            "mean_predictor_metrics": _metrics(y[test_idx], np.full(len(test_idx), y[train_idx].mean())),
+            "classification": classification_fold,
+            "classification_mean_predictor": classification_baseline_fold,
         })
 
     model = _model(random_state)
     model.fit(X, y)
-    all_X, _, _ = build_features(records)
-    all_predictions = model.predict(all_X)
+    all_X, _, _ = build_features(records, hull_fill=hull_fill)
+    all_tree_predictions = np.asarray([tree.predict(all_X) for tree in model.estimators_])
+    all_predictions = all_tree_predictions.mean(axis=0)
+    all_uncertainties = all_tree_predictions.std(axis=0)
+    digest = hashlib.sha256(input_path.read_bytes()).hexdigest()
     output_dir.mkdir(parents=True, exist_ok=True)
     model_path = output_dir / "pressure-aware-model.joblib"
     joblib.dump({
@@ -247,21 +339,33 @@ def train_pressure_aware(
         "target": "tc_kelvin",
         "group_column": "chemical_family",
         "random_state": random_state,
+        "dataset_sha256": digest,
+        "hull_fill": hull_fill,
     }, model_path)
     oof_path = output_dir / "grouped-oof-predictions.csv"
-    _write_predictions(oof_path, training_records, oof, split="grouped_oof")
+    _write_predictions(oof_path, training_records, oof, split="grouped_oof", uncertainties=oof_uncertainty)
     prediction_path = output_dir / "candidate_predictions.csv"
-    _write_predictions(prediction_path, records, all_predictions, split="full_fit")
+    _write_predictions(prediction_path, records, all_predictions, split="full_fit", uncertainties=all_uncertainties)
     promotion_path = output_dir / "promotion_predictions.csv"
     confirmed_oof = {record.record_id: float(prediction) for record, prediction in zip(training_records, oof)}
+    confirmed_uncertainty = {record.record_id: float(value) for record, value in zip(training_records, oof_uncertainty)}
     mixed_rows = [
-        (record, confirmed_oof[record.record_id], "grouped_oof")
+        (record, confirmed_oof[record.record_id], "grouped_oof", confirmed_uncertainty[record.record_id])
         if record.record_id in confirmed_oof
-        else (record, float(all_predictions[index]), "negative_control_full_fit")
+        else (record, float(all_predictions[index]), "negative_control_full_fit", float(all_uncertainties[index]))
         for index, record in enumerate(records)
     ]
     _write_mixed_predictions(promotion_path, mixed_rows)
-    digest = hashlib.sha256(input_path.read_bytes()).hexdigest()
+    classification_report = {
+        "superconducts_above_0k": {
+            "model": _classification_metrics(y, classification_oof[0.0], 0.0),
+            "mean_predictor": _classification_metrics(y, np.full(len(y), 0.5), 0.0),
+        },
+        "high_tc_above_77k": {
+            "model": _classification_metrics(y, classification_oof[77.0], 77.0),
+            "mean_predictor": _classification_metrics(y, np.full(len(y), 0.5), 77.0),
+        },
+    }
     report: dict[str, object] = {
         "model": "RandomForestRegressor",
         "target": "tc_kelvin",
@@ -274,7 +378,8 @@ def train_pressure_aware(
         "record_count": len(records),
         "confirmed_record_count": len(confirmed),
         "synthetic_record_count": sum(record.is_synthetic for record in records),
-        "confirmed_synthetic_excluded_count": sum(record.review_status == "confirmed" and record.is_synthetic == 1 for record in records),
+        "confirmed_synthetic_excluded_count": sum(record.review_status in TRAINABLE_REVIEW_STATUSES and record.is_synthetic == 1 for record in records),
+        "supercon2_automatic_excluded_count": sum(record.source_db == "supercon2" and record.provenance != "literature" for record in records),
         "empirical_training_record_count": len(training_records),
         "empirical_training_record_ids": [record.record_id for record in training_records],
         "chemical_family_count": len(unique_groups),
@@ -283,12 +388,18 @@ def train_pressure_aware(
         "cv_splits": n_splits,
         "folds": fold_results,
         "grouped_cv_metrics": _metrics(y, oof),
+        "mean_predictor_metrics": _metrics(y, mean_oof),
+        "classification": classification_report,
+        "comparison": {
+            "mae_delta_model_minus_mean": _metrics(y, oof)["mae_k"] - _metrics(y, mean_oof)["mae_k"],
+            "rmse_delta_model_minus_mean": _metrics(y, oof)["rmse_k"] - _metrics(y, mean_oof)["rmse_k"],
+        },
         "output_model": str(model_path),
         "output_oof_predictions": str(oof_path),
         "output_candidate_predictions": str(prediction_path),
         "output_promotion_predictions": str(promotion_path),
         "random_state": random_state,
-        "training_filter": "review_status == 'confirmed' and is_synthetic == 0",
+        "training_filter": "review_status in {'confirmed', 'curated_database'} and is_synthetic == 0 and not (source_db == 'supercon2' and provenance != 'literature')",
         "training_status": "ready",
         "promotion_status": "not_promoted",
         "interpretation": (

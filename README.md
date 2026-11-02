@@ -115,6 +115,21 @@ This repository is a software foundation for research collaboration. A computed
 score or predicted transition temperature is a hypothesis until it is supported
 by an appropriate physical calculation and reproducible measurement.
 
+The reproducible active-learning cycle is documented in
+[modeling.md](docs/modeling.md). After installing `.[ml]`, run:
+
+```bash
+python scripts/run_active_learning.py
+```
+
+It downloads the pinned UCI and 3DSC inputs into ignored `data/raw/`, ingests
+real curated 3DSC records (including `Tc=0` negatives), trains family-held-out
+composition and pressure-aware models, evaluates CIF features when coverage
+permits, and writes JSON metrics plus `data/processed/active-learning/candidates/top_k.csv`.
+Every run preserves dataset SHA-256 values. The headline numbers are held-out
+chemical-family metrics; mean-predictor comparisons and random/secondary
+checks are not substitutes for that evaluation.
+
 The first AI baseline is documented in [modeling.md](docs/modeling.md) and can
 be run after installing `.[ml]` with `PYTHONPATH=src python scripts/train_baseline.py`. It is a
 composition-only benchmark with grouped evaluation and ensemble uncertainty;
@@ -135,9 +150,16 @@ folders containing Quantum ESPRESSO SCF/phonon and EPW starter inputs. The QE
 positions are explicitly marked as placeholders until a relaxed structure is
 attached.
 
+This older orchestrator remains available for QE-input smoke tests;
+the current full workflow is `python scripts/run_active_learning.py` above.
+
 The [continuous-training workflow](docs/continuous-training.md) retrains this
 benchmark weekly or from the GitHub Actions interface and uploads each model,
 prediction file, and metric report as a reviewable artifact.
+
+It also refreshes the SuperCon2 and SuperMat paper-review queues before the
+active-learning cycle; those queue annotations remain review leads, not
+training labels.
 
 The [structure and density workflow](docs/electronic-density.md) retrieves
 Materials Project CIF references and prepares a manifest for Quantum ESPRESSO,
@@ -155,6 +177,13 @@ The detailed execution plan for the next phase is the
 External calculations and result ingestion are described in
 [external-compute.md](docs/external-compute.md), with the current evidence and
 calculation status in [phase-structure-aware-results.md](docs/phase-structure-aware-results.md).
+
+The [continuous-training workflow](docs/continuous-training.md) runs the same
+download → ingest → train → rank cycle weekly or from the GitHub Actions
+interface and uploads each model, dataset hash, metric report, blocked/degraded
+report, and top-k shortlist as a reviewable artifact. A shortlist row is a
+model hypothesis requiring structure, first-principles, and experimental review;
+the repository makes no claim that a room-temperature superconductor exists.
 
 The first active-learning spine is available in `rt_superconductor.search`.
 It keeps proposed candidates separate from observations, applies the pressure

@@ -20,8 +20,10 @@ chemical-family label. Controlled
 vocabularies and range checks make malformed or ambiguous rows fail at the data
 boundary. Pending and excluded rows remain visible for review and gate testing;
 synthetic demonstration rows remain available for fixture coverage but are not
-silently promoted into empirical model weights. Confirmed reviewed records are
-bridged with `provenance="literature"` and `is_synthetic=0`.
+silently promoted into empirical model weights. The current trainer admits
+confirmed literature and curated-database rows only when `is_synthetic=0`, and
+excludes automatic SuperCon2 extraction. Confirmed reviewed records are bridged
+with `provenance="literature"` and `is_synthetic=0`.
 
 ### Data curation and Materials Project enrichment
 
@@ -43,7 +45,8 @@ schema.
 ### Pressure-aware surrogate model
 
 The surrogate predicts reported \(T_c\) in kelvin from two classes of inputs,
-after filtering to `review_status="confirmed"` and `is_synthetic=0`:
+after filtering to `review_status` of `confirmed` or `curated_database` and
+`is_synthetic=0`:
 
 1. Matminer's Magpie elemental-composition statistics, which summarize the
    chemical makeup without leaking a material's measured target; and
@@ -143,6 +146,18 @@ reported transition. Once a mentor reviews the structure, jointly choose the
 method, pseudopotentials, and convergence tests. Reviewed observations and
 genuine computational outputs can return to the project with provenance and
 uncertainty; extracted literature leads remain pending.
+
+### Faculty collaboration and next research increments
+
+For discussion with NC State researchers such as Dr. Alexander Kemper in Physics
+and Dr. Jagdish Narayan in Materials Science, the most useful next increments
+are: (i) independent paper-level review of the highest-value records, (ii)
+structure-aware enrichment and relaxed geometries for selected candidates, (iii)
+family-balanced external benchmarks, and (iv) a closed loop in which DFT/EPW
+outputs are fed back as explicitly labeled evidence rather than mixed with
+experimental \(T_c\) labels. These steps would connect data-centric discovery
+with microscopic questions about pairing, lattice stability, defects, pressure
+response, and synthesis feasibility.
 
 The repository is therefore best viewed as a reproducible research instrument:
 it narrows a large literature search into an auditable queue, exposes uncertainty

@@ -7,16 +7,26 @@ on:
   push:
     paths:
       - "scripts/train_baseline.py"
+      - "scripts/train_pressure_aware.py"
       - "scripts/build_supercon2_review_queue.py"
       - "scripts/build_supermat_review_queue.py"
       - "scripts/build_review_campaign.py"
       - "scripts/run_three_generation_campaign.py"
+      - "scripts/run_active_learning.py"
+      - "scripts/download_training_data.py"
+      - "scripts/ingest_3dsc.py"
+      - "scripts/rank_candidates.py"
+      - "scripts/evaluate_structure_features.py"
+      - "scripts/compute_formula_descriptors.py"
+      - "scripts/bridge_reviewed_records.py"
+      - "scripts/validate_harmonized.py"
+      - "scripts/validate_reviewed_training.py"
       - "src/rt_superconductor/**"
       - "pyproject.toml"
       - "data/training/**"
+      - "data/results/**"
       - "docs/continuous-training.md"
       - "docs/faculty_research_summary.md"
-      - "data/results/**"
 
 permissions:
   contents: read
@@ -36,14 +46,14 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install machine-learning dependencies
-        run: python -m pip install --upgrade pip '.[ml]'
-      - name: Validate reviewed training records
+        run: python -m pip install --upgrade pip '.[ml,mp]'
+      - name: Validate reviewed records
         run: |
           mkdir -p data/processed/continuous-training
           python scripts/validate_reviewed_training.py \
             --input-dir data/training/reviewed \
             --report data/processed/continuous-training/reviewed-training-report.json
-      - name: Validate harmonized Phase 2 schema
+      - name: Bridge reviewed records and validate harmonized schema
         run: |
           python scripts/bridge_reviewed_records.py \
             --harmonized data/training/harmonized_supercon.csv \
@@ -51,21 +61,7 @@ jobs:
           python scripts/validate_harmonized.py \
             --input data/training/harmonized_supercon.csv \
             --report data/processed/continuous-training/harmonized-report.json
-      - name: Compute formula shell and bonding descriptors
-        run: |
-          python scripts/compute_formula_descriptors.py \
-            --input data/training/harmonized_supercon.csv \
-            --output data/processed/continuous-training/formula-descriptors.csv
-      - name: Download the pinned UCI training snapshot
-        run: |
-          mkdir -p /tmp/uci
-          curl --fail --location --retry 3 --retry-delay 2 \
-            --output /tmp/uci/superconductivity-data.zip \
-            "https://archive.ics.uci.edu/static/public/464/superconductivty+data.zip"
-          echo "87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e  /tmp/uci/superconductivity-data.zip" \
-            | sha256sum --check
-          unzip -q /tmp/uci/superconductivity-data.zip -d /tmp/uci/extracted
-      - name: Refresh literature review queues from SuperCon2 and SuperMat
+      - name: Refresh SuperCon2 and SuperMat literature review queues
         run: |
           mkdir -p /tmp/supermat data/processed/continuous-training/evidence-intake
           curl --fail --location --retry 3 --retry-delay 2 \
@@ -89,17 +85,23 @@ jobs:
             --batch-size 10
           sha256sum /tmp/supercon2.csv /tmp/supermat/SuperMat-2.0.csv \
             > data/processed/continuous-training/evidence-intake/source-checksums.txt
-      - name: Train grouped composition baseline
+      - name: Run one reproducible active-learning cycle
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
+          UCI_ARCHIVE_SHA256: 87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e
+          THREEDSC_TABLE_SHA256: 353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24
         run: |
-          python scripts/train_baseline.py \
-            --input /tmp/uci/extracted/unique_m.csv \
-            --output-dir data/processed/continuous-training
-      - name: Train pressure-aware family-grouped surrogate
+          python scripts/run_active_learning.py \
+            --data-root data/raw \
+            --harmonized data/training/harmonized_supercon.csv \
+            --output-dir data/processed/continuous-training \
+            --cif-limit 96 \
+            --batch-size 25
+      - name: Compute formula shell and bonding descriptors
         run: |
-          python scripts/train_pressure_aware.py \
+          python scripts/compute_formula_descriptors.py \
             --input data/training/harmonized_supercon.csv \
-            --output-dir data/processed/continuous-training/pressure-aware \
-            --allow-insufficient-data
+            --output data/processed/continuous-training/formula-descriptors.csv
       - name: Publish run summary
         run: |
           python - <<'PY'
@@ -107,31 +109,32 @@ jobs:
           import os
           from pathlib import Path
 
-          metrics = json.loads(Path("data/processed/continuous-training/baseline-metrics.json").read_text())
-          reviewed = json.loads(Path("data/processed/continuous-training/reviewed-training-report.json").read_text())
-          supermat = json.loads(Path("data/processed/continuous-training/evidence-intake/supermat-intake-manifest.json").read_text())
-          campaign = json.loads(Path("data/processed/continuous-training/evidence-intake/paper-review-campaign.json").read_text())
-          supercon2_rows = sum(1 for _ in Path("data/processed/continuous-training/evidence-intake/supercon2-review-queue.csv").open(encoding="utf-8")) - 1
-          model = metrics["model_metrics"]
-          baseline = metrics["baseline_metrics"]
+          run = json.loads(Path("data/processed/continuous-training/active-learning-run.json").read_text())
+          baseline = run["baseline"]
+          pressure = run["pressure_aware"]
+          ranking = run["candidate_ranking"]
+          evidence = Path("data/processed/continuous-training/evidence-intake")
+          supercon2_rows = sum(1 for _ in (evidence / "supercon2-review-queue.csv").open(encoding="utf-8")) - 1
+          supermat = json.loads((evidence / "supermat-intake-manifest.json").read_text())
+          campaign = json.loads((evidence / "paper-review-campaign.json").read_text())
           summary = (
               f"### Continuous training\n"
-              f"- Rows: {metrics['rows']}\n"
-              f"- Validated reviewed records: {reviewed['record_count']}\n"
-              f"- New paper-review leads: SuperCon2 {supercon2_rows}; SuperMat {supermat['candidate_rows']} (not training labels)\n"
-              f"- SuperMat pressure buckets: {supermat['counts']}\n"
+              f"- Run status: {run['status']}\n"
+              f"- Review leads: SuperCon2 {supercon2_rows}; SuperMat {supermat['candidate_rows']} (not training labels)\n"
               f"- Paper-review tasks prepared: {campaign['stages'][2]['task_count']}\n"
-              f"- Model inference: {campaign['model_inference_status']}; learning cycles completed: {campaign['learning_cycles_completed']}\n"
-              f"- Grouped test rows: {metrics['test_rows']}\n"
-              f"- Model MAE: {model['mae_k']:.3f} K\n"
-              f"- Mean baseline MAE: {baseline['mae_k']:.3f} K\n"
-              f"- Model R²: {model['r2']:.3f}\n"
+              f"- UCI baseline: {baseline.get('rows', 'blocked')} rows\n"
+              f"- 3DSC empirical training rows: {pressure.get('empirical_training_record_count', 'blocked')}\n"
+              f"- Family-held-out pressure model: {pressure.get('training_status', 'blocked')}\n"
+              f"- Ranked candidates: {ranking.get('ranked_count', 0)}\n"
+              f"- Candidate artifact: `data/processed/candidates/top_k.csv`\n"
           )
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
               handle.write(summary)
           PY
-      - name: Upload model and metrics artifact
+      - name: Upload models, metrics, evidence queues, and shortlist
         uses: actions/upload-artifact@v4
         with:
           name: continuous-training-${{ github.run_id }}
-          path: data/processed/continuous-training/
+          path: |
+            data/processed/continuous-training/
+            data/processed/candidates/

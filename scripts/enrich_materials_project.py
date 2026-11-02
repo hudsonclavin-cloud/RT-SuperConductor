@@ -2,9 +2,10 @@
 """Attach the lowest-energy Materials Project polymorph to each formula.
 
 The script reads the validated harmonized table and writes a new CSV with
-``mp_id``, ``energy_above_hull`` (eV/atom), and ``spacegroup_number``.  It is
-safe to rerun: existing enrichment columns are replaced from the current API
-response, while all provenance and review fields are retained.
+``mp_id``, ``energy_above_hull`` (eV/atom), ``spacegroup_number``, and optional
+formation energy, band gap, metallicity, magnetization, density, and volume.
+It is safe to rerun: API misses preserve existing structure links and other
+known values, while provenance and review fields are retained.
 """
 
 from __future__ import annotations
@@ -106,9 +107,8 @@ def enrich_csv(
     # Validate before making remote calls so malformed rows cannot be emitted.
     records = load_harmonized(input_path)
     formulas = sorted({record.formula for record in records})
-    # Preserve IDs already attached to the harmonized source.  A temporary API
-    # miss must not erase a known structure link and leave the next workflow
-    # stage with nothing to retrieve.
+    # Preserve links already in the source on API misses or when no usable
+    # polymorph is returned, so transient lookup failures do not erase lineage.
     existing_matches: dict[str, MaterialsProjectMatch] = {}
     for record in records:
         if record.mp_id and record.formula not in existing_matches:
