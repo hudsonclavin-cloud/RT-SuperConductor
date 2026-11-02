@@ -88,8 +88,18 @@ def _ambient_family_metrics(rows: list[dict[str, str]]) -> dict[str, dict[str, o
     return result
 
 
-def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, object]:
+def evaluate_gate(
+    *,
+    predictions_path: Path,
+    model_path: Path,
+    family: str | None = None,
+    within_family_predictions_path: Path | None = None,
+) -> dict[str, object]:
     rows = _read_predictions(predictions_path)
+    ambient_rows = rows
+    within_family_path = within_family_predictions_path or predictions_path.with_name("within-family-oof-predictions.csv")
+    if family is not None:
+        ambient_rows = [row for row in _read_predictions(within_family_path) if row["chemical_family"] == family]
     eligible_statuses = {"confirmed", "curated_database"}
     eligible = lambda row: (
         row["review_status"] in eligible_statuses
@@ -97,7 +107,7 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
         and not (row.get("source_db", "") == "supercon2" and row["provenance"] != "literature")
     )
     ambient = [
-        row for row in rows
+        row for row in ambient_rows
         if eligible(row) and float(row["applied_pressure_gpa"]) <= AMBIENT_PRESSURE_MAX_GPA
     ]
     ambient_mae = (
@@ -155,6 +165,8 @@ def evaluate_gate(*, predictions_path: Path, model_path: Path) -> dict[str, obje
         },
         "model_artifact": str(model_path),
         "predictions": str(predictions_path),
+        "family": family,
+        "ambient_prediction_source": str(within_family_path) if family is not None else str(predictions_path),
         "ambient_eligible_rows": len(ambient),
         # Retain the historical key for downstream consumers; the count now
         # includes both confirmed and curated_database empirical rows.
@@ -176,9 +188,16 @@ def main() -> int:
     parser.add_argument("--predictions", type=Path, default=Path("data/processed/pressure-aware/promotion_predictions.csv"))
     parser.add_argument("--model", type=Path, default=Path("data/processed/pressure-aware/pressure-aware-model.joblib"))
     parser.add_argument("--report", type=Path, default=Path("data/processed/pressure-aware/promotion-gate.json"))
+    parser.add_argument("--family", help="evaluate ambient/per-family metrics from within-family OOF predictions")
+    parser.add_argument("--within-family-predictions", type=Path, help="within-family OOF CSV; defaults beside --predictions")
     args = parser.parse_args()
     try:
-        report = evaluate_gate(predictions_path=args.predictions, model_path=args.model)
+        report = evaluate_gate(
+            predictions_path=args.predictions,
+            model_path=args.model,
+            family=args.family,
+            within_family_predictions_path=args.within_family_predictions,
+        )
     except (OSError, ValueError) as exc:
         report = {
             "status": "fail",

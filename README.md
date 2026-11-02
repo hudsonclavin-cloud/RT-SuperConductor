@@ -205,8 +205,9 @@ For the within-family ferrite cycle, run:
 python scripts/run_ferrite_shortlist.py
 ```
 
-This command writes the Magpie/elemental-system metrics, the 25-row
-`data/processed/candidates/ferrites_top25.csv` shortlist, a pending literature
+This command writes the Magpie/elemental-system metrics, the combined 25-row
+`data/processed/candidates/ferrites_top25.csv` shortlist plus stable split files
+`ferrites_validation.csv` and `ferrites_hypotheses.csv`, a pending literature
 review queue, and a blocked QE hand-off report. Materials Project lookup is
 optional: without `MP_API_KEY`, the reports use `degraded_no_mp_api_key` and do
 not treat unknown hull, band-gap, metallicity, or novelty values as negative

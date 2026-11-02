@@ -25,6 +25,7 @@ from rt_superconductor.search import CandidateHypothesis, CandidateProposal, pro
 from rt_superconductor.targets import ATMOSPHERIC_PRESSURE_GPA
 
 from train_pressure_aware import build_features, select_training_records
+from validate_ferrite_shortlist import load_measurement_evidence, match_measurement_evidence, _reduced_formula
 
 
 HULL_CUTOFF_EV_PER_ATOM = 0.05
@@ -34,7 +35,8 @@ FAMILY_UNCERTAINTY_WEIGHT = 0.20
 TOP_K_COLUMNS = (
     "rank", "candidate_id", "formula", "predicted_tc_kelvin", "uncertainty_k",
     "chemical_family", "energy_above_hull", "band_gap_ev", "is_metal", "mp_id", "mp_exists",
-    "3dsc_exists", "uci_exists", "supercon2_exists", "supermat_exists", "known_in_database",
+    "3dsc_exists", "3dsc_stanev_exists", "uci_exists", "supercon2_exists", "supermat_exists", "known_in_database",
+    "measured_tc_kelvin", "measured_tc_sources", "validation_match_basis",
     "ranking_group", "group_rank", "acquisition_score", "plausibility", "pressure_gpa",
     "reasons", "status", "model_dataset_sha256",
 )
@@ -77,7 +79,7 @@ def _read_formula_set(path: Path | None, fields: tuple[str, ...]) -> set[str] | 
                 value = (row.get(field) or "").strip()
                 if not value:
                     continue
-                formula = _canonical_formula(value)
+                formula = _reduced_formula(value)
                 if formula:
                     formulas.add(formula)
                     break
@@ -97,15 +99,17 @@ def _database_flags(
     records: list[HarmonizedRecord],
     *,
     uci_path: Path | None,
+    stanev_path: Path | None,
     supercon2_path: Path | None,
     supermat_path: Path | None,
     mp_exists: bool | None,
     source_sets: dict[str, set[str] | None] | None = None,
 ) -> dict[str, bool | None]:
-    canonical = _canonical_formula(formula) or formula
+    canonical = _reduced_formula(formula) or formula
     if source_sets is None:
         source_sets = {
-            "3dsc": {record.formula for record in records if record.source_db == "3dsc"},
+            "3dsc": {_reduced_formula(record.formula) or record.formula for record in records if record.source_db == "3dsc"},
+            "3dsc_stanev": _read_formula_set(stanev_path, ("name",)),
             "uci": _read_formula_set(uci_path, ("material", "formula")),
             "supercon2": _read_formula_set(supercon2_path, ("formula", "rawMaterial", "material")),
             "supermat": _read_formula_set(supermat_path, ("material", "formula")),
@@ -113,6 +117,7 @@ def _database_flags(
     flags: dict[str, bool | None] = {
         "mp_exists": mp_exists,
         "3dsc_exists": canonical in source_sets["3dsc"],
+        "3dsc_stanev_exists": None if source_sets["3dsc_stanev"] is None else canonical in source_sets["3dsc_stanev"],
     }
     for source in ("uci", "supercon2", "supermat"):
         values = source_sets[source]
@@ -220,10 +225,11 @@ def _mp_matches(formulas: list[str], api_key: str | None) -> tuple[dict[str, dic
     return matches, "ready", None
 
 
-def _write_empty(path: Path, report: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        csv.writer(handle).writerow(TOP_K_COLUMNS)
+def _write_empty(path: Path, report: dict[str, Any], *additional_paths: Path) -> None:
+    for target in (path, *additional_paths):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("w", newline="", encoding="utf-8") as handle:
+            csv.writer(handle).writerow(TOP_K_COLUMNS)
     report_path = path.with_name("candidate-ranking-report.json")
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -239,9 +245,16 @@ def rank_candidates(
     api_key: str | None = None,
     family: str | None = None,
     uci_path: Path | None = None,
+    stanev_path: Path | None = None,
     supercon2_path: Path | None = None,
     supermat_path: Path | None = None,
+    validation_output_path: Path | None = None,
+    hypotheses_output_path: Path | None = None,
 ) -> dict[str, Any]:
+    if family is not None:
+        family_slug = "".join(character.lower() if character.isalnum() else "_" for character in family).strip("_")
+        validation_output_path = validation_output_path or output_path.with_name(f"{family_slug}_validation.csv")
+        hypotheses_output_path = hypotheses_output_path or output_path.with_name(f"{family_slug}_hypotheses.csv")
     records = load_harmonized(input_path)
     model_report_path = model_dir / "pressure-aware-report.json"
     model_report = json.loads(model_report_path.read_text(encoding="utf-8")) if model_report_path.is_file() else {}
@@ -253,12 +266,12 @@ def rank_candidates(
             "dataset_sha256": digest,
             "model_report": str(model_report_path),
         }
-        _write_empty(output_path, report)
+        _write_empty(output_path, report, *(path for path in (validation_output_path, hypotheses_output_path) if path))
         return report
     model_path = model_dir / "pressure-aware-model.joblib"
     if not model_path.is_file():
         report = {"status": "blocked_model_missing", "dataset_sha256": digest, "model": str(model_path)}
-        _write_empty(output_path, report)
+        _write_empty(output_path, report, *(path for path in (validation_output_path, hypotheses_output_path) if path))
         return report
 
     if family is not None and not any(record.chemical_family == family for record in select_training_records(records)):
@@ -268,16 +281,24 @@ def rank_candidates(
             "dataset_sha256": digest,
             "model_report": str(model_report_path),
         }
-        _write_empty(output_path, report)
+        _write_empty(output_path, report, *(path for path in (validation_output_path, hypotheses_output_path) if path))
         return report
 
     uci_path = uci_path or _default_source_path("data/raw/uci/extracted/unique_m.csv")
+    stanev_path = stanev_path or _default_source_path("data/raw/3dsc/Supercon_data_by_2018_Stanev.csv")
     supercon2_path = supercon2_path or _default_source_path("data/raw/supercon2.csv", "data/raw/supercon2/SuperCon2.csv")
     supermat_path = supermat_path or _default_source_path("data/raw/SuperMat-2.0.csv", "data/raw/supermat/SuperMat-2.0.csv")
     candidates = enumerate_substitution_candidates(records, family=family, max_candidates=max_candidates)
     matches, mp_status, mp_note = _mp_matches([candidate["formula"] for candidate in candidates], api_key or os.environ.get("MP_API_KEY"))
+    measurement_evidence, measurement_source_status = load_measurement_evidence(
+        uci_path=uci_path,
+        stanev_path=stanev_path,
+        supercon2_path=supercon2_path,
+        supermat_path=supermat_path,
+    )
     source_sets = {
-        "3dsc": {record.formula for record in records if record.source_db == "3dsc"},
+        "3dsc": {_reduced_formula(record.formula) or record.formula for record in records if record.source_db == "3dsc"},
+        "3dsc_stanev": _read_formula_set(stanev_path, ("name",)),
         "uci": _read_formula_set(uci_path, ("material", "formula")),
         "supercon2": _read_formula_set(supercon2_path, ("formula", "rawMaterial", "material")),
         "supermat": _read_formula_set(supermat_path, ("material", "formula")),
@@ -304,15 +325,18 @@ def rank_candidates(
         flags = _database_flags(
             candidate["formula"], records,
             uci_path=uci_path,
+            stanev_path=stanev_path,
             supercon2_path=supercon2_path,
             supermat_path=supermat_path,
             mp_exists=(candidate["formula"] in matches) if mp_query_available else None,
             source_sets=source_sets,
         )
         known_status, known_sources = _status_from_flags(flags)
+        exact_measurements, _ = match_measurement_evidence(candidate["formula"], measurement_evidence)
         screened.append({
             **candidate, **match, "plausibility": plausibility,
             "database_flags": flags, "known_status": known_status, "known_sources": known_sources,
+            "exact_measurements": exact_measurements,
         })
 
     if not screened:
@@ -326,7 +350,7 @@ def rank_candidates(
             "mp_note": mp_note,
             "require_hull": require_hull,
         }
-        _write_empty(output_path, report)
+        _write_empty(output_path, report, *(path for path in (validation_output_path, hypotheses_output_path) if path))
         return report
 
     artifact = joblib.load(model_path)
@@ -388,62 +412,86 @@ def rank_candidates(
     lookup = {hypothesis.candidate_id: item for hypothesis, item in zip(hypotheses, screened)}
     proposals = sorted(proposals, key=group_order)[:batch_size]
     group_ranks: dict[str, int] = defaultdict(int)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=TOP_K_COLUMNS)
-        writer.writeheader()
-        for rank, proposal in enumerate(proposals, start=1):
-            item = lookup[proposal.candidate.candidate_id]
-            reasons = list(proposal.reasons)
-            if item.get("energy_above_hull") is None:
-                reasons.append("Materials Project hull energy is unknown; stability review is required")
-            else:
-                reasons.append(f"Materials Project energy above hull={float(item['energy_above_hull']):g} eV/atom")
-            if item.get("band_gap_ev") is None:
-                reasons.append("Materials Project band gap is unknown; electronic screening requires review")
-            else:
-                reasons.append(f"Materials Project band gap={float(item['band_gap_ev']):g} eV")
-            if item.get("is_metal") is None:
-                reasons.append("Materials Project metallicity is unknown; electronic screening requires review")
-            elif item["is_metal"]:
-                reasons.append("Materials Project marks the lowest-hull entry metallic")
-            flags = item["database_flags"]
-            if item["known_status"] == "known":
-                reasons.append(f"formula is present in {item['known_sources']}")
-            elif item["known_status"] == "new":
-                reasons.append("formula is absent from all available database snapshots")
-            else:
-                reasons.append(f"database novelty is unknown for {item['known_sources']}; additional source access is required")
-            if mp_note:
-                reasons.append(mp_note)
-            group = item["known_status"]
-            group_ranks[group] += 1
-            writer.writerow({
-                "rank": rank,
-                "candidate_id": proposal.candidate.candidate_id,
-                "formula": proposal.candidate.composition,
-                "predicted_tc_kelvin": f"{proposal.candidate.predicted_tc_k:.8g}",
-                "uncertainty_k": f"{proposal.candidate.tc_uncertainty_k:.8g}",
-                "chemical_family": item["chemical_family"],
-                "energy_above_hull": "" if item.get("energy_above_hull") is None else f"{float(item['energy_above_hull']):.8g}",
-                "band_gap_ev": "" if item.get("band_gap_ev") is None else f"{float(item['band_gap_ev']):.8g}",
-                "is_metal": _text_bool(item.get("is_metal")),
-                "mp_id": item.get("mp_id", ""),
-                "mp_exists": _text_bool(flags.get("mp_exists")),
-                "3dsc_exists": _text_bool(flags.get("3dsc_exists")),
-                "uci_exists": _text_bool(flags.get("uci_exists")),
-                "supercon2_exists": _text_bool(flags.get("supercon2_exists")),
-                "supermat_exists": _text_bool(flags.get("supermat_exists")),
-                "known_in_database": item["known_status"],
-                "ranking_group": group,
-                "group_rank": group_ranks[group],
-                "acquisition_score": f"{proposal.score:.8g}",
-                "plausibility": f"{item['plausibility']:.8g}",
-                "pressure_gpa": ATMOSPHERIC_PRESSURE_GPA,
-                "reasons": "; ".join(reasons),
-                "status": "review_required_hypothesis",
-                "model_dataset_sha256": artifact.get("dataset_sha256", digest) if isinstance(artifact, dict) else digest,
-            })
+    ranked_rows: list[dict[str, object]] = []
+    for rank, proposal in enumerate(proposals, start=1):
+        item = lookup[proposal.candidate.candidate_id]
+        reasons = list(proposal.reasons)
+        if item.get("energy_above_hull") is None:
+            reasons.append("Materials Project hull energy is unknown; stability review is required")
+        else:
+            reasons.append(f"Materials Project energy above hull={float(item['energy_above_hull']):g} eV/atom")
+        if item.get("band_gap_ev") is None:
+            reasons.append("Materials Project band gap is unknown; electronic screening requires review")
+        else:
+            reasons.append(f"Materials Project band gap={float(item['band_gap_ev']):g} eV")
+        if item.get("is_metal") is None:
+            reasons.append("Materials Project metallicity is unknown; electronic screening requires review")
+        elif item["is_metal"]:
+            reasons.append("Materials Project marks the lowest-hull entry metallic")
+        flags = item["database_flags"]
+        if item["known_status"] == "known":
+            reasons.append(f"formula is present in {item['known_sources']}")
+        elif item["known_status"] == "new":
+            reasons.append("formula is absent from all available database snapshots")
+        else:
+            reasons.append(f"database novelty is unknown for {item['known_sources']}; additional source access is required")
+        exact_measurements = item.get("exact_measurements", [])
+        measured_tc = None
+        measured_sources = ""
+        if exact_measurements:
+            measured_tc = sum(float(measurement["tc_kelvin"]) for measurement in exact_measurements) / len(exact_measurements)
+            measured_sources = ", ".join(sorted({str(measurement["source"]) for measurement in exact_measurements}))
+            reasons.append(f"exact measured Tc available from {measured_sources}; validation output")
+        else:
+            reasons.append("no exact measured compound match in the supplied validation sources; hypothesis output")
+        if mp_note:
+            reasons.append(mp_note)
+        group = item["known_status"]
+        group_ranks[group] += 1
+        ranked_rows.append({
+            "rank": rank,
+            "candidate_id": proposal.candidate.candidate_id,
+            "formula": proposal.candidate.composition,
+            "predicted_tc_kelvin": f"{proposal.candidate.predicted_tc_k:.8g}",
+            "uncertainty_k": f"{proposal.candidate.tc_uncertainty_k:.8g}",
+            "chemical_family": item["chemical_family"],
+            "energy_above_hull": "" if item.get("energy_above_hull") is None else f"{float(item['energy_above_hull']):.8g}",
+            "band_gap_ev": "" if item.get("band_gap_ev") is None else f"{float(item['band_gap_ev']):.8g}",
+            "is_metal": _text_bool(item.get("is_metal")),
+            "mp_id": item.get("mp_id", ""),
+            "mp_exists": _text_bool(flags.get("mp_exists")),
+            "3dsc_exists": _text_bool(flags.get("3dsc_exists")),
+            "3dsc_stanev_exists": _text_bool(flags.get("3dsc_stanev_exists")),
+            "uci_exists": _text_bool(flags.get("uci_exists")),
+            "supercon2_exists": _text_bool(flags.get("supercon2_exists")),
+            "supermat_exists": _text_bool(flags.get("supermat_exists")),
+            "known_in_database": item["known_status"],
+            "measured_tc_kelvin": "" if measured_tc is None else f"{measured_tc:.8g}",
+            "measured_tc_sources": measured_sources,
+            "validation_match_basis": "exact_reduced_formula" if measured_tc is not None else "",
+            "ranking_group": group,
+            "group_rank": group_ranks[group],
+            "acquisition_score": f"{proposal.score:.8g}",
+            "plausibility": f"{item['plausibility']:.8g}",
+            "pressure_gpa": ATMOSPHERIC_PRESSURE_GPA,
+            "reasons": "; ".join(reasons),
+            "status": "review_required_validation" if measured_tc is not None else "review_required_hypothesis",
+            "model_dataset_sha256": artifact.get("dataset_sha256", digest) if isinstance(artifact, dict) else digest,
+        })
+
+    def write_rows(path: Path, rows: list[dict[str, object]]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=TOP_K_COLUMNS)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    write_rows(output_path, ranked_rows)
+    validation_rows = [row for row in ranked_rows if row["measured_tc_kelvin"] != ""]
+    hypothesis_rows = [row for row in ranked_rows if row["measured_tc_kelvin"] == ""]
+    if family is not None:
+        write_rows(validation_output_path, validation_rows)
+        write_rows(hypotheses_output_path, hypothesis_rows)
     report = {
         "status": "ready" if mp_status == "ready" else mp_status,
         "input": str(input_path),
@@ -461,8 +509,14 @@ def rank_candidates(
         "require_hull": require_hull,
         "family": family,
         "score_mode": "within_family_predicted_tc_and_uncertainty" if family is not None else "general_acquisition",
+        "measurement_source_status": measurement_source_status,
+        "validation_output": str(validation_output_path) if family is not None else None,
+        "hypotheses_output": str(hypotheses_output_path) if family is not None else None,
+        "validation_count": len(validation_rows) if family is not None else 0,
+        "hypotheses_count": len(hypothesis_rows) if family is not None else len(ranked_rows),
         "database_source_paths": {
             "uci": str(uci_path) if uci_path else None,
+            "3dsc_stanev": str(stanev_path) if stanev_path else None,
             "supercon2": str(supercon2_path) if supercon2_path else None,
             "supermat": str(supermat_path) if supermat_path else None,
         },
@@ -488,8 +542,11 @@ def main() -> int:
     parser.add_argument("--require-hull", action="store_true")
     parser.add_argument("--family", help="restrict substitutions and ranking to one chemical family")
     parser.add_argument("--uci", type=Path, help="optional UCI CSV for database-existence flags")
+    parser.add_argument("--stanev", type=Path, help="optional 3DSC Supercon_data_by_2018_Stanev.csv")
     parser.add_argument("--supercon2", type=Path, help="optional SuperCon2 export for database-existence flags")
     parser.add_argument("--supermat", type=Path, help="optional SuperMat export for database-existence flags")
+    parser.add_argument("--validation-output", type=Path, help="family-mode CSV for exact measured compounds")
+    parser.add_argument("--hypotheses-output", type=Path, help="family-mode CSV for candidates without an exact measured compound")
     parser.add_argument("--api-key", default=os.environ.get("MP_API_KEY"))
     args = parser.parse_args()
     report = rank_candidates(
@@ -502,8 +559,11 @@ def main() -> int:
         api_key=args.api_key,
         family=args.family,
         uci_path=args.uci,
+        stanev_path=args.stanev,
         supercon2_path=args.supercon2,
         supermat_path=args.supermat,
+        validation_output_path=args.validation_output,
+        hypotheses_output_path=args.hypotheses_output,
     )
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0

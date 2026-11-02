@@ -18,8 +18,11 @@ python scripts/run_ferrite_shortlist.py
 ```
 
 The cycle writes the harmonized 3DSC table, Magpie model and metrics, the
-promotion-gate report, `data/processed/candidates/ferrites_top25.csv`, a
-paper-review queue, and the QE hand-off report. The 3DSC importer explicitly
+promotion-gate report, the combined
+`data/processed/candidates/ferrites_top25.csv`, and the stable split files
+`ferrites_validation.csv` (exact measured-Tc compounds) and
+`ferrites_hypotheses.csv` (no exact measured compound in the supplied sources).
+It also writes a paper-review queue and the QE hand-off report. The 3DSC importer explicitly
 records atmospheric pressure as `0.000101325 GPa` because that source does not
 provide measurement pressure. The run used source SHA256
 `353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24` and
@@ -52,6 +55,13 @@ plausibility. It deliberately does not score distance to 273 K. Known and
 unknown database groups are ranked separately, and every row includes a reason
 string for review.
 
+The validation split is based on exact reduced-formula measured-Tc evidence
+from UCI `unique_m.csv`, the 3DSC repository's
+`Supercon_data_by_2018_Stanev.csv`, and any supplied SuperCon2/SuperMat exports.
+The validator also reports same-element-set leads separately; those are not
+treated as exact compound matches. Metrics are calculated only for exact
+matches whose reduced formula is absent from the harmonized training table.
+
 ## Provisional top five for review
 
 The rows below are the first five model-ranked Ferrite hypotheses from the
@@ -78,8 +88,9 @@ not present in this environment; therefore the validator reported
 `blocked_missing_supercon2_and_supermat_exports`, with **0** matched candidates,
 **0** known superconductors, **0** literature match rows, and ordering
 Spearman **null**. The generated
-`data/training/review_queue_ferrite_shortlist.csv` contains only the review
-queue header and no fabricated Tc or DOI. Any future matches must remain
+`data/training/review_queue_ferrites_shortlist.csv` contains source matches as
+paper-review leads only; it never creates confirmed training labels or invents
+Tc/DOI values. Any future matches must remain
 `pending_paper_review` until a human checks the paper.
 
 ## DFT hand-off
@@ -100,3 +111,22 @@ lambda; it would not by itself establish experimental superconductivity.
 No result in this report claims a room-temperature superconductor. Every
 candidate is a hypothesis requiring structure checks, first-principles work,
 and literature or experimental review.
+
+## Follow-up source-validation run
+
+The follow-up cycle used the UCI and 3DSC Stanev files downloaded by the data
+ingestion step. It emitted **12** exact-measured rows in
+`ferrites_validation.csv` and **13** rows in `ferrites_hypotheses.csv`; the
+combined ranking still contained 25 rows. For the top ten validation rows, all
+10 had exact source matches not present in the harmonized training table. The
+exact-match validation MAE was **6.764 K** and Spearman was **0.8182**. Same
+element-set matches are reported separately and are not treated as exact
+compound identity.
+
+In family mode the promotion gate now reads the within-family OOF file rather
+than the cross-family promotion predictions for its Ferrite ambient check. The
+real run measured MAE **7.0188 K** versus **12.1205 K** for the family mean,
+with **42.09%** improvement. The gate remains `fail` overall because H3S/LaH10
+trend rows and excluded-reference rows are still missing. Materials Project
+remained `degraded_no_mp_api_key`, so these outputs still contain no MP-derived
+hull, band-gap, or metallicity claims.

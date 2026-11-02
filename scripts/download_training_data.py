@@ -29,6 +29,8 @@ UCI_SHA256 = "87f4490d73390ff94ee01dbf0d7d32abc80b22f2c803d471765cfc46a9f6371e"
 THREEDSC_COMMIT = "8d69ca9c94b83d387378549225d3b7c3af85ca42"
 THREEDSC_TABLE_URL = f"https://raw.githubusercontent.com/aimat-lab/3DSC/{THREEDSC_COMMIT}/superconductors_3D/data/final/MP/3DSC_MP.csv"
 THREEDSC_TABLE_SHA256 = "353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24"
+THREEDSC_STANEV_URL = f"https://raw.githubusercontent.com/aimat-lab/3DSC/{THREEDSC_COMMIT}/superconductors_3D/data/source/SuperCon/raw/Supercon_data_by_2018_Stanev.csv"
+THREEDSC_STANEV_SHA256 = "b34a955cc59f7a1556bc92c4b9db559bfd634c03227b7e95337a2e5d69227dd6"
 THREEDSC_LICENSE = "CC BY 4.0"
 
 
@@ -122,11 +124,13 @@ def download_training_data(
     uci_archive = data_root / "uci" / "superconductivity-data.zip"
     uci_extract = data_root / "uci" / "extracted"
     table = data_root / "3dsc" / "MP" / "3DSC_MP.csv"
+    stanev_table = data_root / "3dsc" / "Supercon_data_by_2018_Stanev.csv"
     cif_root = data_root / "3dsc" / "MP" / "cifs"
     uci_downloaded = _download(UCI_URL, uci_archive, UCI_SHA256)
     if not (uci_extract / "unique_m.csv").is_file():
         _safe_extract_zip(uci_archive, uci_extract)
     table_downloaded = _download(THREEDSC_TABLE_URL, table, THREEDSC_TABLE_SHA256)
+    stanev_downloaded = _download(THREEDSC_STANEV_URL, stanev_table, THREEDSC_STANEV_SHA256)
     rows = _read_3dsc_rows(table)
     selected = _select_cifs(rows, None if all_cifs else cif_limit)
     failures: dict[str, str] = {}
@@ -152,9 +156,12 @@ def download_training_data(
         },
         "3dsc": {
             "table": str(table),
+            "stanev_table": str(stanev_table),
             "commit": THREEDSC_COMMIT,
             "sha256": THREEDSC_TABLE_SHA256,
+            "stanev_sha256": THREEDSC_STANEV_SHA256,
             "downloaded": table_downloaded,
+            "stanev_downloaded": stanev_downloaded,
             "license": THREEDSC_LICENSE,
             "rows": len(rows),
             "cif_root": str(cif_root),

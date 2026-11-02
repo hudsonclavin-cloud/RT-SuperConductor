@@ -38,30 +38,130 @@ def _canonical(value: str) -> str | None:
     return result.canonical if result.status == "parsed" else None
 
 
+def _reduced_formula(value: str) -> str | None:
+    """Return the canonical key for a pymatgen-reduced formula."""
+
+    try:
+        from pymatgen.core import Composition
+
+        reduced = Composition(value.strip()).reduced_formula
+    except Exception:
+        reduced = value
+    return _canonical(reduced)
+
+
+def _element_set(formula: str) -> frozenset[str]:
+    from pymatgen.core import Composition
+
+    return frozenset(str(element) for element in Composition(formula).elements)
+
+
+def _evidence(
+    *,
+    formula: str,
+    source: str,
+    source_record_id: str,
+    tc_kelvin: float,
+    doi: str = "",
+    notes: str = "",
+) -> dict[str, object] | None:
+    reduced = _reduced_formula(formula)
+    if reduced is None or not math.isfinite(float(tc_kelvin)):
+        return None
+    return {
+        "formula": reduced,
+        "element_set": _element_set(reduced),
+        "source": source,
+        "source_record_id": source_record_id,
+        "tc_kelvin": float(tc_kelvin),
+        "doi": doi if doi.startswith("10.") else "",
+        "notes": notes,
+    }
+
+
+def _read_uci(path: Path) -> list[dict[str, object]]:
+    evidence: list[dict[str, object]] = []
+    with path.open(newline="", encoding="utf-8-sig") as handle:
+        for source_row, row in enumerate(csv.DictReader(handle), start=2):
+            formula = row.get("material", "")
+            raw_tc = (row.get("critical_temp") or "").strip()
+            try:
+                tc = float(raw_tc)
+            except ValueError:
+                continue
+            item = _evidence(
+                formula=formula,
+                source="uci",
+                source_record_id=f"uci:unique_m:{source_row}",
+                tc_kelvin=tc,
+                notes="UCI unique_m.csv has no DOI or row-level method/pressure metadata.",
+            )
+            if item is not None:
+                evidence.append(item)
+    return evidence
+
+
+def _read_stanev(path: Path) -> list[dict[str, object]]:
+    evidence: list[dict[str, object]] = []
+    with path.open(newline="", encoding="utf-8-sig") as handle:
+        for source_row, row in enumerate(csv.DictReader(handle), start=2):
+            try:
+                tc = float((row.get("Tc") or "").strip())
+            except ValueError:
+                continue
+            item = _evidence(
+                formula=row.get("name", ""),
+                source="3dsc_stanev",
+                source_record_id=f"3dsc_stanev:{source_row}",
+                tc_kelvin=tc,
+                notes="3DSC repository Supercon_data_by_2018_Stanev.csv; source row has no DOI field.",
+            )
+            if item is not None:
+                evidence.append(item)
+    return evidence
+
+
 def _read_candidates(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
-        rows = list(csv.DictReader(handle))
+        reader = csv.DictReader(handle)
+        fields = set(reader.fieldnames or ())
+        rows = list(reader)
     required = {"rank", "candidate_id", "formula", "predicted_tc_kelvin", "known_in_database"}
-    if not rows or not required.issubset(rows[0]):
+    if not required.issubset(fields):
         raise ValueError(f"{path}: shortlist must include {sorted(required)}")
     return rows
+
+
+def _training_formula_set(path: Path | None) -> tuple[set[str], str]:
+    if path is None or not path.is_file():
+        return set(), "missing"
+    with path.open(newline="", encoding="utf-8-sig") as handle:
+        rows = csv.DictReader(handle)
+        formulas = {
+            reduced
+            for row in rows
+            if (reduced := _reduced_formula(row.get("formula", ""))) is not None
+        }
+    return formulas, "available"
 
 
 def _read_supercon2(path: Path) -> list[dict[str, object]]:
     evidence: list[dict[str, object]] = []
     for record in iter_supercon2_records(path):
-        formula = _canonical(record.composition)
+        formula = _reduced_formula(record.composition)
         if formula is None or record.reported_tc_k is None:
             continue
         doi = record.publication_reference or ""
-        evidence.append({
-            "formula": formula,
-            "source": "supercon2",
-            "source_record_id": record.record_id,
-            "tc_kelvin": float(record.reported_tc_k),
-            "doi": doi if doi.startswith("10.") else "",
-            "notes": "SuperCon2 extraction requires paper verification; DOI copied only when source field is DOI-shaped.",
-        })
+        item = _evidence(
+            formula=formula,
+            source="supercon2",
+            source_record_id=record.record_id,
+            tc_kelvin=float(record.reported_tc_k),
+            doi=doi,
+            notes="SuperCon2 extraction requires paper verification; DOI copied only when source field is DOI-shaped.",
+        )
+        if item is not None:
+            evidence.append(item)
     return evidence
 
 
@@ -69,7 +169,7 @@ def _read_supermat(path: Path) -> list[dict[str, object]]:
     evidence: list[dict[str, object]] = []
     with path.open(newline="", encoding="utf-8-sig") as handle:
         for source_row, row in enumerate(csv.DictReader(handle), start=2):
-            formula = _canonical(row.get("material", "") or row.get("formula", ""))
+            formula = _reduced_formula(row.get("material", "") or row.get("formula", ""))
             tc, tc_note = _parse_supermat_tc(row.get("tcValue", ""))
             if formula is None or tc is None:
                 continue
@@ -79,15 +179,61 @@ def _read_supermat(path: Path) -> list[dict[str, object]]:
                 notes += f" {tc_note}"
             if not doi:
                 notes += " The supplied SuperMat row has no DOI field; no DOI was invented."
-            evidence.append({
-                "formula": formula,
-                "source": "supermat",
-                "source_record_id": row.get("id", "").strip() or f"supermat:{source_row}",
-                "tc_kelvin": float(tc),
-                "doi": doi if doi.startswith("10.") else "",
-                "notes": notes,
-            })
+            item = _evidence(
+                formula=formula,
+                source="supermat",
+                source_record_id=row.get("id", "").strip() or f"supermat:{source_row}",
+                tc_kelvin=float(tc),
+                doi=doi,
+                notes=notes,
+            )
+            if item is not None:
+                evidence.append(item)
     return evidence
+
+
+def load_measurement_evidence(
+    *,
+    uci_path: Path | None = None,
+    stanev_path: Path | None = None,
+    supercon2_path: Path | None = None,
+    supermat_path: Path | None = None,
+) -> tuple[list[dict[str, object]], dict[str, str]]:
+    """Load available measured-Tc sources without treating missing files as empty data."""
+
+    readers = {
+        "uci": (uci_path, _read_uci),
+        "3dsc_stanev": (stanev_path, _read_stanev),
+        "supercon2": (supercon2_path, _read_supercon2),
+        "supermat": (supermat_path, _read_supermat),
+    }
+    evidence: list[dict[str, object]] = []
+    status: dict[str, str] = {}
+    for source, (path, reader) in readers.items():
+        if path is None or not path.is_file():
+            status[source] = "missing"
+            continue
+        status[source] = "available"
+        evidence.extend(reader(path))
+    return evidence, status
+
+
+def match_measurement_evidence(
+    formula: str,
+    evidence: list[dict[str, object]],
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """Return exact reduced-formula matches and non-exact same-element-set matches."""
+
+    reduced = _reduced_formula(formula)
+    if reduced is None:
+        return [], []
+    elements = _element_set(reduced)
+    exact = [item for item in evidence if item["formula"] == reduced]
+    same_elements = [
+        item for item in evidence
+        if item["formula"] != reduced and item["element_set"] == elements
+    ]
+    return exact, same_elements
 
 
 def _write_queue(path: Path, rows: list[dict[str, object]]) -> None:
@@ -103,38 +249,45 @@ def validate_shortlist(
     candidates_path: Path,
     output_path: Path,
     report_path: Path,
+    training_path: Path | None = None,
+    uci_path: Path | None = None,
+    stanev_path: Path | None = None,
     supercon2_path: Path | None = None,
     supermat_path: Path | None = None,
 ) -> dict[str, object]:
     candidates = _read_candidates(candidates_path)
     known = [row for row in candidates if row.get("known_in_database") == "known"]
     top10 = sorted(known, key=lambda row: (int(row["rank"]), row["candidate_id"]))[:10]
-    source_status = {
-        "supercon2": "available" if supercon2_path and supercon2_path.is_file() else "missing",
-        "supermat": "available" if supermat_path and supermat_path.is_file() else "missing",
-    }
-    evidence: list[dict[str, object]] = []
-    if source_status["supercon2"] == "available":
-        evidence.extend(_read_supercon2(supercon2_path))
-    if source_status["supermat"] == "available":
-        evidence.extend(_read_supermat(supermat_path))
-    evidence_by_formula: dict[str, list[dict[str, object]]] = {}
-    for item in evidence:
-        evidence_by_formula.setdefault(str(item["formula"]), []).append(item)
+    evidence, source_status = load_measurement_evidence(
+        uci_path=uci_path,
+        stanev_path=stanev_path,
+        supercon2_path=supercon2_path,
+        supermat_path=supermat_path,
+    )
+    training_formulas, training_status = _training_formula_set(training_path)
 
     queue: list[dict[str, object]] = []
-    candidate_measurements: list[tuple[float, float]] = []
+    exact_measurements_not_in_training: list[tuple[float, float]] = []
     matched_candidates = 0
     known_superconductors = 0
+    exact_match_candidates = 0
+    same_element_set_candidates = 0
     for candidate in top10:
-        formula = _canonical(candidate["formula"]) or candidate["formula"]
-        matches = evidence_by_formula.get(formula, [])
+        exact_matches, same_element_matches = match_measurement_evidence(candidate["formula"], evidence)
+        matches = exact_matches + same_element_matches
         if matches:
             matched_candidates += 1
             if any(float(item["tc_kelvin"]) > 0 for item in matches):
                 known_superconductors += 1
-            measured = sum(float(item["tc_kelvin"]) for item in matches) / len(matches)
-            candidate_measurements.append((float(candidate["predicted_tc_kelvin"]), measured))
+        if exact_matches:
+            exact_match_candidates += 1
+            if same_element_matches:
+                same_element_set_candidates += 1
+            if _reduced_formula(candidate["formula"]) not in training_formulas:
+                measured = sum(float(item["tc_kelvin"]) for item in exact_matches) / len(exact_matches)
+                exact_measurements_not_in_training.append((float(candidate["predicted_tc_kelvin"]), measured))
+        elif same_element_matches:
+            same_element_set_candidates += 1
         for item in matches:
             queue.append({
                 "candidate_rank": candidate["rank"],
@@ -146,18 +299,21 @@ def validate_shortlist(
                 "measured_tc_kelvin": item["tc_kelvin"],
                 "doi": item["doi"],
                 "review_status": "pending_paper_review",
-                "match_basis": "canonical_formula",
+                "match_basis": "exact_reduced_formula" if item in exact_matches else "same_element_set",
                 "notes": item["notes"],
             })
 
-    rho: float | None = None
-    if len(candidate_measurements) >= 2:
+    exact_mae: float | None = None
+    exact_rho: float | None = None
+    if exact_measurements_not_in_training:
+        exact_mae = sum(abs(predicted - measured) for predicted, measured in exact_measurements_not_in_training) / len(exact_measurements_not_in_training)
+    if len(exact_measurements_not_in_training) >= 2:
         value = float(spearmanr(
-            [item[0] for item in candidate_measurements],
-            [item[1] for item in candidate_measurements],
+            [item[0] for item in exact_measurements_not_in_training],
+            [item[1] for item in exact_measurements_not_in_training],
         ).statistic)
-        rho = value if math.isfinite(value) else None
-    if source_status["supercon2"] == "missing" and source_status["supermat"] == "missing":
+        exact_rho = value if math.isfinite(value) else None
+    if all(value == "missing" for value in source_status.values()):
         status = "blocked_missing_supercon2_and_supermat_exports"
     elif not top10:
         status = "blocked_no_top10_known_compounds"
@@ -173,8 +329,15 @@ def validate_shortlist(
         "matched_candidate_count": matched_candidates,
         "known_superconductor_count": known_superconductors,
         "literature_match_row_count": len(queue),
-        "ordering_spearman_rho": rho,
-        "ordering_agreement": None if rho is None else rho > 0,
+        "exact_match_candidate_count": exact_match_candidates,
+        "same_element_set_candidate_count": same_element_set_candidates,
+        "exact_match_not_in_training_count": len(exact_measurements_not_in_training),
+        "exact_match_not_in_training_mae_k": exact_mae,
+        "exact_match_not_in_training_spearman_rho": exact_rho,
+        "ordering_spearman_rho": exact_rho,
+        "ordering_agreement": None if exact_rho is None else exact_rho > 0,
+        "training_status": training_status,
+        "training_path": str(training_path) if training_path else None,
         "source_status": source_status,
         "source_paths": {
             "supercon2": str(supercon2_path) if supercon2_path else None,
@@ -193,6 +356,9 @@ def main() -> int:
     parser.add_argument("--candidates", type=Path, default=Path("data/processed/candidates/ferrites_top25.csv"))
     parser.add_argument("--output", type=Path, default=Path("data/training/review_queue_ferrite_shortlist.csv"))
     parser.add_argument("--report", type=Path, default=Path("data/processed/candidates/ferrite-literature-validation.json"))
+    parser.add_argument("--training", type=Path, help="harmonized training table used to exclude leakage from metrics")
+    parser.add_argument("--uci", type=Path, help="UCI unique_m.csv measured-Tc source")
+    parser.add_argument("--stanev", type=Path, help="3DSC Supercon_data_by_2018_Stanev.csv measured-Tc source")
     parser.add_argument("--supercon2", type=Path)
     parser.add_argument("--supermat", type=Path)
     args = parser.parse_args()
@@ -200,6 +366,9 @@ def main() -> int:
         candidates_path=args.candidates,
         output_path=args.output,
         report_path=args.report,
+        training_path=args.training,
+        uci_path=args.uci,
+        stanev_path=args.stanev,
         supercon2_path=args.supercon2,
         supermat_path=args.supermat,
     )
