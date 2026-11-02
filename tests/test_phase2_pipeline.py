@@ -105,3 +105,35 @@ def test_qe_generator_applies_screen_and_writes_epw_inputs(tmp_path):
     scf = (candidate / "scf.in").read_text(encoding="utf-8")
     assert "conv_thr = 1.0d-10" in scf
     assert "ATOMIC_POSITIONS crystal" in scf
+
+
+def test_qe_generator_can_use_real_cif_and_blocks_job_prerequisites(tmp_path):
+    candidates = tmp_path / "candidates.csv"
+    candidates.write_text(
+        "candidate_id,formula,predicted_tc_kelvin,energy_above_hull,review_status,is_metal,band_gap_ev\n"
+        "mp-fe,Fe,10,0.01,pending,true,0.0\n",
+        encoding="utf-8",
+    )
+    structures = tmp_path / "structures"
+    structures.mkdir()
+    (structures / "mp-fe.cif").write_text(
+        "data_Fe\n"
+        "_cell_length_a 2.866\n_cell_length_b 2.866\n_cell_length_c 2.866\n"
+        "_cell_angle_alpha 90\n_cell_angle_beta 90\n_cell_angle_gamma 90\n"
+        "_symmetry_space_group_name_H-M 'Im-3m'\n_symmetry_Int_Tables_number 229\n"
+        "loop_\n_atom_site_label\n_atom_site_type_symbol\n_atom_site_fract_x\n_atom_site_fract_y\n_atom_site_fract_z\n"
+        "Fe1 Fe 0 0 0\n",
+        encoding="utf-8",
+    )
+
+    summary = generate_inputs(
+        candidates, tmp_path / "qe", structure_dir=structures,
+        allow_placeholder=False, min_predicted_tc=0,
+    )
+
+    assert summary["generated_count"] == 1
+    candidate = tmp_path / "qe" / "mp-fe"
+    assert (candidate / "relax.in").is_file()
+    assert "ATOMIC_POSITIONS angstrom" in (candidate / "scf.in").read_text(encoding="utf-8")
+    metadata = (candidate / "candidate.json").read_text(encoding="utf-8")
+    assert "blocked_missing_pseudopotentials_and_hazel_access" in metadata

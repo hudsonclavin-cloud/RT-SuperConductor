@@ -55,3 +55,14 @@ GitHub Actions prepares and evaluates inputs; it does not execute Quantum
 ESPRESSO, phonons, EPW, Bader, ELF, or COHP calculations. Larger first-principles
 jobs need an external workstation or HPC allocation, with outputs ingested and
 provenance recorded before retraining.
+
+## Optional within-family dispatch
+
+The **Run workflow** form has an optional `family` input. Leaving it empty runs
+the ordinary cross-family cycle. Setting it to `Ferrites` (or an exact family
+label present in the harmonized table) runs `rank_candidates.py --family` after
+training and uploads the family CSV plus `candidate-ranking-report.json` as a
+separate artifact. The step receives `MP_API_KEY` from the
+`Materials_Project_API` secret; when that secret is unavailable, the artifact
+records `degraded_no_mp_api_key` and keeps MP existence, hull, band-gap, and
+metallicity unknown.
