@@ -50,7 +50,8 @@ def test_training_blocks_without_two_empirical_families(tmp_path):
     assert report["training_status"] == "blocked_insufficient_empirical_data"
     assert report["empirical_training_record_count"] == 5
     assert report["synthetic_record_count"] == 21
-    assert report["training_filter"] == "review_status == 'confirmed' and is_synthetic == 0"
+    assert "curated_database" in report["training_filter"]
+    assert "source_db == 'supercon2'" in report["training_filter"]
 
 
 def test_materials_project_selects_lowest_energy_polymorph():

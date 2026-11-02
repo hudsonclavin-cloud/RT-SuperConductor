@@ -54,6 +54,7 @@ class AcquisitionWeights:
     structural_plausibility: float = 0.15
     synthesis_feasibility: float = 0.20
     novelty: float = 0.15
+    uncertainty_cap_k: float = 100.0
 
     def __post_init__(self) -> None:
         values = (
@@ -65,6 +66,8 @@ class AcquisitionWeights:
         )
         if any(value < 0 for value in values) or abs(sum(values) - 1.0) > 1e-9:
             raise ValueError("acquisition weights must be non-negative and sum to 1")
+        if self.uncertainty_cap_k <= 0:
+            raise ValueError("uncertainty_cap_k must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -115,10 +118,15 @@ def acquisition_score(
         reasons.append("predicted temperature is above the target window and needs review")
     else:
         reasons.append("predicted temperature is below the target window")
-    uncertainty_score = min(candidate.tc_uncertainty_k / 100.0, 1.0)
+    uncertainty_score = min(candidate.tc_uncertainty_k / weights.uncertainty_cap_k, 1.0)
+    plausibility = candidate.structural_plausibility
+    if candidate.tc_uncertainty_k > weights.uncertainty_cap_k:
+        reasons.append(f"uncertainty reward capped at {weights.uncertainty_cap_k:g} K")
+    if plausibility < 1.0:
+        reasons.append(f"uncertainty reward weighted by plausibility={plausibility:g}")
     score = (
         weights.target_fit * target_fit
-        + weights.uncertainty * uncertainty_score
+        + weights.uncertainty * uncertainty_score * plausibility
         + weights.structural_plausibility * candidate.structural_plausibility
         + weights.synthesis_feasibility * candidate.synthesis_feasibility
         + weights.novelty * candidate.novelty
