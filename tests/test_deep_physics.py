@@ -20,3 +20,21 @@ class DeepPhysicsTests(unittest.TestCase):
             p=Path(t)/'s.cif';Structure(Lattice.cubic(3),['Cu'],[[0,0,0]]).to(filename=p)
             r=cif_features(p)
         self.assertGreater(r['nearest_min'],0);self.assertIsNone(r['ewald_ev_per_atom'])
+
+class DeepAblationTests(unittest.TestCase):
+    def test_feature_groups_use_allowlist(self):
+        from deep_ablation import groups_for
+        r=groups_for(['band_gap_2','synth_doped','nearest_min','ordering_NM','run_type_2'])
+        self.assertEqual(r['electronic'],['band_gap_2']);self.assertEqual(r['bonding'],['nearest_min'])
+        self.assertFalse(any('synth_doped' in v or 'run_type_2' in v for v in r.values()))
+    def test_actual_matrix_entry_rejects_leak(self):
+        import numpy as np
+        from deep_ablation import evaluate
+        with self.assertRaises(ValueError):
+            evaluate(np.zeros((2,1)),np.array([1,2]),np.array(['A','B']),np.array(['A','B']),['formula_similarity'])
+    def test_auc_blocks_unscored_or_single_class(self):
+        import numpy as np
+        from deep_ablation import auc
+        self.assertIsNone(auc(np.array([False,True]),np.array([0.,np.nan])))
+        self.assertIsNone(auc(np.array([True,True]),np.array([0.,1.])))
+        self.assertEqual(auc(np.array([False,True]),np.array([.5,.5])),.5)

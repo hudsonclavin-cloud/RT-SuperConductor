@@ -579,3 +579,171 @@ highest-occupancy proxy, so neither geometry nor formal charges reproduce
 fractional-site electronic disorder.
 
 Phase 1 measured result (2026-11-03): **5,773 rows, 5,773 CIFs, 0 geometry failures**. Nonmissing counts: `band_gap_2` 5773, `efermi_2` 5773, `ewald_ev_per_atom` 2796, `layer_spacing_proxy_angstrom` 358, `coord_mean` 5773. Source SHA-256: `353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24`. Feature CSV SHA-256: `15d29e07cd9d1a3247d5e6bc6806ae1f5aedd7153a13b799ebfca38dd765cb25`. The generated table is 2.9 MB and is an artifact; raw CIFs and caches are not committed. All **87 unit tests passed**.
+
+## Deep physical-feature study: Phase 2 — paired ablation
+
+All **5,773** records remain in every comparison. Baseline = Magpie plus neutral-atom shell/Lewis descriptors (**155 columns**); pressure and hull columns appended by the older feature builder are removed. Each outer split also purges training rows sharing an MP ID with the held-out rows. Thus these numbers supersede older comparisons for this study; changed baseline inputs and stricter structure separation explain why earlier within-family scores differ. Trees: 150 regression / 100 per binary classifier; seeds fixed by fold. All imputers are fitted on training rows only. AUC uses pooled out-of-fold scores and is unavailable when a fold lacks both training classes or the evaluation has only one class. The mean-class predictor uses each training fold’s positive prevalence, so its pooled AUC need not equal 0.5.
+
+| Scope | Inputs | N | MAE K | Mean MAE K | Spearman | AUC >0 | Mean AUC >0 | AUC >77 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| cross-family | Formula baseline | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | 0.4575 | — | 0.0624 |
+| Ferrites | Formula baseline | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | 0.4730 | — | — |
+| Cuprates | Formula baseline | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.4793 | 0.8275 | 0.3187 |
+| Other | Formula baseline | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | 0.4885 | — | — |
+| Oxides | Formula baseline | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | 0.4644 | — | — |
+| cross-family | + electronic | 5773 | 10.5306 | 16.1169 | 0.1107 | 0.5742 | 0.4575 | — | 0.0624 |
+| Ferrites | + electronic | 517 | 9.4925 | 11.7727 | 0.5099 | 0.7331 | 0.4730 | — | — |
+| Cuprates | + electronic | 874 | 21.6690 | 32.6682 | 0.5495 | 0.6733 | 0.4793 | 0.8450 | 0.3187 |
+| Other | + electronic | 3529 | 2.8746 | 4.3630 | 0.6938 | 0.8018 | 0.4885 | — | — |
+| Oxides | + electronic | 320 | 4.0669 | 5.8215 | 0.5608 | 0.7591 | 0.4644 | — | — |
+| cross-family | + lattice | 5773 | 10.3884 | 16.1169 | 0.1440 | 0.5811 | 0.4575 | — | 0.0624 |
+| Ferrites | + lattice | 517 | 9.2700 | 11.7727 | 0.5135 | 0.7181 | 0.4730 | — | — |
+| Cuprates | + lattice | 874 | 21.5255 | 32.6682 | 0.5553 | 0.6735 | 0.4793 | 0.8417 | 0.3187 |
+| Other | + lattice | 3529 | 3.0330 | 4.3630 | 0.6726 | 0.7952 | 0.4885 | — | — |
+| Oxides | + lattice | 320 | 3.9662 | 5.8215 | 0.5389 | 0.7514 | 0.4644 | — | — |
+| cross-family | + bonding | 5773 | 10.4227 | 16.1169 | 0.1236 | 0.5934 | 0.4575 | — | 0.0624 |
+| Ferrites | + bonding | 517 | 9.4317 | 11.7727 | 0.5041 | 0.7209 | 0.4730 | — | — |
+| Cuprates | + bonding | 874 | 21.2465 | 32.6682 | 0.5626 | 0.6856 | 0.4793 | 0.8262 | 0.3187 |
+| Other | + bonding | 3529 | 2.9307 | 4.3630 | 0.6858 | 0.8026 | 0.4885 | — | — |
+| Oxides | + bonding | 320 | 4.0443 | 5.8215 | 0.5209 | 0.7530 | 0.4644 | — | — |
+| cross-family | + spin | 5773 | 10.3908 | 16.1169 | 0.1038 | 0.5780 | 0.4575 | — | 0.0624 |
+| Ferrites | + spin | 517 | 9.3485 | 11.7727 | 0.5058 | 0.7054 | 0.4730 | — | — |
+| Cuprates | + spin | 874 | 21.3103 | 32.6682 | 0.5638 | 0.6669 | 0.4793 | 0.8403 | 0.3187 |
+| Other | + spin | 3529 | 2.9015 | 4.3630 | 0.6903 | 0.7980 | 0.4885 | — | — |
+| Oxides | + spin | 320 | 3.9945 | 5.8215 | 0.5582 | 0.7465 | 0.4644 | — | — |
+| cross-family | All physical groups | 5773 | 10.4250 | 16.1169 | 0.1257 | 0.5634 | 0.4575 | — | 0.0624 |
+| Ferrites | All physical groups | 517 | 9.3524 | 11.7727 | 0.5211 | 0.7172 | 0.4730 | — | — |
+| Cuprates | All physical groups | 874 | 21.2622 | 32.6682 | 0.5621 | 0.6697 | 0.4793 | 0.8194 | 0.3187 |
+| Other | All physical groups | 3529 | 3.0830 | 4.3630 | 0.6749 | 0.8051 | 0.4885 | — | — |
+| Oxides | All physical groups | 320 | 3.9825 | 5.8215 | 0.5227 | 0.7619 | 0.4644 | — | — |
+
+The professor’s five factors are tested through grouped proxies, not isolated causal interventions. Symmetry and lattice patterns share the lattice group; interatomic distances and electrostatic/formation-energy bond-strength proxies share the bonding group. The electronic group changes cross-family MAE by 0.0782 K; lattice by -0.0639 K; bonding by -0.0297 K; spin by -0.0615 K; all together by -0.0273 K. Negative changes mean lower error. Improvements vary by family and are small; no statistical significance or causal mechanism is established.
+
+**Cuprate spin limitation:** directly counted in the source table: NM 743/874, FM 69, FiM 48, AFM 14. Real undoped cuprate parents are antiferromagnetic; standard reference-cell DFT and its magnetic initialization/correlation approximation can miss that state, and matched/artificially doped references are not necessarily the experimental sample. These labels cannot substitute for measured spin order. See Lee, Nagaosa & Wen, [Rev. Mod. Phys. 78, 17 (2006)](https://doi.org/10.1103/RevModPhys.78.17).
+
+### Top 20 cross-family feature importances
+
+Impurity importances averaged across outer folds are model diagnostics, not causal importance. The complete top-20 lists for every group and scope, plus MP-overlap purge counts, are in [deep-phase2-ablation.json](deep-phase2-ablation.json).
+
+| Inputs | Feature | Importance |
+|---|---|---:|
+| Formula baseline | MagpieData range Electronegativity | 0.115359 |
+| Formula baseline | MagpieData mean NUnfilled | 0.115272 |
+| Formula baseline | MagpieData avg_dev GSvolume_pa | 0.068974 |
+| Formula baseline | MagpieData avg_dev NdValence | 0.061713 |
+| Formula baseline | MagpieData avg_dev NUnfilled | 0.052427 |
+| Formula baseline | MagpieData avg_dev GSmagmom | 0.035682 |
+| Formula baseline | descriptor_total_atoms | 0.031690 |
+| Formula baseline | descriptor_shell_3_fill_pct | 0.029744 |
+| Formula baseline | MagpieData avg_dev Electronegativity | 0.028035 |
+| Formula baseline | descriptor_shell_3_electrons | 0.027225 |
+| Formula baseline | MagpieData avg_dev Column | 0.020912 |
+| Formula baseline | MagpieData avg_dev SpaceGroupNumber | 0.018014 |
+| Formula baseline | descriptor_avg_p_electrons | 0.017914 |
+| Formula baseline | MagpieData mean SpaceGroupNumber | 0.016375 |
+| Formula baseline | MagpieData mean NdValence | 0.015491 |
+| Formula baseline | MagpieData mean MeltingT | 0.012474 |
+| Formula baseline | MagpieData avg_dev NValence | 0.012161 |
+| Formula baseline | MagpieData avg_dev MendeleevNumber | 0.012020 |
+| Formula baseline | MagpieData mean Electronegativity | 0.011849 |
+| Formula baseline | MagpieData mean MendeleevNumber | 0.011356 |
+| + electronic | MagpieData range Electronegativity | 0.115416 |
+| + electronic | MagpieData mean NUnfilled | 0.114699 |
+| + electronic | MagpieData avg_dev GSvolume_pa | 0.068334 |
+| + electronic | MagpieData avg_dev NdValence | 0.061836 |
+| + electronic | MagpieData avg_dev NUnfilled | 0.052114 |
+| + electronic | MagpieData avg_dev GSmagmom | 0.035541 |
+| + electronic | descriptor_total_atoms | 0.031538 |
+| + electronic | descriptor_shell_3_electrons | 0.030768 |
+| + electronic | MagpieData avg_dev Electronegativity | 0.027094 |
+| + electronic | descriptor_shell_3_fill_pct | 0.025910 |
+| + electronic | MagpieData avg_dev Column | 0.019537 |
+| + electronic | MagpieData avg_dev SpaceGroupNumber | 0.017401 |
+| + electronic | descriptor_avg_p_electrons | 0.017195 |
+| + electronic | MagpieData mean SpaceGroupNumber | 0.015984 |
+| + electronic | MagpieData mean NdValence | 0.015065 |
+| + electronic | MagpieData mean MeltingT | 0.012614 |
+| + electronic | descriptor_shell_6_fill_pct | 0.011784 |
+| + electronic | MagpieData mean MendeleevNumber | 0.011528 |
+| + electronic | MagpieData avg_dev MendeleevNumber | 0.011483 |
+| + electronic | MagpieData avg_dev NValence | 0.011477 |
+| + lattice | MagpieData range Electronegativity | 0.115190 |
+| + lattice | MagpieData mean NUnfilled | 0.105718 |
+| + lattice | MagpieData avg_dev GSvolume_pa | 0.067467 |
+| + lattice | MagpieData avg_dev NUnfilled | 0.055863 |
+| + lattice | c_over_a | 0.054646 |
+| + lattice | MagpieData avg_dev GSmagmom | 0.035501 |
+| + lattice | latc_2 | 0.032531 |
+| + lattice | MagpieData avg_dev NdValence | 0.031917 |
+| + lattice | descriptor_shell_3_fill_pct | 0.028662 |
+| + lattice | descriptor_shell_3_electrons | 0.027413 |
+| + lattice | MagpieData avg_dev Electronegativity | 0.023083 |
+| + lattice | MagpieData avg_dev Column | 0.019310 |
+| + lattice | descriptor_avg_p_electrons | 0.017726 |
+| + lattice | MagpieData avg_dev SpaceGroupNumber | 0.015309 |
+| + lattice | MagpieData mean NdValence | 0.013418 |
+| + lattice | MagpieData mean MeltingT | 0.012560 |
+| + lattice | MagpieData mean Electronegativity | 0.011183 |
+| + lattice | MagpieData mean SpaceGroupNumber | 0.011055 |
+| + lattice | MagpieData avg_dev MendeleevNumber | 0.010353 |
+| + lattice | MagpieData avg_dev NValence | 0.010202 |
+| + bonding | MagpieData mean NUnfilled | 0.101535 |
+| + bonding | shortest_metal_anion | 0.092217 |
+| + bonding | MagpieData range Electronegativity | 0.076029 |
+| + bonding | MagpieData avg_dev NUnfilled | 0.046160 |
+| + bonding | ewald_ev_per_atom | 0.042913 |
+| + bonding | MagpieData avg_dev GSmagmom | 0.036031 |
+| + bonding | MagpieData avg_dev NdValence | 0.029273 |
+| + bonding | descriptor_shell_3_electrons | 0.028242 |
+| + bonding | MagpieData avg_dev GSvolume_pa | 0.028108 |
+| + bonding | descriptor_shell_3_fill_pct | 0.027398 |
+| + bonding | coord_fraction_8 | 0.019502 |
+| + bonding | MagpieData avg_dev Column | 0.019485 |
+| + bonding | MagpieData avg_dev SpaceGroupNumber | 0.017734 |
+| + bonding | descriptor_avg_p_electrons | 0.017027 |
+| + bonding | MagpieData avg_dev Electronegativity | 0.015937 |
+| + bonding | formation_energy_per_atom_2 | 0.014078 |
+| + bonding | MagpieData mean MeltingT | 0.013785 |
+| + bonding | descriptor_shell_6_electrons | 0.013261 |
+| + bonding | MagpieData mean SpaceGroupNumber | 0.011639 |
+| + bonding | descriptor_shell_6_fill_pct | 0.011344 |
+| + spin | MagpieData range Electronegativity | 0.115263 |
+| + spin | MagpieData mean NUnfilled | 0.114591 |
+| + spin | MagpieData avg_dev GSvolume_pa | 0.068666 |
+| + spin | MagpieData avg_dev NdValence | 0.061072 |
+| + spin | MagpieData avg_dev NUnfilled | 0.051934 |
+| + spin | MagpieData avg_dev GSmagmom | 0.034978 |
+| + spin | descriptor_total_atoms | 0.031475 |
+| + spin | descriptor_shell_3_fill_pct | 0.029498 |
+| + spin | MagpieData avg_dev Electronegativity | 0.027577 |
+| + spin | descriptor_shell_3_electrons | 0.027291 |
+| + spin | MagpieData avg_dev Column | 0.020136 |
+| + spin | descriptor_avg_p_electrons | 0.018141 |
+| + spin | MagpieData avg_dev SpaceGroupNumber | 0.017038 |
+| + spin | MagpieData mean SpaceGroupNumber | 0.015895 |
+| + spin | MagpieData mean NdValence | 0.014840 |
+| + spin | MagpieData mean MeltingT | 0.012146 |
+| + spin | descriptor_shell_6_electrons | 0.011824 |
+| + spin | total_magnetization_normalized_formula_units_2 | 0.011581 |
+| + spin | MagpieData avg_dev MendeleevNumber | 0.011498 |
+| + spin | MagpieData avg_dev NValence | 0.011385 |
+| All physical groups | MagpieData mean NUnfilled | 0.099908 |
+| All physical groups | shortest_metal_anion | 0.091748 |
+| All physical groups | MagpieData range Electronegativity | 0.075692 |
+| All physical groups | MagpieData avg_dev NUnfilled | 0.045214 |
+| All physical groups | MagpieData avg_dev GSmagmom | 0.035253 |
+| All physical groups | ewald_ev_per_atom | 0.034455 |
+| All physical groups | c_over_a | 0.030322 |
+| All physical groups | descriptor_shell_3_fill_pct | 0.028762 |
+| All physical groups | latc_2 | 0.027238 |
+| All physical groups | MagpieData avg_dev GSvolume_pa | 0.027103 |
+| All physical groups | descriptor_shell_3_electrons | 0.026441 |
+| All physical groups | MagpieData avg_dev Column | 0.017698 |
+| All physical groups | descriptor_avg_p_electrons | 0.016920 |
+| All physical groups | MagpieData avg_dev SpaceGroupNumber | 0.014659 |
+| All physical groups | MagpieData avg_dev NdValence | 0.014017 |
+| All physical groups | MagpieData avg_dev Electronegativity | 0.014001 |
+| All physical groups | MagpieData mean MeltingT | 0.012809 |
+| All physical groups | formation_energy_per_atom_2 | 0.012510 |
+| All physical groups | descriptor_shell_6_electrons | 0.011265 |
+| All physical groups | MagpieData mean Electronegativity | 0.009854 |
