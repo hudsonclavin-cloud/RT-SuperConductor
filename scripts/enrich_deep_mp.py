@@ -3,6 +3,7 @@
 import argparse,csv,json,os,sys
 from pathlib import Path
 import numpy as np
+from scipy.integrate import trapezoid
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from rt_superconductor.harmonized import load_harmonized
 
@@ -25,7 +26,7 @@ def orbital_weights(dos):
     for element in dos.structure.composition.elements:
         es={}
         for orbital,projection in dos.get_element_spd_dos(element).items():
-            value=float(np.trapz(np.interp(grid,energies,projection.get_densities()),grid));key=str(orbital);es[key]=value;weights[key]=weights.get(key,0)+value
+            value=float(trapezoid(np.interp(grid,energies,projection.get_densities()),grid));key=str(orbital);es[key]=value;weights[key]=weights.get(key,0)+value
         elements[str(element)]=es
     total=sum(weights.values())
     if not np.isfinite(total) or total<=0 or any(not np.isfinite(v) or v<0 for v in weights.values()):return {}
@@ -60,7 +61,7 @@ def complete_dos_with_task(client,material_id):
     task_id=str(task);return dos_curve_for_task(client.materials.electronic_structure_dos,task_id),task_id
 
 def flush_output(rows,by_id,cache,output,report):
-    columns=('mp_bulk_modulus_gpa','mp_dos_ef_states_ev_cell','orbital_s_fraction','orbital_p_fraction','orbital_d_fraction','orbital_f_fraction','element_orbital_integrals_json','orbital_window_ev','mp_dos_task_id','mp_dos_content_sha256','mp_bulk_error','mp_dos_error')
+    columns=('mp_bulk_modulus_gpa','mp_dos_ef_states_ev_cell','orbital_s_fraction','orbital_p_fraction','orbital_d_fraction','orbital_f_fraction','element_orbital_integrals_json','orbital_window_ev','mp_dos_task_id','mp_dos_content_sha256','mp_orbital_error','mp_bulk_error','mp_dos_error')
     for r in rows:
         mid=by_id.get(r['record_id']);d=cache.get(mid,{})
         r.update({k:d.get(k) if d.get(k) is not None else r.get(k) for k in columns});r.update(reference_mp_id=mid,mp_bulk_status=d.get('bulk_status','not_queried'),mp_dos_status=d.get('dos_status','not_queried'),mp_orbital_status=d.get('orbital_status','not_queried'))
@@ -108,7 +109,9 @@ def enrich(input_path,features,output,limit=100):
                             d['mp_dos_content_sha256']=hashlib.sha256(json.dumps(dos.as_dict(),cls=MontyEncoder,sort_keys=True,separators=(',',':')).encode()).hexdigest()
                             value=dos_at_fermi(dos);d['mp_dos_ef_states_ev_cell']=value if np.isfinite(value) else None
                             try:d.update(orbital_weights(dos));d['orbital_status']='available' if 'orbital_d_fraction' in d else 'missing_projections_or_window'
-                            except Exception as e:d['orbital_status']='blocked_'+type(e).__name__
+                            except Exception as e:
+                                d['orbital_status']='blocked_'+type(e).__name__;d['mp_orbital_error']=safe_error(e)
+                                if len(report['endpoint_error_samples'])<3:report['endpoint_error_samples'].append({'material_id':mid,'endpoint':'orbital_extraction','error':safe_error(e)})
                         d['dos_status']='available' if dos is not None else 'not_in_reference'
                     except Exception as e:
                         auth=any(code in str(e) for code in ('401','403'));auth_failures+=auth;d['dos_status']='blocked_authorization' if auth else 'blocked_'+type(e).__name__;d['mp_dos_error']=safe_error(e);report['failed_endpoint_calls']+=1

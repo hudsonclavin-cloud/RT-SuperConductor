@@ -204,3 +204,16 @@ class DOSStorageCompatibilityTests(unittest.TestCase):
         route=SimpleNamespace(get_dos_from_task_id=missing,_query_open_data=get)
         with patch('enrich_deep_mp.dos_storage_keys',return_value=['dos/mp-1676349.json.gz']):result=dos_curve_for_task(route,'alpha-fixture')
         self.assertIs(result,curve);self.assertEqual(calls,[{'bucket':'materialsproject-parsed','key':'dos/mp-1676349.json.gz'}])
+
+class OrbitalIntegrationPortabilityTests(unittest.TestCase):
+    def test_integration_does_not_depend_on_removed_numpy_trapz(self):
+        import numpy as np
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from pymatgen.core import Composition
+        from enrich_deep_mp import orbital_weights
+        class DOS:
+            energies=np.array([-1.,0.,1.]);efermi=0.;structure=SimpleNamespace(composition=Composition('Fe'))
+            def get_element_spd_dos(self,element):return {'s':SimpleNamespace(get_densities=lambda:np.ones(3)),'d':SimpleNamespace(get_densities=lambda:np.ones(3)*3)}
+        with patch.object(np,'trapz',None,create=True):r=orbital_weights(DOS())
+        self.assertAlmostEqual(r['orbital_s_fraction'],.25);self.assertAlmostEqual(r['orbital_d_fraction'],.75)
