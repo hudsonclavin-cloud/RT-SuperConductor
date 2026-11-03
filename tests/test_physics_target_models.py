@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from train_physics_targets import allen_dynes_tc_k, build_characteristics
+from train_physics_targets import BOND_FEATURE_NAMES, _make_matrix, allen_dynes_tc_k, build_characteristics, fit_physics_models
 from run_physics_search import generate_substitutions, select_by_confidence_group, is_low_confidence
 from enrich_candidate_stability import enrich as enrich_candidate_stability
 from enrich_physics_mp import enrich as enrich_physics_mp
@@ -21,7 +21,7 @@ def _record(jid, elements, stability="stable"):
         "jid": jid,
         "atoms": {
             "lattice_mat": [[3.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 3.0]],
-            "coords": [[0.0, 0.0, 0.0] for _ in elements],
+            "coords": [[float(i) / max(1, len(elements)), 0.0, 0.0] for i, _ in enumerate(elements)],
             "elements": elements,
         },
         "stability": stability,
@@ -51,6 +51,18 @@ class PhysicsTargetModelTests(unittest.TestCase):
         self.assertIsNone(row["mp_is_metal"])
         self.assertIsNone(row["mp_density_g_cm3"])
         self.assertGreater(row["structure_density_g_cm3"], 0)
+        self.assertTrue(all(name in row for name in BOND_FEATURE_NAMES))
+
+    def test_missing_physics_features_remain_nan_for_fold_local_imputation(self):
+        matrix = _make_matrix([{"x": 1.0}, {"x": None}, {"x": ""}], ["x"])
+        self.assertEqual(matrix[0, 0], 1.0)
+        self.assertTrue(math.isnan(matrix[1, 0]))
+        self.assertTrue(math.isnan(matrix[2, 0]))
+
+    def test_fitted_physics_model_uses_jarvis_bond_descriptors(self):
+        rows, base_names, _ = build_characteristics([_record("JVASP-Nb3Sn", ["Nb", "Nb", "Nb", "Sn"])])
+        models, _ = fit_physics_models(rows, base_names + BOND_FEATURE_NAMES)
+        self.assertEqual(models["feature_names"][-len(BOND_FEATURE_NAMES):], BOND_FEATURE_NAMES)
 
     def test_search_substitutions_keep_parent_stability_as_a_proxy(self):
         rows = [

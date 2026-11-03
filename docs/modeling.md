@@ -214,6 +214,76 @@ CIF subset does not cover two empirical families, it writes
 that structure features help. ALIGNN/M3GNet is reserved as an optional second
 stage and is reported as not attempted in the baseline cycle.
 
+## 3DSC spin, bond, and dimensionality ablation
+
+`scripts/evaluate_3dsc_structure_spin.py` joins ingested 3DSC records to their
+source-table rows and CIFs. The table's `is_magnetic_2`, `ordering_2`,
+`total_magnetization_2`, and `num_magnetic_sites_2` values come from the
+Materials Project calculations included in 3DSC. They are DFT-computed
+features, not measured magnetic properties. Total magnetization is reported in
+μB/atom and magnetic-site count per atom by dividing by the source table's
+`nsites_2`; ordering is retained as
+NM/FM/AFM/FiM one-hot fields while its original categorical label is preserved.
+
+For each matched CIF, pymatgen computes one periodic nearest-neighbor distance
+per site (minimum, mean, and standard deviation), the mean metal/nonmetal bond
+distance from CrystalNN neighbors, and mean CrystalNN coordination number.
+The metal/nonmetal split follows pymatgen's element classification (metalloids
+fall in the nonmetal category).
+Dimensionality is computed with pymatgen's Larsen algorithm on a CrystalNN
+structure graph and represented as 0D/1D/2D/3D one-hot values; `layers_present`
+is true for 2D structures. For partially occupied CIFs the feature pipeline
+uses the highest-occupancy species at each site and records that proxy choice.
+
+The ablation uses one shared CIF-backed cohort and identical folds for the
+composition baseline, spin only, bonds only, patterns only, and all three
+groups together. It reports cross-family GroupKFold regression and both
+`Tc > 0 K` and `Tc > 77 K` ROC-AUC classifiers, plus within-family
+elemental-system GroupKFold metrics for families with at least 100 records.
+Missing values remain missing and are imputed from each training fold only.
+Full-CIF run (3 November 2026): 5,773/5,773 training records had a matched source-table row and CIF; no structure-feature failures occurred. The cross-family split held out chemical families; within-family splits held out elemental-system signatures for families with at least 100 rows. Each ablation uses identical folds and the same 158-feature composition baseline. Random forests use 150 regression trees and 100 classification trees; all missing feature values are imputed from the training fold only. Values below are out-of-fold; MAE is K, and AUC labels are strict `Tc > threshold`. A dash means AUC could not be estimated because one or more held-out examples had no score from a fold whose training data contained both classes.
+
+| Evaluation | Feature set | Rows | MAE | Mean-predictor MAE | Spearman ρ | ROC-AUC Tc > 0 K | ROC-AUC Tc > 77 K |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Cross-family (GroupKFold by family) | Baseline | 5773 | 10.3887 | 16.0525 | 0.1458 | 0.5693 | — |
+| Cross-family (GroupKFold by family) | + spin | 5773 | 10.2636 | 16.0525 | 0.1337 | 0.5823 | — |
+| Cross-family (GroupKFold by family) | + bonds | 5773 | 10.3982 | 16.0525 | 0.1059 | 0.5780 | — |
+| Cross-family (GroupKFold by family) | + patterns | 5773 | 10.3652 | 16.0525 | 0.1452 | 0.5675 | — |
+| Cross-family (GroupKFold by family) | + spin + bonds + patterns | 5773 | 10.3286 | 16.0525 | 0.1055 | 0.5844 | — |
+| Within Cuprates (elemental-system groups) | Baseline | 874 | 16.9719 | 31.1061 | 0.6861 | 0.7965 | 0.9294 |
+| Within Cuprates (elemental-system groups) | + spin | 874 | 16.9560 | 31.1061 | 0.6836 | 0.7951 | 0.9351 |
+| Within Cuprates (elemental-system groups) | + bonds | 874 | 16.5728 | 31.1061 | 0.7020 | 0.7977 | 0.9289 |
+| Within Cuprates (elemental-system groups) | + patterns | 874 | 16.9702 | 31.1061 | 0.6850 | 0.7989 | 0.9314 |
+| Within Cuprates (elemental-system groups) | + spin + bonds + patterns | 874 | 16.7934 | 31.1061 | 0.6925 | 0.8062 | 0.9310 |
+| Within Ferrites (elemental-system groups) | Baseline | 517 | 7.7684 | 12.1965 | 0.6402 | 0.8089 | — |
+| Within Ferrites (elemental-system groups) | + spin | 517 | 7.7830 | 12.1965 | 0.6358 | 0.8098 | — |
+| Within Ferrites (elemental-system groups) | + bonds | 517 | 7.7832 | 12.1965 | 0.6382 | 0.8057 | — |
+| Within Ferrites (elemental-system groups) | + patterns | 517 | 7.7562 | 12.1965 | 0.6407 | 0.7991 | — |
+| Within Ferrites (elemental-system groups) | + spin + bonds + patterns | 517 | 7.7750 | 12.1965 | 0.6399 | 0.8021 | — |
+| Within Heavy-fermion (elemental-system groups) | Baseline | 418 | 0.8314 | 1.1735 | 0.5479 | 0.8196 | — |
+| Within Heavy-fermion (elemental-system groups) | + spin | 418 | 0.7638 | 1.1735 | 0.5494 | 0.8213 | — |
+| Within Heavy-fermion (elemental-system groups) | + bonds | 418 | 0.8178 | 1.1735 | 0.5696 | 0.8190 | — |
+| Within Heavy-fermion (elemental-system groups) | + patterns | 418 | 0.8329 | 1.1735 | 0.5524 | 0.8203 | — |
+| Within Heavy-fermion (elemental-system groups) | + spin + bonds + patterns | 418 | 0.7627 | 1.1735 | 0.5603 | 0.8176 | — |
+| Within Other (elemental-system groups) | Baseline | 3529 | 1.9543 | 4.8770 | 0.7358 | 0.8486 | — |
+| Within Other (elemental-system groups) | + spin | 3529 | 1.9445 | 4.8770 | 0.7378 | 0.8465 | — |
+| Within Other (elemental-system groups) | + bonds | 3529 | 1.9302 | 4.8770 | 0.7357 | 0.8512 | — |
+| Within Other (elemental-system groups) | + patterns | 3529 | 1.9506 | 4.8770 | 0.7345 | 0.8484 | — |
+| Within Other (elemental-system groups) | + spin + bonds + patterns | 3529 | 1.9320 | 4.8770 | 0.7359 | 0.8518 | — |
+| Within Oxides (elemental-system groups) | Baseline | 320 | 3.6513 | 5.6932 | 0.6334 | 0.7884 | — |
+| Within Oxides (elemental-system groups) | + spin | 320 | 3.6811 | 5.6932 | 0.6292 | 0.8053 | — |
+| Within Oxides (elemental-system groups) | + bonds | 320 | 3.6809 | 5.6932 | 0.6308 | 0.8049 | — |
+| Within Oxides (elemental-system groups) | + patterns | 320 | 3.7018 | 5.6932 | 0.6311 | 0.7996 | — |
+| Within Oxides (elemental-system groups) | + spin + bonds + patterns | 320 | 3.7392 | 5.6932 | 0.6362 | 0.8164 | — |
+
+The source spin fields were populated for all 5,773 records. The metal/nonmetal mean distance was available for 3,964 CIFs; it remains missing for structures with no CrystalNN metal/nonmetal neighbor pair. The `Tc > 77 K` classifier is estimable only for the Cuprates within-family evaluation. In cross-family evaluation, the held-out family can contain all high-Tc examples, leaving no positive examples in training; the corresponding out-of-family classifier score is therefore unavailable rather than imputed.
+
+The JARVIS electron-phonon model also computes the five CIF-like bond features
+for each structure and includes them in its fitted lambda/omega_log models.
+The bond-feature ablation reports held-out `omega_log` MAE change against the
+composition/Lewis-shell baseline; results are reported in the JARVIS ablation
+table below.
+
 ## Candidate generation and acquisition
 
 `scripts/rank_candidates.py` uses pymatgen to make same-family elemental
@@ -373,19 +443,24 @@ run from this code and the checksum-pinned dataset. Direct-Tc and
 physics-derived Tc models share the same held-out `Tc` recomputed from the
 source `lambda` and `omega_log` labels using the equation above.
 
-| Feature set | Direct RF Tc MAE (K) | Physics-derived Tc MAE (K) | Change vs. baseline physics MAE (K) | Lambda MAE | omega_log MAE (K) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Magpie + Lewis/shell | 2.8602 | 5.8542 | 0.0000 | 0.8643 | 93.5872 |
-| + structure density, H/light fraction, site count | 2.8487 | 5.8843 | +0.0301 | 0.8594 | 93.4969 |
-| Frozen pretrained ALIGNN graph embeddings + fold-wise RF probes | 2.8790 | 5.5879 | -0.2663 | 0.8312 | 93.8780 |
-| + Materials Project DOS/gap/metallicity/density | blocked | blocked | n/a | n/a | n/a |
+| Feature set | Direct RF Tc MAE (K) | Physics-derived Tc MAE (K) | Δ physics Tc MAE (K) | Lambda MAE | omega_log MAE (K) | Δ omega_log MAE (K) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Magpie + Lewis/shell | 2.8602 | 5.8582 | 0.0000 | 0.8643 | 93.6672 | 0.0000 |
+| + structure density, H/light fraction, site count | 2.8487 | 5.8715 | +0.0133 | 0.8594 | 93.4718 | -0.1955 |
+| + five bond features | 2.8598 | 5.8918 | +0.0336 | 0.8695 | 92.6127 | -1.0546 |
+| + structure features and five bond features | 2.8470 | 5.9636 | +0.1054 | 0.8605 | 92.1587 | -1.5085 |
+| Frozen pretrained ALIGNN graph embeddings + fold-wise RF probes | 2.8790 | 5.5879 | -0.2703* | 0.8312 | 93.8780 | +0.2108* |
+| + Materials Project DOS/gap/metallicity/density | blocked | blocked | n/a | n/a | n/a | n/a |
 
 For the MP ablation, 211 fully populated rows were required by the predefined
-coverage rule; actual complete rows were zero in the local run. Structure-derived features changed physics-derived Tc MAE by +0.0301 K
-(slightly worse) and direct-Tc MAE by -0.0116 K (slightly better). Neither
-change is evidence of a useful improvement. The lambda and especially
-omega_log errors are large, and this dataset's group-held-out results do not
-validate chemistry extrapolation to room temperature.
+coverage rule; actual complete rows were zero in the local run. The bond-only
+features reduced held-out `omega_log` MAE by 1.0546 K, while physics-derived
+Tc MAE increased by 0.0336 K. Combining all structure and bond features
+reduced `omega_log` MAE by 1.5085 K but increased physics-derived Tc MAE by
+0.1054 K. These are small changes beside the large absolute `omega_log` error;
+they do not validate chemistry extrapolation to room temperature. The `*`
+ALIGNN deltas compare against its separate earlier run's baseline metrics and
+are not a paired ablation against this newly recomputed JARVIS baseline.
 
 The ALIGNN row uses a frozen 256-dimensional pooled structure representation
 from the published `jv_formation_energy_peratom_alignn` checkpoint, followed by

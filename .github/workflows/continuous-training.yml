@@ -106,7 +106,7 @@ jobs:
             --data-root data/raw \
             --harmonized data/training/harmonized_supercon.csv \
             --output-dir data/processed/continuous-training \
-            --cif-limit 96 \
+            --all-cifs \
             --batch-size 25
       - name: Compute formula shell and bonding descriptors
         run: |
@@ -147,6 +147,7 @@ jobs:
           baseline = run["baseline"]
           pressure = run["pressure_aware"]
           ranking = run["candidate_ranking"]
+          spin_eval = run["structure_spin_ablation"]
           evidence = Path("data/processed/continuous-training/evidence-intake")
           supercon2_rows = sum(1 for _ in (evidence / "supercon2-review-queue.csv").open(encoding="utf-8")) - 1
           supermat = json.loads((evidence / "supermat-intake-manifest.json").read_text())
@@ -159,6 +160,8 @@ jobs:
               f"- UCI baseline: {baseline.get('rows', 'blocked')} rows\n"
               f"- 3DSC empirical training rows: {pressure.get('empirical_training_record_count', 'blocked')}\n"
               f"- Family-held-out pressure model: {pressure.get('training_status', 'blocked')}\n"
+              f"- 3DSC structure/spin ablation: {spin_eval.get('evaluation', {}).get('status', spin_eval.get('status', 'blocked'))}; "
+              f"{spin_eval.get('coverage', {}).get('feature_rows', 0)} CIF-backed feature rows\n"
               f"- Ranked candidates: {ranking.get('ranked_count', 0)}\n"
               f"- Candidate artifact: `data/processed/candidates/top_k.csv`\n"
           )

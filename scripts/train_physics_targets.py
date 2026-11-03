@@ -43,6 +43,11 @@ PUBLISHER_MD5 = "bb4a91e899458f34cbb3b9bf03e9bd56"
 DATASET_SHA256 = "4213651cee9b4c13a376dd74ac1f8d3bd9efcd451f1b8da615255c8df0e1487f"
 MU_STAR = 0.1
 LIGHT_ELEMENT_Z_MAX = 10
+BOND_FEATURE_NAMES = [
+    "bond_nearest_neighbor_min_angstrom", "bond_nearest_neighbor_mean_angstrom",
+    "bond_nearest_neighbor_std_angstrom", "bond_metal_nonmetal_mean_distance_angstrom",
+    "bond_crystalnn_mean_coordination_number",
+]
 ATOMIC_MASS = {
     "H": 1.008, "He": 4.002602, "Li": 6.94, "Be": 9.0121831, "B": 10.81,
     "C": 12.011, "N": 14.007, "O": 15.999, "F": 18.998403, "Ne": 20.1797,
@@ -101,6 +106,38 @@ def _formula_and_structure(row: dict[str, Any]) -> tuple[str, float, float, floa
     return formula, density, h_fraction, light_fraction, len(symbols)
 
 
+def _jarvis_bond_features(atoms: dict[str, Any]) -> dict[str, float | None]:
+    """Compute periodic bond geometry and CrystalNN coordination on JARVIS atoms."""
+    from pymatgen.analysis.local_env import CrystalNN
+    from pymatgen.core import Element, Structure
+
+    structure = Structure(
+        np.asarray(atoms["lattice_mat"], dtype=float), atoms["elements"],
+        atoms["coords"], coords_are_cartesian=bool(atoms.get("cartesian", False)),
+    )
+    neighbors = structure.get_all_neighbors(r=12.0, include_index=True)
+    nearest = [min(float(n.nn_distance) for n in row if n.nn_distance > 1e-8)
+               for row in neighbors if any(n.nn_distance > 1e-8 for n in row)]
+    crystal_nn = CrystalNN()
+    coordination: list[float] = []
+    hetero_bonds: list[float] = []
+    for index, site in enumerate(structure):
+        coordination.append(float(crystal_nn.get_cn(structure, index)))
+        center_is_metal = Element(str(next(iter(site.species)))).is_metal
+        for info in crystal_nn.get_nn_info(structure, index):
+            neighbor = info["site"]
+            neighbor_is_metal = Element(str(next(iter(neighbor.species)))).is_metal
+            if center_is_metal != neighbor_is_metal:
+                hetero_bonds.append(float(site.distance(neighbor)))
+    return {
+        "bond_nearest_neighbor_min_angstrom": min(nearest) if nearest else None,
+        "bond_nearest_neighbor_mean_angstrom": float(np.mean(nearest)) if nearest else None,
+        "bond_nearest_neighbor_std_angstrom": float(np.std(nearest)) if nearest else None,
+        "bond_metal_nonmetal_mean_distance_angstrom": float(np.mean(hetero_bonds)) if hetero_bonds else None,
+        "bond_crystalnn_mean_coordination_number": float(np.mean(coordination)) if coordination else None,
+    }
+
+
 def build_characteristics(
     rows: list[dict[str, Any]], mp_cache_path: Path | None = None
 ) -> tuple[list[dict[str, Any]], list[str], str]:
@@ -146,6 +183,7 @@ def build_characteristics(
             ),
             "source_pressure": source.get("press"), "structure_density_g_cm3": structure_density,
             "hydrogen_fraction": h_fraction, "light_element_fraction_z_le_10": light_fraction,
+            **_jarvis_bond_features(source["atoms"]),
             "lewis_dot_proxy_avg_outer_electrons": lewis_avg,
             "lewis_dot_proxy_total_electrons_per_reduced_formula": lewis_avg * total_atoms,
             "structure_site_count": site_count,
@@ -195,7 +233,8 @@ def _element_system(formula: str) -> str:
 
 
 def _make_matrix(rows: list[dict[str, Any]], feature_names: list[str]) -> np.ndarray:
-    return np.asarray([[float(row[name]) for name in feature_names] for row in rows], dtype=float)
+    return np.asarray([[np.nan if row.get(name) in (None, "") else float(row[name])
+                        for name in feature_names] for row in rows], dtype=float)
 
 
 def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str], n_splits: int = 5) -> dict[str, Any]:
@@ -211,15 +250,19 @@ def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str],
     mp_names = [
         "mp_dos_ef_states_per_ev_per_cell", "mp_band_gap_ev", "mp_is_metal", "mp_density_g_cm3"
     ]
-    mp_coverage = sum(all(row.get(name) is not None for name in mp_names) for row in rows)
+    mp_coverage = sum(all(_float_or_none(row.get(name)) is not None for name in mp_names) for row in rows)
     feature_sets = {
         "magpie_plus_lewis_shell": list(base_feature_names),
         "plus_structure": list(base_feature_names) + [
             "structure_density_g_cm3", "hydrogen_fraction", "light_element_fraction_z_le_10", "structure_site_count"
         ],
+        "plus_bond_features": list(base_feature_names) + BOND_FEATURE_NAMES,
+        "plus_structure_and_bonds": list(base_feature_names) + [
+            "structure_density_g_cm3", "hydrogen_fraction", "light_element_fraction_z_le_10", "structure_site_count"
+        ] + BOND_FEATURE_NAMES,
     }
     if mp_coverage >= max(50, int(0.2 * len(rows))):
-        feature_sets["plus_materials_project_electronic"] = feature_sets["plus_structure"] + mp_names
+        feature_sets["plus_materials_project_electronic"] = feature_sets["plus_structure_and_bonds"] + mp_names
 
     results: dict[str, Any] = {}
     for label, feature_names in feature_sets.items():
@@ -259,9 +302,13 @@ def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str],
             }
         results[label] = {"feature_count": len(feature_names), "metrics": metrics}
     baseline_mae = results["magpie_plus_lewis_shell"]["metrics"]["physics_tc"]["mae"]
+    baseline_omega_log_mae = results["magpie_plus_lewis_shell"]["metrics"]["omega_log"]["mae"]
     for result in results.values():
         result["delta_physics_tc_mae_vs_baseline_k"] = (
             result["metrics"]["physics_tc"]["mae"] - baseline_mae
+        )
+        result["delta_omega_log_mae_vs_baseline_k"] = (
+            result["metrics"]["omega_log"]["mae"] - baseline_omega_log_mae
         )
     if "plus_materials_project_electronic" not in results:
         results["plus_materials_project_electronic"] = {
@@ -322,11 +369,28 @@ def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None) -> di
         and float(row["lamb"]) > 0
         and float(row["wlog"]) > 0
     ]
-    rows, feature_names, mp_status = build_characteristics(usable_rows, mp_cache)
     table_path = output_dir / "jarvis-supercond-characteristics.csv"
-    _write_csv(table_path, rows)
+    required_bonds = set(BOND_FEATURE_NAMES)
+    cached_rows: list[dict[str, Any]] = []
+    if table_path.is_file():
+        with table_path.open(newline="", encoding="utf-8-sig") as handle:
+            cached_rows = list(csv.DictReader(handle))
+    cached_jids = {str(row.get("jid")) for row in cached_rows}
+    expected_jids = {str(row["jid"]) for row in usable_rows}
+    if cached_rows and required_bonds.issubset(cached_rows[0]) and cached_jids == expected_jids:
+        rows = cached_rows
+        # Recover the stable base schema from its prefixed feature keys.
+        feature_names = [key for key in rows[0]
+                         if key.startswith("magpie__") or key.startswith("shell__")]
+        feature_names += ["lewis_dot_proxy_avg_outer_electrons",
+                          "lewis_dot_proxy_total_electrons_per_reduced_formula"]
+        mp_status = "loaded_existing_characteristics_cache"
+    else:
+        rows, feature_names, mp_status = build_characteristics(usable_rows, mp_cache)
+        _write_csv(table_path, rows)
     ablation = evaluate_ablation(rows, feature_names)
-    models, model_meta = fit_physics_models(rows, feature_names)
+    model_feature_names = list(feature_names) + BOND_FEATURE_NAMES
+    models, model_meta = fit_physics_models(rows, model_feature_names)
     model_path = output_dir / "electron-phonon-target-models.joblib"
     output_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(models, model_path)
@@ -344,6 +408,8 @@ def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None) -> di
         },
         "method": {
             "targets": ["lambda", "omega_log_k"], "mu_star": MU_STAR,
+            "bond_features": BOND_FEATURE_NAMES,
+            "bond_feature_method": "periodic per-site nearest-neighbor statistics, CrystalNN heterometal/nonmetal neighbor distance, and mean CrystalNN coordination",
             "tc_equation": "omega_log/1.2 * exp[-1.04*(1+lambda)/(lambda-mu_star*(1+0.62*lambda))]; omega_log in kelvin; f1/f2 strong-coupling corrections omitted",
             "grouping": "5-fold GroupKFold by elemental-system signature",
             "random_state": 2026,
@@ -361,6 +427,7 @@ def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None) -> di
             "Ensemble tree spread is not calibrated predictive uncertainty.",
             "Materials Project features remain null unless a formula-verified Materials Project cache is provided.",
             "The characteristics table's Lewis and shell descriptors are neutral-atom formula proxies, not solid-state charge or bond analyses.",
+            "Nearest-neighbor and CrystalNN descriptors are geometric/coordination proxies; they are not charge-density bond analyses.",
         ],
     }
     report_path = output_dir / "physics-target-report.json"

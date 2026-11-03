@@ -113,18 +113,15 @@ def _spacegroup(row: dict[str, str], cif_path: Path | None) -> tuple[int | None,
             if 1 <= number <= 230:
                 return number, "table"
     table_symbol = _field(row, "spacegroup_2", "spacegroup")
-    if cif_path is not None:
-        try:
-            return _spacegroup_from_cif(cif_path), "cif"
-        except Exception:
-            if table_symbol:
-                number = _spacegroup_symbol_number(table_symbol)
-                return (number, "table_symbol") if number is not None else (None, "cif_unreadable")
-            return None, "cif_unreadable"
     if table_symbol:
         number = _spacegroup_symbol_number(table_symbol)
         if number is not None:
             return number, "table_symbol"
+    if cif_path is not None:
+        try:
+            return _spacegroup_from_cif(cif_path), "cif"
+        except Exception:
+            return None, "cif_unreadable"
     return None, "missing_cif"
 
 

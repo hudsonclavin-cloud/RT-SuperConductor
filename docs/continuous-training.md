@@ -13,17 +13,21 @@ Each run:
 1. checks out the code;
 2. installs the optional machine-learning dependencies;
 3. downloads and SHA-256 verifies the pinned UCI archive and 3DSC table;
-4. fetches a deterministic, stratified CIF subset from the pinned 3DSC commit;
+4. fetches CIFs from the pinned 3DSC commit (the scheduled and push workflow
+   requests all CIFs; local smoke runs can use `--cif-limit`);
 5. bridges reviewed records and ingests the 3DSC table into the harmonized CSV;
 6. trains the UCI composition baseline with family-held-out `GroupKFold`;
 7. trains the pressure-aware 3DSC surrogate with curated `Tc=0` negatives;
 8. compares Matminer structure features against composition-only when coverage
    supports two held-out families;
-9. enumerates substitutions, applies the Materials Project hull filter when
+9. computes 3DSC DFT-spin, CrystalNN bond/coordination, and 0D-3D dimensionality
+   features, then evaluates each feature group with shared cross-family and
+   within-family folds and both ROC-AUC thresholds;
+10. enumerates substitutions, applies the Materials Project hull filter when
    credentials exist, and writes `candidates/top_k.csv`;
-10. writes metrics, dataset hashes, degraded/blocked reports, and model
+11. writes metrics, dataset hashes, degraded/blocked reports, and model
     artifacts; and
-11. uploads the complete run as a run-specific artifact and GitHub job summary.
+12. uploads the complete run as a run-specific artifact and GitHub job summary.
 
 The workflow deliberately does not replace a model in production or treat
 automatically extracted literature as reviewed labels. New records should be
