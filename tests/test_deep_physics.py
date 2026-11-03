@@ -163,3 +163,11 @@ class ExpandedFeatureGroupTests(unittest.TestCase):
         self.assertEqual(set(g['correlation']),{'is_gga_plus_u','mean_d_electron_count'})
         self.assertIn('mom_angle_mean_deg',g['lattice']);self.assertIn('orbital_d_fraction',g['orbital'])
         self.assertNotIn('run_type_2',sum(g.values(),[]));assert_safe(sum(g.values(),[]))
+
+class CollectionDiagnosticTests(unittest.TestCase):
+    def test_endpoint_error_sample_redacts_api_key(self):
+        from unittest.mock import patch
+        from enrich_deep_mp import safe_error
+        with patch.dict('os.environ',{'MP_API_KEY':'unit-only-not-a-real-key'}):
+            text=safe_error(ValueError('request unit-only-not-a-real-key failed'))
+        self.assertNotIn('unit-only-not-a-real-key',text);self.assertIn('[redacted]',text)

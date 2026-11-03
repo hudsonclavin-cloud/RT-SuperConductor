@@ -6,6 +6,11 @@ import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from rt_superconductor.harmonized import load_harmonized
 
+def safe_error(error):
+    message=type(error).__name__+': '+str(error)
+    key=os.environ.get('MP_API_KEY')
+    return (message.replace(key,'[redacted]') if key else message)[:700]
+
 def dos_at_fermi(dos):
     energies=np.asarray(dos.energies,dtype=float);density=np.asarray(dos.get_densities(),dtype=float);ef=float(dos.efermi)
     if energies.ndim!=1 or density.shape!=energies.shape or len(energies)<2 or not np.isfinite(energies).all() or not np.isfinite(density).all() or not np.isfinite(ef) or np.any(np.diff(energies)<=0) or not energies[0]<=ef<=energies[-1]:
@@ -30,11 +35,11 @@ def complete_dos_with_task(client,material_id):
     docs=client.materials.electronic_structure.search(material_ids=[material_id],fields=['dos'])
     if not docs or not docs[0].get('dos'):return None,None
     total=docs[0]['dos'].get('total',{});spin=total.get('1')
-    if not spin or not spin.get('task_id'):raise ValueError('DOS metadata exists but lacks the required calculation task ID')
+    if not spin or not spin.get('task_id'):raise ValueError('DOS metadata exists but lacks the required calculation task ID; metadata='+repr(docs[0]['dos'])[:1500])
     task_id=str(spin['task_id']);return client.materials.electronic_structure_dos.get_dos_from_task_id(task_id),task_id
 
 def flush_output(rows,by_id,cache,output,report):
-    columns=('mp_bulk_modulus_gpa','mp_dos_ef_states_ev_cell','orbital_s_fraction','orbital_p_fraction','orbital_d_fraction','orbital_f_fraction','element_orbital_integrals_json','orbital_window_ev','mp_dos_task_id')
+    columns=('mp_bulk_modulus_gpa','mp_dos_ef_states_ev_cell','orbital_s_fraction','orbital_p_fraction','orbital_d_fraction','orbital_f_fraction','element_orbital_integrals_json','orbital_window_ev','mp_dos_task_id','mp_bulk_error','mp_dos_error')
     for r in rows:
         mid=by_id.get(r['record_id']);d=cache.get(mid,{})
         r.update({k:d.get(k) if d.get(k) is not None else r.get(k) for k in columns});r.update(reference_mp_id=mid,mp_bulk_status=d.get('bulk_status','not_queried'),mp_dos_status=d.get('dos_status','not_queried'),mp_orbital_status=d.get('orbital_status','not_queried'))
@@ -48,7 +53,7 @@ def enrich(input_path,features,output,limit=100):
     import hashlib,importlib.metadata
     if limit<0:raise ValueError('limit must be non-negative; zero means all reference IDs')
     rows=list(csv.DictReader(features.open()));by_id={r.record_id:r.mp_id for r in load_harmonized(input_path)}
-    report={'status':'blocked','reason':'requires GitHub Actions and MP_API_KEY','queries':0,'bulk_modulus_available':0,'dos_available':0,'orbital_available':0,'failed_endpoint_calls':0,'input_rows':len(rows),'feature_input_sha256':hashlib.sha256(features.read_bytes()).hexdigest(),'harmonized_sha256':hashlib.sha256(input_path.read_bytes()).hexdigest(),'source':'https://api.materialsproject.org','orbital_window_relative_ef_ev':[-.5,.5],'orbital_normalization':'sum of all available element/orbital projected integrals including f, not total-DOS or electron occupations','units':{'bulk':'GPa','dos_ef':'states/eV/cell','orbital_fractions':'dimensionless'},'provenance':'DFT-computed reference structures, not measured sample properties','mp_document_models':False,'numeric_validation':'finite property values and normalized orbital weights; missing/invalid values remain missing'}
+    report={'status':'blocked','reason':'requires GitHub Actions and MP_API_KEY','queries':0,'bulk_modulus_available':0,'dos_available':0,'orbital_available':0,'failed_endpoint_calls':0,'endpoint_error_samples':[],'input_rows':len(rows),'feature_input_sha256':hashlib.sha256(features.read_bytes()).hexdigest(),'harmonized_sha256':hashlib.sha256(input_path.read_bytes()).hexdigest(),'source':'https://api.materialsproject.org','orbital_window_relative_ef_ev':[-.5,.5],'orbital_normalization':'sum of all available element/orbital projected integrals including f, not total-DOS or electron occupations','units':{'bulk':'GPa','dos_ef':'states/eV/cell','orbital_fractions':'dimensionless'},'provenance':'DFT-computed reference structures, not measured sample properties','mp_document_models':False,'numeric_validation':'finite property values and normalized orbital weights; missing/invalid values remain missing'}
     cache={};cache_dir=output.parent/'mp-property-cache'
     report['cache_hits']=0
     if os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('MP_API_KEY'):
@@ -74,7 +79,7 @@ def enrich(input_path,features,output,limit=100):
                         if d['mp_bulk_modulus_gpa'] is not None and not np.isfinite(float(d['mp_bulk_modulus_gpa'])):d['mp_bulk_modulus_gpa']=None
                         d['bulk_status']='available' if d['mp_bulk_modulus_gpa'] is not None else 'not_in_reference'
                     except Exception as e:
-                        auth=any(code in str(e) for code in ('401','403'));auth_failures+=auth;d['bulk_status']='blocked_authorization' if auth else 'blocked_'+type(e).__name__;report['failed_endpoint_calls']+=1
+                        auth=any(code in str(e) for code in ('401','403'));auth_failures+=auth;d['bulk_status']='blocked_authorization' if auth else 'blocked_'+type(e).__name__;d['mp_bulk_error']=safe_error(e);report['failed_endpoint_calls']+=1
                     try:
                         dos,task_id=complete_dos_with_task(client,mid);d['mp_dos_task_id']=task_id
                         if dos is not None:
@@ -83,7 +88,8 @@ def enrich(input_path,features,output,limit=100):
                             except Exception as e:d['orbital_status']='blocked_'+type(e).__name__
                         d['dos_status']='available' if dos is not None else 'not_in_reference'
                     except Exception as e:
-                        auth=any(code in str(e) for code in ('401','403'));auth_failures+=auth;d['dos_status']='blocked_authorization' if auth else 'blocked_'+type(e).__name__;report['failed_endpoint_calls']+=1
+                        auth=any(code in str(e) for code in ('401','403'));auth_failures+=auth;d['dos_status']='blocked_authorization' if auth else 'blocked_'+type(e).__name__;d['mp_dos_error']=safe_error(e);report['failed_endpoint_calls']+=1
+                        if len(report['endpoint_error_samples'])<3:report['endpoint_error_samples'].append({'material_id':mid,'endpoint':'dos','error':safe_error(e)})
                     cache[mid]=d
                     if not any(str(d.get(k,'')).startswith('blocked') for k in ('bulk_status','dos_status','orbital_status')):
                         cache_file.write_text(json.dumps({'collector_version':2,'mp_api_version':report['mp_api_version'],'data':d},allow_nan=False))
