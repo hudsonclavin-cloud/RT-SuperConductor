@@ -171,3 +171,13 @@ class CollectionDiagnosticTests(unittest.TestCase):
         with patch.dict('os.environ',{'MP_API_KEY':'unit-only-not-a-real-key'}):
             text=safe_error(ValueError('request unit-only-not-a-real-key failed'))
         self.assertNotIn('unit-only-not-a-real-key',text);self.assertIn('[redacted]',text)
+
+class CurrentMPMetadataTests(unittest.TestCase):
+    def test_current_root_task_id_is_supported_beside_legacy_spin_task(self):
+        from types import SimpleNamespace
+        from enrich_deep_mp import complete_dos_with_task
+        calls=[];curve=object()
+        def getter(task):calls.append(task);return curve
+        client=SimpleNamespace(materials=SimpleNamespace(electronic_structure=SimpleNamespace(search=lambda **kw:[{'dos':{'task_id':'root-task-fixture','total':{'1':{'efermi':0.0}}}}]),electronic_structure_dos=SimpleNamespace(get_dos_from_task_id=getter)))
+        dos,task=complete_dos_with_task(client,'mp-fixture')
+        self.assertIs(dos,curve);self.assertEqual(task,'root-task-fixture');self.assertEqual(calls,['root-task-fixture'])

@@ -61,14 +61,14 @@ def enrich(input_csv: Path, output_csv: Path, api_key: str | None = None, rester
         dos_by_id: dict[str, tuple[float | str, str]] = {}
         if not api_unavailable and exact_doc_by_formula:
             material_ids = list(dict.fromkeys(str(doc.material_id) for doc in exact_doc_by_formula.values()))
-            from enrich_deep_mp import dos_at_fermi
+            from enrich_deep_mp import dos_at_fermi,complete_dos_with_task
             import math
             for material_id in material_ids:
-                dos_rester=getattr(mpr.materials,'electronic_structure_dos',None)
+                dos_rester=getattr(mpr.materials,'electronic_structure',None)
                 original_mode=getattr(dos_rester,'use_document_model',None)
                 try:
                     if dos_rester is not None:dos_rester.use_document_model=False
-                    try:dos=mpr.get_dos_by_material_id(material_id)
+                    try:dos,_task_id=complete_dos_with_task(mpr,material_id)
                     finally:
                         if dos_rester is not None:dos_rester.use_document_model=original_mode
                     value=dos_at_fermi(dos) if dos is not None else None

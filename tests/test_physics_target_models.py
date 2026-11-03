@@ -154,8 +154,8 @@ class PhysicsTargetModelTests(unittest.TestCase):
                 clients.append(self)
                 self.materials = SimpleNamespace(
                     summary=SimpleNamespace(search=self._summary),
-                    electronic_structure=SimpleNamespace(search=self._electronic),
-                    electronic_structure_dos=SimpleNamespace(use_document_model=True),
+                    electronic_structure=SimpleNamespace(search=self._electronic,use_document_model=True),
+                    electronic_structure_dos=SimpleNamespace(use_document_model=True,get_dos_from_task_id=self._dos_from_task),
                 )
 
             def __enter__(self):
@@ -163,6 +163,12 @@ class PhysicsTargetModelTests(unittest.TestCase):
 
             def __exit__(self, *_args):
                 return False
+
+            def _dos_from_task(self, task_id):
+                assert task_id=='task-fixture-NaCl'
+                assert self.materials.electronic_structure.use_document_model is False
+                spectrum_queries.append('mp-test-NaCl')
+                return FakeDOS()
 
             def get_dos_by_material_id(self, material_id):
                 spectrum_queries.append(material_id)
@@ -177,10 +183,11 @@ class PhysicsTargetModelTests(unittest.TestCase):
                     "density": 2.16, "band_gap": 5.0, "is_metal": False,
                 })()]
 
-            @staticmethod
-            def _electronic(*, material_ids, fields):
+            def _electronic(self, *, material_ids, fields):
                 metadata_queries.append(material_ids)
                 assert material_ids == ["mp-test-NaCl"] and "dos" in fields
+                if self.materials.electronic_structure.use_document_model is False:
+                    return [{"dos":{"task_id":"task-fixture-NaCl","total":{"1":{"efermi":0.0}}}}]
                 return [type("EDoc", (), {
                     "material_id": "mp-test-NaCl", "dos": FakeDOS(), "efermi": 0.0,
                 })()]
@@ -199,9 +206,10 @@ class PhysicsTargetModelTests(unittest.TestCase):
         self.assertEqual(float(row["mp_dos_ef_states_per_ev_per_cell"]), 4.0)
         self.assertEqual(float(row["mp_density_g_cm3"]), 2.16)
         self.assertEqual(row["mp_is_metal"], "False")
-        self.assertEqual(metadata_queries,[])  # Metadata is not a DOS curve.
+        self.assertEqual(metadata_queries,[["mp-test-NaCl"]])  # Metadata selects the spectrum task; it is not the curve.
         self.assertEqual(spectrum_queries,["mp-test-NaCl"])
         self.assertTrue(clients[0].materials.electronic_structure_dos.use_document_model)
+        self.assertTrue(clients[0].materials.electronic_structure.use_document_model)
 
 
 if __name__ == "__main__":

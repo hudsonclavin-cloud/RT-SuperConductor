@@ -34,9 +34,9 @@ def orbital_weights(dos):
 def complete_dos_with_task(client,material_id):
     docs=client.materials.electronic_structure.search(material_ids=[material_id],fields=['dos'])
     if not docs or not docs[0].get('dos'):return None,None
-    total=docs[0]['dos'].get('total',{});spin=total.get('1')
-    if not spin or not spin.get('task_id'):raise ValueError('DOS metadata exists but lacks the required calculation task ID; metadata='+repr(docs[0]['dos'])[:1500])
-    task_id=str(spin['task_id']);return client.materials.electronic_structure_dos.get_dos_from_task_id(task_id),task_id
+    metadata=docs[0]['dos'];total=metadata.get('total',{});spin=total.get('1',{});task=metadata.get('task_id') or spin.get('task_id')
+    if not task:raise ValueError('DOS metadata exists but lacks the required calculation task ID; metadata='+repr(docs[0]['dos'])[:1500])
+    task_id=str(task);return client.materials.electronic_structure_dos.get_dos_from_task_id(task_id),task_id
 
 def flush_output(rows,by_id,cache,output,report):
     columns=('mp_bulk_modulus_gpa','mp_dos_ef_states_ev_cell','orbital_s_fraction','orbital_p_fraction','orbital_d_fraction','orbital_f_fraction','element_orbital_integrals_json','orbital_window_ev','mp_dos_task_id','mp_bulk_error','mp_dos_error')
@@ -68,7 +68,7 @@ def enrich(input_path,features,output,limit=100):
                     cache_file=cache_dir/(mid+'.json')
                     if cache_file.exists() and time.time()-cache_file.stat().st_mtime<86400:
                         cached=json.loads(cache_file.read_text())
-                        if cached.get('collector_version')==2 and cached.get('mp_api_version')==report['mp_api_version']:
+                        if cached.get('collector_version')==3 and cached.get('mp_api_version')==report['mp_api_version']:
                             cache[mid]=cached['data'];report['cache_hits']+=1;continue
                     d={'mp_bulk_modulus_gpa':None,'mp_dos_ef_states_ev_cell':None};report['queries']+=1;auth_failures=0
                     try:
@@ -92,7 +92,7 @@ def enrich(input_path,features,output,limit=100):
                         if len(report['endpoint_error_samples'])<3:report['endpoint_error_samples'].append({'material_id':mid,'endpoint':'dos','error':safe_error(e)})
                     cache[mid]=d
                     if not any(str(d.get(k,'')).startswith('blocked') for k in ('bulk_status','dos_status','orbital_status')):
-                        cache_file.write_text(json.dumps({'collector_version':2,'mp_api_version':report['mp_api_version'],'data':d},allow_nan=False))
+                        cache_file.write_text(json.dumps({'collector_version':3,'mp_api_version':report['mp_api_version'],'data':d},allow_nan=False))
                     if report['queries']%50==0:flush_output(rows,by_id,cache,output,report)
                     streak=streak+1 if auth_failures==2 else 0
                     if streak>=3:
