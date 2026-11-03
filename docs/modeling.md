@@ -356,9 +356,10 @@ fraction (atomic number `Z <= 10`). Materials Project DOS at the Fermi level,
 band gap, metallicity, and density have dedicated, separate fields. The
 `scripts/enrich_physics_mp.py` step only fills these from an exact formula with
 a unique MP summary match and records ambiguous phases rather than selecting
-one silently. The MP API returned HTTP 403 during this run, so all 1,057 MP
-feature rows are honestly blank and their ablation is reported as blocked; no
-MP values were inferred from JARVIS or another database. The feature table
+one silently. The local feature-table run returned HTTP 403, so its MP fields
+were blank and its ablation is reported as blocked; no MP values were inferred
+from JARVIS or another database. The later secret-backed Actions run is
+recorded below. The feature table
 committed with this change is
 [`data/training/physics-target-characteristics.csv`](../data/training/physics-target-characteristics.csv)
 and records that status per compound.
@@ -380,8 +381,7 @@ source `lambda` and `omega_log` labels using the equation above.
 | + Materials Project DOS/gap/metallicity/density | blocked | blocked | n/a | n/a | n/a |
 
 For the MP ablation, 211 fully populated rows were required by the predefined
-coverage rule; actual complete rows were zero because the API request returned
-403. Structure-derived features changed physics-derived Tc MAE by +0.0301 K
+coverage rule; actual complete rows were zero in the local run. Structure-derived features changed physics-derived Tc MAE by +0.0301 K
 (slightly worse) and direct-Tc MAE by -0.0116 K (slightly better). Neither
 change is evidence of a useful improvement. The lambda and especially
 omega_log errors are large, and this dataset's group-held-out results do not
@@ -433,8 +433,8 @@ were zero standard-confidence entries in that export. The current result is
 [`physics-target-top20.csv`](physics-target-top20.csv). Candidate stability is
 unknown without an exact candidate MP phase calculation; the source prototype
 stability is shown separately as a proxy. The latest local MP attempt was
-blocked by HTTP 403, so candidate hull values remain unknown until the new
-GitHub Actions enrichment completes. Every row is marked `DFT
+blocked by HTTP 403; candidate-query results from the later successful Actions
+run are listed below. Every row is marked `DFT
 verification=pending`.
 
 The leading row, CrC on the MoC prototype, has predicted lambda 2.442,
@@ -443,3 +443,30 @@ than the mean, and its candidate stability is unknown. This is a model-generated
 hypothesis with poor confidence, not a discovery or recommendation to
 synthesize. No structure relaxation, phonon calculation, or experimental
 check has been performed for this shortlist.
+
+### Secret-backed Materials Project workflow run
+
+The pushed GitHub Actions workflow completed successfully on 2026-11-03:
+[run 41689587893](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41689587893).
+Its artifact contains the source-compound enrichment CSV, candidate stability
+CSV, retrained model report, frozen-ALIGNN report, and final candidate table.
+The 1,057 source rows were classified as 347 ambiguous multi-phase formulas,
+272 with no exact MP formula match, and 438 with a unique exact-formula match
+whose DOS request failed validation. For those 438 rows, MP band gap,
+metallicity, and density were retrieved; the Fermi-level DOS remains missing.
+Consequently the predefined MP-feature ablation still has zero rows with the
+complete feature group and remains blocked. The Action's API requests did
+complete with the repository secret; the DOS validation issue remains
+unresolved.
+
+The same run queried all 20 shortlisted candidate formulas: 3 returned a
+single MP composition match requiring structure review, 8 had multiple
+possible MP phases, and 9 had no exact composition match. None of these
+statuses establishes that the unrelaxed substituted prototype is stable.
+The workflow's run summary and machine-readable outputs are retained in the
+Actions artifact rather than committed as raw generated model files. On that
+run, the baseline direct-RF Tc MAE was 2.8197 K, the composition-model
+physics-derived Tc MAE was 5.9467 K, and the frozen-ALIGNN
+physics-derived Tc MAE was 5.2886 K (lambda MAE 0.8469 and omega_log MAE
+94.1365 K). These are the metrics from the workflow runtime; the table above
+records the separate local benchmark run.
