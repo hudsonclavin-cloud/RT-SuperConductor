@@ -5,6 +5,7 @@ import csv
 import hashlib
 import json
 import math
+import re
 import sys
 import warnings
 from concurrent.futures import ProcessPoolExecutor
@@ -24,7 +25,7 @@ def number(x):
         return v if math.isfinite(v) else None
     except (TypeError,ValueError): return None
 def assert_safe(names):
-    bad=[n for n in names if any(n.lower()==x or n.lower().startswith(x+'_') for x in FORBIDDEN) or n in ('tc','tc_kelvin','record_id','run_type_2')]
+    bad=[n for n in names if (any(x in n.lower() for x in FORBIDDEN if x!='weight') or re.search(r'(^|[_\s])weight($|[_\s])',n.lower())) or n in ('tc','tc_kelvin','record_id','run_type_2')]
     if bad: raise ValueError(f'Forbidden model features: {bad}')
 def table_features(row):
     d={k:number(row.get(k)) for k in NUMERIC}

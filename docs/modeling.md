@@ -747,3 +747,27 @@ Impurity importances averaged across outer folds are model diagnostics, not caus
 | All physical groups | formation_energy_per_atom_2 | 0.012510 |
 | All physical groups | descriptor_shell_6_electrons | 0.011265 |
 | All physical groups | MagpieData mean Electronegativity | 0.009854 |
+
+## Deep physical-feature study: Phase 3 — frozen structure encoders
+
+Measured frozen CHGNet 0.3.0 results on **5,773 structures, 0 graph failures**, using the exact Phase 2 outer partitions and shared-MP training embargo. The 64-dimensional encoder is frozen; only fold-local random-forest regressors and binary classifiers are fitted. Formula descriptors are not included in this row; a combined formula+encoder control is being evaluated separately. Fine-tuning (five epochs per outer fold) and scratch ALIGNN (compact two ALIGNN/two GCN layers, five epochs) are still in progress and are not yet assigned performance numbers.
+
+| Scope | MAE K | Mean MAE K | Spearman | AUC >0 | Mean AUC >0 | AUC >77 | Mean AUC >77 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| cross-family | 10.5140 | 16.1169 | -0.0347 | 0.5155 | 0.4575 | — | 0.0624 |
+| Ferrites | 11.2309 | 11.7727 | 0.2475 | 0.5987 | 0.4730 | — | — |
+| Cuprates | 22.0833 | 32.6682 | 0.5282 | 0.6684 | 0.4793 | 0.8416 | 0.3187 |
+| Other | 3.4535 | 4.3630 | 0.5232 | 0.7501 | 0.4885 | — | — |
+| Oxides | 4.6464 | 5.8215 | 0.3191 | 0.7342 | 0.4644 | — | — |
+
+The frozen representation does not improve the formula baseline: cross-family MAE 10.5140 K versus 10.4523 K, and AUC 0.5155 versus 0.5792. All **3,435 partially occupied CIFs** use a highest-occupancy ordered proxy; that proxy cannot reproduce experimental dopant/vacancy disorder. Pretraining used Materials Project trajectories, which may contain the held-out reference structures. This is target-label-safe transfer learning, not an independent test of structural pretraining generalization.
+
+**JARVIS frozen encoder:** 1,057 usable structures; lambda MAE 0.8505 and omega_log MAE 93.7629 K. The paired formula baseline is 93.6672 K, so the change is **0.0957 K**, slightly worse even though the result is below the rounded 94 K reference. This comparison uses the same five elemental-system folds, 180 trees, leaf size two, and target-specific seeds as the physics-target benchmark. Source labels are computed EPC properties, not experiments. The raw source has 1,058 rows, all labeled 0 GPa, and source stability labels `stable=626`, `unstable=432`; one row fails the positive-EPC-target filter. The source stability label is retained as metadata, never substituted for candidate stability.
+
+**Methods and provenance:** installed CHGNet 0.4.2, its 0.3.0 checkpoint SHA-256 `d14ab7c0f093efe64b60a7bcd540bca10e74fb7f46c86108a079af60524659d1`; [CHGNet source](https://github.com/CederGroupHub/chgnet), [published model](https://doi.org/10.1038/s42256-023-00716-3). ALIGNN 2026.11.1 / DGL 2.1.0 runs in an isolated Torch 2.2.1 CPU environment; CHGNet uses Torch 2.15.0 on CPU. The `physical` and `graph` extras are intended for separate environments because their Torch requirements differ. NumPy 1.26.4 / SciPy 1.16.3 are retained for binary compatibility. See [frozen metrics](deep-phase3-frozen-report.json) and [EPC metrics](deep-chgnet-jarvis.json).
+
+An environment reconnect interrupted the initial training attempts. Completed frozen/EPC results were retained, while unfinished models received no invented metrics. [Attempt audit](deep-phase3-attempts.json) records measured process CPU time. Recovery now persists graphs, model/optimizer/RNG state at minibatch/epoch boundaries, and completed evaluation scopes; CPU consumption carries across restarts into the six-hour cap. No raw structures, weights, model files, or large caches are committed.
+
+Phase 3 progress validation: **93 unit tests passed** after adding persistent
+training/evaluation checkpoints and cumulative CPU-budget tests. This is an
+intermediate checkpoint; supervised encoder/scratch comparisons remain open.

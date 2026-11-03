@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Paired feature/encoder evaluations on fixed family and elemental-system folds."""
-import argparse,csv,json,sys,warnings
+import argparse,csv,json,sys,warnings,hashlib
 from pathlib import Path
 import numpy as np
 from scipy.stats import spearmanr
@@ -23,20 +23,30 @@ def auc(y,p):
     if np.isfinite(p).all() and len(set(y))==2: return float(roc_auc_score(y,p))
     return None
 
-def evaluate(X,y,families,systems,names,trees=150,embargo=None,fold_transform=None):
+def evaluate(X,y,families,systems,names,trees=150,embargo=None,fold_transform=None,checkpoint_dir=None,train_selector=None):
     assert_safe(names)
     out={}; predictions=[]
     scopes=[('cross-family',np.arange(len(y)),families)]
     scopes += [(f,np.where(families==f)[0],systems[families==f]) for f in FAMILIES if sum(families==f)>=100]
+    signature=hashlib.sha256(X.tobytes()+y.tobytes()+repr((names,trees,families.tolist(),systems.tolist(),None if embargo is None else embargo.tolist())).encode()).hexdigest()
+    if checkpoint_dir is not None:Path(checkpoint_dir).mkdir(parents=True,exist_ok=True)
     for label,idx,group in scopes:
+        cache_file=Path(checkpoint_dir)/(label+'.json') if checkpoint_dir is not None else None
+        if cache_file is not None and cache_file.exists():
+            cached=json.loads(cache_file.read_text())
+            if cached.get('signature')==signature:
+                out[label]=cached['metrics'];predictions.extend(cached['predictions']);print(label,'resumed cached scope',flush=True);continue
+        prediction_start=len(predictions)
         splits=list(GroupKFold(min(5,len(set(group)))).split(X[idx],y[idx],group))
         pred=np.zeros(len(idx));sd=pred.copy();mean=pred.copy();cp={t:np.full(len(idx),np.nan) for t in (0,77)};mean_cp={t:np.full(len(idx),np.nan) for t in (0,77)};imp=np.zeros(X.shape[1]);skips=0
         for fold,(tr,te) in enumerate(splits):
             train,test=idx[tr],idx[te]
+            if train_selector is not None:train=train_selector(train,test,label)
+            before_purge=len(train)
             if embargo is not None:
                 # A reference MP structure must not cross folds, even for distinct doped compositions.
                 held={embargo[i] for i in test if embargo[i]}
-                train=np.array([i for i in train if not embargo[i] or embargo[i] not in held]);skips+=len(tr)-len(train)
+                train=np.array([i for i in train if not embargo[i] or embargo[i] not in held]);skips+=before_purge-len(train)
             im=SimpleImputer(keep_empty_features=True)
             xa,xb=fold_transform(train,test) if fold_transform else (X[train],X[test])
             xt=im.fit_transform(xa);xv=im.transform(xb)
@@ -51,6 +61,8 @@ def evaluate(X,y,families,systems,names,trees=150,embargo=None,fold_transform=No
             predictions.extend(dict(scope=label,index=int(i),actual=float(y[i]),predicted=float(p),sd=float(s),training_max=float(max(y[train]))) for i,p,s in zip(test,pred[te],sd[te]))
         out[label]=dict(rows=len(idx),mae=float(mean_absolute_error(y[idx],pred)),mean_mae=float(mean_absolute_error(y[idx],mean)),spearman=float(spearmanr(y[idx],pred).statistic),auc0=auc(y[idx]>0,cp[0]),auc77=auc(y[idx]>77,cp[77]),mean_auc0=auc(y[idx]>0,mean_cp[0]),mean_auc77=auc(y[idx]>77,mean_cp[77]),mp_overlap_training_rows_purged=skips,top20=sorted(zip(names,imp.tolist()),key=lambda p:-p[1])[:20])
         print(label,out[label]['mae'],flush=True)
+        if cache_file is not None:
+            tmp=cache_file.with_suffix('.tmp');tmp.write_text(json.dumps({'signature':signature,'metrics':out[label],'predictions':predictions[prediction_start:]}));tmp.replace(cache_file)
     return out,predictions
 
 def load(input_path,features):
