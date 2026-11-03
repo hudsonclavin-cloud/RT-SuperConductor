@@ -376,6 +376,7 @@ source `lambda` and `omega_log` labels using the equation above.
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Magpie + Lewis/shell | 2.8602 | 5.8542 | 0.0000 | 0.8643 | 93.5872 |
 | + structure density, H/light fraction, site count | 2.8487 | 5.8843 | +0.0301 | 0.8594 | 93.4969 |
+| Frozen pretrained ALIGNN graph embeddings + fold-wise RF probes | 2.8790 | 5.5879 | -0.2663 | 0.8312 | 93.8780 |
 | + Materials Project DOS/gap/metallicity/density | blocked | blocked | n/a | n/a | n/a |
 
 For the MP ablation, 211 fully populated rows were required by the predefined
@@ -385,6 +386,21 @@ coverage rule; actual complete rows were zero because the API request returned
 change is evidence of a useful improvement. The lambda and especially
 omega_log errors are large, and this dataset's group-held-out results do not
 validate chemistry extrapolation to room temperature.
+
+The ALIGNN row uses a frozen 256-dimensional pooled structure representation
+from the published `jv_formation_energy_peratom_alignn` checkpoint, followed by
+fold-wise random-forest probes for lambda and omega_log. The checkpoint is
+pretrained for formation energy, not EPC, so none of the evaluation EPC labels
+are used by the pretrained network. The same 5-fold elemental-system
+GroupKFold produced 1,057 usable structures and zero graph failures. Source
+weights are [ALIGNN Figshare file 31458679](https://ndownloader.figshare.com/files/31458679),
+SHA-256 `d80f5e067c0b0b0f569b8158ecfeeeb68472bebe2ceb27ff787dcfcc68948e20`.
+The pretrained formation-energy corpus may include held-out structures, so
+this is target-label-safe transfer learning with a transductive pretraining
+caveat, not a fully independent structure benchmark. It improves
+physics-derived Tc MAE by 0.2663 K versus the composition baseline, while
+omega_log error is slightly worse; this is a small benchmark change, not proof
+of discovery-scale extrapolation.
 
 The existing project random-forest Tc model remains the baseline. A random
 forest regression prediction is bounded by the range of target values in its
@@ -400,20 +416,30 @@ is only a rough ensemble-spread indicator and is not calibrated uncertainty.
 
 `run_physics_search.py` changes one element at a time within the same periodic
 table group, using elements present in the published source structures, and
-retains the parent structure as an explicitly unrelaxed prototype. It scored
-1,031 generated substitutions and wrote the top 20 by an upper-confidence
-acquisition score (`mean Tc + 0.5 * tree-spread SD`). The result is
+retains the parent structure as an explicitly unrelaxed prototype. Hydrogen is
+never substituted. Metal, metalloid, and nonmetal categories are not crossed;
+candidate compositions also need a pymatgen common-oxidation-state charge
+balance. On the pinned run this considered 1,257 proposals: 22 were dropped
+because a substitution involved hydrogen, 323 for element-class mismatch, and
+498 for lacking a common-oxidation-state charge balance; 145 were already in
+the source and 38 duplicated another proposal, leaving 231 eligible candidates.
+The filter counts are emitted in `physics-search-summary.json`.
+
+Rows with `tc_tree_sd_k > predicted_tc_k` are assigned to the separate
+`low_confidence` group and get independent `group_rank` values. The top-20
+export reserves up to 10 places per group and backfills if one group is short.
+In the actual screened pool all 20 output rows were low-confidence, so there
+were zero standard-confidence entries in that export. The current result is
 [`physics-target-top20.csv`](physics-target-top20.csv). Candidate stability is
 unknown without an exact candidate MP phase calculation; the source prototype
-stability is shown separately as a proxy. The attempted MP query also returned
-HTTP 403 for the 20 shortlist formulas, so their hull fields remain blank and
-their status is `api_unavailable_403`. Every row is marked `DFT
+stability is shown separately as a proxy. The latest local MP attempt was
+blocked by HTTP 403, so candidate hull values remain unknown until the new
+GitHub Actions enrichment completes. Every row is marked `DFT
 verification=pending`.
 
-The leading row, BeB2 on the MgB2 prototype, has predicted lambda 1.531,
-omega_log 598.97 K, and Tc 45.14 K, above the 31.91 K training-target maximum.
-Its tree-spread Tc SD is 59.45 K, larger than the mean, and its candidate
-stability is unknown. That row is a clear example of a model-generated
-extrapolation hypothesis with poor confidence, not a discovery or
-recommendation to synthesize. No structure relaxation, phonon calculation, or
-experimental check has been performed for this shortlist.
+The leading row, CrC on the MoC prototype, has predicted lambda 2.442,
+omega_log 250.80 K, and Tc 31.96 K. Its tree-spread Tc SD is 37.63 K, larger
+than the mean, and its candidate stability is unknown. This is a model-generated
+hypothesis with poor confidence, not a discovery or recommendation to
+synthesize. No structure relaxation, phonon calculation, or experimental
+check has been performed for this shortlist.

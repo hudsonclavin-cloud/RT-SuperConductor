@@ -20,7 +20,15 @@ ml = [
     "pymatgen>=2024.1",
     "scikit-learn>=1.4",
 ]
-mp = ["mp-api>=0.45"]
+mp = ["mp-api>=0.45,<0.47"]
+graph = [
+    "alignn==2026.11.1",
+    "dgl==2.1.0",
+    "numpy<2",
+    "pyarrow<20",
+    "torch==2.2.1",
+    "torchdata==0.7.1",
+]
 
 [project.scripts]
 rt-superconductor-pipeline = "rt_superconductor.pipeline:main"
