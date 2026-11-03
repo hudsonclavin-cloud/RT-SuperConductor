@@ -87,14 +87,20 @@ def load(input_path,features):
         if ns and np.isfinite(array).any():extra[g]=(array,ns)
     return records,X,names,extra
 
-def run(input_path,features,output):
+def select_variants(variants,requested=None):
+    if requested is None:return variants
+    unknown=set(requested)-set(variants)
+    if unknown:raise ValueError('Requested unavailable feature variants: '+str(sorted(unknown)))
+    return {k:v for k,v in variants.items() if k in requested}
+
+def run(input_path,features,output,requested_variants=None):
     records,X,names,extra=load(input_path,features);y=np.array([r.tc_kelvin for r in records]);fam=np.array([r.chemical_family for r in records]);systems=np.array([elemental_system_signature(r.formula) for r in records]);mp=np.array([r.mp_id for r in records])
     variants={'baseline':(X,names)}
     for g,(a,ns) in extra.items():variants['plus_'+g]=(np.c_[X,a],names+ns)
     variants['all']=(np.column_stack([X]+[a for a,_ in extra.values()]),names+sum([ns for _,ns in extra.values()],[]))
     output.mkdir(parents=True,exist_ok=True);report={}
     (output/'coverage.json').write_text(json.dumps({'rows':len(records),'groups':{g:{'features':ns,'rows_with_any':int(np.isfinite(a).any(axis=1).sum()),'nonmissing_per_feature':dict(zip(ns,np.isfinite(a).sum(axis=0).tolist()))} for g,(a,ns) in extra.items()},'blocked_groups':[g for g in ('electronic','lattice','bonding','spin','correlation','orbital') if g not in extra]},indent=2))
-    for variant,(a,ns) in variants.items():
+    for variant,(a,ns) in select_variants(variants,requested_variants).items():
         print(variant,flush=True);result,preds=evaluate(a,y,fam,systems,ns,embargo=mp,checkpoint_dir=output/'scope-cache'/variant);report[variant]=result
         (output/(variant+'-predictions.json')).write_text(json.dumps(preds,allow_nan=False))
         (output/'ablation.json').write_text(json.dumps(report,indent=2,allow_nan=False))
@@ -105,4 +111,4 @@ def run(input_path,features,output):
             for scope,metrics in scopes.items():writer.writerow({'variant':variant,'scope':scope,**{k:metrics[k] for k in cols[2:]}})
     return report
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--input',type=Path,default=Path('data/training/harmonized_supercon.csv'));p.add_argument('--features',type=Path,default=Path('data/processed/structure_features.csv'));p.add_argument('--output',type=Path,default=Path('data/processed/deep-ablation'));a=p.parse_args();run(a.input,a.features,a.output)
+    p=argparse.ArgumentParser();p.add_argument('--input',type=Path,default=Path('data/training/harmonized_supercon.csv'));p.add_argument('--features',type=Path,default=Path('data/processed/structure_features.csv'));p.add_argument('--output',type=Path,default=Path('data/processed/deep-ablation'));p.add_argument('--variants',nargs='+',help='Optional subset; unchanged evaluated scopes resume by matrix hash');a=p.parse_args();run(a.input,a.features,a.output,a.variants)

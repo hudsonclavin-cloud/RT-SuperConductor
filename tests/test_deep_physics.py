@@ -181,3 +181,26 @@ class CurrentMPMetadataTests(unittest.TestCase):
         client=SimpleNamespace(materials=SimpleNamespace(electronic_structure=SimpleNamespace(search=lambda **kw:[{'dos':{'task_id':'root-task-fixture','total':{'1':{'efermi':0.0}}}}]),electronic_structure_dos=SimpleNamespace(get_dos_from_task_id=getter)))
         dos,task=complete_dos_with_task(client,'mp-fixture')
         self.assertIs(dos,curve);self.assertEqual(task,'root-task-fixture');self.assertEqual(calls,['root-task-fixture'])
+
+class AblationSelectionTests(unittest.TestCase):
+    def test_subset_respects_paired_order_and_rejects_missing_variants(self):
+        from deep_ablation import select_variants
+        variants={'baseline':1,'plus_spin':2,'all':3}
+        self.assertEqual(list(select_variants(variants,['all','baseline'])),['baseline','all'])
+        self.assertIs(select_variants(variants),variants)
+        with self.assertRaises(ValueError):select_variants(variants,['plus_missing'])
+
+class DOSStorageCompatibilityTests(unittest.TestCase):
+    def test_numeric_normalization_preserves_legacy_s3_prefix(self):
+        from enrich_deep_mp import dos_storage_keys
+        self.assertEqual(dos_storage_keys('alpha-fixture',normalize=lambda task:'1676349'),['dos/mp-1676349.json.gz','dos/alpha-fixture.json.gz'])
+    def test_missing_numeric_key_retries_literal_equivalent_task_keys(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from enrich_deep_mp import dos_curve_for_task
+        curve=object();calls=[]
+        def missing(task):raise OSError('NoSuchKey')
+        def get(**kwargs):calls.append(kwargs);return ([{'data':curve}],1)
+        route=SimpleNamespace(get_dos_from_task_id=missing,_query_open_data=get)
+        with patch('enrich_deep_mp.dos_storage_keys',return_value=['dos/mp-1676349.json.gz']):result=dos_curve_for_task(route,'alpha-fixture')
+        self.assertIs(result,curve);self.assertEqual(calls,[{'bucket':'materialsproject-parsed','key':'dos/mp-1676349.json.gz'}])
