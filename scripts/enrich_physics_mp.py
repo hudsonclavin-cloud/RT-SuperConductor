@@ -38,50 +38,68 @@ def enrich(input_csv: Path, output_csv: Path, api_key: str | None = None, rester
     results = []
     api_unavailable: str | None = None
     with rester_factory(api_key) as mpr:
-        for row in source_rows:
-            formula = row["formula"]
-            try:
+        formulae = list(dict.fromkeys(row["formula"] for row in source_rows))
+        docs_by_formula: dict[str, list[Any]] = {formula: [] for formula in formulae}
+        try:
+            for start in range(0, len(formulae), 30):
+                batch = formulae[start:start + 30]
                 docs = mpr.materials.summary.search(
-                    formula=formula,
+                    formula=batch,
                     fields=["material_id", "formula_pretty", "density", "band_gap", "is_metal"],
                 )
-            except Exception as exc:
-                api_unavailable = f"api_unavailable_{'403' if '403' in str(exc) else type(exc).__name__}"
-                break
-            exact = [doc for doc in docs if signature(str(doc.formula_pretty)) == signature(formula)]
-            if len(exact) != 1:
-                results.append({
-                    "jid": row["jid"], "formula": formula, "mp_match_status":
-                    "no_exact_match" if not exact else "ambiguous_multiple_mp_phases",
-                    "mp_material_id": "", "mp_dos_ef_states_per_ev_per_cell": "",
-                    "mp_band_gap_ev": "", "mp_is_metal": "", "mp_density_g_cm3": "",
-                })
-                continue
-            doc = exact[0]
-            material_id = str(doc.material_id)
-            dos_ef = ""
-            dos_status = "dos_unavailable"
-            try:
-                e_docs = mpr.materials.electronic_structure.search(
-                    material_ids=[material_id], fields=["material_id", "dos", "efermi"]
-                )
-                if e_docs:
-                    electronic = e_docs[0]
-                    dos = electronic.dos
-                    if dos is not None:
-                        energies = dos.energies
-                        densities = dos.get_densities()
-                        idx = min(range(len(energies)), key=lambda i: abs(float(energies[i]) - float(electronic.efermi)))
-                        dos_ef = float(densities[idx])
-                        dos_status = "ready"
-            except Exception as exc:  # records an honest failure per material
-                dos_status = f"query_failed_{type(exc).__name__}"
+                for doc in docs:
+                    pretty = str(doc.formula_pretty)
+                    exact_formulas = [formula for formula in batch if signature(formula) == signature(pretty)]
+                    for formula in exact_formulas:
+                        docs_by_formula[formula].append(doc)
+        except Exception as exc:
+            api_unavailable = f"api_unavailable_{'403' if '403' in str(exc) else type(exc).__name__}"
+
+        exact_doc_by_formula = {
+            formula: docs[0] for formula, docs in docs_by_formula.items() if len(docs) == 1
+        }
+        dos_by_id: dict[str, tuple[float | str, str]] = {}
+        if not api_unavailable and exact_doc_by_formula:
+            material_ids = list(dict.fromkeys(str(doc.material_id) for doc in exact_doc_by_formula.values()))
+            for start in range(0, len(material_ids), 20):
+                batch_ids = material_ids[start:start + 20]
+                try:
+                    e_docs = mpr.materials.electronic_structure.search(
+                        material_ids=batch_ids, fields=["material_id", "dos", "efermi"]
+                    )
+                    for electronic in e_docs:
+                        dos = electronic.dos
+                        if dos is None or electronic.efermi is None:
+                            dos_by_id[str(electronic.material_id)] = ("", "dos_unavailable")
+                            continue
+                        energies, densities = dos.energies, dos.get_densities()
+                        index = min(range(len(energies)), key=lambda i: abs(float(energies[i]) - float(electronic.efermi)))
+                        dos_by_id[str(electronic.material_id)] = (float(densities[index]), "ready")
+                except Exception as exc:
+                    failure = f"dos_query_unavailable_{'403' if '403' in str(exc) else type(exc).__name__}"
+                    for material_id in batch_ids:
+                        dos_by_id[material_id] = ("", failure)
+
+        for row in source_rows:
+            formula = row["formula"]
+            matches = docs_by_formula.get(formula, [])
+            if api_unavailable:
+                status, doc, dos_ef = api_unavailable, None, ""
+            elif len(matches) == 0:
+                status, doc, dos_ef = "no_exact_match", None, ""
+            elif len(matches) > 1:
+                status, doc, dos_ef = "ambiguous_multiple_mp_phases", None, ""
+            else:
+                doc = matches[0]
+                material_id = str(doc.material_id)
+                dos_ef, status = dos_by_id.get(material_id, ("", "dos_unavailable"))
             results.append({
-                "jid": row["jid"], "formula": formula, "mp_match_status": dos_status,
-                "mp_material_id": material_id, "mp_dos_ef_states_per_ev_per_cell": dos_ef,
-                "mp_band_gap_ev": getattr(doc, "band_gap", ""),
-                "mp_is_metal": getattr(doc, "is_metal", ""),
-                "mp_density_g_cm3": getattr(doc, "density", ""),
+                "jid": row["jid"], "formula": formula, "mp_match_status": status,
+                "mp_material_id": "" if doc is None else str(doc.material_id),
+                "mp_dos_ef_states_per_ev_per_cell": dos_ef,
+                "mp_band_gap_ev": "" if doc is None else getattr(doc, "band_gap", ""),
+                "mp_is_metal": "" if doc is None else getattr(doc, "is_metal", ""),
+                "mp_density_g_cm3": "" if doc is None else getattr(doc, "density", ""),
             })
     if api_unavailable:
         results = [{
