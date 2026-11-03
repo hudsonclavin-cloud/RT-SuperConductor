@@ -61,24 +61,21 @@ def enrich(input_csv: Path, output_csv: Path, api_key: str | None = None, rester
         dos_by_id: dict[str, tuple[float | str, str]] = {}
         if not api_unavailable and exact_doc_by_formula:
             material_ids = list(dict.fromkeys(str(doc.material_id) for doc in exact_doc_by_formula.values()))
-            for start in range(0, len(material_ids), 20):
-                batch_ids = material_ids[start:start + 20]
+            from enrich_deep_mp import dos_at_fermi
+            import math
+            for material_id in material_ids:
+                dos_rester=getattr(mpr.materials,'electronic_structure_dos',None)
+                original_mode=getattr(dos_rester,'use_document_model',None)
                 try:
-                    e_docs = mpr.materials.electronic_structure.search(
-                        material_ids=batch_ids, fields=["material_id", "dos", "efermi"]
-                    )
-                    for electronic in e_docs:
-                        dos = electronic.dos
-                        if dos is None or electronic.efermi is None:
-                            dos_by_id[str(electronic.material_id)] = ("", "dos_unavailable")
-                            continue
-                        energies, densities = dos.energies, dos.get_densities()
-                        index = min(range(len(energies)), key=lambda i: abs(float(energies[i]) - float(electronic.efermi)))
-                        dos_by_id[str(electronic.material_id)] = (float(densities[index]), "ready")
+                    if dos_rester is not None:dos_rester.use_document_model=False
+                    try:dos=mpr.get_dos_by_material_id(material_id)
+                    finally:
+                        if dos_rester is not None:dos_rester.use_document_model=original_mode
+                    value=dos_at_fermi(dos) if dos is not None else None
+                    dos_by_id[material_id]=(value,'ready') if value is not None and math.isfinite(value) else ('','dos_unavailable')
                 except Exception as exc:
-                    failure = f"dos_query_unavailable_{'403' if '403' in str(exc) else type(exc).__name__}"
-                    for material_id in batch_ids:
-                        dos_by_id[material_id] = ("", failure)
+                    failure=f"dos_query_unavailable_{'403' if '403' in str(exc) else type(exc).__name__}"
+                    dos_by_id[material_id]=('',failure)
 
         for row in source_rows:
             formula = row["formula"]

@@ -14,11 +14,13 @@ from train_pressure_aware import build_features,select_training_records,elementa
 from deep_physics_features import assert_safe,number
 FAMILIES=('Ferrites','Cuprates','Other','Oxides')
 def groups_for(names):
-    electronic=[n for n in names if n in ('band_gap_2','efermi_2')]
-    lattice=[n for n in names if n.startswith(('crystal_system_','point_group__')) or n in ('lata_2','latb_2','latc_2','c_over_a','b_over_a','volume_per_atom','dimensionality','layer_spacing_proxy_angstrom')]
-    bonding=[n for n in names if n.startswith(('nearest_','coord_','shortest_')) or n in ('density_2','formation_energy_per_atom_2','ewald_ev_per_atom')]
+    electronic=[n for n in names if n in ('band_gap_2','efermi_2','mp_dos_ef_states_ev_cell')]
+    lattice=[n for n in names if n.startswith(('crystal_system_','point_group__')) or n in ('lata_2','latb_2','latc_2','c_over_a','b_over_a','volume_per_atom','dimensionality','layer_spacing_proxy_angstrom','mom_angle_mean_deg','mom_angle_min_deg','oxide_buckling_proxy_angstrom')]
+    bonding=[n for n in names if n.startswith(('nearest_','coord_','shortest_')) or n in ('density_2','formation_energy_per_atom_2','ewald_ev_per_atom','mp_bulk_modulus_gpa')]
     spin=[n for n in names if n.startswith('ordering_') or n in ('is_magnetic_2','total_magnetization_normalized_formula_units_2','magnetic_sites_per_atom')]
-    return dict(electronic=electronic,lattice=lattice,bonding=bonding,spin=spin)
+    correlation=[n for n in names if n in ('is_gga_plus_u','mean_d_electron_count')]
+    orbital=[n for n in names if n in ('orbital_s_fraction','orbital_p_fraction','orbital_d_fraction','orbital_f_fraction')]
+    return dict(electronic=electronic,lattice=lattice,bonding=bonding,spin=spin,correlation=correlation,orbital=orbital)
 def auc(y,p):
     if np.isfinite(p).all() and len(set(y))==2: return float(roc_auc_score(y,p))
     return None
@@ -80,7 +82,9 @@ def load(input_path,features):
         ns.sort();a=[]
         for r in records:
             d=lookup[r.record_id];a.append([float(d.get('point_group_2')==n.split('__')[1]) if n.startswith('point_group__') else number(d.get(n)) for n in ns])
-        extra[g]=(np.array([[np.nan if v is None else v for v in vs] for vs in a]),ns)
+        array=np.array([[np.nan if v is None else v for v in vs] for vs in a])
+        # Do not present an all-missing group as evidence about its physical value.
+        if ns and np.isfinite(array).any():extra[g]=(array,ns)
     return records,X,names,extra
 
 def run(input_path,features,output):
@@ -89,10 +93,16 @@ def run(input_path,features,output):
     for g,(a,ns) in extra.items():variants['plus_'+g]=(np.c_[X,a],names+ns)
     variants['all']=(np.column_stack([X]+[a for a,_ in extra.values()]),names+sum([ns for _,ns in extra.values()],[]))
     output.mkdir(parents=True,exist_ok=True);report={}
+    (output/'coverage.json').write_text(json.dumps({'rows':len(records),'groups':{g:{'features':ns,'rows_with_any':int(np.isfinite(a).any(axis=1).sum()),'nonmissing_per_feature':dict(zip(ns,np.isfinite(a).sum(axis=0).tolist()))} for g,(a,ns) in extra.items()},'blocked_groups':[g for g in ('electronic','lattice','bonding','spin','correlation','orbital') if g not in extra]},indent=2))
     for variant,(a,ns) in variants.items():
-        print(variant,flush=True);result,preds=evaluate(a,y,fam,systems,ns,embargo=mp);report[variant]=result
+        print(variant,flush=True);result,preds=evaluate(a,y,fam,systems,ns,embargo=mp,checkpoint_dir=output/'scope-cache'/variant);report[variant]=result
         (output/(variant+'-predictions.json')).write_text(json.dumps(preds,allow_nan=False))
         (output/'ablation.json').write_text(json.dumps(report,indent=2,allow_nan=False))
+    with (output/'ablation.csv').open('w') as f:
+        cols=['variant','scope','rows','mae','mean_mae','spearman','auc0','auc77','mean_auc0','mean_auc77','mp_overlap_training_rows_purged']
+        writer=csv.DictWriter(f,fieldnames=cols);writer.writeheader()
+        for variant,scopes in report.items():
+            for scope,metrics in scopes.items():writer.writerow({'variant':variant,'scope':scope,**{k:metrics[k] for k in cols[2:]}})
     return report
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--input',type=Path,default=Path('data/training/harmonized_supercon.csv'));p.add_argument('--features',type=Path,default=Path('data/processed/structure_features.csv'));p.add_argument('--output',type=Path,default=Path('data/processed/deep-ablation'));a=p.parse_args();run(a.input,a.features,a.output)

@@ -76,3 +76,90 @@ class StructureEncoderTests(unittest.TestCase):
                 self.assertEqual(budget_start(p),-20)
             with patch('deep_encoders.time.process_time',return_value=21601):
                 with self.assertRaises(TimeoutError):check_budget(p,0)
+
+class PhysicalChecksTests(unittest.TestCase):
+    def test_metal_oxygen_bridge_angles_and_neutral_d_count(self):
+        import tempfile
+        from pymatgen.core import Lattice,Structure
+        from deep_physics_checks import oxide_angles,mean_d_electrons
+        with tempfile.TemporaryDirectory() as t:
+            p=Path(t)/'bridge.cif';Structure(Lattice.cubic(10),['O','Mn','Mn'],[[0,0,0],[.25,0,0],[.75,0,0]]).to(filename=p)
+            r=oxide_angles(p)
+        self.assertAlmostEqual(r['mom_angle_min_deg'],180,places=5)
+        self.assertAlmostEqual(mean_d_electrons('FeO'),3)
+    def test_phonon_threshold_and_unconverged_relaxation(self):
+        from deep_physics_checks import phonon_status
+        self.assertEqual(phonon_status(-.5,.01),'no_instability_detected_ml')
+        self.assertEqual(phonon_status(-.5001,.01),'dynamically_unstable_ml')
+        self.assertEqual(phonon_status(.1,.06),'blocked_relaxation_not_converged')
+        self.assertEqual(phonon_status(.1,.01,.2),'blocked_relaxation_not_converged')
+
+class ProjectedDOSTests(unittest.TestCase):
+    def test_orbital_fractions_and_zero_window(self):
+        import numpy as np
+        from types import SimpleNamespace
+        from pymatgen.core import Composition
+        from enrich_deep_mp import orbital_weights,dos_at_fermi
+        class DOS:
+            efermi=0.;energies=np.array([-1.,0.,1.]);structure=SimpleNamespace(composition=Composition('Fe'))
+            def get_densities(self):return np.array([4.,4.,4.])
+            def get_element_spd_dos(self,element):return {k:SimpleNamespace(get_densities=lambda v=v:np.repeat(v,3)) for k,v in [('s',2.),('p',1.),('d',1.)]}
+        r=orbital_weights(DOS());self.assertEqual(r['orbital_s_fraction'],.5);self.assertEqual(r['orbital_d_fraction'],.25);self.assertEqual(dos_at_fermi(DOS()),4)
+        d=DOS();d.energies=np.array([-.1,0,.1]);self.assertEqual(orbital_weights(d),{})
+        d.efermi=2.
+        with self.assertRaises(ValueError):dos_at_fermi(d)
+    def test_enrichment_cannot_query_mp_outside_actions(self):
+        import tempfile,csv
+        from unittest.mock import patch
+        from enrich_deep_mp import enrich
+        with tempfile.TemporaryDirectory() as t:
+            p=Path(t);(p/'input.csv').write_text('test');(p/'features.csv').write_text('record_id\nx\n')
+            with patch('enrich_deep_mp.load_harmonized',return_value=[]),patch.dict('os.environ',{'GITHUB_ACTIONS':'false','MP_API_KEY':'test-only'}):
+                r=enrich(p/'input.csv',p/'features.csv',p/'output.csv')
+            self.assertEqual(r['queries'],0);self.assertEqual(r['orbital_available'],0)
+
+class MechanismComparisonTests(unittest.TestCase):
+    def test_global_model_excludes_all_held_out_elemental_systems(self):
+        import numpy as np
+        from deep_mechanisms import global_training_indices
+        systems=np.array(['Fe-As','Cu-O','Fe-As','Nb-Sn'])
+        selected=global_training_indices(systems,np.array([1]),np.array([0]),'Ferrites')
+        self.assertEqual(selected.tolist(),[1,3])
+        self.assertEqual(global_training_indices(systems,np.array([1]),np.array([0]),'cross-family').tolist(),[1])
+    def test_dos_metadata_selects_task_then_fetches_real_curve(self):
+        from types import SimpleNamespace
+        from enrich_deep_mp import complete_dos_with_task
+        calls=[];curve=object()
+        def get_task(task):calls.append(task);return curve
+        client=SimpleNamespace(materials=SimpleNamespace(electronic_structure=SimpleNamespace(search=lambda **kwargs:[{'dos':{'total':{'1':{'task_id':'mp-task-fixture'}}}}]),electronic_structure_dos=SimpleNamespace(get_dos_from_task_id=get_task)))
+        dos,task=complete_dos_with_task(client,'mp-fixture')
+        self.assertIs(dos,curve);self.assertEqual(task,'mp-task-fixture');self.assertEqual(calls,['mp-task-fixture'])
+        client.materials.electronic_structure.search=lambda **kwargs:[{'dos':{'total':{}}}]
+        with self.assertRaises(ValueError):complete_dos_with_task(client,'mp-fixture')
+
+class CandidateStructureTests(unittest.TestCase):
+    def test_ordered_parent_substitution_and_disorder_are_distinct(self):
+        import tempfile,csv
+        from pymatgen.core import Lattice,Structure
+        from deep_physics_checks import prepare_candidate_structures
+        with tempfile.TemporaryDirectory() as t:
+            d=Path(t);parent=d/'parent.cif';Structure(Lattice.cubic(4.2),['Mg','O'],[[0,0,0],[.5,.5,.5]]).to(filename=parent)
+            (d/'index.csv').write_text('record_id,cif_path\np,'+str(parent)+'\n')
+            (d/'shortlist.csv').write_text('candidate_id,formula,parent_record_id,parent_formula,substitution\nx,CaO,p,MgO,Mg->Ca\n')
+            rows=prepare_candidate_structures(d/'shortlist.csv',d/'index.csv',d/'out.csv',d/'structures')
+            self.assertEqual(rows[0]['candidate_structure_status'],'unrelaxed_ordered_parent_substitution')
+            candidate=Structure.from_file(rows[0]['candidate_cif_path']);self.assertEqual(candidate.composition.reduced_formula,'CaO')
+            Structure(Lattice.cubic(4.2),[{'Mg':.5,'Zn':.5},'O'],[[0,0,0],[.5,.5,.5]]).to(filename=parent)
+            (d/'shortlist.csv').write_text('candidate_id,formula,parent_record_id,parent_formula,substitution\nx,Ca0.5Zn0.5O,p,Mg0.5Zn0.5O,Mg->Ca\n')
+            rows=prepare_candidate_structures(d/'shortlist.csv',d/'index.csv',d/'out.csv',d/'structures')
+            self.assertEqual(rows[0]['candidate_structure_status'],'blocked_occupational_ordering_required')
+            self.assertFalse(Structure.from_file(rows[0]['candidate_cif_path']).is_ordered)
+
+class ExpandedFeatureGroupTests(unittest.TestCase):
+    def test_physics_group_membership_keeps_source_metadata_out(self):
+        from deep_ablation import groups_for
+        from deep_physics_features import assert_safe
+        g=groups_for(['is_gga_plus_u','mean_d_electron_count','mom_angle_mean_deg','orbital_d_fraction','mp_dos_ef_states_ev_cell','run_type_2'])
+        self.assertEqual(set(g['correlation']),{'is_gga_plus_u','mean_d_electron_count'})
+        self.assertIn('mom_angle_mean_deg',g['lattice']);self.assertIn('orbital_d_fraction',g['orbital'])
+        self.assertNotIn('run_type_2',sum(g.values(),[]));assert_safe(sum(g.values(),[]))

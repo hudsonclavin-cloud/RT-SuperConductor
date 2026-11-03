@@ -140,7 +140,9 @@ class PhysicsTargetModelTests(unittest.TestCase):
         self.assertEqual(row["energy_above_hull_ev_atom"], "")
 
     def test_physics_mp_enrichment_records_exact_summary_and_dos_fields(self):
+        metadata_queries=[];spectrum_queries=[];clients=[]
         class FakeDOS:
+            efermi=0.0
             energies = [-1.0, 0.0, 1.0]
 
             @staticmethod
@@ -149,9 +151,11 @@ class PhysicsTargetModelTests(unittest.TestCase):
 
         class FakeMPRester:
             def __init__(self, _key):
+                clients.append(self)
                 self.materials = SimpleNamespace(
                     summary=SimpleNamespace(search=self._summary),
                     electronic_structure=SimpleNamespace(search=self._electronic),
+                    electronic_structure_dos=SimpleNamespace(use_document_model=True),
                 )
 
             def __enter__(self):
@@ -159,6 +163,11 @@ class PhysicsTargetModelTests(unittest.TestCase):
 
             def __exit__(self, *_args):
                 return False
+
+            def get_dos_by_material_id(self, material_id):
+                spectrum_queries.append(material_id)
+                assert self.materials.electronic_structure_dos.use_document_model is False
+                return FakeDOS()
 
             @staticmethod
             def _summary(*, formula, fields):
@@ -170,6 +179,7 @@ class PhysicsTargetModelTests(unittest.TestCase):
 
             @staticmethod
             def _electronic(*, material_ids, fields):
+                metadata_queries.append(material_ids)
                 assert material_ids == ["mp-test-NaCl"] and "dos" in fields
                 return [type("EDoc", (), {
                     "material_id": "mp-test-NaCl", "dos": FakeDOS(), "efermi": 0.0,
@@ -189,6 +199,9 @@ class PhysicsTargetModelTests(unittest.TestCase):
         self.assertEqual(float(row["mp_dos_ef_states_per_ev_per_cell"]), 4.0)
         self.assertEqual(float(row["mp_density_g_cm3"]), 2.16)
         self.assertEqual(row["mp_is_metal"], "False")
+        self.assertEqual(metadata_queries,[])  # Metadata is not a DOS curve.
+        self.assertEqual(spectrum_queries,["mp-test-NaCl"])
+        self.assertTrue(clients[0].materials.electronic_structure_dos.use_document_model)
 
 
 if __name__ == "__main__":
