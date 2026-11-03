@@ -142,6 +142,7 @@ def ingest_3dsc(
     structure_root: Path | None = None,
     report_path: Path | None = None,
     structure_index_path: Path | None = None,
+    feature_output_path: Path | None = None,
 ) -> dict[str, Any]:
     rows = _read_rows(input_path)
     existing = load_harmonized(output_path) if output_path.is_file() else []
@@ -216,6 +217,10 @@ def ingest_3dsc(
             writer.writeheader()
             writer.writerows(structure_index)
 
+    if feature_output_path is not None:
+        from deep_physics_features import build
+        build(input_path, structure_root, feature_output_path, feature_output_path.parent / "cif-feature-cache", geometry=False)
+
     report: dict[str, Any] = {
         "status": "ready" if not skipped else "ready_with_skips",
         "input": str(input_path),
@@ -252,6 +257,7 @@ def main() -> int:
     parser.add_argument("--structure-root", type=Path, default=Path("data/raw/3dsc/MP/cifs"))
     parser.add_argument("--report", type=Path, default=Path("data/processed/3dsc-ingestion-report.json"))
     parser.add_argument("--structure-index", type=Path, default=Path("data/processed/3dsc-structure-index.csv"))
+    parser.add_argument("--features", type=Path, default=Path("data/processed/structure_features.csv"))
     args = parser.parse_args()
     report = ingest_3dsc(
         input_path=args.input,
@@ -259,6 +265,7 @@ def main() -> int:
         structure_root=args.structure_root if args.structure_root.exists() else None,
         report_path=args.report,
         structure_index_path=args.structure_index,
+        feature_output_path=args.features,
     )
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0

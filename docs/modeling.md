@@ -545,3 +545,37 @@ physics-derived Tc MAE was 5.9467 K, and the frozen-ALIGNN
 physics-derived Tc MAE was 5.2886 K (lambda MAE 0.8469 and omega_log MAE
 94.1365 K). These are the metrics from the workflow runtime; the table above
 records the separate local benchmark run.
+
+## Deep physical-feature study: Phase 1 — leakage audit
+
+The new `deep_physics_features.py` uses an explicit physical-feature allowlist.
+`ingest_3dsc.py --features data/processed/structure_features.csv` writes the
+record-keyed table; the feature builder extends it with CIF-derived quantities.
+Magnetism and electronic properties in the `_2` columns are Materials Project
+DFT results, not measured magnetic properties of the matched superconducting
+sample. `run_type_2` is an audit flag, excluded from the predictor matrix.
+Point groups and crystal systems are categorical, not ordinal values.
+
+Excluded columns and their leakage risks:
+
+| Excluded field | Reason |
+| --- | --- |
+| synth_doped | Records the matching/artificial-doping construction, not independently measured structure physics. |
+| totreldiff | Composition matching residual can encode which literature label was assigned. |
+| formula_similarity | Quality of the label-to-structure matching, not an independent materials property. |
+| correct_formula_frac | Matching/cleaning decision depends on how the record was assembled. |
+| formula_frac | Matching fraction can identify repeated samples and database construction. |
+| weight | Dataset weighting/duplication convention can encode labels or family frequency. |
+| created_at / updated columns | Database processing chronology is not experimental publication chronology and may encode ingestion batches. |
+
+All matrix entry points reject these names. CIF results are cached by content
+SHA-256, and failed calculations retain a reason. Layer spacing is the largest
+empty periodic slab along a cell reciprocal-axis normal for a 2D graph; this
+is a cell-dependent proxy, not a symmetry-invariant interlayer binding energy.
+Ewald energy uses a common formal oxidation-state assignment when available;
+it is an electrostatic proxy, not a measured bond strength or formation energy.
+Pure metals retain missing Ewald energy. Disordered CIFs use a recorded
+highest-occupancy proxy, so neither geometry nor formal charges reproduce
+fractional-site electronic disorder.
+
+Phase 1 measured result (2026-11-03): **5,773 rows, 5,773 CIFs, 0 geometry failures**. Nonmissing counts: `band_gap_2` 5773, `efermi_2` 5773, `ewald_ev_per_atom` 2796, `layer_spacing_proxy_angstrom` 358, `coord_mean` 5773. Source SHA-256: `353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24`. Feature CSV SHA-256: `15d29e07cd9d1a3247d5e6bc6806ae1f5aedd7153a13b799ebfca38dd765cb25`. The generated table is 2.9 MB and is an artifact; raw CIFs and caches are not committed. All **87 unit tests passed**.

@@ -1,0 +1,14 @@
+{
+  "coverage": {
+    "band_gap_2": 5773,
+    "efermi_2": 5773,
+    "ewald_ev_per_atom": 2796,
+    "layer_spacing_proxy_angstrom": 358,
+    "coord_mean": 5773
+  },
+  "rows": 5773,
+  "cifs": 5773,
+  "blocked": 0,
+  "source_sha256": "353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24",
+  "features_sha256": "15d29e07cd9d1a3247d5e6bc6806ae1f5aedd7153a13b799ebfca38dd765cb25"
+}
