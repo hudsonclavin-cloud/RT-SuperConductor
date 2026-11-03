@@ -792,3 +792,41 @@ Scratch ALIGNN completed all five evaluation scopes on **5,773 structures, zero 
 Scratch ALIGNN lowers Cuprates MAE but does not improve cross-family performance; its other three within-family MAEs are worse than the formula baseline. The combined formula/frozen control also improves Cuprates MAE while worsening the other scopes. Full classifier mean baselines, top-feature diagnostics and fold metadata remain in [scratch results](deep-scratch-alignn.json) and [combined results](deep-combined-encoder.json). These are results for the tested five-epoch protocol, not evidence that graph models are universally inferior.
 
 **Cache verification:** rebuilding all 5,773 CIF feature rows from SHA-keyed caches took **1.8548 seconds** and reproduced the Phase 1 CSV SHA-256 exactly (`15d29e07cd9d1a3247d5e6bc6806ae1f5aedd7153a13b799ebfca38dd765cb25`). [Verification record](deep-cache-verification.json). Fast cached feature retrieval is separate from the expensive grouped model evaluations.
+
+## Phase 3 — supervised structure-model comparison
+
+All comparisons use the same 5,773-record cohort and fixed GroupKFold partitions, with shared MP reference IDs removed from training. For a controlled encoder comparison, frozen, fine-tuned and scratch representations feed the same fold-local RF regression/classification readouts. The fine-tuning/scratch scalar Tc heads provide training supervision, not the final evaluated readout. Both neural training pilots use five epochs, batch size 16, deterministic record order, and targets scaled by 100 K; they are not a hyperparameter-optimized graph-model benchmark. CHGNet Adam lr=1e-4; scratch ALIGNN Adam lr=1e-3 with hidden width 64 and two ALIGNN/two GCN blocks.
+
+| Model | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Formula baseline | cross-family | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | — |
+| Formula baseline | Ferrites | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | — |
+| Formula baseline | Cuprates | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.8275 |
+| Formula baseline | Other | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | — |
+| Formula baseline | Oxides | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | — |
+| Frozen CHGNet + RF | cross-family | 5773 | 10.5140 | 16.1169 | -0.0347 | 0.5155 | — |
+| Frozen CHGNet + RF | Ferrites | 517 | 11.2309 | 11.7727 | 0.2475 | 0.5987 | — |
+| Frozen CHGNet + RF | Cuprates | 874 | 22.0833 | 32.6682 | 0.5282 | 0.6684 | 0.8416 |
+| Frozen CHGNet + RF | Other | 3529 | 3.4535 | 4.3630 | 0.5232 | 0.7501 | — |
+| Frozen CHGNet + RF | Oxides | 320 | 4.6464 | 5.8215 | 0.3191 | 0.7342 | — |
+| Formula + frozen CHGNet | cross-family | 5773 | 10.7594 | 16.1169 | 0.1189 | 0.5442 | — |
+| Formula + frozen CHGNet | Ferrites | 517 | 9.7106 | 11.7727 | 0.4361 | 0.7056 | — |
+| Formula + frozen CHGNet | Cuprates | 874 | 20.9908 | 32.6682 | 0.5902 | 0.6710 | 0.8407 |
+| Formula + frozen CHGNet | Other | 3529 | 3.0565 | 4.3630 | 0.6778 | 0.7916 | — |
+| Formula + frozen CHGNet | Oxides | 320 | 4.2253 | 5.8215 | 0.5160 | 0.8050 | — |
+| Tc-fine-tuned CHGNet + RF | cross-family | 5773 | 11.4483 | 16.1169 | -0.0234 | 0.4970 | — |
+| Tc-fine-tuned CHGNet + RF | Ferrites | 517 | 11.1388 | 11.7727 | 0.2924 | 0.5731 | — |
+| Tc-fine-tuned CHGNet + RF | Cuprates | 874 | 21.9029 | 32.6682 | 0.5379 | 0.6454 | 0.8236 |
+| Tc-fine-tuned CHGNet + RF | Other | 3529 | 3.3920 | 4.3630 | 0.5562 | 0.7410 | — |
+| Tc-fine-tuned CHGNet + RF | Oxides | 320 | 4.4002 | 5.8215 | 0.3475 | 0.7219 | — |
+| Scratch ALIGNN + RF | cross-family | 5773 | 12.2198 | 16.1169 | -0.1693 | 0.5555 | — |
+| Scratch ALIGNN + RF | Ferrites | 517 | 11.6536 | 11.7727 | 0.1984 | 0.6459 | — |
+| Scratch ALIGNN + RF | Cuprates | 874 | 20.2448 | 32.6682 | 0.5736 | 0.7034 | 0.8822 |
+| Scratch ALIGNN + RF | Other | 3529 | 3.2671 | 4.3630 | 0.5376 | 0.7304 | — |
+| Scratch ALIGNN + RF | Oxides | 320 | 4.3408 | 5.8215 | 0.3658 | 0.6793 | — |
+
+Missing AUC values indicate a one-class or unscoreable held-out task, not an AUC of zero. Complete mean-class AUCs, importance diagnostics, failures, and partial/budget reports are in [deep-phase3-complete.json](deep-phase3-complete.json). The encoders change the representation, but the final Tc forests still cannot exceed their training-label range.
+
+Measured cumulative CPU consumption: CHGNet **4.546 core-hours**, scratch ALIGNN **1.334 core-hours**. These totals include the interrupted attempts. The completed first CHGNet fold changed pretrained atom-embedding weights by L2 **0.472331**, demonstrating encoder updates rather than training only a readout. Checkpointing preserves optimizer and RNG state and cached evaluations; no model weights or large caches are committed.
+
+The repeated 1,057-structure JARVIS frozen-encoder benchmark exactly reproduced λ MAE 0.850543 and ω_log MAE 93.762855 K. Its Allen–Dynes-derived Tc MAE is **6.073133 K**, versus **5.8582 K** for the paired formula model. This comparison does not support an improvement from this frozen representation. These labels are DFT electron–phonon calculations, not experimental transitions.

@@ -104,12 +104,14 @@ def jarvis(source,output):
         a=r['atoms'];s=Structure(a['lattice_mat'],a['elements'],a['coords'],coords_are_cartesian=a.get('cartesian',False))
         gs.append(m.graph_converter(s));valid.append(r)
         if i%100==0:print('JARVIS graphs',i,flush=True)
-    X=encode(m,gs);systems=['-'.join(sorted(set(r['atoms']['elements']))) for r in valid];res={'rows':len(valid)}
+    X=encode(m,gs);np.save(output.with_suffix('.embeddings.npy'),X);systems=['-'.join(sorted(set(r['atoms']['elements']))) for r in valid];res={'rows':len(valid)};target_predictions={}
     for target,key in [('lambda','lamb'),('omega_log','wlog')]:
         y=np.array([float(r[key]) for r in valid]);pred=np.zeros(len(y))
         for fold,(tr,te) in enumerate(GroupKFold(5).split(X,y,systems),1):
             rf=RandomForestRegressor(n_estimators=180,min_samples_leaf=2,random_state=(3026 if target=='lambda' else 4026)+fold,n_jobs=2).fit(X[tr],y[tr] if target=='lambda' else np.log(y[tr]));p=rf.predict(X[te]);pred[te]=p if target=='lambda' else np.exp(p)
-        res[target+'_mae']=float(mean_absolute_error(y,pred))
+        res[target+'_mae']=float(mean_absolute_error(y,pred));target_predictions[target]=pred
+    from train_physics_targets import allen_dynes_tc_k
+    true_tc=np.array([allen_dynes_tc_k(float(r['lamb']),float(r['wlog'])) for r in valid]);pred_tc=np.array([allen_dynes_tc_k(a,b) for a,b in zip(target_predictions['lambda'],target_predictions['omega_log'])]);res['physics_tc_mae_k']=float(mean_absolute_error(true_tc,pred_tc))
     output.write_text(json.dumps(res,indent=2));print(res)
 def scratch(input_path,features,index,output):
     from alignn.models.alignn import ALIGNN,ALIGNNConfig
