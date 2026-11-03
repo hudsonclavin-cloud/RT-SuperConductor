@@ -20,7 +20,7 @@ ml = [
     "pymatgen>=2024.1",
     "scikit-learn>=1.4",
 ]
-mp = ["mp-api>=0.45,<0.47"]
+mp = ["mp-api>=0.45,<0.46", "emmet-core>=0.84.3,<0.87"]
 graph = [
     "alignn==2026.11.1",
     "dgl==2.1.0",
