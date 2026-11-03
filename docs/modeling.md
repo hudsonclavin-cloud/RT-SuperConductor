@@ -771,3 +771,24 @@ An environment reconnect interrupted the initial training attempts. Completed fr
 Phase 3 progress validation: **93 unit tests passed** after adding persistent
 training/evaluation checkpoints and cumulative CPU-budget tests. This is an
 intermediate checkpoint; supervised encoder/scratch comparisons remain open.
+
+### Phase 3 progress: completed scratch and combined controls
+
+Scratch ALIGNN completed all five evaluation scopes on **5,773 structures, zero graph failures**, using **1.3344 cumulative CPU core-hours** including the interrupted attempt. Neural encoders are trained on Tc for five epochs per fold, then evaluated with the same RF regression/classification probes as the frozen encoder. This controls the downstream learner; it is not a benchmark of a fully optimized direct neural Tc readout. CHGNet supervised fine-tuning remains in progress.
+
+| Representation | Scope | MAE K | Δ MAE vs formula K | Spearman | AUC >0 | AUC >77 |
+|---|---|---:|---:|---:|---:|---:|
+| Scratch ALIGNN | cross-family | 12.2198 | 1.7675 | -0.1693 | 0.5555 | — |
+| Scratch ALIGNN | Ferrites | 11.6536 | 2.2667 | 0.1984 | 0.6459 | — |
+| Scratch ALIGNN | Cuprates | 20.2448 | -1.1126 | 0.5736 | 0.7034 | 0.8822 |
+| Scratch ALIGNN | Other | 3.2671 | 0.4066 | 0.5376 | 0.7304 | — |
+| Scratch ALIGNN | Oxides | 4.3408 | 0.3684 | 0.3658 | 0.6793 | — |
+| Formula + frozen CHGNet | cross-family | 10.7594 | 0.3070 | 0.1189 | 0.5442 | — |
+| Formula + frozen CHGNet | Ferrites | 9.7106 | 0.3237 | 0.4361 | 0.7056 | — |
+| Formula + frozen CHGNet | Cuprates | 20.9908 | -0.3665 | 0.5902 | 0.6710 | 0.8407 |
+| Formula + frozen CHGNet | Other | 3.0565 | 0.1959 | 0.6778 | 0.7916 | — |
+| Formula + frozen CHGNet | Oxides | 4.2253 | 0.2529 | 0.5160 | 0.8050 | — |
+
+Scratch ALIGNN lowers Cuprates MAE but does not improve cross-family performance; its other three within-family MAEs are worse than the formula baseline. The combined formula/frozen control also improves Cuprates MAE while worsening the other scopes. Full classifier mean baselines, top-feature diagnostics and fold metadata remain in [scratch results](deep-scratch-alignn.json) and [combined results](deep-combined-encoder.json). These are results for the tested five-epoch protocol, not evidence that graph models are universally inferior.
+
+**Cache verification:** rebuilding all 5,773 CIF feature rows from SHA-keyed caches took **1.8548 seconds** and reproduced the Phase 1 CSV SHA-256 exactly (`15d29e07cd9d1a3247d5e6bc6806ae1f5aedd7153a13b799ebfca38dd765cb25`). [Verification record](deep-cache-verification.json). Fast cached feature retrieval is separate from the expensive grouped model evaluations.
