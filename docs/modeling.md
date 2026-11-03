@@ -846,3 +846,58 @@ The three-reference diagnostic [run 41737943085](https://github.com/hudsonclavin
 The corrected task lookup reached S3 in [run 41738416962](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41738416962), but all **3 DOS fetches** failed because `mp-api` normalized AlphaID tasks to numeric filenames absent from the bucket. A narrowly scoped adapter now retries the equivalent literal legacy `mp-<number>` and original task-ID filenames only after `NoSuchKey`; other storage failures propagate. Downloaded CompleteDos inputs receive a canonical Monty-JSON SHA-256. This remains a retrieval repair, not a DOS result. **106 tests passed**. Partial ablation execution can reuse unchanged scope results by matrix hash; the final run still evaluates all available groups on the fixed cohort.
 
 [Run 41739223278](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41739223278) retrieved **3/3 DOS spectra**, **2 bulk-modulus rows**, and had **0 endpoint failures** after the storage-key adapter. Orbital extraction still failed locally in the runner: Actions installed **NumPy 2.5.4**, which removed `np.trapz`; local NumPy 1.26 retained it. The integrator now uses `scipy.integrate.trapezoid`, with a test disabling `np.trapz` to reproduce that compatibility condition. **107 tests passed** before pushing this change. Spectra have task IDs and SHA-256 fingerprints; failed projections remain missing rather than zero. Spectrum smoke counts: [deep-mp-spectrum-smoke.json](deep-mp-spectrum-smoke.json).
+
+## Phase 3.5 — global, family-specific and joint family/Tc comparison
+
+Complete fold metrics, sample counts, overlap embargoes, and top-20 importances are retained in [deep-phase35-mechanisms.json](deep-phase35-mechanisms.json). Missing values indicate an unscoreable or unreported diagnostic, not zero.
+
+| Model / feature group | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| global | cross-family | 5773 | 10.2461 | 16.1169 | 0.0847 | 0.5713 | — | 0.4575 | 0.0624 |
+| global | Ferrites | 517 | 8.2882 | 11.7134 | 0.6289 | 0.7128 | — | 0.4914 | — |
+| global | Cuprates | 874 | 21.6791 | 32.3509 | 0.5583 | 0.6769 | 0.8816 | 0.4627 | 0.3411 |
+| global | Other | 3529 | 3.0798 | 8.1442 | 0.6623 | 0.7996 | — | 0.4838 | — |
+| global | Oxides | 320 | 7.3718 | 8.3880 | 0.1405 | 0.7462 | — | 0.4644 | — |
+| family_specific | cross-family | 5773 | blocked | — | — | — | — | — | — |
+| family_specific | Ferrites | 517 | 9.4102 | 11.7727 | 0.5185 | 0.7313 | — | 0.4730 | — |
+| family_specific | Cuprates | 874 | 21.5510 | 32.6682 | 0.5541 | 0.6682 | 0.8540 | 0.4793 | 0.3187 |
+| family_specific | Other | 3529 | 3.0781 | 4.3630 | 0.6776 | 0.8036 | — | 0.4885 | — |
+| family_specific | Oxides | 320 | 3.9634 | 5.8215 | 0.5450 | 0.7633 | — | 0.4644 | — |
+| multitask_50_epoch_pilot | cross-family | 5773 | 11.8888 | 16.1169 | -0.0293 | 0.5728 | — | — | — |
+| multitask_50_epoch_pilot | Ferrites | 517 | 11.1977 | 11.7134 | 0.3915 | 0.6195 | — | — | — |
+| multitask_50_epoch_pilot | Cuprates | 874 | 22.3397 | 32.3509 | 0.4516 | 0.6562 | 0.7724 | — | — |
+| multitask_50_epoch_pilot | Other | 3529 | 4.0896 | 8.1442 | 0.4495 | 0.7303 | — | — | — |
+| multitask_50_epoch_pilot | Oxides | 320 | 5.6477 | 8.3880 | 0.4728 | 0.7840 | — | — | — |
+
+## Phase 3.5 — paired controls before MP enrichment
+
+Complete fold metrics, sample counts, overlap embargoes, and top-20 importances are retained in [deep-phase35-controls.json](deep-phase35-controls.json). Missing values indicate an unscoreable or unreported diagnostic, not zero.
+
+| Model / feature group | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| baseline | cross-family | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | — | 0.4575 | 0.0624 |
+| baseline | Ferrites | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | — | 0.4730 | — |
+| baseline | Cuprates | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.8275 | 0.4793 | 0.3187 |
+| baseline | Other | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | — | 0.4885 | — |
+| baseline | Oxides | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | — | 0.4644 | — |
+| plus_lattice | cross-family | 5773 | 10.3900 | 16.1169 | 0.1079 | 0.5760 | — | 0.4575 | 0.0624 |
+| plus_lattice | Ferrites | 517 | 9.3676 | 11.7727 | 0.5115 | 0.7217 | — | 0.4730 | — |
+| plus_lattice | Cuprates | 874 | 21.4897 | 32.6682 | 0.5569 | 0.6534 | 0.8312 | 0.4793 | 0.3187 |
+| plus_lattice | Other | 3529 | 3.0377 | 4.3630 | 0.6739 | 0.7966 | — | 0.4885 | — |
+| plus_lattice | Oxides | 320 | 3.9866 | 5.8215 | 0.5380 | 0.7707 | — | 0.4644 | — |
+| plus_spin | cross-family | 5773 | 10.3908 | 16.1169 | 0.1038 | 0.5780 | — | 0.4575 | 0.0624 |
+| plus_spin | Ferrites | 517 | 9.3485 | 11.7727 | 0.5058 | 0.7054 | — | 0.4730 | — |
+| plus_spin | Cuprates | 874 | 21.3103 | 32.6682 | 0.5638 | 0.6669 | 0.8403 | 0.4793 | 0.3187 |
+| plus_spin | Other | 3529 | 2.9015 | 4.3630 | 0.6903 | 0.7980 | — | 0.4885 | — |
+| plus_spin | Oxides | 320 | 3.9945 | 5.8215 | 0.5582 | 0.7465 | — | 0.4644 | — |
+| plus_correlation | cross-family | 5773 | 10.4515 | 16.1169 | 0.1253 | 0.5763 | — | 0.4575 | 0.0624 |
+| plus_correlation | Ferrites | 517 | 9.4595 | 11.7727 | 0.5039 | 0.7314 | — | 0.4730 | — |
+| plus_correlation | Cuprates | 874 | 21.4741 | 32.6682 | 0.5619 | 0.6625 | 0.8386 | 0.4793 | 0.3187 |
+| plus_correlation | Other | 3529 | 2.8651 | 4.3630 | 0.6906 | 0.7966 | — | 0.4885 | — |
+| plus_correlation | Oxides | 320 | 3.9798 | 5.8215 | 0.5562 | 0.7553 | — | 0.4644 | — |
+
+The mechanism comparison uses the same formula, geometry, bonding, spin and correlation descriptors for all three models, without the later MP DOS/orbital/elastic enrichment. Test folds and MP-ID embargoes are fixed. For a within-family test, the global and multi-task models may train on other families, but exclude every held-out elemental system across all families; the family-specific model uses only its own remaining family. A wholly held-out family has no family-specific training data, so that cross-family entry is blocked rather than obtained by leaking the family back into training.
+
+The global RF achieved **10.2461 K** cross-family MAE. Its within-family MAE was **8.2882 K** for Ferrites, **3.0798 K** for Other and **7.3718 K** for Oxides; the corresponding family-specific models scored **9.4102**, **3.0781** and **3.9634 K**. Adding other families helps one task and harms another; there is no universal winner. The 50-epoch joint family/Tc MLP scored **11.8888 K** cross-family and produced **665 negative Tc predictions** in the Other-family test. Its raw outputs are reported, not clipped into plausible-looking values or used for ranking. Family prediction accuracy does not establish understanding of a pairing mechanism. These comparisons are pilots, not a tuned neural-model search.
+
+The four paired controls above reuse the exact Phase 2 cohort and folds. Baseline numbers reproduced exactly. The correlation proxy alone changed cross-family MAE from **10.4523 to 10.4515 K**; that tiny difference is not evidence of improved physical understanding. The GGA+U indicator also encodes a computational-method choice and may reflect dataset conventions. The final MP-enriched table follows separately; missing orbital coverage will never be replaced with invented occupations.
