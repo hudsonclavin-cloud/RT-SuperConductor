@@ -24,7 +24,6 @@ on:
       - "scripts/build_review_campaign.py"
       - "scripts/run_three_generation_campaign.py"
       - "scripts/run_active_learning.py"
-      - "scripts/build_untested_pool.py"
       - "scripts/download_training_data.py"
       - "scripts/ingest_3dsc.py"
       - "scripts/rank_candidates.py"
@@ -54,11 +53,7 @@ concurrency:
 
 jobs:
   train:
-    if: >-
-      ${{ !((github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
-            (github.event_name == 'push' &&
-             (contains(github.event.head_commit.added, 'scripts/build_untested_pool.py') ||
-              contains(github.event.head_commit.modified, 'scripts/build_untested_pool.py')))) }}
+    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -126,10 +121,7 @@ jobs:
             --output data/processed/continuous-training/formula-descriptors.csv
       - name: Build and score existing-but-untested Materials Project pool
         if: >-
-          ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
-              (github.event_name == 'push' &&
-               (contains(github.event.head_commit.added, 'scripts/build_untested_pool.py') ||
-                contains(github.event.head_commit.modified, 'scripts/build_untested_pool.py'))) }}
+          ${{ github.event_name == 'workflow_dispatch' && inputs.build_untested_pool }}
         env:
           MP_API_KEY: ${{ secrets.Materials_Project_API }}
         run: |
@@ -217,11 +209,7 @@ jobs:
             data/processed/candidates/
 
   untested-pool:
-    if: >-
-      ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
-          (github.event_name == 'push' &&
-           (contains(github.event.head_commit.added, 'scripts/build_untested_pool.py') ||
-            contains(github.event.head_commit.modified, 'scripts/build_untested_pool.py'))) }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_untested_pool }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
