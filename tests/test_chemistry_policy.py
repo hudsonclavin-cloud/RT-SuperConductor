@@ -4,7 +4,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from chemistry_policy import substitution_rejection, active_layer_elements
+from chemistry_policy import (
+    substitution_rejection, active_layer_elements, insulator_rejection,
+    radioactive_elements,
+)
 
 
 class ChemistryPolicyRegressionTests(unittest.TestCase):
@@ -36,6 +39,33 @@ class ChemistryPolicyRegressionTests(unittest.TestCase):
         self.assertIsNone(
             substitution_rejection('Ba', 'Sr', 'BaFe2As2', 'SrFe2As2', family='Ferrites')
         )
+
+    def test_flags_binary_transition_metal_oxides_and_halides(self):
+        for formula in ('NiO', 'CoO', 'MnO', 'FeO', 'CuO', 'NiCl2'):
+            with self.subTest(formula=formula):
+                self.assertEqual(insulator_rejection(formula), 'binary_transition_metal_oxide_or_halide')
+        self.assertIsNone(insulator_rejection('La2CuO4'))
+
+    def test_only_method_labeled_gga_u_or_r2scan_gaps_trigger_property_filter(self):
+        self.assertEqual(insulator_rejection('LiNbO2', 0.5, 'GGA+U'), 'mp_gga_u_gap_gt_0p1_ev')
+        self.assertEqual(insulator_rejection('LiNbO2', 0.5, 'r2SCAN'), 'mp_r2scan_gap_gt_0p1_ev')
+        self.assertIsNone(insulator_rejection('LiNbO2', 0.5, 'PBE'))
+        self.assertIsNone(insulator_rejection('LiNbO2', 0.05, 'r2SCAN'))
+
+    def test_radioactive_candidates_are_identified_for_lab_access_flag(self):
+        self.assertEqual(radioactive_elements('ThFeAsO'), ['Th'])
+        self.assertEqual(radioactive_elements('PmNi2B2C'), ['Pm'])
+        self.assertIn('Np', radioactive_elements('NpO2'))
+        self.assertEqual(radioactive_elements('Nb3Sn'), [])
+
+    def test_confidence_uses_strict_half_prediction_cutoff(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from rank_candidates import low_confidence, candidate_confidence_group
+        self.assertFalse(low_confidence(4.9, 10.0))
+        self.assertTrue(low_confidence(5.0, 10.0))
+        self.assertTrue(low_confidence(1.0, 0.0))
+        self.assertEqual(candidate_confidence_group(1.0, 10.0, lab_access_flags=['Tc']), 'low_confidence')
+        self.assertEqual(candidate_confidence_group(1.0, 10.0), 'confident')
 
 
 if __name__ == '__main__':

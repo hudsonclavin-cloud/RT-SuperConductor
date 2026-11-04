@@ -6,7 +6,6 @@ chemistry when available and conservative stoichiometric signatures otherwise.
 """
 from __future__ import annotations
 
-import re
 from functools import lru_cache
 
 from pymatgen.core import Composition, Element, Species
@@ -188,12 +187,12 @@ def is_binary_transition_metal_oxide_or_halide(formula: str) -> bool:
 
 def insulator_rejection(formula: str, band_gap_ev: float | None = None, gap_method: str | None = None) -> str | None:
     """Return an auditable composition or MP method-specific insulator flag."""
-    if is_binary_transition_metal_oxide_or_halide(formula):
-        return "binary_transition_metal_oxide_or_halide"
     method = (gap_method or "").casefold().replace(" ", "")
     if band_gap_ev is not None and float(band_gap_ev) > INSULATING_GAP_EV:
         if "r2scan" in method:
             return "mp_r2scan_gap_gt_0p1_ev"
         if "gga+u" in method or "gga_u" in method or "ggau" in method:
             return "mp_gga_u_gap_gt_0p1_ev"
+    if is_binary_transition_metal_oxide_or_halide(formula):
+        return "binary_transition_metal_oxide_or_halide"
     return None

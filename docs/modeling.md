@@ -1054,3 +1054,86 @@ This is a **separate versioned CI study**, not an exact numerical reproduction o
 | all | Oxides | 320 | 3.7322 | 5.8405 | 0.5664 | 0.7661 | — | 0.4364 | — |
 
 CI cross-family MAE changed from **10.4351 K** for the formula baseline to **10.4474 K** with all physical groups; the mean predictor scored **16.1169 K**. The lattice-only addition scored **10.3516 K**, while orbital-only addition scored **10.6721 K**. Within Oxides, orbital features changed MAE from **3.8240 to 3.6366 K**. These small, mixed changes support the same limited conclusion as the local run: the tested additions do not establish an overall discovery advantage. A missing AUC remains an unscoreable one-class/fold task; it is not zero. No ambient-pressure accuracy is claimed because the 3DSC source does not supply measurement pressure.
+
+## Chemistry-aware shortlist rerun (2026-11-04)
+
+Ferrites and Other were regenerated from the 5,773-record 3DSC harmonized snapshot; physics targets were regenerated from the 1,058-row JARVIS electron–phonon dataset, using its 180-prototype search limit. Each uses the chemistry guard and saved model. The empirical 3DSC runs made **0 local Materials Project API calls**. Candidates remain hypotheses; material phases, exact samples, synthesis feasibility, and measured pressure are unresolved. The CSV `record_type=candidate` rows are the current list. `record_type=excluded_historical_candidate` rows have an empty `formula` and are retained only so the old candidate removals and reasons remain reviewable; they are not candidates or review-ranked rows.
+
+| List | Chemistry proposals considered | Survived chemistry policy | Scored after composition/property screen | Current candidates written | Rows retained as exclusion audit |
+|---|---:|---:|---:|---:|---:|
+| Ferrites | 4,732 | 2 | 2 | 2 | 18 |
+| Other | 5,452 | 66 | 66 | 20 | 16 |
+| Phonon-target prototypes | 26,718 | 956 | 945 | 20 | 19 |
+
+Ferrites only yielded **2** candidates after chemistry rules; its prior 18 formulas were removed from the candidate pool. The Other search scored 66 candidates and wrote 20; **16** prior rows did not remain in the new top-20. Physics screening generated 956 policy-passing proposals, then rejected **11** binary transition-metal oxides/halides before scoring; **945** remained eligible for scoring, with 20 written. No candidate-specific GGA+U or r2SCAN method label was available in the local Materials Project cache, so no generic PBE gap was misrepresented as either method.
+
+| Model list | Previous low-confidence count, all scored | New low-confidence count, all scored | Newly moved to low confidence | Radioactive candidates, all scored | Current confident review-ranked rows |
+|---|---:|---:|---:|---:|---:|
+| Ferrites | 0 | 0 | 0 | 0 | 2 |
+| Other | 44 | 56 | 12 | 5 | 10 |
+| Physics targets | 911 | 945 | 34 | 47 | 0 |
+
+The revised confident rule is `tree-spread SD < 0.5 × predicted Tc`, with nonpositive predictions and radioactive formulas forced to low confidence. The physics-target top 20 are **all low confidence**, so the review-ranked set is empty. Radioactive symbols are preserved in `lab_access_flags`; radioactive rows are not promoted even if their tree spread otherwise passes. For this regeneration, binary transition-metal oxides and halides are rejected by composition regardless of a reported zero GGA gap. These simple composition flags are a heuristic, not a universal classification of all binary compounds.
+
+### Before-and-after removals
+
+
+The rows below list every formula present in the previous shortlist but absent from the regenerated top-20 candidate rows. A named chemistry rule is shown where the saved parent/substitution metadata supports one. “Not retained in regenerated top-20” means the formula did not survive into the limited current ranking; it does not claim a chemistry impossibility. The detailed old and new row values and provenance remain in the three CSVs.
+
+| List | Removed prior formula | Prior confidence | Why it is absent now |
+|---|---|---|---|
+| Ferrites | `As2Ba0.8Fe2K0.2` | confident | ionic_charge_imbalance |
+| Ferrites | `As2Fe1.2Ru0.8Sr` | confident | ionic_charge_imbalance |
+| Ferrites | `As2BaFe1.85Ni0.15` | confident | ionic_charge_imbalance |
+| Ferrites | `As2BaFe1.8Ni0.2` | confident | ionic_charge_imbalance |
+| Ferrites | `As2Ba0.85Fe2K0.15` | confident | ionic_charge_imbalance |
+| Ferrites | `AsFeSeSm` | confident | oxide_anion_row_swap |
+| Ferrites | `As2EuNi0.2Sm1.8` | confident | family_defining_element |
+| Ferrites | `As2Eu2.8Ni0.2` | confident | family_defining_element |
+| Ferrites | `As2EuNi0.2Tb1.8` | confident | family_defining_element |
+| Ferrites | `As2Ba0.5Fe1.8Na0.5Ru0.2` | confident | ionic_charge_imbalance |
+| Ferrites | `As2Ba0.5Fe1.8Ir0.2K0.5` | confident | ionic_charge_imbalance |
+| Ferrites | `As2Fe1.8K0.5Ru0.2Sr0.5` | confident | ionic_charge_imbalance |
+| Ferrites | `As2EuMn1.8Ni0.2` | confident | family_defining_element |
+| Ferrites | `As2Ce1.8EuNi0.2` | confident | family_defining_element |
+| Ferrites | `As2EuNd1.8Ni0.2` | confident | family_defining_element |
+| Ferrites | `Ba3P2` | confident | ionic_radius_mismatch |
+| Ferrites | `As2EuNi0.2Pr1.8` | confident | family_defining_element |
+| Ferrites | `As2Ba0.5Fe1.8K0.5Pt0.2` | confident | ionic_charge_imbalance |
+| Other | `NbTi3` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Other | `NbTi2Zr` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Other | `MoRh` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Other | `PdSb` | confident | ionic_charge_imbalance |
+| Other | `Al0.9As0.1Nb3` | confident | ionic_radius_mismatch |
+| Other | `Nb3Sb0.15Sn0.85` | confident | no_common_oxidation_state |
+| Other | `GaNb2.928Re0.072` | confident | ionic_radius_mismatch |
+| Other | `B0.1Ga0.9Nb3` | confident | ionic_radius_mismatch |
+| Other | `B0.1In0.9Nb3` | confident | ionic_radius_mismatch |
+| Other | `Nb2.7SnTh0.3` | confident | radioactive lab-access flag (Th); prior row not retained in current top-20 ranking |
+| Other | `B0.1Nb3Tl0.9` | confident | ionic_radius_mismatch |
+| Other | `B12Lu0.074Pd0.926` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Other | `B12Lu0.074Ru0.926` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Other | `B0.15Nb3Sn0.85` | confident | ionic_charge_imbalance |
+| Other | `B12Lu0.074Pt0.926` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Other | `AlRe0.072V2.928` | confident | ionic_radius_mismatch |
+| Physics targets | `NiO` | confident | binary_transition_metal_oxide_or_halide |
+| Physics targets | `NbTc` | confident | radioactive lab-access flag (Tc); prior row not retained in current top-20 ranking |
+| Physics targets | `TaTc` | confident | radioactive lab-access flag (Tc); prior row not retained in current top-20 ranking |
+| Physics targets | `CrRe` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `TaMo` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `ReC` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `Nb2OsW` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `CrOs` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `FeW` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `TaMo2` | confident | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `BeB2` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `BC` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `BeB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `MnB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `FeB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `NiB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `CoB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `CuB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+| Physics targets | `ZnB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
+
+Complete before/after row details are preserved in the linked shortlist CSVs.

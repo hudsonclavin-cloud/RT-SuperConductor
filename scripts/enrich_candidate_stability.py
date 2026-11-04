@@ -23,13 +23,31 @@ def _signature(formula: str) -> tuple[tuple[str, float], ...]:
     return tuple(sorted((str(el), round(float(amount), 8)) for el, amount in comp.items()))
 
 
+def _explicit_gap_method(document: Any) -> str:
+    """Return an API-supplied method label, never infer a functional from gap."""
+    for name in ("band_gap_method", "run_type", "calc_type"):
+        value = getattr(document, name, None)
+        if value not in (None, ""):
+            return str(value)
+    origins = getattr(document, "origins", None) or []
+    if isinstance(origins, dict):
+        origins = [origins]
+    for origin in origins:
+        if isinstance(origin, dict):
+            if str(origin.get("property_name", "")).casefold() == "band_gap":
+                for name in ("band_gap_method", "run_type", "calc_type"):
+                    if origin.get(name) not in (None, ""):
+                        return str(origin[name])
+    return ""
+
+
 def enrich(input_csv: Path, output_csv: Path, api_key: str | None = None, rester_factory: Any = None) -> dict[str, Any]:
     with input_csv.open(newline="", encoding="utf-8-sig") as handle:
         candidates = list(csv.DictReader(handle))
     api_key = api_key or os.environ.get("MP_API_KEY")
     if not api_key:
         rows = [{"formula": row["formula"], "status": "blocked_missing_mp_api_key",
-                 "materials_project_id": "", "energy_above_hull_ev_atom": ""} for row in candidates]
+                 "materials_project_id": "", "energy_above_hull_ev_atom": "", "band_gap_ev": "", "band_gap_method": ""} for row in candidates]
         _write_csv(output_csv, rows)
         return {"rows": len(rows), "status": "blocked_missing_mp_api_key", "output": str(output_csv)}
     if rester_factory is None:
@@ -43,7 +61,7 @@ def enrich(input_csv: Path, output_csv: Path, api_key: str | None = None, rester
                 formula = candidate["formula"]
                 docs = mpr.materials.summary.search(
                     formula=formula,
-                    fields=["material_id", "formula_pretty", "energy_above_hull", "density", "band_gap", "is_metal"],
+                    fields=["material_id", "formula_pretty", "energy_above_hull", "density", "band_gap", "is_metal", "origins"],
                 )
                 exact = [doc for doc in docs if _signature(str(doc.formula_pretty)) == _signature(formula)]
                 if len(exact) == 1:
@@ -54,6 +72,7 @@ def enrich(input_csv: Path, output_csv: Path, api_key: str | None = None, rester
                         "energy_above_hull_ev_atom": getattr(doc, "energy_above_hull", ""),
                         "density_g_cm3": getattr(doc, "density", ""),
                         "band_gap_ev": getattr(doc, "band_gap", ""),
+                        "band_gap_method": _explicit_gap_method(doc),
                         "is_metal": getattr(doc, "is_metal", ""),
                     })
                 else:
@@ -61,14 +80,14 @@ def enrich(input_csv: Path, output_csv: Path, api_key: str | None = None, rester
                         "formula": formula,
                         "status": "no_exact_composition_match" if not exact else "ambiguous_multiple_mp_phases",
                         "materials_project_id": "", "energy_above_hull_ev_atom": "",
-                        "density_g_cm3": "", "band_gap_ev": "", "is_metal": "",
+                        "density_g_cm3": "", "band_gap_ev": "", "band_gap_method": "", "is_metal": "",
                     })
     except Exception as exc:
         failure = f"api_unavailable_{'403' if '403' in str(exc) else type(exc).__name__}"
     if failure:
         rows = [{"formula": row["formula"], "status": failure,
                  "materials_project_id": "", "energy_above_hull_ev_atom": "",
-                 "density_g_cm3": "", "band_gap_ev": "", "is_metal": ""} for row in candidates]
+                 "density_g_cm3": "", "band_gap_ev": "", "band_gap_method": "", "is_metal": ""} for row in candidates]
     _write_csv(output_csv, rows)
     counts: dict[str, int] = {}
     for row in rows:

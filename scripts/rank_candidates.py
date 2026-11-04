@@ -39,8 +39,20 @@ TOP_K_COLUMNS = (
     "3dsc_exists", "3dsc_stanev_exists", "uci_exists", "supercon2_exists", "supermat_exists", "known_in_database",
     "measured_tc_kelvin", "measured_tc_sources", "validation_match_basis",
     "ranking_group", "group_rank", "acquisition_score", "plausibility", "pressure_gpa",
-    "reasons", "status", "model_dataset_sha256", "confidence_group", "review_rank", "parent_record_id", "parent_formula", "substitution", "parent_mp_id", "parent_energy_above_hull", "parent_property_role",
+    "reasons", "status", "model_dataset_sha256", "confidence_group", "review_rank", "parent_record_id", "parent_formula", "substitution", "parent_mp_id", "parent_energy_above_hull", "parent_property_role", "insulator_flag", "insulator_reason", "lab_access_flags",
 )
+
+
+def low_confidence(tree_spread_k: float, predicted_tc_k: float) -> bool:
+    """Keep only positive predictions with tree spread strictly below half Tc."""
+    prediction = float(predicted_tc_k)
+    spread = float(tree_spread_k)
+    return prediction <= 0 or spread >= 0.5 * prediction
+
+
+def candidate_confidence_group(tree_spread_k: float, predicted_tc_k: float, *, lab_access_flags: str | list[str] | None = None) -> str:
+    """Return the review tier, including explicit lab-access exclusions."""
+    return "low_confidence" if low_confidence(tree_spread_k, predicted_tc_k) or bool(lab_access_flags) else "confident"
 
 
 def _elements(formula: str) -> dict[str, float]:
@@ -222,6 +234,7 @@ def _mp_matches(formulas: list[str], api_key: str | None) -> tuple[dict[str, dic
             selected = min(finite_hull, key=lambda item: float(item["energy_above_hull"])) if finite_hull else alternatives[0]
             matches[formula] = {
                 "mp_id": selected.get("material_id", ""),
+                "band_gap_method": selected.get("band_gap_method") or selected.get("run_type") or selected.get("calc_type"),
                 "energy_above_hull": selected.get("energy_above_hull"),
                 "band_gap_ev": selected.get("band_gap_ev"),
                 "is_metal": None if selected.get("is_metal") is None else bool(selected.get("is_metal")),
@@ -247,6 +260,16 @@ def _write_empty(path: Path, report: dict[str, Any], *additional_paths: Path) ->
             csv.writer(handle).writerow(TOP_K_COLUMNS)
     report_path = path.with_name("candidate-ranking-report.json")
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _write_screen_rejections(path: Path, rows: list[dict[str, str]]) -> None:
+    """Keep composition/property screen exclusions inspectable beside a shortlist."""
+    target = path.with_name(path.stem + "-screen-rejections.csv")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=("formula", "chemical_family", "parent_formula", "reason"))
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def model_feature_matrix(matrix, feature_names, artifact):
@@ -332,9 +355,11 @@ def rank_candidates(
         "supercon2": _read_formula_set(supercon2_path, ("formula", "rawMaterial", "material")),
         "supermat": _read_formula_set(supermat_path, ("material", "formula")),
     }
+    from chemistry_policy import insulator_rejection, radioactive_elements
     screened: list[dict[str, Any]] = []
     rejected_hull = 0
     rejected_nonmetal = 0
+    rejected_insulator_rows: list[dict[str, str]] = []
     mp_query_available = mp_status == "ready"
     for candidate in candidates:
         match = matches.get(candidate["formula"], {})
@@ -347,9 +372,11 @@ def rank_candidates(
             continue
         band_gap = match.get("band_gap_ev")
         is_metal = match.get("is_metal")
-        if (band_gap is not None and band_gap > MAX_METALLIC_BAND_GAP_EV) or is_metal is False:
-            rejected_nonmetal += 1
+        insulator_reason = insulator_rejection(candidate["formula"], band_gap, match.get("band_gap_method"))
+        if insulator_reason:
+            rejected_insulator_rows.append({"formula": candidate["formula"], "chemical_family": candidate["chemical_family"], "reason": insulator_reason, "parent_formula": candidate.get("parent_formula", "")})
             continue
+        lab_flags = radioactive_elements(candidate["formula"])
         plausibility = max(0.0, 1.0 - float(hull) / HULL_CUTOFF_EV_PER_ATOM) if hull is not None else 0.0
         flags = _database_flags(
             candidate["formula"], records,
@@ -364,11 +391,15 @@ def rank_candidates(
         exact_measurements, _ = match_measurement_evidence(candidate["formula"], measurement_evidence)
         screened.append({
             **candidate, **match, "plausibility": plausibility,
+            "insulator_flag": "false", "insulator_reason": "", "lab_access_flags": lab_flags,
             "database_flags": flags, "known_status": known_status, "known_sources": known_sources,
             "exact_measurements": exact_measurements,
         })
+    _write_screen_rejections(output_path, rejected_insulator_rows)
 
     if not screened:
+        # No ensemble predictions exist in this branch, so confidence movement
+        # is explicitly unavailable rather than reading uninitialized counts.
         report = {
             "status": "blocked_no_plausible_candidates",
             "dataset_sha256": digest,
@@ -377,6 +408,15 @@ def rank_candidates(
         "enumerated_candidate_count": len(candidates),
             "rejected_hull_count": rejected_hull,
             "rejected_nonmetal_count": rejected_nonmetal,
+        "rejected_insulator_count": len(rejected_insulator_rows),
+        "rejected_insulator_rows": rejected_insulator_rows,
+            "screen_rejections_csv": str(output_path.with_name(output_path.stem + "-screen-rejections.csv")),
+        "confidence_threshold": "uncertainty_k < 0.5 * predicted_tc_kelvin; radioactive rows are low-confidence",
+        "old_confidence_threshold": "uncertainty_k < predicted_tc_kelvin",
+        "old_low_confidence_count_all_scored": None,
+        "new_low_confidence_count_all_scored": None,
+        "moved_to_low_confidence_count_all_scored": None,
+        "radioactive_candidate_count_all_scored": sum(bool(radioactive_elements(item["formula"])) for item in candidates),
             "mp_status": mp_status,
             "mp_note": mp_note,
             "require_hull": require_hull,
@@ -422,6 +462,17 @@ def rank_candidates(
             provenance=("model:pressure-aware-random-forest", "status:hypothesis"),
         ))
     # Select the confidence tier before applying the requested output limit.
+    old_low_confidence_count = 0
+    new_low_confidence_count = 0
+    moved_to_low_confidence_count = 0
+    radioactive_count = 0
+    for item, prediction, spread in zip(screened, predicted, uncertainty):
+        old_low = float(prediction) <= 0 or float(spread) >= max(float(prediction), 0.0)
+        new_low = candidate_confidence_group(float(spread), max(float(prediction), 0.0), lab_access_flags=item.get("lab_access_flags")) == "low_confidence"
+        old_low_confidence_count += int(old_low)
+        new_low_confidence_count += int(new_low)
+        moved_to_low_confidence_count += int(new_low and not old_low)
+        radioactive_count += int(bool(item.get("lab_access_flags")))
     proposals = propose_batch(hypotheses, batch_size=len(hypotheses))
     if family is not None:
         family_proposals: list[CandidateProposal] = []
@@ -440,7 +491,7 @@ def rank_candidates(
     def group_order(proposal: CandidateProposal) -> tuple[int, float, str]:
         item = lookup.get(proposal.candidate.candidate_id, {})
         order = {"new": 0, "known": 1, "unknown": 2}.get(item.get("known_status", "unknown"), 2)
-        low = proposal.candidate.tc_uncertainty_k >= proposal.candidate.predicted_tc_k
+        low = candidate_confidence_group(proposal.candidate.tc_uncertainty_k, proposal.candidate.predicted_tc_k, lab_access_flags=item.get("lab_access_flags")) == "low_confidence"
         return (int(low)*10+order), -proposal.score, proposal.candidate.candidate_id
 
     lookup = {hypothesis.candidate_id: item for hypothesis, item in zip(hypotheses, screened)}
@@ -451,8 +502,11 @@ def rank_candidates(
         item = lookup[proposal.candidate.candidate_id]
         reasons = list(proposal.reasons)
         reasons.append(item.get("chemistry_reason", "necessary chemistry screens passed; stability not established"))
-        low = proposal.candidate.tc_uncertainty_k >= proposal.candidate.predicted_tc_k
-        reasons.append("low confidence: not ranked for review" if low else "confident: tree spread below predicted Tc; calibration still required")
+        radioactive = item.get("lab_access_flags", [])
+        low = candidate_confidence_group(proposal.candidate.tc_uncertainty_k, proposal.candidate.predicted_tc_k, lab_access_flags=radioactive) == "low_confidence"
+        reasons.append("low confidence: tree spread is at least half predicted Tc or prediction is nonpositive" if low else "confident: tree spread is strictly below half predicted Tc; calibration still required")
+        if radioactive:
+            reasons.append("radioactive elements flagged: " + ", ".join(radioactive))
         if item.get("energy_above_hull") is None:
             reasons.append("Materials Project hull energy is unknown; stability review is required")
         else:
@@ -522,6 +576,8 @@ def rank_candidates(
             "reasons": "; ".join(reasons),
             "status": "review_required_validation" if measured_tc is not None else "review_required_hypothesis",
             "model_dataset_sha256": artifact.get("dataset_sha256", digest) if isinstance(artifact, dict) else digest,
+            "insulator_flag": "false", "insulator_reason": "",
+            "lab_access_flags": ",".join(radioactive),
         })
 
     def write_rows(path: Path, rows: list[dict[str, object]]) -> None:
@@ -548,6 +604,15 @@ def rank_candidates(
         "enumerated_candidate_count": len(candidates),
         "rejected_hull_count": rejected_hull,
         "rejected_nonmetal_count": rejected_nonmetal,
+        "rejected_insulator_count": len(rejected_insulator_rows),
+        "rejected_insulator_rows": rejected_insulator_rows,
+        "screen_rejections_csv": str(output_path.with_name(output_path.stem + "-screen-rejections.csv")),
+        "confidence_threshold": "uncertainty_k < 0.5 * predicted_tc_kelvin; radioactive rows are low-confidence",
+        "old_confidence_threshold": "uncertainty_k < predicted_tc_kelvin",
+        "old_low_confidence_count_all_scored": old_low_confidence_count,
+        "new_low_confidence_count_all_scored": new_low_confidence_count,
+        "moved_to_low_confidence_count_all_scored": moved_to_low_confidence_count,
+        "radioactive_candidate_count_all_scored": radioactive_count,
         "screened_candidate_count": len(screened),
         "ranked_count": len(proposals),  # Legacy total-output field.
         "written_count": len(ranked_rows),
