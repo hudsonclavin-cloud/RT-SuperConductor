@@ -128,6 +128,57 @@ def elemental_system_signature(formula: str) -> str:
     return "-".join(sorted(elements)) if elements else "unknown"
 
 
+def embargoed_family_groups(records: list[HarmonizedRecord]) -> list[str]:
+    """Group related formulas and shared Materials Project IDs into one fold.
+
+    The element-system grouping is the primary within-family extrapolation
+    test. A shared MP structure ID can connect otherwise different formula
+    strings, so connected records are merged before GroupKFold as an explicit
+    structure-reference embargo.
+    """
+
+    parents = list(range(len(records)))
+
+    def find(index: int) -> int:
+        while parents[index] != index:
+            parents[index] = parents[parents[index]]
+            index = parents[index]
+        return index
+
+    def union(left: int, right: int) -> None:
+        left_root, right_root = find(left), find(right)
+        if left_root != right_root:
+            parents[max(left_root, right_root)] = min(left_root, right_root)
+
+    first_by_system: dict[str, int] = {}
+    first_by_mp_id: dict[str, int] = {}
+    systems = [elemental_system_signature(record.formula) for record in records]
+    for index, record in enumerate(records):
+        system = systems[index]
+        if system in first_by_system:
+            union(index, first_by_system[system])
+        else:
+            first_by_system[system] = index
+        mp_id = str(getattr(record, "mp_id", "") or "").strip()
+        if mp_id:
+            if mp_id in first_by_mp_id:
+                union(index, first_by_mp_id[mp_id])
+            else:
+                first_by_mp_id[mp_id] = index
+
+    component_systems: dict[int, set[str]] = {}
+    for index, system in enumerate(systems):
+        component_systems.setdefault(find(index), set()).add(system)
+    component_labels: dict[int, str] = {}
+    for root, grouped_systems in component_systems.items():
+        component_labels[root] = (
+            next(iter(grouped_systems))
+            if len(grouped_systems) == 1
+            else "mp_embargo[" + "|".join(sorted(grouped_systems)) + "]"
+        )
+    return [component_labels[find(index)] for index in range(len(records))]
+
+
 def evaluate_within_family(
     records: list[HarmonizedRecord],
     X: np.ndarray,
@@ -149,12 +200,14 @@ def evaluate_within_family(
         if len(indices) < minimum_family_rows:
             continue
         family_records = [records[index] for index in indices]
-        groups = np.asarray([elemental_system_signature(record.formula) for record in family_records])
+        groups = np.asarray(embargoed_family_groups(family_records))
         unique_groups = sorted(set(groups))
         family_report: dict[str, object] = {
             "row_count": len(indices),
-            "elemental_system_count": len(unique_groups),
-            "group_column": "elemental_system_signature",
+            "elemental_system_count": len({elemental_system_signature(record.formula) for record in family_records}),
+            "embargo_group_count": len(unique_groups),
+            "group_column": "elemental_system_signature_with_shared_mp_id_embargo",
+            "shared_mp_ids_embargoed": True,
             "grouped_cv_metrics": None,
             "mae_k": None,
             "mean_predictor_mae_k": None,
@@ -214,7 +267,7 @@ def evaluate_within_family(
         status = "blocked_insufficient_elemental_systems"
     return {
         "status": status,
-        "grouping": "GroupKFold by sorted elemental-system signature within each chemical_family",
+        "grouping": "GroupKFold by elemental-system connected components with shared MP IDs embargoed within each chemical_family",
         "minimum_family_rows": minimum_family_rows,
         "families": family_reports,
     }

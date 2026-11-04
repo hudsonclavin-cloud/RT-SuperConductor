@@ -10,6 +10,11 @@ on:
         required: false
         default: ""
         type: string
+      build_untested_pool:
+        description: "Query MP for ordered stable metals absent from the five local superconductivity exports"
+        required: false
+        default: true
+        type: boolean
   push:
     paths:
       - "scripts/train_baseline.py"
@@ -19,6 +24,7 @@ on:
       - "scripts/build_review_campaign.py"
       - "scripts/run_three_generation_campaign.py"
       - "scripts/run_active_learning.py"
+      - "scripts/build_untested_pool.py"
       - "scripts/download_training_data.py"
       - "scripts/ingest_3dsc.py"
       - "scripts/rank_candidates.py"
@@ -113,6 +119,26 @@ jobs:
           python scripts/compute_formula_descriptors.py \
             --input data/training/harmonized_supercon.csv \
             --output data/processed/continuous-training/formula-descriptors.csv
+      - name: Build and score existing-but-untested Materials Project pool
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
+              (github.event_name == 'push' &&
+               (contains(github.event.head_commit.added, 'scripts/build_untested_pool.py') ||
+                contains(github.event.head_commit.modified, 'scripts/build_untested_pool.py'))) }}
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
+        run: |
+          python scripts/build_untested_pool.py \
+            --input data/training/harmonized_supercon.csv \
+            --model-dir data/processed/continuous-training/pressure-aware \
+            --output data/processed/continuous-training/untested-pool-shortlist.csv \
+            --report data/processed/continuous-training/untested-pool-report.json \
+            --3dsc data/raw/3dsc/MP/3DSC_MP.csv \
+            --uci data/raw/uci/extracted/unique_m.csv \
+            --stanev data/raw/3dsc/Supercon_data_by_2018_Stanev.csv \
+            --supercon2 /tmp/supercon2.csv \
+            --supermat /tmp/supermat/SuperMat-2.0.csv \
+            --top-per-family 50
       - name: Run requested within-family shortlist
         if: ${{ inputs.family != '' }}
         env:
@@ -151,6 +177,17 @@ jobs:
           supercon2_rows = sum(1 for _ in (evidence / "supercon2-review-queue.csv").open(encoding="utf-8")) - 1
           supermat = json.loads((evidence / "supermat-intake-manifest.json").read_text())
           campaign = json.loads((evidence / "paper-review-campaign.json").read_text())
+          pool_path = Path("data/processed/continuous-training/untested-pool-report.json")
+          pool_lines = ""
+          if pool_path.is_file():
+              pool = json.loads(pool_path.read_text())
+              counts = pool.get("filter_counts", {})
+              pool_lines = (
+                  f"- Existing-but-untested MP pool: {pool.get('pool_size_after_all_materials_project_and_database_filters', 0)} entries; "
+                  f"{pool.get('pool_size_scored_after_family_gate', 0)} scored; {pool.get('shortlist_rows', 0)} shortlisted\n"
+                  f"- Top shortlist chemistry-policy flags: {pool.get('top_shortlist_chemistry_policy_flagged_count', 0)}\n"
+                  f"- MP filter counts: {counts}\n"
+              )
           summary = (
               f"### Continuous training\n"
               f"- Run status: {run['status']}\n"
@@ -161,6 +198,7 @@ jobs:
               f"- Family-held-out pressure model: {pressure.get('training_status', 'blocked')}\n"
               f"- Ranked candidates: {ranking.get('ranked_count', 0)}\n"
               f"- Candidate artifact: `data/processed/candidates/top_k.csv`\n"
+              f"{pool_lines}"
           )
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
               handle.write(summary)

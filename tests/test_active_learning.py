@@ -387,6 +387,19 @@ class ActiveLearningTests(unittest.TestCase):
         ]
         self.assertEqual(sorted(all_test_groups), ["B-Mg", "Cl-Na", "Fe-Se", "H-O", "Nb-Sn"])
 
+    def test_shared_mp_ids_are_embargoed_across_formula_systems(self) -> None:
+        records = [
+            SimpleNamespace(chemical_family="Test family", formula="FeSe", mp_id="mp-1"),
+            SimpleNamespace(chemical_family="Test family", formula="FeSe0.9Te0.1", mp_id="mp-1"),
+            SimpleNamespace(chemical_family="Test family", formula="MgB2", mp_id="mp-2"),
+        ]
+
+        groups = pressure_training.embargoed_family_groups(records)
+
+        self.assertEqual(groups[0], groups[1])
+        self.assertNotEqual(groups[0], groups[2])
+        self.assertTrue(groups[0].startswith("mp_embargo["))
+
     def test_uncertainty_is_capped_and_plausibility_weighted(self) -> None:
         implausible = CandidateHypothesis(
             candidate_id="implausible",
