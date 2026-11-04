@@ -1111,6 +1111,53 @@ Ferrites and Other were regenerated from the 5,773-record 3DSC harmonized snapsh
 
 Ferrites only yielded **2** candidates after chemistry rules; its prior 18 formulas were removed from the candidate pool. The Other search scored 66 candidates and wrote 20; **16** prior rows did not remain in the new top-20. Physics screening generated 956 policy-passing proposals, then rejected **11** binary transition-metal oxides/halides before scoring; **945** remained eligible for scoring, with 20 written. No candidate-specific GGA+U or r2SCAN method label was available in the local Materials Project cache, so no generic PBE gap was misrepresented as either method.
 
+### Exclusive rejection counts by chemistry rule
+
+The table below records first-rejection counts from the same 2026-11-04
+regeneration. Each considered proposal is counted once as either one rejection
+reason or accepted; the full counters, source hashes and caveats are in
+[`chemistry-policy-counts.json`](chemistry-policy-counts.json). `—` means that
+the source generator did not emit that independent counter. The 3DSC searches
+report cation/anion and other element-role failures under
+`site_role_mismatch`; they did not expose a separate metal/nonmetal count.
+
+| First rejection / outcome | Ferrites | Other | JARVIS prototypes |
+|---|---:|---:|---:|
+| Proposals considered | 4,732 | 5,452 | 26,718 |
+| Hydrogen substitution | 0 | 0 | 498 |
+| Metal/nonmetal class swap | — | — | 11,509 |
+| Family-defining element removed | 1,028 | 0 | 0 |
+| Active-layer element removed | 1,155 | 0 | 85 |
+| Cation/anion or element-role mismatch | 906 | 2,041 | 0 |
+| No common oxidation state | 841 | 1,684 | 8,801 |
+| Ionic charge imbalance | 604 | 502 | 1,398 |
+| Shannon radii unavailable | 17 | 454 | 407 |
+| Shannon-radius mismatch over 15% | 0 | 80 | 1,249 |
+| Oxide-anion row swap | 13 | 0 | 44 |
+| Parent-reference gap over 0.1 eV | 0 | 279 | 233 |
+| Binary transition-metal oxide/halide composition screen | 0 | 0 | 11 |
+| Invalid formula | 162 | 338 | 0 |
+| Already known formula | 1 | 8 | 1,050 |
+| Duplicate proposal | 3 | 0 | 488 |
+| Candidate rows passed to scoring | 2 | 66 | 945 |
+
+The physics-target counter `dropped_no_common_oxidation_state_balance` is an
+alias of `dropped_ionic_charge_imbalance`; it is excluded from the table total
+to avoid double-counting. The 279/233 parent-reference-gap rejections are
+parent proxies, not candidate band gaps or method-qualified MP properties. The
+local rerun made **0 Materials Project API calls** and has **0 candidate-specific
+GGA+U/r2SCAN gap rejections** because no method-qualified candidate property was
+available. The separate composition heuristic rejected **11** binary
+transition-metal oxides/halides in the JARVIS proposal stream. The family
+candidate streams had zero later insulator rejections. Parent-proxy gap
+rejections and exact-candidate method-qualified gap screens are kept distinct.
+
+The three known regression examples are rejected by the expected rules:
+`As2EuNi0.2Sm1.8` → `family_defining_element`, `Ba3P2` →
+`ionic_radius_mismatch`, and `AsFeSeSm` → `oxide_anion_row_swap`. Each is a
+unit-tested fixture; see the named regression tests in
+[`test_chemistry_policy.py`](../tests/test_chemistry_policy.py).
+
 | Model list | Previous low-confidence count, all scored | New low-confidence count, all scored | Newly moved to low confidence | Radioactive candidates, all scored | Current confident review-ranked rows |
 |---|---:|---:|---:|---:|---:|
 | Ferrites | 0 | 0 | 0 | 0 | 2 |

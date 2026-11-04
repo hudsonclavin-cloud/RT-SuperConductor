@@ -1,0 +1,129 @@
+{
+  "3dsc_family_searches": {
+    "Ferrites": {
+      "accepted_for_scoring": 2,
+      "candidate_mp_method_qualified_insulator_rejections": 0,
+      "current_confident_review_ranked_rows": 2,
+      "current_top_20_candidates_written": 2,
+      "exclusive_first_rejection_counts": {
+        "active_layer_element": 1155,
+        "duplicate": 3,
+        "family_defining_element": 1028,
+        "hydrogen": 0,
+        "insulating_parent": 0,
+        "invalid_formula": 162,
+        "ionic_charge_imbalance": 604,
+        "ionic_radii_unavailable": 17,
+        "ionic_radius_mismatch": 0,
+        "known_formula": 1,
+        "no_common_oxidation_state": 841,
+        "oxide_anion_row_swap": 13,
+        "site_role_mismatch": 906
+      },
+      "local_mp_api_calls": 0,
+      "moved_to_low_confidence": 0,
+      "new_low_confidence_count_all_scored": 0,
+      "old_low_confidence_count_all_scored": 0,
+      "proposals_considered": 4732,
+      "radioactive_candidates_all_scored": 0,
+      "retained_historical_rows_for_exclusion_audit": 18
+    },
+    "Other": {
+      "accepted_for_scoring": 66,
+      "candidate_mp_method_qualified_insulator_rejections": 0,
+      "current_confident_review_ranked_rows": 10,
+      "current_top_20_candidates_written": 20,
+      "exclusive_first_rejection_counts": {
+        "active_layer_element": 0,
+        "duplicate": 0,
+        "family_defining_element": 0,
+        "hydrogen": 0,
+        "insulating_parent": 279,
+        "invalid_formula": 338,
+        "ionic_charge_imbalance": 502,
+        "ionic_radii_unavailable": 454,
+        "ionic_radius_mismatch": 80,
+        "known_formula": 8,
+        "no_common_oxidation_state": 1684,
+        "oxide_anion_row_swap": 0,
+        "site_role_mismatch": 2041
+      },
+      "local_mp_api_calls": 0,
+      "moved_to_low_confidence": 12,
+      "new_low_confidence_count_all_scored": 56,
+      "old_low_confidence_count_all_scored": 44,
+      "proposals_considered": 5452,
+      "radioactive_candidates_all_scored": 5,
+      "retained_historical_rows_for_exclusion_audit": 16
+    }
+  },
+  "code_sha256": {
+    "scripts/chemistry_policy.py": "664c0cf337490209fd1e2a711f967e3f2335d85736b9a3cf976cf2ba5b7f2929",
+    "scripts/rank_candidates.py": "469206d873321659088dc699ca97d08ce423bad4b3584a75bb7c4936b3e2a806",
+    "scripts/run_physics_search.py": "3ea6232875dc3c3f1bd68a01b54420110b6089ba33b09258c58f4534fd8223e1"
+  },
+  "counter_semantics": {
+    "3dsc": "Each proposal increments considered and exactly one first-rejection reason or accepted; cation/anion and element-role failures share site_role_mismatch. No separate metal/nonmetal counter was emitted for these two family searches.",
+    "mp": "No local Materials Project API calls were made. Candidate-specific GGA+U/r2SCAN insulator rejections are zero because method-qualified candidate properties were unavailable; parent-reference proxy gap counts are kept separate and are not candidate values.",
+    "physics": "Each JARVIS substitution proposal increments exactly one first-rejection counter or accepted; dropped_no_common_oxidation_state_balance duplicates dropped_ionic_charge_imbalance and is excluded from the sum. dropped_insulating_parent is a parent-reference gap filter; dropped_binary_transition_metal_oxide_or_halide is the separate composition-based binary heuristic."
+  },
+  "physics_target_search": {
+    "alias_counter_excluded_from_total": "dropped_no_common_oxidation_state_balance",
+    "candidate_specific_mp_method_qualified_insulator_rejections": 0,
+    "candidates_written": 20,
+    "exclusive_first_rejection_counts": {
+      "dropped_active_layer_element": 85,
+      "dropped_binary_transition_metal_oxide_or_halide": 11,
+      "dropped_duplicate_formula": 488,
+      "dropped_family_defining_element": 0,
+      "dropped_group_or_oxidation_mismatch": 0,
+      "dropped_hydrogen_substitution": 498,
+      "dropped_insulating_parent": 233,
+      "dropped_ionic_charge_imbalance": 1398,
+      "dropped_ionic_radii_unavailable": 407,
+      "dropped_ionic_radius_mismatch": 1249,
+      "dropped_known_formula": 1050,
+      "dropped_metal_nonmetal_class_swap": 11509,
+      "dropped_no_common_oxidation_state": 8801,
+      "dropped_oxide_anion_row_swap": 44,
+      "dropped_site_role_mismatch": 0
+    },
+    "local_mp_api_calls": 0,
+    "moved_to_low_confidence": 34,
+    "new_low_confidence_count_all_scored": 945,
+    "old_low_confidence_count_all_scored": 911,
+    "proposals_considered": 26718,
+    "prototypes_screened": 180,
+    "radioactive_candidates_all_scored": 47,
+    "review_ranked_count": 0,
+    "scored_candidates": 945,
+    "source_prototypes": 1058
+  },
+  "real_regression_examples": [
+    {
+      "candidate": "As2EuNi0.2Sm1.8",
+      "parent": "As2EuFe1.8Ni0.2",
+      "rejection": "family_defining_element",
+      "test": "tests/test_chemistry_policy.py"
+    },
+    {
+      "candidate": "Ba3P2",
+      "parent": "BaNi2P2",
+      "rejection": "ionic_radius_mismatch",
+      "test": "tests/test_chemistry_policy.py"
+    },
+    {
+      "candidate": "AsFeSeSm",
+      "parent": "AsFeOSm",
+      "rejection": "oxide_anion_row_swap",
+      "test": "tests/test_chemistry_policy.py"
+    }
+  ],
+  "run_date": "2026-11-04",
+  "schema_version": 1,
+  "source_snapshots": {
+    "harmonized_3dsc_sha256": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+    "jarvis_epc_archive_sha256": "4213651cee9b4c13a376dd74ac1f8d3bd9efcd451f1b8da615255c8df0e1487f"
+  },
+  "title": "Exclusive first-rejection counts from the chemistry-aware shortlist rerun"
+}
