@@ -5,6 +5,11 @@ on:
     - cron: "17 3 * * 0"
   workflow_dispatch:
     inputs:
+      deep_mp_ids:
+        description: "Optional comma-separated MP/MVC reference IDs (empty selects all)"
+        required: false
+        default: ""
+        type: string
       deep_ablation:
         description: "Run the paired physics-feature ablation on all 3DSC CIFs"
         required: false
@@ -224,13 +229,14 @@ jobs:
         env:
           MP_API_KEY: ${{ secrets.Materials_Project_API }}
           DEEP_MP_LIMIT: ${{ inputs.deep_mp_limit }}
+          DEEP_MP_IDS: ${{ inputs.deep_mp_ids }}
         run: |
           feature_table=data/processed/structure_features.csv
           if [ -f data/processed/structure_features_checks.csv ]; then
             feature_table=data/processed/structure_features_checks.csv
           fi
           python scripts/enrich_deep_mp.py --features "$feature_table" \
-            --limit "$DEEP_MP_LIMIT" --output data/processed/structure_features_mp.csv
+            --limit "$DEEP_MP_LIMIT" --ids "$DEEP_MP_IDS" --output data/processed/structure_features_mp.csv
       - name: Run paired group-held-out ablation
         if: ${{ inputs.deep_ablation }}
         run: |

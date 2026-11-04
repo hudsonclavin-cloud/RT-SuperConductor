@@ -217,3 +217,39 @@ class OrbitalIntegrationPortabilityTests(unittest.TestCase):
             def get_element_spd_dos(self,element):return {'s':SimpleNamespace(get_densities=lambda:np.ones(3)),'d':SimpleNamespace(get_densities=lambda:np.ones(3)*3)}
         with patch.object(np,'trapz',None,create=True):r=orbital_weights(DOS())
         self.assertAlmostEqual(r['orbital_s_fraction'],.25);self.assertAlmostEqual(r['orbital_d_fraction'],.75)
+
+class EnrichmentMergeTests(unittest.TestCase):
+    def test_reference_properties_preserve_geometry_and_row_order(self):
+        import tempfile,csv
+        from merge_physics_enrichment import merge
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);base=root/'base.csv';source=root/'mp.csv';output=root/'merged.csv'
+            base.write_text('record_id,mom_angle_mean_deg\na,180\nb,90\n')
+            source.write_text('record_id,mom_angle_mean_deg,reference_mp_id,orbital_d_fraction\nb,,mp-b,0.5\na,,mp-a,0.75\n')
+            report=merge(base,source,output,{'a':'mp-a','b':'mp-b'})
+            rows=list(csv.DictReader(output.open()))
+            self.assertEqual([r['record_id'] for r in rows],['a','b'])
+            self.assertEqual(rows[0]['mom_angle_mean_deg'],'180')
+            self.assertEqual(rows[0]['orbital_d_fraction'],'0.75')
+            self.assertTrue(report['reference_ids_checked'])
+    def test_mismatched_reference_or_cohort_is_rejected(self):
+        import tempfile
+        from merge_physics_enrichment import merge
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);base=root/'base.csv';source=root/'mp.csv';output=root/'merged.csv'
+            base.write_text('record_id\na\n');source.write_text('record_id,reference_mp_id\na,mp-wrong\n')
+            with self.assertRaises(ValueError):merge(base,source,output,{'a':'mp-correct'})
+            source.write_text('record_id,reference_mp_id\nb,mp-correct\n')
+            with self.assertRaises(ValueError):merge(base,source,output)
+            source.write_text('record_id,reference_mp_id\na,mp-correct\na,mp-correct\n')
+            with self.assertRaises(ValueError):merge(base,source,output)
+
+class ReferenceIDCoverageTests(unittest.TestCase):
+    def test_mp_and_mvc_ids_are_included_but_demo_ids_are_excluded(self):
+        from enrich_deep_mp import select_reference_ids
+        values=['mp-10003','mvc-11697','mp-demo-1',None,'mp-10003']
+        self.assertEqual(select_reference_ids(values),['mp-10003','mvc-11697'])
+        self.assertEqual(select_reference_ids(values,{'mvc-11697'}),['mvc-11697'])
+    def test_unknown_explicit_reference_is_rejected(self):
+        from enrich_deep_mp import select_reference_ids
+        with self.assertRaises(ValueError):select_reference_ids(['mp-10003'],{'mp-unknown'})

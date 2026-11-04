@@ -1,0 +1,28 @@
+{
+  "rows": 5773,
+  "merged_columns": [
+    "mp_bulk_modulus_gpa",
+    "mp_dos_ef_states_ev_cell",
+    "orbital_s_fraction",
+    "orbital_p_fraction",
+    "orbital_d_fraction",
+    "orbital_f_fraction",
+    "element_orbital_integrals_json",
+    "orbital_window_ev",
+    "mp_dos_task_id",
+    "mp_dos_content_sha256",
+    "mp_orbital_error",
+    "mp_bulk_error",
+    "mp_dos_error",
+    "reference_mp_id",
+    "mp_bulk_status",
+    "mp_dos_status",
+    "mp_orbital_status"
+  ],
+  "base_sha256": "77f2e5208769ac5016b29e4c5ab68577c686f87156d7d6353b49b3ed7b158db6",
+  "enrichment_sha256": "a1cfc4cce1faf52606a9845affdb73f5fe39513f0da4d2f687d700aeb7467845",
+  "output_sha256": "7bfb47e46aa3b96c2aae7c2128dec80bbecc42880d50880d5d8c9195b14ddb7a",
+  "reference_ids_checked": true,
+  "method": "Exact record_id cohort; import only reference-property columns; preserve geometry",
+  "interpretation": "MP properties belong to reference calculations, not measured candidate samples"
+}

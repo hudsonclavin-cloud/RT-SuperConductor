@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Secret-backed Actions-only MP elasticity and DOS enrichment with missingness."""
-import argparse,csv,json,os,sys
+import argparse,csv,json,os,sys,re
 from pathlib import Path
 import numpy as np
 from scipy.integrate import trapezoid
@@ -71,7 +71,15 @@ def flush_output(rows,by_id,cache,output,report):
         w=csv.DictWriter(f,fieldnames=list(dict.fromkeys(k for r in rows for k in r)));w.writeheader();w.writerows(rows)
     output.with_suffix('.json').write_text(json.dumps(report,indent=2));print(report);return report
 
-def enrich(input_path,features,output,limit=100):
+def select_reference_ids(values,requested=None):
+    available=sorted({v for v in values if isinstance(v,str) and re.fullmatch(r'(?:mp|mvc)-[0-9]+',v)})
+    if requested is not None:
+        missing=set(requested)-set(available)
+        if missing:raise ValueError('Requested reference IDs are not in this cohort: '+str(sorted(missing)))
+        return [v for v in available if v in requested]
+    return available
+
+def enrich(input_path,features,output,limit=100,requested_ids=None):
     import hashlib,importlib.metadata
     if limit<0:raise ValueError('limit must be non-negative; zero means all reference IDs')
     rows=list(csv.DictReader(features.open()));by_id={r.record_id:r.mp_id for r in load_harmonized(input_path)}
@@ -83,7 +91,7 @@ def enrich(input_path,features,output,limit=100):
         import time
         cache_dir.mkdir(parents=True,exist_ok=True)
         report['mp_api_version']=importlib.metadata.version('mp-api');report.update(status='collecting',reason='Partial snapshot while reference-property queries are active')
-        ids=sorted({by_id[r['record_id']] for r in rows if by_id.get(r['record_id'],'').startswith('mp-')});report['unique_reference_ids']=len(ids);ids=ids[:limit] if limit else ids;streak=0
+        all_ids=select_reference_ids(by_id.get(r['record_id']) for r in rows);report['unique_reference_ids']=len(all_ids);ids=select_reference_ids(all_ids,requested_ids);report['selected_reference_ids']=len(ids);report['requested_reference_ids']=sorted(requested_ids) if requested_ids is not None else None;ids=ids[:limit] if limit else ids;streak=0
         try:
             with MPRester(os.environ['MP_API_KEY'],use_document_model=False) as client:
                 for mid in ids:
@@ -113,6 +121,7 @@ def enrich(input_path,features,output,limit=100):
                                 d['orbital_status']='blocked_'+type(e).__name__;d['mp_orbital_error']=safe_error(e)
                                 if len(report['endpoint_error_samples'])<3:report['endpoint_error_samples'].append({'material_id':mid,'endpoint':'orbital_extraction','error':safe_error(e)})
                         d['dos_status']='available' if dos is not None else 'not_in_reference'
+                        if dos is None:d['orbital_status']='not_in_reference_dos'
                     except Exception as e:
                         auth=any(code in str(e) for code in ('401','403'));auth_failures+=auth;d['dos_status']='blocked_authorization' if auth else 'blocked_'+type(e).__name__;d['mp_dos_error']=safe_error(e);report['failed_endpoint_calls']+=1
                         if len(report['endpoint_error_samples'])<3:report['endpoint_error_samples'].append({'material_id':mid,'endpoint':'dos','error':safe_error(e)})
@@ -127,4 +136,4 @@ def enrich(input_path,features,output,limit=100):
         except Exception as e:report.update(status='blocked_api_client',reason=type(e).__name__)
     return flush_output(rows,by_id,cache,output,report)
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--input',type=Path,default=Path('data/training/harmonized_supercon.csv'));p.add_argument('--features',type=Path,default=Path('data/processed/structure_features.csv'));p.add_argument('--output',type=Path,default=Path('data/processed/structure_features_mp.csv'));p.add_argument('--limit',type=int,default=100);a=p.parse_args();enrich(a.input,a.features,a.output,a.limit)
+    p=argparse.ArgumentParser();p.add_argument('--input',type=Path,default=Path('data/training/harmonized_supercon.csv'));p.add_argument('--features',type=Path,default=Path('data/processed/structure_features.csv'));p.add_argument('--output',type=Path,default=Path('data/processed/structure_features_mp.csv'));p.add_argument('--limit',type=int,default=100);p.add_argument('--ids',default='',help='Optional comma-separated reference MP/MVC IDs');a=p.parse_args();requested=set(a.ids.replace(',',' ').split()) or None;enrich(a.input,a.features,a.output,a.limit,requested)
