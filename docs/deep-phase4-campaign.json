@@ -1,0 +1,316 @@
+{
+  "status": "completed_hypothesis_preparation",
+  "plan": {
+    "repo": "/workspace/RT-SuperConductor",
+    "source": "/tmp/rt-3dsc-spin-ablation/harmonized.csv",
+    "source_index": "/tmp/rt-3dsc-spin-ablation/structure-index.csv",
+    "output": "/workspace/RT-SuperConductor/data/processed/deep-shortlists",
+    "top_k_per_track": 20,
+    "tracks": [
+      "Ferrites",
+      "Other",
+      "physics"
+    ],
+    "local_mp_api_queries": 0,
+    "dft_calculations": 0
+  },
+  "source_hashes": {
+    "/tmp/rt-3dsc-spin-ablation/harmonized.csv": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+    "/tmp/rt-3dsc-spin-ablation/structure-index.csv": "50f04c0a85cf0e1813f3ab1624a4d4a5228eae15e206daa8b5cd7306b62f6b5c",
+    "/tmp/deep-ci-41718785972/raw/jarvis-supercond/mp-characteristics.csv": "687eec879a532a477ebf0b642cca134d636670a20d7f5c6e369a4591809d3f29",
+    "/tmp/rt-physics-bond-ablation/electron-phonon-target-models.joblib": "c6f16e9070db46b5095fecbe4130e275699d45e56454469f1087f484ce6baeba",
+    "/workspace/RT-SuperConductor/data/raw/jarvis-supercond/jarvis_epc_data_figshare_1058.json.zip": "4213651cee9b4c13a376dd74ac1f8d3bd9efcd451f1b8da615255c8df0e1487f"
+  },
+  "code_hashes": {
+    "chemistry_policy.py": "d545f6e48d03b40eb98f2d7d1dee5feb60d03a45b071befe2fda70436746940a",
+    "rank_candidates.py": "cedddf193fa7a4f1b08917fed82ec248018e6f8472ad091e4c368d7091a62308",
+    "run_physics_search.py": "d827c583e67cc2811c91e21fd99544c8e4120ec70de3a8230d7c5af7f44ed09f",
+    "train_physics_targets.py": "88627d8b20429085ca13886fd9388100d93f9c49544786c645c7840cbf161643",
+    "deep_physics_checks.py": "001d921af7dc876d75ba90e56435c36574695b580ccd43e94239c05d3834f60c"
+  },
+  "tracks": {
+    "Ferrites": {
+      "fit": {
+        "training_status": "ready",
+        "family": "Ferrites",
+        "training_rows": 517,
+        "descriptor_count": 155,
+        "backend": "matminer.magpie+formula_shell_orbital_descriptors",
+        "training_max_tc_k": 56.5,
+        "fit_cpu_seconds": 3.1914284530000003,
+        "dataset_sha256": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+        "matrix_sha256": "888da972431fe264f4e94c25e2ab445f3cec360c6848f69dbdbc8e1ffa0d0742",
+        "seed": 4201,
+        "trees": 150,
+        "evaluation_note": "Production fit uses all family rows; held-out baseline metrics are reported separately in the paired Phase 2/3.5 study"
+      },
+      "ranking": {
+        "status": "degraded_no_mp_api_key",
+        "input": "/tmp/rt-3dsc-spin-ablation/harmonized.csv",
+        "dataset_sha256": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+        "model": "/workspace/RT-SuperConductor/data/processed/deep-family-models/ferrites/pressure-aware-model.joblib",
+        "model_dataset_sha256": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+        "chemistry_filter_counts": {
+          "considered": 4732,
+          "hydrogen": 0,
+          "metal_nonmetal_swap": 2207,
+          "group_or_oxidation_mismatch": 1022,
+          "insulating_parent": 0,
+          "ionic_charge_imbalance": 667,
+          "invalid_formula": 162,
+          "known_formula": 27,
+          "duplicate": 10,
+          "accepted": 637
+        },
+        "search_limits": {
+          "max_bases_per_family": 40,
+          "max_candidates": 3000
+        },
+        "enumerated_candidate_count": 637,
+        "rejected_hull_count": 0,
+        "rejected_nonmetal_count": 0,
+        "screened_candidate_count": 637,
+        "ranked_count": 20,
+        "written_count": 20,
+        "review_ranked_count": 20,
+        "low_confidence_count": 0,
+        "mp_status": "degraded_no_mp_api_key",
+        "mp_note": "MP_API_KEY is absent; MP existence, hull, band gap, and metallicity remain unknown",
+        "hull_cutoff_ev_per_atom": 0.05,
+        "require_hull": false,
+        "family": "Ferrites",
+        "score_mode": "within_family_predicted_tc_and_uncertainty",
+        "measurement_source_status": {
+          "uci": "available",
+          "3dsc_stanev": "missing",
+          "supercon2": "missing",
+          "supermat": "available"
+        },
+        "validation_output": "/workspace/RT-SuperConductor/data/processed/deep-shortlists/ferrites/ferrites_validation.csv",
+        "hypotheses_output": "/workspace/RT-SuperConductor/data/processed/deep-shortlists/ferrites/ferrites_hypotheses.csv",
+        "validation_count": 7,
+        "hypotheses_count": 13,
+        "database_source_paths": {
+          "uci": "/workspace/RT-SuperConductor/data/raw/uci/extracted/unique_m.csv",
+          "3dsc_stanev": null,
+          "supercon2": null,
+          "supermat": "/workspace/RT-SuperConductor/data/raw/supermat/SuperMat-2.0.csv"
+        },
+        "known_count": 7,
+        "new_count": 0,
+        "unknown_database_status_count": 630,
+        "output": "/workspace/RT-SuperConductor/data/processed/deep-shortlists/ferrites/ranked-raw.csv",
+        "interpretation": "Every row is a model hypothesis requiring human review and structure/experimental validation; no row is evidence of superconductivity."
+      },
+      "structures": {
+        "blocked_occupational_ordering_required": 16,
+        "unrelaxed_ordered_parent_substitution": 4
+      }
+    },
+    "Other": {
+      "fit": {
+        "training_status": "ready",
+        "family": "Other",
+        "training_rows": 3529,
+        "descriptor_count": 155,
+        "backend": "matminer.magpie+formula_shell_orbital_descriptors",
+        "training_max_tc_k": 41.4,
+        "fit_cpu_seconds": 29.123729983000004,
+        "dataset_sha256": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+        "matrix_sha256": "6af75f867c37a513e12121cb1c8a4e0c9f9e2965aca402c9d1a135ca5f7cb50f",
+        "seed": 4201,
+        "trees": 150,
+        "evaluation_note": "Production fit uses all family rows; held-out baseline metrics are reported separately in the paired Phase 2/3.5 study"
+      },
+      "ranking": {
+        "status": "degraded_no_mp_api_key",
+        "input": "/tmp/rt-3dsc-spin-ablation/harmonized.csv",
+        "dataset_sha256": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+        "model": "/workspace/RT-SuperConductor/data/processed/deep-family-models/other/pressure-aware-model.joblib",
+        "model_dataset_sha256": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+        "chemistry_filter_counts": {
+          "considered": 5452,
+          "hydrogen": 0,
+          "metal_nonmetal_swap": 2230,
+          "group_or_oxidation_mismatch": 1690,
+          "insulating_parent": 35,
+          "ionic_charge_imbalance": 292,
+          "invalid_formula": 338,
+          "known_formula": 64,
+          "duplicate": 0,
+          "accepted": 803
+        },
+        "search_limits": {
+          "max_bases_per_family": 40,
+          "max_candidates": 3000
+        },
+        "enumerated_candidate_count": 803,
+        "rejected_hull_count": 0,
+        "rejected_nonmetal_count": 0,
+        "screened_candidate_count": 803,
+        "ranked_count": 20,
+        "written_count": 20,
+        "review_ranked_count": 20,
+        "low_confidence_count": 0,
+        "mp_status": "degraded_no_mp_api_key",
+        "mp_note": "MP_API_KEY is absent; MP existence, hull, band gap, and metallicity remain unknown",
+        "hull_cutoff_ev_per_atom": 0.05,
+        "require_hull": false,
+        "family": "Other",
+        "score_mode": "within_family_predicted_tc_and_uncertainty",
+        "measurement_source_status": {
+          "uci": "available",
+          "3dsc_stanev": "missing",
+          "supercon2": "missing",
+          "supermat": "available"
+        },
+        "validation_output": "/workspace/RT-SuperConductor/data/processed/deep-shortlists/other/other_validation.csv",
+        "hypotheses_output": "/workspace/RT-SuperConductor/data/processed/deep-shortlists/other/other_hypotheses.csv",
+        "validation_count": 4,
+        "hypotheses_count": 16,
+        "database_source_paths": {
+          "uci": "/workspace/RT-SuperConductor/data/raw/uci/extracted/unique_m.csv",
+          "3dsc_stanev": null,
+          "supercon2": null,
+          "supermat": "/workspace/RT-SuperConductor/data/raw/supermat/SuperMat-2.0.csv"
+        },
+        "known_count": 7,
+        "new_count": 0,
+        "unknown_database_status_count": 796,
+        "output": "/workspace/RT-SuperConductor/data/processed/deep-shortlists/other/ranked-raw.csv",
+        "interpretation": "Every row is a model hypothesis requiring human review and structure/experimental validation; no row is evidence of superconductivity."
+      },
+      "structures": {
+        "blocked_occupational_ordering_required": 16,
+        "unrelaxed_ordered_parent_substitution": 4
+      }
+    },
+    "physics": {
+      "rows": 20,
+      "candidate_filter_counts": {
+        "proposals_considered": 26718,
+        "dropped_hydrogen_substitution": 498,
+        "dropped_metal_nonmetal_class_swap": 11509,
+        "dropped_no_common_oxidation_state_balance": 982,
+        "dropped_known_formula": 1050,
+        "dropped_duplicate_formula": 1297,
+        "accepted": 2898,
+        "dropped_group_or_oxidation_mismatch": 8393,
+        "dropped_insulating_parent": 91,
+        "dropped_ionic_charge_imbalance": 982
+      },
+      "counter_aliases": {
+        "dropped_no_common_oxidation_state_balance": "dropped_ionic_charge_imbalance"
+      },
+      "prototype_limit": 180,
+      "source_prototypes": 1058,
+      "source_mp_parent_properties": "/workspace/RT-SuperConductor/data/raw/jarvis-supercond/mp-characteristics.csv",
+      "review_ranked_count": 10,
+      "low_confidence_count": 10
+    }
+  },
+  "written_rows": 60,
+  "all_dft_verification_pending": true,
+  "local_mp_api_queries": 0,
+  "interpretation": "Substitution policy and low tree spread are screening criteria, not proof of synthesizability, dynamic stability or superconductivity",
+  "dynamic_summary": {
+    "shortlist_sha256": "681b662415d498d834e040a91685f9cec2ef657fe79de2d4c1e3e2023ad78b90",
+    "protocol_sha256": "837dde6c0f46790534fbefd41924718f92f09c0f680cca117b5a3820e59861d8",
+    "protocol": {
+      "protocol": "chgnet-phonopy-screen-v4",
+      "model_name": "0.3.0",
+      "model_sha256": "d14ab7c0f093efe64b60a7bcd540bca10e74fb7f46c86108a079af60524659d1",
+      "software": {
+        "chgnet": "0.4.2",
+        "torch": "2.15.0",
+        "phonopy": "4.8.6",
+        "pymatgen": "2026.10.24",
+        "pymatgen-core": "2026.10.16",
+        "ase": "3.29.0",
+        "numpy": "1.26.4",
+        "scipy": "1.16.3"
+      },
+      "relax_steps": 150,
+      "optimizer_stopping_rule": "atomic_force_and_stress",
+      "force_tolerance_ev_angstrom": 0.05,
+      "stress_tolerance_gpa": 0.1,
+      "target_pressure_gpa": 0.0,
+      "supercell": [
+        3,
+        3,
+        3
+      ],
+      "coarse_mesh": [
+        3,
+        3,
+        3
+      ],
+      "displacement_angstrom": 0.01,
+      "unstable_below_thz": -0.5,
+      "supercell_atom_limit": 1024,
+      "reference_force_subtraction": true,
+      "acoustic_sum_rule": true,
+      "nac_applied": false,
+      "fidelity": "ML-potential screen, not DFT or experimental evidence",
+      "code_sha256": "6bbd08697448f2436a22c712983009ad33863da883c58ce3473965c7115f34a7",
+      "reference_control_status": "Al false-positive instability; diagnostic only, not an experimental rejection criterion"
+    },
+    "rows": 60,
+    "status_counts": {
+      "blocked_occupational_ordering_required": 32,
+      "no_instability_detected_ml": 8,
+      "dynamically_unstable_ml": 20
+    },
+    "unique_calculation_keys": 28,
+    "cpu_seconds_cumulative": 804.6607731969999,
+    "cpu_budget_hours": 6.0,
+    "interpretation": "No detected ML instability is not proof of DFT stability, synthesizability, superconductivity, or ambient-pressure operation."
+  },
+  "control_results": [
+    {
+      "name": "verified-result",
+      "status": "dynamically_unstable_ml",
+      "minimum_frequency_thz": -1.2329605054772501,
+      "gamma_min_thz": -1.5543877633880875e-09,
+      "max_final_force_ev_angstrom": 0.0,
+      "residual_stress_max_gpa": 0.04212881997227669,
+      "protocol_sha256": "af2224ea070bdbeb48efb27e1a924788a81462eed354dc0eb111c2506988c651"
+    },
+    {
+      "name": "commensurate2",
+      "status": "dynamically_unstable_ml",
+      "minimum_frequency_thz": -1.535324669848212,
+      "gamma_min_thz": -1.5543877633880875e-09,
+      "max_final_force_ev_angstrom": 0.0,
+      "residual_stress_max_gpa": 0.04212881997227669,
+      "protocol_sha256": "1b05b9a51df62a8c1e2c3d84037c44b4891e626ca4830b9ff6d8b38e7e2554ee"
+    },
+    {
+      "name": "commensurate3",
+      "status": "dynamically_unstable_ml",
+      "minimum_frequency_thz": -0.7260109993075738,
+      "gamma_min_thz": -1.4719927970615294e-08,
+      "max_final_force_ev_angstrom": 0.0,
+      "residual_stress_max_gpa": 0.04212881997227669,
+      "protocol_sha256": "0c8eaa50d9b5464235e9bf7a671dc60270557db567ee9bb29d85e73038a07f17"
+    },
+    {
+      "name": "commensurate4",
+      "status": "dynamically_unstable_ml",
+      "minimum_frequency_thz": -1.2410665167587258,
+      "gamma_min_thz": -3.2549556139053145e-08,
+      "max_final_force_ev_angstrom": 0.0,
+      "residual_stress_max_gpa": 0.04212881997227669,
+      "protocol_sha256": "f64308da30da9610fbc81990bcc43246c423738c0b0324e48543b3e1d37c9dc2"
+    },
+    {
+      "name": "commensurate5",
+      "status": "dynamically_unstable_ml",
+      "minimum_frequency_thz": -0.7824651833876816,
+      "gamma_min_thz": -1.615447567252211e-08,
+      "max_final_force_ev_angstrom": 0.0,
+      "residual_stress_max_gpa": 0.04212881997227669,
+      "protocol_sha256": "ba4d2dc022f40d487b90fe0d7a4eddbbbfeb05b05b31ceb15be4be62815a4003"
+    }
+  ]
+}

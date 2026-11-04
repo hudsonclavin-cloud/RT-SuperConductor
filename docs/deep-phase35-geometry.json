@@ -1,0 +1,14 @@
+{
+  "rows": 5773,
+  "geometry_source": "reference CIF; highest-occupancy proxy used only for descriptor extraction, never candidate phonons",
+  "features_sha256": "77f2e5208769ac5016b29e4c5ab68577c686f87156d7d6353b49b3ed7b158db6",
+  "coverage": {
+    "mom_angle_mean_deg": 1361,
+    "mom_angle_min_deg": 1361,
+    "oxide_buckling_proxy_angstrom": 231,
+    "is_gga_plus_u": 5773,
+    "mean_d_electron_count": 5773
+  },
+  "blocked_cifs": 0,
+  "disorder_proxies": 3435
+}

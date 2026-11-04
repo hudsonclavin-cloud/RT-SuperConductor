@@ -1,0 +1,30 @@
+# generated using pymatgen
+data_ZrTi2Nb
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   9.47862368
+_cell_length_b   13.55625189
+_cell_length_c   13.55625188
+_cell_angle_alpha   63.90690564
+_cell_angle_beta   69.53694055
+_cell_angle_gamma   69.53694045
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   ZrTi2Nb
+_chemical_formula_sum   'Zr1 Ti2 Nb1'
+_cell_volume   1425.40460885
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Zr  Zr0  1  0.49999993  0.00000000  0.00000000  1
+  Ti  Ti1  1  0.23672809  -0.00000000  0.00000000  1
+  Ti  Ti2  1  0.76327196  0.00000000  -0.00000000  1
+  Nb  Nb3  1  0.00000002  -0.00000000  0.00000000  1

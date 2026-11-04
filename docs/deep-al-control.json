@@ -1,0 +1,95 @@
+[
+  {
+    "candidate_id": "Al-smoke",
+    "chemical_family": null,
+    "formula": "Al",
+    "prototype_jid": null,
+    "substitution": null,
+    "status": "dynamically_unstable_ml",
+    "method": "CHGNet 0.3.0 relaxation and finite-displacement phonopy; not DFT",
+    "protocol_sha256": "837dde6c0f46790534fbefd41924718f92f09c0f680cca117b5a3820e59861d8",
+    "source_cif_sha256": "7609dcb41d8109ff37b4329ef74a034b8f3e7a9e709ae6e7a5d6f065afb8ec6c",
+    "candidate_structure_status": null,
+    "calculation_key": "975dead0cab1e80d7036d13e399c219a49a694c11e871160285f919b8332b76b",
+    "input_structure_sha256": "3b967e2fe2a539ae7c8b9f5b460652530c9632b3c5d7bfaee385214ff65e2110",
+    "protocol": {
+      "protocol": "chgnet-phonopy-screen-v4",
+      "model_name": "0.3.0",
+      "model_sha256": "d14ab7c0f093efe64b60a7bcd540bca10e74fb7f46c86108a079af60524659d1",
+      "software": {
+        "chgnet": "0.4.2",
+        "torch": "2.15.0",
+        "phonopy": "4.8.6",
+        "pymatgen": "2026.10.24",
+        "pymatgen-core": "2026.10.16",
+        "ase": "3.29.0",
+        "numpy": "1.26.4",
+        "scipy": "1.16.3"
+      },
+      "relax_steps": 150,
+      "optimizer_stopping_rule": "atomic_force_and_stress",
+      "force_tolerance_ev_angstrom": 0.05,
+      "stress_tolerance_gpa": 0.1,
+      "target_pressure_gpa": 0.0,
+      "supercell": [
+        3,
+        3,
+        3
+      ],
+      "coarse_mesh": [
+        3,
+        3,
+        3
+      ],
+      "displacement_angstrom": 0.01,
+      "unstable_below_thz": -0.5,
+      "supercell_atom_limit": 1024,
+      "reference_force_subtraction": true,
+      "acoustic_sum_rule": true,
+      "nac_applied": false,
+      "fidelity": "ML-potential screen, not DFT or experimental evidence",
+      "code_sha256": "6bbd08697448f2436a22c712983009ad33863da883c58ce3473965c7115f34a7",
+      "reference_control_status": "Al false-positive instability; diagnostic only, not an experimental rejection criterion"
+    },
+    "units": {
+      "force": "eV/angstrom",
+      "stress": "GPa",
+      "frequency": "THz",
+      "displacement": "angstrom"
+    },
+    "relaxed_cif_path": "/tmp/phonon-al-smoke/final-protocol-control-cache/relaxed-structures/975dead0cab1e80d7036d13e399c219a49a694c11e871160285f919b8332b76b.cif",
+    "relaxed_cif_sha256": "99a5bc9c501fe36dcfe4de3df736785227d6e564ebcc146dbd535d0b169e2029",
+    "relaxation_steps": 5,
+    "max_final_force_ev_angstrom": 0.0,
+    "residual_stress_max_gpa": 0.04212881997227669,
+    "relaxation_converged": true,
+    "minimum_frequency_thz": -0.7260109993075738,
+    "gamma_min_thz": -1.4719927970615294e-08,
+    "gamma_frequencies_thz": [
+      [
+        -1.4719927970615294e-08,
+        -8.590713076706311e-09,
+        1.3723729319614913e-08
+      ]
+    ],
+    "coarse_mesh": [
+      3,
+      3,
+      3
+    ],
+    "mesh_irreducible_qpoints": 4,
+    "mesh_qpoint_weights_sum": 27,
+    "unit_conversion_factor": 15.633302300230191,
+    "supercell": [
+      3,
+      3,
+      3
+    ],
+    "supercell_atoms": 27,
+    "displacements": 1,
+    "reference_force_subtraction": true,
+    "acoustic_sum_rule": true,
+    "nac_applied": false,
+    "cpu_seconds_cumulative": 4.035004428
+  }
+]

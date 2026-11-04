@@ -214,6 +214,76 @@ CIF subset does not cover two empirical families, it writes
 that structure features help. ALIGNN/M3GNet is reserved as an optional second
 stage and is reported as not attempted in the baseline cycle.
 
+## 3DSC spin, bond, and dimensionality ablation
+
+`scripts/evaluate_3dsc_structure_spin.py` joins ingested 3DSC records to their
+source-table rows and CIFs. The table's `is_magnetic_2`, `ordering_2`,
+`total_magnetization_2`, and `num_magnetic_sites_2` values come from the
+Materials Project calculations included in 3DSC. They are DFT-computed
+features, not measured magnetic properties. Total magnetization is reported in
+μB/atom and magnetic-site count per atom by dividing by the source table's
+`nsites_2`; ordering is retained as
+NM/FM/AFM/FiM one-hot fields while its original categorical label is preserved.
+
+For each matched CIF, pymatgen computes one periodic nearest-neighbor distance
+per site (minimum, mean, and standard deviation), the mean metal/nonmetal bond
+distance from CrystalNN neighbors, and mean CrystalNN coordination number.
+The metal/nonmetal split follows pymatgen's element classification (metalloids
+fall in the nonmetal category).
+Dimensionality is computed with pymatgen's Larsen algorithm on a CrystalNN
+structure graph and represented as 0D/1D/2D/3D one-hot values; `layers_present`
+is true for 2D structures. For partially occupied CIFs the feature pipeline
+uses the highest-occupancy species at each site and records that proxy choice.
+
+The ablation uses one shared CIF-backed cohort and identical folds for the
+composition baseline, spin only, bonds only, patterns only, and all three
+groups together. It reports cross-family GroupKFold regression and both
+`Tc > 0 K` and `Tc > 77 K` ROC-AUC classifiers, plus within-family
+elemental-system GroupKFold metrics for families with at least 100 records.
+Missing values remain missing and are imputed from each training fold only.
+Full-CIF run (3 November 2026): 5,773/5,773 training records had a matched source-table row and CIF; no structure-feature failures occurred. The cross-family split held out chemical families; within-family splits held out elemental-system signatures for families with at least 100 rows. Each ablation uses identical folds and the same 158-feature composition baseline. Random forests use 150 regression trees and 100 classification trees; all missing feature values are imputed from the training fold only. Values below are out-of-fold; MAE is K, and AUC labels are strict `Tc > threshold`. A dash means AUC could not be estimated because one or more held-out examples had no score from a fold whose training data contained both classes.
+
+| Evaluation | Feature set | Rows | MAE | Mean-predictor MAE | Spearman ρ | ROC-AUC Tc > 0 K | ROC-AUC Tc > 77 K |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Cross-family (GroupKFold by family) | Baseline | 5773 | 10.3887 | 16.0525 | 0.1458 | 0.5693 | — |
+| Cross-family (GroupKFold by family) | + spin | 5773 | 10.2636 | 16.0525 | 0.1337 | 0.5823 | — |
+| Cross-family (GroupKFold by family) | + bonds | 5773 | 10.3982 | 16.0525 | 0.1059 | 0.5780 | — |
+| Cross-family (GroupKFold by family) | + patterns | 5773 | 10.3652 | 16.0525 | 0.1452 | 0.5675 | — |
+| Cross-family (GroupKFold by family) | + spin + bonds + patterns | 5773 | 10.3286 | 16.0525 | 0.1055 | 0.5844 | — |
+| Within Cuprates (elemental-system groups) | Baseline | 874 | 16.9719 | 31.1061 | 0.6861 | 0.7965 | 0.9294 |
+| Within Cuprates (elemental-system groups) | + spin | 874 | 16.9560 | 31.1061 | 0.6836 | 0.7951 | 0.9351 |
+| Within Cuprates (elemental-system groups) | + bonds | 874 | 16.5728 | 31.1061 | 0.7020 | 0.7977 | 0.9289 |
+| Within Cuprates (elemental-system groups) | + patterns | 874 | 16.9702 | 31.1061 | 0.6850 | 0.7989 | 0.9314 |
+| Within Cuprates (elemental-system groups) | + spin + bonds + patterns | 874 | 16.7934 | 31.1061 | 0.6925 | 0.8062 | 0.9310 |
+| Within Ferrites (elemental-system groups) | Baseline | 517 | 7.7684 | 12.1965 | 0.6402 | 0.8089 | — |
+| Within Ferrites (elemental-system groups) | + spin | 517 | 7.7830 | 12.1965 | 0.6358 | 0.8098 | — |
+| Within Ferrites (elemental-system groups) | + bonds | 517 | 7.7832 | 12.1965 | 0.6382 | 0.8057 | — |
+| Within Ferrites (elemental-system groups) | + patterns | 517 | 7.7562 | 12.1965 | 0.6407 | 0.7991 | — |
+| Within Ferrites (elemental-system groups) | + spin + bonds + patterns | 517 | 7.7750 | 12.1965 | 0.6399 | 0.8021 | — |
+| Within Heavy-fermion (elemental-system groups) | Baseline | 418 | 0.8314 | 1.1735 | 0.5479 | 0.8196 | — |
+| Within Heavy-fermion (elemental-system groups) | + spin | 418 | 0.7638 | 1.1735 | 0.5494 | 0.8213 | — |
+| Within Heavy-fermion (elemental-system groups) | + bonds | 418 | 0.8178 | 1.1735 | 0.5696 | 0.8190 | — |
+| Within Heavy-fermion (elemental-system groups) | + patterns | 418 | 0.8329 | 1.1735 | 0.5524 | 0.8203 | — |
+| Within Heavy-fermion (elemental-system groups) | + spin + bonds + patterns | 418 | 0.7627 | 1.1735 | 0.5603 | 0.8176 | — |
+| Within Other (elemental-system groups) | Baseline | 3529 | 1.9543 | 4.8770 | 0.7358 | 0.8486 | — |
+| Within Other (elemental-system groups) | + spin | 3529 | 1.9445 | 4.8770 | 0.7378 | 0.8465 | — |
+| Within Other (elemental-system groups) | + bonds | 3529 | 1.9302 | 4.8770 | 0.7357 | 0.8512 | — |
+| Within Other (elemental-system groups) | + patterns | 3529 | 1.9506 | 4.8770 | 0.7345 | 0.8484 | — |
+| Within Other (elemental-system groups) | + spin + bonds + patterns | 3529 | 1.9320 | 4.8770 | 0.7359 | 0.8518 | — |
+| Within Oxides (elemental-system groups) | Baseline | 320 | 3.6513 | 5.6932 | 0.6334 | 0.7884 | — |
+| Within Oxides (elemental-system groups) | + spin | 320 | 3.6811 | 5.6932 | 0.6292 | 0.8053 | — |
+| Within Oxides (elemental-system groups) | + bonds | 320 | 3.6809 | 5.6932 | 0.6308 | 0.8049 | — |
+| Within Oxides (elemental-system groups) | + patterns | 320 | 3.7018 | 5.6932 | 0.6311 | 0.7996 | — |
+| Within Oxides (elemental-system groups) | + spin + bonds + patterns | 320 | 3.7392 | 5.6932 | 0.6362 | 0.8164 | — |
+
+The source spin fields were populated for all 5,773 records. The metal/nonmetal mean distance was available for 3,964 CIFs; it remains missing for structures with no CrystalNN metal/nonmetal neighbor pair. The `Tc > 77 K` classifier is estimable only for the Cuprates within-family evaluation. In cross-family evaluation, the held-out family can contain all high-Tc examples, leaving no positive examples in training; the corresponding out-of-family classifier score is therefore unavailable rather than imputed.
+
+The JARVIS electron-phonon model also computes the five CIF-like bond features
+for each structure and includes them in its fitted lambda/omega_log models.
+The bond-feature ablation reports held-out `omega_log` MAE change against the
+composition/Lewis-shell baseline; results are reported in the JARVIS ablation
+table below.
+
 ## Candidate generation and acquisition
 
 `scripts/rank_candidates.py` uses pymatgen to make same-family elemental
@@ -306,3 +376,681 @@ properties were available. Family mode ranks predicted Tc and capped,
 plausibility-weighted uncertainty; it does not use the 273 K target window.
 The top 25 are grouped into known and unknown database status, and every row
 is a hypothesis requiring human and structure review.
+
+## Electron-phonon target model and prototype search
+
+The physics-target workflow is implemented in `scripts/train_physics_targets.py`
+and `scripts/run_physics_search.py`. It trains separate random-forest regressors
+for electron-phonon coupling `lambda` and `omega_log` (stored in kelvin), then
+maps their held-out predictions through the modified McMillan/Allen-Dynes
+expression with `mu*=0.1`:
+
+```text
+Tc = (omega_log / 1.2) * exp[-1.04(1+lambda) /
+     (lambda - mu*(1 + 0.62*lambda))]
+```
+
+The strong-coupling `f1`/`f2` factors are omitted, so this is an explicitly
+specified screening approximation, not a full Eliashberg calculation. The
+training labels are real published DFT results from JARVIS-SuperconDB, not
+values generated by this repository. Its NIST/Figshare record contains the
+3D table with 1,058 compounds and columns `lamb`, `wlog`, `Tc`, `a2F`, structure,
+stability, and pressure. We verified the published Figshare license as CC BY
+4.0 and checked the downloaded file against both the publisher MD5 and the
+recorded SHA-256. See
+[`data/training/physics-target-source.json`](../data/training/physics-target-source.json)
+for exact URLs and hashes. Cite K. Choudhary and K. Garrity, “Designing high-TC
+superconductors with BCS-inspired screening, density functional theory, and
+deep-learning,” *npj Computational Materials* 8, 244 (2022),
+[doi:10.1038/s41524-022-00933-1](https://doi.org/10.1038/s41524-022-00933-1),
+and the dataset DOI
+[10.6084/m9.figshare.21370572.v4](https://doi.org/10.6084/m9.figshare.21370572.v4).
+
+Run the reproducible download, feature build, grouped ablation, and model fit
+with:
+
+```bash
+python -m pip install -e '.[ml,mp]'
+python scripts/train_physics_targets.py
+python scripts/enrich_physics_mp.py  # optional; requires working MP API access
+python scripts/train_physics_targets.py  # rerun to consume the MP cache
+python scripts/run_physics_search.py
+python scripts/enrich_candidate_stability.py  # optional exact-composition MP checks
+python scripts/run_physics_search.py  # include candidate MP status/hull fields
+```
+
+The characteristics table includes one JARVIS compound per row, Magpie
+composition statistics, the existing neutral-atom shell and Lewis-dot proxy
+descriptors, structure-derived density, hydrogen fraction, and light-element
+fraction (atomic number `Z <= 10`). Materials Project DOS at the Fermi level,
+band gap, metallicity, and density have dedicated, separate fields. The
+`scripts/enrich_physics_mp.py` step only fills these from an exact formula with
+a unique MP summary match and records ambiguous phases rather than selecting
+one silently. The local feature-table run returned HTTP 403, so its MP fields
+were blank and its ablation is reported as blocked; no MP values were inferred
+from JARVIS or another database. The later secret-backed Actions run is
+recorded below. The feature table
+committed with this change is
+[`data/training/physics-target-characteristics.csv`](../data/training/physics-target-characteristics.csv)
+and records that status per compound.
+
+### Held-out results and feature ablation
+
+The run used 1,057 of the source's 1,058 records; one row with an invalid or
+nonpositive EPC target was excluded. Five-fold `GroupKFold` held out complete
+elemental-system signatures (834 systems total). Metrics below are the actual
+run from this code and the checksum-pinned dataset. Direct-Tc and
+physics-derived Tc models share the same held-out `Tc` recomputed from the
+source `lambda` and `omega_log` labels using the equation above.
+
+| Feature set | Direct RF Tc MAE (K) | Physics-derived Tc MAE (K) | Δ physics Tc MAE (K) | Lambda MAE | omega_log MAE (K) | Δ omega_log MAE (K) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Magpie + Lewis/shell | 2.8602 | 5.8582 | 0.0000 | 0.8643 | 93.6672 | 0.0000 |
+| + structure density, H/light fraction, site count | 2.8487 | 5.8715 | +0.0133 | 0.8594 | 93.4718 | -0.1955 |
+| + five bond features | 2.8598 | 5.8918 | +0.0336 | 0.8695 | 92.6127 | -1.0546 |
+| + structure features and five bond features | 2.8470 | 5.9636 | +0.1054 | 0.8605 | 92.1587 | -1.5085 |
+| Frozen pretrained ALIGNN graph embeddings + fold-wise RF probes | 2.8790 | 5.5879 | -0.2703* | 0.8312 | 93.8780 | +0.2108* |
+| + Materials Project DOS/gap/metallicity/density | blocked | blocked | n/a | n/a | n/a | n/a |
+
+For the MP ablation, 211 fully populated rows were required by the predefined
+coverage rule; actual complete rows were zero in the local run. The bond-only
+features reduced held-out `omega_log` MAE by 1.0546 K, while physics-derived
+Tc MAE increased by 0.0336 K. Combining all structure and bond features
+reduced `omega_log` MAE by 1.5085 K but increased physics-derived Tc MAE by
+0.1054 K. These are small changes beside the large absolute `omega_log` error;
+they do not validate chemistry extrapolation to room temperature. The `*`
+ALIGNN deltas compare against its separate earlier run's baseline metrics and
+are not a paired ablation against this newly recomputed JARVIS baseline.
+
+The ALIGNN row uses a frozen 256-dimensional pooled structure representation
+from the published `jv_formation_energy_peratom_alignn` checkpoint, followed by
+fold-wise random-forest probes for lambda and omega_log. The checkpoint is
+pretrained for formation energy, not EPC, so none of the evaluation EPC labels
+are used by the pretrained network. The same 5-fold elemental-system
+GroupKFold produced 1,057 usable structures and zero graph failures. Source
+weights are [ALIGNN Figshare file 31458679](https://ndownloader.figshare.com/files/31458679),
+SHA-256 `d80f5e067c0b0b0f569b8158ecfeeeb68472bebe2ceb27ff787dcfcc68948e20`.
+The pretrained formation-energy corpus may include held-out structures, so
+this is target-label-safe transfer learning with a transductive pretraining
+caveat, not a fully independent structure benchmark. It improves
+physics-derived Tc MAE by 0.2663 K versus the composition baseline, while
+omega_log error is slightly worse; this is a small benchmark change, not proof
+of discovery-scale extrapolation.
+
+The existing project random-forest Tc model remains the baseline. A random
+forest regression prediction is bounded by the range of target values in its
+training leaves; it cannot predict above the training maximum. On this EPC
+benchmark the direct-RF target maximum was 31.9108 K after applying the stated
+`mu*=0.1` formula (the source's reported Tc maximum is 33.4702 K). The two-target
+model can produce a derived Tc above the Tc-label maximum because it combines
+separate bounded lambda and omega_log estimates nonlinearly; that does not
+make it a validated high-Tc extrapolator. The tree-to-tree standard deviation
+is only a rough ensemble-spread indicator and is not calibrated uncertainty.
+
+### Prototype-substitution shortlist
+
+`run_physics_search.py` changes one element at a time within the same periodic
+table group, using elements present in the published source structures, and
+retains the parent structure as an explicitly unrelaxed prototype. Hydrogen is
+never substituted. Metal, metalloid, and nonmetal categories are not crossed;
+candidate compositions also need a pymatgen common-oxidation-state charge
+balance. On the pinned run this considered 1,257 proposals: 22 were dropped
+because a substitution involved hydrogen, 323 for element-class mismatch, and
+498 for lacking a common-oxidation-state charge balance; 145 were already in
+the source and 38 duplicated another proposal, leaving 231 eligible candidates.
+The filter counts are emitted in `physics-search-summary.json`.
+
+Rows with `tc_tree_sd_k > predicted_tc_k` are assigned to the separate
+`low_confidence` group and get independent `group_rank` values. The top-20
+export reserves up to 10 places per group and backfills if one group is short.
+In the actual screened pool all 20 output rows were low-confidence, so there
+were zero standard-confidence entries in that export. The current result is
+[`physics-target-top20.csv`](physics-target-top20.csv). Candidate stability is
+unknown without an exact candidate MP phase calculation; the source prototype
+stability is shown separately as a proxy. The latest local MP attempt was
+blocked by HTTP 403; candidate-query results from the later successful Actions
+run are listed below. Every row is marked `DFT
+verification=pending`.
+
+The leading row, CrC on the MoC prototype, has predicted lambda 2.442,
+omega_log 250.80 K, and Tc 31.96 K. Its tree-spread Tc SD is 37.63 K, larger
+than the mean, and its candidate stability is unknown. This is a model-generated
+hypothesis with poor confidence, not a discovery or recommendation to
+synthesize. No structure relaxation, phonon calculation, or experimental
+check has been performed for this shortlist.
+
+### Secret-backed Materials Project workflow run
+
+The pushed GitHub Actions workflow completed successfully on 2026-11-03:
+[run 41689587893](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41689587893).
+Its artifact contains the source-compound enrichment CSV, candidate stability
+CSV, retrained model report, frozen-ALIGNN report, and final candidate table.
+The 1,057 source rows were classified as 347 ambiguous multi-phase formulas,
+272 with no exact MP formula match, and 438 with a unique exact-formula match
+whose DOS request failed validation. For those 438 rows, MP band gap,
+metallicity, and density were retrieved; the Fermi-level DOS remains missing.
+Consequently the predefined MP-feature ablation still has zero rows with the
+complete feature group and remains blocked. The Action's API requests did
+complete with the repository secret; the DOS validation issue remains
+unresolved.
+
+The same run queried all 20 shortlisted candidate formulas: 3 returned a
+single MP composition match requiring structure review, 8 had multiple
+possible MP phases, and 9 had no exact composition match. None of these
+statuses establishes that the unrelaxed substituted prototype is stable.
+The workflow's run summary and machine-readable outputs are retained in the
+Actions artifact rather than committed as raw generated model files. On that
+run, the baseline direct-RF Tc MAE was 2.8197 K, the composition-model
+physics-derived Tc MAE was 5.9467 K, and the frozen-ALIGNN
+physics-derived Tc MAE was 5.2886 K (lambda MAE 0.8469 and omega_log MAE
+94.1365 K). These are the metrics from the workflow runtime; the table above
+records the separate local benchmark run.
+
+## Deep physical-feature study: Phase 1 — leakage audit
+
+The new `deep_physics_features.py` uses an explicit physical-feature allowlist.
+`ingest_3dsc.py --features data/processed/structure_features.csv` writes the
+record-keyed table; the feature builder extends it with CIF-derived quantities.
+Magnetism and electronic properties in the `_2` columns are Materials Project
+DFT results, not measured magnetic properties of the matched superconducting
+sample. `run_type_2` is an audit flag, excluded from the predictor matrix.
+Point groups and crystal systems are categorical, not ordinal values.
+
+Excluded columns and their leakage risks:
+
+| Excluded field | Reason |
+| --- | --- |
+| synth_doped | Records the matching/artificial-doping construction, not independently measured structure physics. |
+| totreldiff | Composition matching residual can encode which literature label was assigned. |
+| formula_similarity | Quality of the label-to-structure matching, not an independent materials property. |
+| correct_formula_frac | Matching/cleaning decision depends on how the record was assembled. |
+| formula_frac | Matching fraction can identify repeated samples and database construction. |
+| weight | Dataset weighting/duplication convention can encode labels or family frequency. |
+| created_at / updated columns | Database processing chronology is not experimental publication chronology and may encode ingestion batches. |
+
+All matrix entry points reject these names. CIF results are cached by content
+SHA-256, and failed calculations retain a reason. Layer spacing is the largest
+empty periodic slab along a cell reciprocal-axis normal for a 2D graph; this
+is a cell-dependent proxy, not a symmetry-invariant interlayer binding energy.
+Ewald energy uses a common formal oxidation-state assignment when available;
+it is an electrostatic proxy, not a measured bond strength or formation energy.
+Pure metals retain missing Ewald energy. Disordered CIFs use a recorded
+highest-occupancy proxy, so neither geometry nor formal charges reproduce
+fractional-site electronic disorder.
+
+Phase 1 measured result (2026-11-03): **5,773 rows, 5,773 CIFs, 0 geometry failures**. Nonmissing counts: `band_gap_2` 5773, `efermi_2` 5773, `ewald_ev_per_atom` 2796, `layer_spacing_proxy_angstrom` 358, `coord_mean` 5773. Source SHA-256: `353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24`. Feature CSV SHA-256: `15d29e07cd9d1a3247d5e6bc6806ae1f5aedd7153a13b799ebfca38dd765cb25`. The generated table is 2.9 MB and is an artifact; raw CIFs and caches are not committed. All **87 unit tests passed**.
+
+## Deep physical-feature study: Phase 2 — paired ablation
+
+All **5,773** records remain in every comparison. Baseline = Magpie plus neutral-atom shell/Lewis descriptors (**155 columns**); pressure and hull columns appended by the older feature builder are removed. Each outer split also purges training rows sharing an MP ID with the held-out rows. Thus these numbers supersede older comparisons for this study; changed baseline inputs and stricter structure separation explain why earlier within-family scores differ. Trees: 150 regression / 100 per binary classifier; seeds fixed by fold. All imputers are fitted on training rows only. AUC uses pooled out-of-fold scores and is unavailable when a fold lacks both training classes or the evaluation has only one class. The mean-class predictor uses each training fold’s positive prevalence, so its pooled AUC need not equal 0.5.
+
+| Scope | Inputs | N | MAE K | Mean MAE K | Spearman | AUC >0 | Mean AUC >0 | AUC >77 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| cross-family | Formula baseline | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | 0.4575 | — | 0.0624 |
+| Ferrites | Formula baseline | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | 0.4730 | — | — |
+| Cuprates | Formula baseline | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.4793 | 0.8275 | 0.3187 |
+| Other | Formula baseline | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | 0.4885 | — | — |
+| Oxides | Formula baseline | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | 0.4644 | — | — |
+| cross-family | + electronic | 5773 | 10.5306 | 16.1169 | 0.1107 | 0.5742 | 0.4575 | — | 0.0624 |
+| Ferrites | + electronic | 517 | 9.4925 | 11.7727 | 0.5099 | 0.7331 | 0.4730 | — | — |
+| Cuprates | + electronic | 874 | 21.6690 | 32.6682 | 0.5495 | 0.6733 | 0.4793 | 0.8450 | 0.3187 |
+| Other | + electronic | 3529 | 2.8746 | 4.3630 | 0.6938 | 0.8018 | 0.4885 | — | — |
+| Oxides | + electronic | 320 | 4.0669 | 5.8215 | 0.5608 | 0.7591 | 0.4644 | — | — |
+| cross-family | + lattice | 5773 | 10.3884 | 16.1169 | 0.1440 | 0.5811 | 0.4575 | — | 0.0624 |
+| Ferrites | + lattice | 517 | 9.2700 | 11.7727 | 0.5135 | 0.7181 | 0.4730 | — | — |
+| Cuprates | + lattice | 874 | 21.5255 | 32.6682 | 0.5553 | 0.6735 | 0.4793 | 0.8417 | 0.3187 |
+| Other | + lattice | 3529 | 3.0330 | 4.3630 | 0.6726 | 0.7952 | 0.4885 | — | — |
+| Oxides | + lattice | 320 | 3.9662 | 5.8215 | 0.5389 | 0.7514 | 0.4644 | — | — |
+| cross-family | + bonding | 5773 | 10.4227 | 16.1169 | 0.1236 | 0.5934 | 0.4575 | — | 0.0624 |
+| Ferrites | + bonding | 517 | 9.4317 | 11.7727 | 0.5041 | 0.7209 | 0.4730 | — | — |
+| Cuprates | + bonding | 874 | 21.2465 | 32.6682 | 0.5626 | 0.6856 | 0.4793 | 0.8262 | 0.3187 |
+| Other | + bonding | 3529 | 2.9307 | 4.3630 | 0.6858 | 0.8026 | 0.4885 | — | — |
+| Oxides | + bonding | 320 | 4.0443 | 5.8215 | 0.5209 | 0.7530 | 0.4644 | — | — |
+| cross-family | + spin | 5773 | 10.3908 | 16.1169 | 0.1038 | 0.5780 | 0.4575 | — | 0.0624 |
+| Ferrites | + spin | 517 | 9.3485 | 11.7727 | 0.5058 | 0.7054 | 0.4730 | — | — |
+| Cuprates | + spin | 874 | 21.3103 | 32.6682 | 0.5638 | 0.6669 | 0.4793 | 0.8403 | 0.3187 |
+| Other | + spin | 3529 | 2.9015 | 4.3630 | 0.6903 | 0.7980 | 0.4885 | — | — |
+| Oxides | + spin | 320 | 3.9945 | 5.8215 | 0.5582 | 0.7465 | 0.4644 | — | — |
+| cross-family | All physical groups | 5773 | 10.4250 | 16.1169 | 0.1257 | 0.5634 | 0.4575 | — | 0.0624 |
+| Ferrites | All physical groups | 517 | 9.3524 | 11.7727 | 0.5211 | 0.7172 | 0.4730 | — | — |
+| Cuprates | All physical groups | 874 | 21.2622 | 32.6682 | 0.5621 | 0.6697 | 0.4793 | 0.8194 | 0.3187 |
+| Other | All physical groups | 3529 | 3.0830 | 4.3630 | 0.6749 | 0.8051 | 0.4885 | — | — |
+| Oxides | All physical groups | 320 | 3.9825 | 5.8215 | 0.5227 | 0.7619 | 0.4644 | — | — |
+
+The professor’s five factors are tested through grouped proxies, not isolated causal interventions. Symmetry and lattice patterns share the lattice group; interatomic distances and electrostatic/formation-energy bond-strength proxies share the bonding group. The electronic group changes cross-family MAE by 0.0782 K; lattice by -0.0639 K; bonding by -0.0297 K; spin by -0.0615 K; all together by -0.0273 K. Negative changes mean lower error. Improvements vary by family and are small; no statistical significance or causal mechanism is established.
+
+**Cuprate spin limitation:** directly counted in the source table: NM 743/874, FM 69, FiM 48, AFM 14. Real undoped cuprate parents are antiferromagnetic; standard reference-cell DFT and its magnetic initialization/correlation approximation can miss that state, and matched/artificially doped references are not necessarily the experimental sample. These labels cannot substitute for measured spin order. See Lee, Nagaosa & Wen, [Rev. Mod. Phys. 78, 17 (2006)](https://doi.org/10.1103/RevModPhys.78.17).
+
+### Top 20 cross-family feature importances
+
+Impurity importances averaged across outer folds are model diagnostics, not causal importance. The complete top-20 lists for every group and scope, plus MP-overlap purge counts, are in [deep-phase2-ablation.json](deep-phase2-ablation.json).
+
+| Inputs | Feature | Importance |
+|---|---|---:|
+| Formula baseline | MagpieData range Electronegativity | 0.115359 |
+| Formula baseline | MagpieData mean NUnfilled | 0.115272 |
+| Formula baseline | MagpieData avg_dev GSvolume_pa | 0.068974 |
+| Formula baseline | MagpieData avg_dev NdValence | 0.061713 |
+| Formula baseline | MagpieData avg_dev NUnfilled | 0.052427 |
+| Formula baseline | MagpieData avg_dev GSmagmom | 0.035682 |
+| Formula baseline | descriptor_total_atoms | 0.031690 |
+| Formula baseline | descriptor_shell_3_fill_pct | 0.029744 |
+| Formula baseline | MagpieData avg_dev Electronegativity | 0.028035 |
+| Formula baseline | descriptor_shell_3_electrons | 0.027225 |
+| Formula baseline | MagpieData avg_dev Column | 0.020912 |
+| Formula baseline | MagpieData avg_dev SpaceGroupNumber | 0.018014 |
+| Formula baseline | descriptor_avg_p_electrons | 0.017914 |
+| Formula baseline | MagpieData mean SpaceGroupNumber | 0.016375 |
+| Formula baseline | MagpieData mean NdValence | 0.015491 |
+| Formula baseline | MagpieData mean MeltingT | 0.012474 |
+| Formula baseline | MagpieData avg_dev NValence | 0.012161 |
+| Formula baseline | MagpieData avg_dev MendeleevNumber | 0.012020 |
+| Formula baseline | MagpieData mean Electronegativity | 0.011849 |
+| Formula baseline | MagpieData mean MendeleevNumber | 0.011356 |
+| + electronic | MagpieData range Electronegativity | 0.115416 |
+| + electronic | MagpieData mean NUnfilled | 0.114699 |
+| + electronic | MagpieData avg_dev GSvolume_pa | 0.068334 |
+| + electronic | MagpieData avg_dev NdValence | 0.061836 |
+| + electronic | MagpieData avg_dev NUnfilled | 0.052114 |
+| + electronic | MagpieData avg_dev GSmagmom | 0.035541 |
+| + electronic | descriptor_total_atoms | 0.031538 |
+| + electronic | descriptor_shell_3_electrons | 0.030768 |
+| + electronic | MagpieData avg_dev Electronegativity | 0.027094 |
+| + electronic | descriptor_shell_3_fill_pct | 0.025910 |
+| + electronic | MagpieData avg_dev Column | 0.019537 |
+| + electronic | MagpieData avg_dev SpaceGroupNumber | 0.017401 |
+| + electronic | descriptor_avg_p_electrons | 0.017195 |
+| + electronic | MagpieData mean SpaceGroupNumber | 0.015984 |
+| + electronic | MagpieData mean NdValence | 0.015065 |
+| + electronic | MagpieData mean MeltingT | 0.012614 |
+| + electronic | descriptor_shell_6_fill_pct | 0.011784 |
+| + electronic | MagpieData mean MendeleevNumber | 0.011528 |
+| + electronic | MagpieData avg_dev MendeleevNumber | 0.011483 |
+| + electronic | MagpieData avg_dev NValence | 0.011477 |
+| + lattice | MagpieData range Electronegativity | 0.115190 |
+| + lattice | MagpieData mean NUnfilled | 0.105718 |
+| + lattice | MagpieData avg_dev GSvolume_pa | 0.067467 |
+| + lattice | MagpieData avg_dev NUnfilled | 0.055863 |
+| + lattice | c_over_a | 0.054646 |
+| + lattice | MagpieData avg_dev GSmagmom | 0.035501 |
+| + lattice | latc_2 | 0.032531 |
+| + lattice | MagpieData avg_dev NdValence | 0.031917 |
+| + lattice | descriptor_shell_3_fill_pct | 0.028662 |
+| + lattice | descriptor_shell_3_electrons | 0.027413 |
+| + lattice | MagpieData avg_dev Electronegativity | 0.023083 |
+| + lattice | MagpieData avg_dev Column | 0.019310 |
+| + lattice | descriptor_avg_p_electrons | 0.017726 |
+| + lattice | MagpieData avg_dev SpaceGroupNumber | 0.015309 |
+| + lattice | MagpieData mean NdValence | 0.013418 |
+| + lattice | MagpieData mean MeltingT | 0.012560 |
+| + lattice | MagpieData mean Electronegativity | 0.011183 |
+| + lattice | MagpieData mean SpaceGroupNumber | 0.011055 |
+| + lattice | MagpieData avg_dev MendeleevNumber | 0.010353 |
+| + lattice | MagpieData avg_dev NValence | 0.010202 |
+| + bonding | MagpieData mean NUnfilled | 0.101535 |
+| + bonding | shortest_metal_anion | 0.092217 |
+| + bonding | MagpieData range Electronegativity | 0.076029 |
+| + bonding | MagpieData avg_dev NUnfilled | 0.046160 |
+| + bonding | ewald_ev_per_atom | 0.042913 |
+| + bonding | MagpieData avg_dev GSmagmom | 0.036031 |
+| + bonding | MagpieData avg_dev NdValence | 0.029273 |
+| + bonding | descriptor_shell_3_electrons | 0.028242 |
+| + bonding | MagpieData avg_dev GSvolume_pa | 0.028108 |
+| + bonding | descriptor_shell_3_fill_pct | 0.027398 |
+| + bonding | coord_fraction_8 | 0.019502 |
+| + bonding | MagpieData avg_dev Column | 0.019485 |
+| + bonding | MagpieData avg_dev SpaceGroupNumber | 0.017734 |
+| + bonding | descriptor_avg_p_electrons | 0.017027 |
+| + bonding | MagpieData avg_dev Electronegativity | 0.015937 |
+| + bonding | formation_energy_per_atom_2 | 0.014078 |
+| + bonding | MagpieData mean MeltingT | 0.013785 |
+| + bonding | descriptor_shell_6_electrons | 0.013261 |
+| + bonding | MagpieData mean SpaceGroupNumber | 0.011639 |
+| + bonding | descriptor_shell_6_fill_pct | 0.011344 |
+| + spin | MagpieData range Electronegativity | 0.115263 |
+| + spin | MagpieData mean NUnfilled | 0.114591 |
+| + spin | MagpieData avg_dev GSvolume_pa | 0.068666 |
+| + spin | MagpieData avg_dev NdValence | 0.061072 |
+| + spin | MagpieData avg_dev NUnfilled | 0.051934 |
+| + spin | MagpieData avg_dev GSmagmom | 0.034978 |
+| + spin | descriptor_total_atoms | 0.031475 |
+| + spin | descriptor_shell_3_fill_pct | 0.029498 |
+| + spin | MagpieData avg_dev Electronegativity | 0.027577 |
+| + spin | descriptor_shell_3_electrons | 0.027291 |
+| + spin | MagpieData avg_dev Column | 0.020136 |
+| + spin | descriptor_avg_p_electrons | 0.018141 |
+| + spin | MagpieData avg_dev SpaceGroupNumber | 0.017038 |
+| + spin | MagpieData mean SpaceGroupNumber | 0.015895 |
+| + spin | MagpieData mean NdValence | 0.014840 |
+| + spin | MagpieData mean MeltingT | 0.012146 |
+| + spin | descriptor_shell_6_electrons | 0.011824 |
+| + spin | total_magnetization_normalized_formula_units_2 | 0.011581 |
+| + spin | MagpieData avg_dev MendeleevNumber | 0.011498 |
+| + spin | MagpieData avg_dev NValence | 0.011385 |
+| All physical groups | MagpieData mean NUnfilled | 0.099908 |
+| All physical groups | shortest_metal_anion | 0.091748 |
+| All physical groups | MagpieData range Electronegativity | 0.075692 |
+| All physical groups | MagpieData avg_dev NUnfilled | 0.045214 |
+| All physical groups | MagpieData avg_dev GSmagmom | 0.035253 |
+| All physical groups | ewald_ev_per_atom | 0.034455 |
+| All physical groups | c_over_a | 0.030322 |
+| All physical groups | descriptor_shell_3_fill_pct | 0.028762 |
+| All physical groups | latc_2 | 0.027238 |
+| All physical groups | MagpieData avg_dev GSvolume_pa | 0.027103 |
+| All physical groups | descriptor_shell_3_electrons | 0.026441 |
+| All physical groups | MagpieData avg_dev Column | 0.017698 |
+| All physical groups | descriptor_avg_p_electrons | 0.016920 |
+| All physical groups | MagpieData avg_dev SpaceGroupNumber | 0.014659 |
+| All physical groups | MagpieData avg_dev NdValence | 0.014017 |
+| All physical groups | MagpieData avg_dev Electronegativity | 0.014001 |
+| All physical groups | MagpieData mean MeltingT | 0.012809 |
+| All physical groups | formation_energy_per_atom_2 | 0.012510 |
+| All physical groups | descriptor_shell_6_electrons | 0.011265 |
+| All physical groups | MagpieData mean Electronegativity | 0.009854 |
+
+## Deep physical-feature study: Phase 3 — frozen structure encoders
+
+Measured frozen CHGNet 0.3.0 results on **5,773 structures, 0 graph failures**, using the exact Phase 2 outer partitions and shared-MP training embargo. The 64-dimensional encoder is frozen; only fold-local random-forest regressors and binary classifiers are fitted. Formula descriptors are not included in this row; a combined formula+encoder control is being evaluated separately. Fine-tuning (five epochs per outer fold) and scratch ALIGNN (compact two ALIGNN/two GCN layers, five epochs) are still in progress and are not yet assigned performance numbers.
+
+| Scope | MAE K | Mean MAE K | Spearman | AUC >0 | Mean AUC >0 | AUC >77 | Mean AUC >77 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| cross-family | 10.5140 | 16.1169 | -0.0347 | 0.5155 | 0.4575 | — | 0.0624 |
+| Ferrites | 11.2309 | 11.7727 | 0.2475 | 0.5987 | 0.4730 | — | — |
+| Cuprates | 22.0833 | 32.6682 | 0.5282 | 0.6684 | 0.4793 | 0.8416 | 0.3187 |
+| Other | 3.4535 | 4.3630 | 0.5232 | 0.7501 | 0.4885 | — | — |
+| Oxides | 4.6464 | 5.8215 | 0.3191 | 0.7342 | 0.4644 | — | — |
+
+The frozen representation does not improve the formula baseline: cross-family MAE 10.5140 K versus 10.4523 K, and AUC 0.5155 versus 0.5792. All **3,435 partially occupied CIFs** use a highest-occupancy ordered proxy; that proxy cannot reproduce experimental dopant/vacancy disorder. Pretraining used Materials Project trajectories, which may contain the held-out reference structures. This is target-label-safe transfer learning, not an independent test of structural pretraining generalization.
+
+**JARVIS frozen encoder:** 1,057 usable structures; lambda MAE 0.8505 and omega_log MAE 93.7629 K. The paired formula baseline is 93.6672 K, so the change is **0.0957 K**, slightly worse even though the result is below the rounded 94 K reference. This comparison uses the same five elemental-system folds, 180 trees, leaf size two, and target-specific seeds as the physics-target benchmark. Source labels are computed EPC properties, not experiments. The raw source has 1,058 rows, all labeled 0 GPa, and source stability labels `stable=626`, `unstable=432`; one row fails the positive-EPC-target filter. The source stability label is retained as metadata, never substituted for candidate stability.
+
+**Methods and provenance:** installed CHGNet 0.4.2, its 0.3.0 checkpoint SHA-256 `d14ab7c0f093efe64b60a7bcd540bca10e74fb7f46c86108a079af60524659d1`; [CHGNet source](https://github.com/CederGroupHub/chgnet), [published model](https://doi.org/10.1038/s42256-023-00716-3). ALIGNN 2026.11.1 / DGL 2.1.0 runs in an isolated Torch 2.2.1 CPU environment; CHGNet uses Torch 2.15.0 on CPU. The `physical` and `graph` extras are intended for separate environments because their Torch requirements differ. NumPy 1.26.4 / SciPy 1.16.3 are retained for binary compatibility. See [frozen metrics](deep-phase3-frozen-report.json) and [EPC metrics](deep-chgnet-jarvis.json).
+
+An environment reconnect interrupted the initial training attempts. Completed frozen/EPC results were retained, while unfinished models received no invented metrics. [Attempt audit](deep-phase3-attempts.json) records measured process CPU time. Recovery now persists graphs, model/optimizer/RNG state at minibatch/epoch boundaries, and completed evaluation scopes; CPU consumption carries across restarts into the six-hour cap. No raw structures, weights, model files, or large caches are committed.
+
+Phase 3 progress validation: **93 unit tests passed** after adding persistent
+training/evaluation checkpoints and cumulative CPU-budget tests. This is an
+intermediate checkpoint; supervised encoder/scratch comparisons remain open.
+
+### Phase 3 progress: completed scratch and combined controls
+
+Scratch ALIGNN completed all five evaluation scopes on **5,773 structures, zero graph failures**, using **1.3344 cumulative CPU core-hours** including the interrupted attempt. Neural encoders are trained on Tc for five epochs per fold, then evaluated with the same RF regression/classification probes as the frozen encoder. This controls the downstream learner; it is not a benchmark of a fully optimized direct neural Tc readout. CHGNet supervised fine-tuning remains in progress.
+
+| Representation | Scope | MAE K | Δ MAE vs formula K | Spearman | AUC >0 | AUC >77 |
+|---|---|---:|---:|---:|---:|---:|
+| Scratch ALIGNN | cross-family | 12.2198 | 1.7675 | -0.1693 | 0.5555 | — |
+| Scratch ALIGNN | Ferrites | 11.6536 | 2.2667 | 0.1984 | 0.6459 | — |
+| Scratch ALIGNN | Cuprates | 20.2448 | -1.1126 | 0.5736 | 0.7034 | 0.8822 |
+| Scratch ALIGNN | Other | 3.2671 | 0.4066 | 0.5376 | 0.7304 | — |
+| Scratch ALIGNN | Oxides | 4.3408 | 0.3684 | 0.3658 | 0.6793 | — |
+| Formula + frozen CHGNet | cross-family | 10.7594 | 0.3070 | 0.1189 | 0.5442 | — |
+| Formula + frozen CHGNet | Ferrites | 9.7106 | 0.3237 | 0.4361 | 0.7056 | — |
+| Formula + frozen CHGNet | Cuprates | 20.9908 | -0.3665 | 0.5902 | 0.6710 | 0.8407 |
+| Formula + frozen CHGNet | Other | 3.0565 | 0.1959 | 0.6778 | 0.7916 | — |
+| Formula + frozen CHGNet | Oxides | 4.2253 | 0.2529 | 0.5160 | 0.8050 | — |
+
+Scratch ALIGNN lowers Cuprates MAE but does not improve cross-family performance; its other three within-family MAEs are worse than the formula baseline. The combined formula/frozen control also improves Cuprates MAE while worsening the other scopes. Full classifier mean baselines, top-feature diagnostics and fold metadata remain in [scratch results](deep-scratch-alignn.json) and [combined results](deep-combined-encoder.json). These are results for the tested five-epoch protocol, not evidence that graph models are universally inferior.
+
+**Cache verification:** rebuilding all 5,773 CIF feature rows from SHA-keyed caches took **1.8548 seconds** and reproduced the Phase 1 CSV SHA-256 exactly (`15d29e07cd9d1a3247d5e6bc6806ae1f5aedd7153a13b799ebfca38dd765cb25`). [Verification record](deep-cache-verification.json). Fast cached feature retrieval is separate from the expensive grouped model evaluations.
+
+## Phase 3 — supervised structure-model comparison
+
+All comparisons use the same 5,773-record cohort and fixed GroupKFold partitions, with shared MP reference IDs removed from training. For a controlled encoder comparison, frozen, fine-tuned and scratch representations feed the same fold-local RF regression/classification readouts. The fine-tuning/scratch scalar Tc heads provide training supervision, not the final evaluated readout. Both neural training pilots use five epochs, batch size 16, deterministic record order, and targets scaled by 100 K; they are not a hyperparameter-optimized graph-model benchmark. CHGNet Adam lr=1e-4; scratch ALIGNN Adam lr=1e-3 with hidden width 64 and two ALIGNN/two GCN blocks.
+
+| Model | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Formula baseline | cross-family | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | — |
+| Formula baseline | Ferrites | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | — |
+| Formula baseline | Cuprates | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.8275 |
+| Formula baseline | Other | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | — |
+| Formula baseline | Oxides | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | — |
+| Frozen CHGNet + RF | cross-family | 5773 | 10.5140 | 16.1169 | -0.0347 | 0.5155 | — |
+| Frozen CHGNet + RF | Ferrites | 517 | 11.2309 | 11.7727 | 0.2475 | 0.5987 | — |
+| Frozen CHGNet + RF | Cuprates | 874 | 22.0833 | 32.6682 | 0.5282 | 0.6684 | 0.8416 |
+| Frozen CHGNet + RF | Other | 3529 | 3.4535 | 4.3630 | 0.5232 | 0.7501 | — |
+| Frozen CHGNet + RF | Oxides | 320 | 4.6464 | 5.8215 | 0.3191 | 0.7342 | — |
+| Formula + frozen CHGNet | cross-family | 5773 | 10.7594 | 16.1169 | 0.1189 | 0.5442 | — |
+| Formula + frozen CHGNet | Ferrites | 517 | 9.7106 | 11.7727 | 0.4361 | 0.7056 | — |
+| Formula + frozen CHGNet | Cuprates | 874 | 20.9908 | 32.6682 | 0.5902 | 0.6710 | 0.8407 |
+| Formula + frozen CHGNet | Other | 3529 | 3.0565 | 4.3630 | 0.6778 | 0.7916 | — |
+| Formula + frozen CHGNet | Oxides | 320 | 4.2253 | 5.8215 | 0.5160 | 0.8050 | — |
+| Tc-fine-tuned CHGNet + RF | cross-family | 5773 | 11.4483 | 16.1169 | -0.0234 | 0.4970 | — |
+| Tc-fine-tuned CHGNet + RF | Ferrites | 517 | 11.1388 | 11.7727 | 0.2924 | 0.5731 | — |
+| Tc-fine-tuned CHGNet + RF | Cuprates | 874 | 21.9029 | 32.6682 | 0.5379 | 0.6454 | 0.8236 |
+| Tc-fine-tuned CHGNet + RF | Other | 3529 | 3.3920 | 4.3630 | 0.5562 | 0.7410 | — |
+| Tc-fine-tuned CHGNet + RF | Oxides | 320 | 4.4002 | 5.8215 | 0.3475 | 0.7219 | — |
+| Scratch ALIGNN + RF | cross-family | 5773 | 12.2198 | 16.1169 | -0.1693 | 0.5555 | — |
+| Scratch ALIGNN + RF | Ferrites | 517 | 11.6536 | 11.7727 | 0.1984 | 0.6459 | — |
+| Scratch ALIGNN + RF | Cuprates | 874 | 20.2448 | 32.6682 | 0.5736 | 0.7034 | 0.8822 |
+| Scratch ALIGNN + RF | Other | 3529 | 3.2671 | 4.3630 | 0.5376 | 0.7304 | — |
+| Scratch ALIGNN + RF | Oxides | 320 | 4.3408 | 5.8215 | 0.3658 | 0.6793 | — |
+
+Missing AUC values indicate a one-class or unscoreable held-out task, not an AUC of zero. Complete mean-class AUCs, importance diagnostics, failures, and partial/budget reports are in [deep-phase3-complete.json](deep-phase3-complete.json). The encoders change the representation, but the final Tc forests still cannot exceed their training-label range.
+
+Measured cumulative CPU consumption: CHGNet **4.546 core-hours**, scratch ALIGNN **1.334 core-hours**. These totals include the interrupted attempts. The completed first CHGNet fold changed pretrained atom-embedding weights by L2 **0.472331**, demonstrating encoder updates rather than training only a readout. Checkpointing preserves optimizer and RNG state and cached evaluations; no model weights or large caches are committed.
+
+The repeated 1,057-structure JARVIS frozen-encoder benchmark exactly reproduced λ MAE 0.850543 and ω_log MAE 93.762855 K. Its Allen–Dynes-derived Tc MAE is **6.073133 K**, versus **5.8582 K** for the paired formula model. This comparison does not support an improvement from this frozen representation. These labels are DFT electron–phonon calculations, not experimental transitions.
+
+## Phase 3.5 — collection interface and controls
+
+The reference table has **5773 records**, including **312 GGA+U** and **5461 GGA** calculations. The raw run-type string remains excluded from feature matrices; a requested GGA+U indicator and neutral-atom mean d-electron count form a separate correlation-proxy group. These are computed descriptors, not measured electron occupations or a measurement of correlation strength.
+
+The Actions-only collector now follows DOS metadata to its calculation task and downloads the actual CompleteDos spectrum. It integrates element/orbital projections within Ef ±0.5 eV, normalizing over s+p+d+f, and preserves missing or failed results. The earlier JARVIS collector incorrectly treated metadata as a spectrum; its old zero-DOS coverage does not establish physical absence of DOS data. The supporting dispatch can run enrichment separately before the paired ablation. **101 unit tests passed** for this interface commit. Empirical orbital coverage and mechanism comparisons follow the Actions run; candidate ML phonons run after Phase 4 creates the final structures.
+
+Phase 3.5 geometry completed on **5,773/5,773 reference CIFs**, with **0 failures**: metal–oxygen–metal mean/min angles are defined for **1,361 rows**, the local metal-plane buckling proxy for **231**, and both correlation proxies for **5,773**. Of these CIFs, **3,435** use a highest-occupancy ordered proxy only for feature extraction. These proxies do not define occupationally ordered candidates for phonon calculations. Buckling is oxygen displacement from a local transition-metal PCA plane within 5 Å, where two bonded transition metals and a sufficiently planar neighborhood exist; it is not a refined crystallographic tilt angle.
+
+The first Actions collection, [run 41737358261](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41737358261), queried **100 of 2,708 reference MP IDs** and returned bulk moduli for **85 rows**, but **0 DOS / 0 orbital-feature rows**. There were **96 DOS endpoint failures** rather than demonstrated absence of spectra. Sanitized endpoint diagnostics are being collected before expanding the query. Raw counts and hashes: [deep-mp-smoke.json](deep-mp-smoke.json), [deep-phase35-geometry.json](deep-phase35-geometry.json).
+
+The three-reference diagnostic [run 41737943085](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41737943085) identified a concrete schema change: current MP DOS metadata has a root-level `task_id`; the installed client's legacy route expects `total['1']['task_id']`. The collector now accepts both formats and fetches the spectrum separately. **103 tests passed**, including a fixture matching the observed current metadata and one for the legacy layout. Both enrichment routes use this adapter. The diagnostic returned **2 bulk-modulus rows and 0 DOS rows** before this adapter fix; these failures remain recorded in [deep-mp-diagnostic.json](deep-mp-diagnostic.json).
+
+The corrected task lookup reached S3 in [run 41738416962](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41738416962), but all **3 DOS fetches** failed because `mp-api` normalized AlphaID tasks to numeric filenames absent from the bucket. A narrowly scoped adapter now retries the equivalent literal legacy `mp-<number>` and original task-ID filenames only after `NoSuchKey`; other storage failures propagate. Downloaded CompleteDos inputs receive a canonical Monty-JSON SHA-256. This remains a retrieval repair, not a DOS result. **106 tests passed**. Partial ablation execution can reuse unchanged scope results by matrix hash; the final run still evaluates all available groups on the fixed cohort.
+
+[Run 41739223278](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41739223278) retrieved **3/3 DOS spectra**, **2 bulk-modulus rows**, and had **0 endpoint failures** after the storage-key adapter. Orbital extraction still failed locally in the runner: Actions installed **NumPy 2.5.4**, which removed `np.trapz`; local NumPy 1.26 retained it. The integrator now uses `scipy.integrate.trapezoid`, with a test disabling `np.trapz` to reproduce that compatibility condition. **107 tests passed** before pushing this change. Spectra have task IDs and SHA-256 fingerprints; failed projections remain missing rather than zero. Spectrum smoke counts: [deep-mp-spectrum-smoke.json](deep-mp-spectrum-smoke.json).
+
+## Phase 3.5 — global, family-specific and joint family/Tc comparison
+
+Complete fold metrics, sample counts, overlap embargoes, and top-20 importances are retained in [deep-phase35-mechanisms.json](deep-phase35-mechanisms.json). Missing values indicate an unscoreable or unreported diagnostic, not zero.
+
+| Model / feature group | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| global | cross-family | 5773 | 10.2461 | 16.1169 | 0.0847 | 0.5713 | — | 0.4575 | 0.0624 |
+| global | Ferrites | 517 | 8.2882 | 11.7134 | 0.6289 | 0.7128 | — | 0.4914 | — |
+| global | Cuprates | 874 | 21.6791 | 32.3509 | 0.5583 | 0.6769 | 0.8816 | 0.4627 | 0.3411 |
+| global | Other | 3529 | 3.0798 | 8.1442 | 0.6623 | 0.7996 | — | 0.4838 | — |
+| global | Oxides | 320 | 7.3718 | 8.3880 | 0.1405 | 0.7462 | — | 0.4644 | — |
+| family_specific | cross-family | 5773 | blocked | — | — | — | — | — | — |
+| family_specific | Ferrites | 517 | 9.4102 | 11.7727 | 0.5185 | 0.7313 | — | 0.4730 | — |
+| family_specific | Cuprates | 874 | 21.5510 | 32.6682 | 0.5541 | 0.6682 | 0.8540 | 0.4793 | 0.3187 |
+| family_specific | Other | 3529 | 3.0781 | 4.3630 | 0.6776 | 0.8036 | — | 0.4885 | — |
+| family_specific | Oxides | 320 | 3.9634 | 5.8215 | 0.5450 | 0.7633 | — | 0.4644 | — |
+| multitask_50_epoch_pilot | cross-family | 5773 | 11.8888 | 16.1169 | -0.0293 | 0.5728 | — | — | — |
+| multitask_50_epoch_pilot | Ferrites | 517 | 11.1977 | 11.7134 | 0.3915 | 0.6195 | — | — | — |
+| multitask_50_epoch_pilot | Cuprates | 874 | 22.3397 | 32.3509 | 0.4516 | 0.6562 | 0.7724 | — | — |
+| multitask_50_epoch_pilot | Other | 3529 | 4.0896 | 8.1442 | 0.4495 | 0.7303 | — | — | — |
+| multitask_50_epoch_pilot | Oxides | 320 | 5.6477 | 8.3880 | 0.4728 | 0.7840 | — | — | — |
+
+## Phase 3.5 — paired controls before MP enrichment
+
+Complete fold metrics, sample counts, overlap embargoes, and top-20 importances are retained in [deep-phase35-controls.json](deep-phase35-controls.json). Missing values indicate an unscoreable or unreported diagnostic, not zero.
+
+| Model / feature group | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| baseline | cross-family | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | — | 0.4575 | 0.0624 |
+| baseline | Ferrites | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | — | 0.4730 | — |
+| baseline | Cuprates | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.8275 | 0.4793 | 0.3187 |
+| baseline | Other | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | — | 0.4885 | — |
+| baseline | Oxides | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | — | 0.4644 | — |
+| plus_lattice | cross-family | 5773 | 10.3900 | 16.1169 | 0.1079 | 0.5760 | — | 0.4575 | 0.0624 |
+| plus_lattice | Ferrites | 517 | 9.3676 | 11.7727 | 0.5115 | 0.7217 | — | 0.4730 | — |
+| plus_lattice | Cuprates | 874 | 21.4897 | 32.6682 | 0.5569 | 0.6534 | 0.8312 | 0.4793 | 0.3187 |
+| plus_lattice | Other | 3529 | 3.0377 | 4.3630 | 0.6739 | 0.7966 | — | 0.4885 | — |
+| plus_lattice | Oxides | 320 | 3.9866 | 5.8215 | 0.5380 | 0.7707 | — | 0.4644 | — |
+| plus_spin | cross-family | 5773 | 10.3908 | 16.1169 | 0.1038 | 0.5780 | — | 0.4575 | 0.0624 |
+| plus_spin | Ferrites | 517 | 9.3485 | 11.7727 | 0.5058 | 0.7054 | — | 0.4730 | — |
+| plus_spin | Cuprates | 874 | 21.3103 | 32.6682 | 0.5638 | 0.6669 | 0.8403 | 0.4793 | 0.3187 |
+| plus_spin | Other | 3529 | 2.9015 | 4.3630 | 0.6903 | 0.7980 | — | 0.4885 | — |
+| plus_spin | Oxides | 320 | 3.9945 | 5.8215 | 0.5582 | 0.7465 | — | 0.4644 | — |
+| plus_correlation | cross-family | 5773 | 10.4515 | 16.1169 | 0.1253 | 0.5763 | — | 0.4575 | 0.0624 |
+| plus_correlation | Ferrites | 517 | 9.4595 | 11.7727 | 0.5039 | 0.7314 | — | 0.4730 | — |
+| plus_correlation | Cuprates | 874 | 21.4741 | 32.6682 | 0.5619 | 0.6625 | 0.8386 | 0.4793 | 0.3187 |
+| plus_correlation | Other | 3529 | 2.8651 | 4.3630 | 0.6906 | 0.7966 | — | 0.4885 | — |
+| plus_correlation | Oxides | 320 | 3.9798 | 5.8215 | 0.5562 | 0.7553 | — | 0.4644 | — |
+
+The mechanism comparison uses the same formula, geometry, bonding, spin and correlation descriptors for all three models, without the later MP DOS/orbital/elastic enrichment. Test folds and MP-ID embargoes are fixed. For a within-family test, the global and multi-task models may train on other families, but exclude every held-out elemental system across all families; the family-specific model uses only its own remaining family. A wholly held-out family has no family-specific training data, so that cross-family entry is blocked rather than obtained by leaking the family back into training.
+
+The global RF achieved **10.2461 K** cross-family MAE. Its within-family MAE was **8.2882 K** for Ferrites, **3.0798 K** for Other and **7.3718 K** for Oxides; the corresponding family-specific models scored **9.4102**, **3.0781** and **3.9634 K**. Adding other families helps one task and harms another; there is no universal winner. The 50-epoch joint family/Tc MLP scored **11.8888 K** cross-family and produced **665 negative Tc predictions** in the Other-family test. Its raw outputs are reported, not clipped into plausible-looking values or used for ranking. Family prediction accuracy does not establish understanding of a pairing mechanism. These comparisons are pilots, not a tuned neural-model search.
+
+The four paired controls above reuse the exact Phase 2 cohort and folds. Baseline numbers reproduced exactly. The correlation proxy alone changed cross-family MAE from **10.4523 to 10.4515 K**; that tiny difference is not evidence of improved physical understanding. The GGA+U indicator also encodes a computational-method choice and may reflect dataset conventions. The final MP-enriched table follows separately; missing orbital coverage will never be replaced with invented occupations.
+
+The full MP-prefixed reference collection [run 41739776208](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41739776208) queried **2,708 unique IDs** and returned DOS/orbital weights for **5,243/5,773 rows**, bulk moduli for **2,757**, and **0 endpoint failures**. All **5,243** DOS inputs have calculation IDs and content fingerprints. The maximum s+p+d+f normalization error was **2.22e-16**. Another **516 rows** have no DOS returned by the provider. A coverage audit found **7 legacy MVC IDs (14 rows)** skipped by the original MP-only prefix filter; the collector now includes MP and MVC IDs and supports a targeted follow-up. Missing data are not zero DOS or zero orbital occupation. Reports: [deep-mp-full.json](deep-mp-full.json) and [deep-phase35-merge.json](deep-phase35-merge.json).
+
+The checked merge preserves every geometry row and validates reference IDs; duplicate IDs, mismatched cohorts and mismatched MP references fail explicitly. **111 unit tests passed**, including MP/MVC selection and rejection of demo IDs. The final ablation uses the merged table; the legacy-reference follow-up will be reconciled before its final report.
+
+## Phase 3.5 — final paired ablation with verified MP enrichment
+
+Complete fold metrics, sample counts, overlap embargoes, and top-20 importances are retained in [deep-phase35-ablation.json](deep-phase35-ablation.json). Missing values indicate an unscoreable or unreported diagnostic, not zero.
+
+| Model / feature group | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| baseline | cross-family | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | — | 0.4575 | 0.0624 |
+| baseline | Ferrites | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | — | 0.4730 | — |
+| baseline | Cuprates | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.8275 | 0.4793 | 0.3187 |
+| baseline | Other | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | — | 0.4885 | — |
+| baseline | Oxides | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | — | 0.4644 | — |
+| plus_electronic | cross-family | 5773 | 10.5445 | 16.1169 | 0.1012 | 0.5877 | — | 0.4575 | 0.0624 |
+| plus_electronic | Ferrites | 517 | 9.4879 | 11.7727 | 0.5158 | 0.7196 | — | 0.4730 | — |
+| plus_electronic | Cuprates | 874 | 21.4098 | 32.6682 | 0.5634 | 0.6792 | 0.8473 | 0.4793 | 0.3187 |
+| plus_electronic | Other | 3529 | 2.8867 | 4.3630 | 0.6929 | 0.8107 | — | 0.4885 | — |
+| plus_electronic | Oxides | 320 | 3.9853 | 5.8215 | 0.5598 | 0.7450 | — | 0.4644 | — |
+| plus_lattice | cross-family | 5773 | 10.3900 | 16.1169 | 0.1079 | 0.5760 | — | 0.4575 | 0.0624 |
+| plus_lattice | Ferrites | 517 | 9.3676 | 11.7727 | 0.5115 | 0.7217 | — | 0.4730 | — |
+| plus_lattice | Cuprates | 874 | 21.4897 | 32.6682 | 0.5569 | 0.6534 | 0.8312 | 0.4793 | 0.3187 |
+| plus_lattice | Other | 3529 | 3.0377 | 4.3630 | 0.6739 | 0.7966 | — | 0.4885 | — |
+| plus_lattice | Oxides | 320 | 3.9866 | 5.8215 | 0.5380 | 0.7707 | — | 0.4644 | — |
+| plus_bonding | cross-family | 5773 | 10.4468 | 16.1169 | 0.1206 | 0.5751 | — | 0.4575 | 0.0624 |
+| plus_bonding | Ferrites | 517 | 9.4855 | 11.7727 | 0.4898 | 0.7101 | — | 0.4730 | — |
+| plus_bonding | Cuprates | 874 | 21.0941 | 32.6682 | 0.5691 | 0.6810 | 0.8194 | 0.4793 | 0.3187 |
+| plus_bonding | Other | 3529 | 2.9896 | 4.3630 | 0.6801 | 0.7992 | — | 0.4885 | — |
+| plus_bonding | Oxides | 320 | 3.9899 | 5.8215 | 0.5491 | 0.7659 | — | 0.4644 | — |
+| plus_spin | cross-family | 5773 | 10.3908 | 16.1169 | 0.1038 | 0.5780 | — | 0.4575 | 0.0624 |
+| plus_spin | Ferrites | 517 | 9.3485 | 11.7727 | 0.5058 | 0.7054 | — | 0.4730 | — |
+| plus_spin | Cuprates | 874 | 21.3103 | 32.6682 | 0.5638 | 0.6669 | 0.8403 | 0.4793 | 0.3187 |
+| plus_spin | Other | 3529 | 2.9015 | 4.3630 | 0.6903 | 0.7980 | — | 0.4885 | — |
+| plus_spin | Oxides | 320 | 3.9945 | 5.8215 | 0.5582 | 0.7465 | — | 0.4644 | — |
+| plus_correlation | cross-family | 5773 | 10.4515 | 16.1169 | 0.1253 | 0.5763 | — | 0.4575 | 0.0624 |
+| plus_correlation | Ferrites | 517 | 9.4595 | 11.7727 | 0.5039 | 0.7314 | — | 0.4730 | — |
+| plus_correlation | Cuprates | 874 | 21.4741 | 32.6682 | 0.5619 | 0.6625 | 0.8386 | 0.4793 | 0.3187 |
+| plus_correlation | Other | 3529 | 2.8651 | 4.3630 | 0.6906 | 0.7966 | — | 0.4885 | — |
+| plus_correlation | Oxides | 320 | 3.9798 | 5.8215 | 0.5562 | 0.7553 | — | 0.4644 | — |
+| plus_orbital | cross-family | 5773 | 10.6626 | 16.1169 | 0.0637 | 0.5742 | — | 0.4575 | 0.0624 |
+| plus_orbital | Ferrites | 517 | 9.4536 | 11.7727 | 0.5081 | 0.7216 | — | 0.4730 | — |
+| plus_orbital | Cuprates | 874 | 21.4051 | 32.6682 | 0.5599 | 0.6651 | 0.8443 | 0.4793 | 0.3187 |
+| plus_orbital | Other | 3529 | 2.9002 | 4.3630 | 0.6921 | 0.7975 | — | 0.4885 | — |
+| plus_orbital | Oxides | 320 | 3.5957 | 5.8215 | 0.5942 | 0.7319 | — | 0.4644 | — |
+| all | cross-family | 5773 | 10.4464 | 16.1169 | 0.0332 | 0.5800 | — | 0.4575 | 0.0624 |
+| all | Ferrites | 517 | 9.4280 | 11.7727 | 0.5078 | 0.7450 | — | 0.4730 | — |
+| all | Cuprates | 874 | 21.8857 | 32.6682 | 0.5382 | 0.6759 | 0.8252 | 0.4793 | 0.3187 |
+| all | Other | 3529 | 3.0656 | 4.3630 | 0.6901 | 0.8100 | — | 0.4885 | — |
+| all | Oxides | 320 | 3.7070 | 5.8215 | 0.5357 | 0.7658 | — | 0.4644 | — |
+
+The final paired comparison used **5,243 verified-reference orbital/DOS rows** and **2,757 bulk-modulus rows**. All **5,243** available primary spectra passed an element-set check against the original reference-parent formula; this check does not prove experimental sample identity, exact stoichiometry, or convergence. **516 rows** have no DOS returned by the provider. The **14 legacy MVC rows** retain missing MP enrichment. The follow-up returned 11 spectra, but every one belonged to incompatible chemistry (for example, MVC-11697 Y–Cu–O received Ta–Sb DOS). Those returned values are rejected audit evidence, never training features. See [deep-reference-identity-audit.json](deep-reference-identity-audit.json). The collector now blocks automatic legacy-namespace retrieval and clears unverified legacy properties into a rejected-data audit field.
+
+Compared with formula-only cross-family MAE **10.4523 K**, all groups together scored **10.4464 K**. Orbital fractions alone scored **10.6626 K**, and their Oxides within-family MAE improved from **3.9724 to 3.5957 K**. These mixed effects do not establish a general mechanism or a robust discovery advantage. The correlation group was essentially redundant. The professor's five suggested factors are now tested explicitly: symmetry, distances and patterns through lattice/bonding groups; a limited electrostatic bond-strength proxy through Ewald energy; and computed spin descriptors through the spin group. None supplies missing experimental sample structures or pressure conditions. DFT NM labels for doped/reference cuprates cannot establish the magnetism of their real parent compounds. All expanded metrics, mean-predictor comparisons and top-20 RF importances are preserved in the linked JSON, not inferred from an isolated improvement.
+
+## Phase 4 — constrained hypotheses and ML-potential screens
+
+| Track | Proposed | Accepted | Shortlisted | Review tier | Low-confidence tier |
+|---|---:|---:|---:|---:|---:|
+| Ferrites | 4732 | 637 | 20 | 20 | 0 |
+| Other | 5452 | 803 | 20 | 20 | 0 |
+| physics | 26718 | 2898 | 20 | 10 | 10 |
+
+The production family models use 155 formula descriptors with training-fitted imputation: 517 Ferrites and 3,529 Other records. Full-data fits are for scoring; held-out error remains the separate paired evaluation. Each chemistry rule has its actual rejection count in [deep-phase4-campaign.json](deep-phase4-campaign.json). Screening preserves hydrogen, metal/nonmetal/metalloid class, periodic-group or common-oxidation compatibility, and common-state charge balance for heuristically ionic parents. Known insulating parent references above 0.1 eV are rejected. These conservative rules can reject real mixed-valence or covalent materials; passing is not proof of synthesis. Generated records retain **unknown** Tc/λ/ω labels and cannot be empirical training targets. Parent hull/MP fields are explicitly reference proxies, never candidate values. Local MP API calls: **0**.
+
+All **60 rows** have preserved structure lineage: **32** remain occupationally disordered and require a defensible ordering. **28 ordered structures** completed CHGNet relaxation and finite-displacement phonopy with a 3×3×3 supercell and Gamma plus a commensurate 3×3×3 mesh. **20** have ML imaginary-mode signals below −0.5 THz; **8** have no signal below that threshold. The control is a material limitation: stable Al also produced a false-positive signal across tested supercell/mesh settings (minimums approximately −0.73 to −1.54 THz). Therefore these flags are diagnostics, not confirmed physical instability or validated exclusion criteria. No DFT or experiment was performed.
+
+Atomic forces ≤0.05 eV/Å and residual stress ≤0.1 GPa are numerical stopping criteria for this coarse zero-target-pressure ML screen, not proof of experimental ambient-pressure operation. The FIRE stopping rule checks both quantities directly; cell-filter fmax alone can stop prematurely. Per-displacement checkpoints, cumulative CPU budgets, model/software/input hashes and exact composition checks support restarts. No occupational disorder was rounded away. See [deep-dynamic-stability.json](deep-dynamic-stability.json).
+
+Tables with reasons, uncertainty tiers, known-compound checks and archived unrelaxed/relaxed inputs: [Ferrites](deep-shortlists/ferrites.csv), [Other](deep-shortlists/other.csv), [physics targets](deep-shortlists/physics.csv). The limited lab-access flag marks Tc/Pm and elements with Z≥84; it is not a complete safety or synthesis assessment. All 60 hypotheses retain DFT verification pending; none demonstrates superconductivity or the project temperature target.
+
+## Phase 5 — range bounds, uncertainty and extrapolation
+
+Each regression-tree leaf is a nonnegative weighted mean of training labels. A forest is a nonnegative mean of those leaf predictions, so its output stays within the training-label range. This does not apply to a neural head or to a nonlinear Allen-Dynes transformation of separately predicted targets.
+
+The empirical forest made **0** OOF predictions above its fold training maximum. Full-data label maxima were **132.9 K** for Cuprates, **56.5 K** for Ferrites, **41.4 K** for Other and **31.5 K** for Oxides; all family maxima are in [deep-uncertainty.json](deep-uncertainty.json). A forest cannot reach the project target from those labels by direct Tc regression. A neural head or the nonlinear EPC equation has different range behavior, but numerical extrapolation alone is not evidence.
+
+The error-magnitude calibration uses independent approximately 60/20/20 **group** partitions, with shared MP IDs purged between fit/calibration/test. Counts after embargo are reported. These are fresh models at a different training budget; they do not retroactively calibrate the final full-data shortlist models. The quantity below is MAE of the estimated absolute error, not Tc prediction MAE or confidence-interval coverage.
+
+| Scope | Fit / calibration / test rows | Raw SD-as-error MAE K | Calibrated expected-error MAE K |
+|---|---:|---:|---:|
+| global_all_cross_family | 4043 / 873 / 837 | 8.4577 | 17.6696 |
+| Ferrites | 154 / 46 / 106 | 5.6368 | 5.1748 |
+| Cuprates | 175 / 123 / 168 | 18.5122 | 18.3390 |
+| Other | 1474 / 574 / 686 | 1.8425 | 1.7642 |
+| Oxides | 90 / 49 / 107 | 4.9144 | 5.5501 |
+| DFT EPC | 638 / 201 / 218 | 8.0398 | 2.5182 |
+
+Calibration helped some within-family/DFT tasks and **worsened** the global family-shift and Oxides tasks. There is no universal calibrated confidence claim. The same-group test labels never fit the model or calibrator. The independent group and reference-ID embargo tests guard this boundary.
+
+The median-imputed 1,057-row EPC audit reproduced physics-derived Tc MAE **5.891809 K**. **14 / 1,057** held-out predictions exceeded their fold training maximum. **1** corresponding reference-derived target exceeded that maximum; the other **13** were overpredictions. The true reference-derived exceedance was MoN (JVASP-16897): prediction **29.7750 K**, reference-derived **31.9108 K**, fold maximum **29.0141 K**. These are DFT EPC targets, not experimental superconductors; none is a room-temperature result. All cases, source-reported Tc values and formula assumptions are retained in the JSON.
+
+Descriptive OOF error-vs-spread plots: [global](uncertainty-calibration.png), [within families](uncertainty-calibration-within-families.png), [physics targets](uncertainty-calibration-physics.png). Dashed lines are MAE=SD reference lines, not calibrated confidence bands. Mean/tree SD pairing is a heuristic, not a joint posterior for λ and ω_log.
+
+## Phase 6 — reporting, pressure integrity and CI
+
+The integrated implementation passes **147 unit tests**. New 3DSC imports preserve missing measurement pressure as **unknown**, with the previous 1-atm screening target retained only in historical metadata. Nullable pressure now round-trips through the harmonized schema, stable IDs, and reviewed bridge; repeating an unknown-pressure bridge inserts **1 then 0** records. Unknown pressure enters neither ambient nor high-pressure promotion metrics. Existing reviewed data remain unchanged. A feature-vector test confirms the formula-only deep baseline is identical when the old pressure placeholder is replaced by missing pressure, because pressure is excluded from that study.
+
+The dispatch supports full physical-feature ablation, fresh secret-backed MP enrichment, or identity-checked reuse of an earlier primary MP artifact. Reused artifacts retain standard metadata names so they can themselves be reused; provenance records **0 API queries in the reuse run** and does not claim geometry was recomputed unless that step ran. Version/code/callback fingerprints prevent stale numeric scope-cache reuse. The full integration run is recorded separately below once it returns; all source tables and source uncertainties remain hypotheses or reference calculations, not new DFT or experimental results.
+
+The [primary JARVIS EPC paper](https://www.nature.com/articles/s41524-022-00933-1), opened for this study, reports that its minimum benchmark MAE occurred at μ* = 0.09 and specifies Quantum ESPRESSO/GBRV/PBEsol for main-text EPC results. For Ta, this repository's simplified expression gives **7.3842818793 K** at μ* = 0.09 and **6.8822088869 K** at the project's fixed μ* = 0.1, whereas the stored source Tc is **7.6395091414 K**. Changing μ* alone does not fully reconcile the source value; formula details and remaining assumptions must still be checked, rather than tuning a parameter to a desired answer. Reproduction must still match the reference structure, pseudopotentials and convergence settings.
+
+## Phase 6 — completed full GitHub Actions integration
+
+[Full integration run 41775076764](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41775076764) **succeeded**, including pinned-source download, all-CIF geometry/oxide features, checked reuse of primary MP properties, all eight ablations, indexing and artifact upload. The deep job ran from 04:45:12 to 05:05:39 UTC (20 min 27 s). Artifact `physical-study-41775076764` contains the feature tables, per-row held-out predictions, coverage, hashes and software versions. The downloaded artifact was checked: **5,773 unique records, 8 variants × 5 scopes, 5,243 orbital rows, 2,757 bulk rows, 14 legacy rows still missing enrichment, 0 new MP API calls**. Held-out indices, labels and fold training maxima match across all eight variants within this run.
+
+This is a **separate versioned CI study**, not an exact numerical reproduction of the local tables above. CI used NumPy 2.5.4, scikit-learn 1.9.1 and pymatgen-core 2026.10.31; the local study used older versions. The cause was reproduced in an isolated environment: scikit-learn 1.9.1 uses stable sorting of group sizes in GroupKFold, whereas local 1.8.0 used the default unstable sort. The isolated CI versions exactly reproduce its five split lists and mean baselines. Cross-family fold assignment is unchanged; within-family assignment changes for 263 Ferrites, 393 Cuprates, 2,695 Other and 172 Oxides rows. The ordered record-ID hash and actual Tc/index maps remain identical. Thus the same requested grouping protocol and RF seeds do not guarantee identical tied-group assignment across library versions. Within-family mean baselines also changed, demonstrating that those local/CI test assignments must not be described as identical. All comparisons in the table below are paired within this CI run. Local graph-model and uncertainty results remain tied to their local splits and must not be compared against CI numbers as a same-split experiment. The full versions, matrices/cohort fingerprints and artifact SHA-256 inventory are in [deep-ci-integration.json](deep-ci-integration.json).
+
+| CI variant | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| baseline | cross-family | 5773 | 10.4351 | 16.1169 | 0.1032 | 0.5792 | — | 0.4575 | 0.0624 |
+| baseline | Ferrites | 517 | 9.3935 | 11.8288 | 0.4699 | 0.7283 | — | 0.5436 | — |
+| baseline | Cuprates | 874 | 21.8801 | 31.6366 | 0.5514 | 0.6864 | 0.8804 | 0.4474 | 0.3740 |
+| baseline | Other | 3529 | 2.9747 | 4.3632 | 0.6584 | 0.8023 | — | 0.4861 | — |
+| baseline | Oxides | 320 | 3.8240 | 5.8405 | 0.5480 | 0.7728 | — | 0.4364 | — |
+| plus_electronic | cross-family | 5773 | 10.5146 | 16.1169 | 0.1131 | 0.5877 | — | 0.4575 | 0.0624 |
+| plus_electronic | Ferrites | 517 | 9.5482 | 11.8288 | 0.4650 | 0.7371 | — | 0.5436 | — |
+| plus_electronic | Cuprates | 874 | 21.9531 | 31.6366 | 0.5483 | 0.6812 | 0.8992 | 0.4474 | 0.3740 |
+| plus_electronic | Other | 3529 | 2.9678 | 4.3632 | 0.6567 | 0.8023 | — | 0.4861 | — |
+| plus_electronic | Oxides | 320 | 3.8185 | 5.8405 | 0.5442 | 0.7637 | — | 0.4364 | — |
+| plus_lattice | cross-family | 5773 | 10.3516 | 16.1169 | 0.1152 | 0.5757 | — | 0.4575 | 0.0624 |
+| plus_lattice | Ferrites | 517 | 9.3497 | 11.8288 | 0.4847 | 0.7276 | — | 0.5436 | — |
+| plus_lattice | Cuprates | 874 | 21.2052 | 31.6366 | 0.5686 | 0.6779 | 0.8977 | 0.4474 | 0.3740 |
+| plus_lattice | Other | 3529 | 3.1579 | 4.3632 | 0.6374 | 0.7991 | — | 0.4861 | — |
+| plus_lattice | Oxides | 320 | 3.8482 | 5.8405 | 0.5386 | 0.7778 | — | 0.4364 | — |
+| plus_bonding | cross-family | 5773 | 10.5124 | 16.1169 | 0.0985 | 0.5766 | — | 0.4575 | 0.0624 |
+| plus_bonding | Ferrites | 517 | 9.4432 | 11.8288 | 0.4909 | 0.7269 | — | 0.5436 | — |
+| plus_bonding | Cuprates | 874 | 20.4852 | 31.6366 | 0.5991 | 0.7073 | 0.8855 | 0.4474 | 0.3740 |
+| plus_bonding | Other | 3529 | 3.0123 | 4.3632 | 0.6437 | 0.8088 | — | 0.4861 | — |
+| plus_bonding | Oxides | 320 | 3.8059 | 5.8405 | 0.5380 | 0.7696 | — | 0.4364 | — |
+| plus_spin | cross-family | 5773 | 10.4088 | 16.1169 | 0.0884 | 0.5780 | — | 0.4575 | 0.0624 |
+| plus_spin | Ferrites | 517 | 9.0264 | 11.8288 | 0.5012 | 0.7398 | — | 0.5436 | — |
+| plus_spin | Cuprates | 874 | 21.9168 | 31.6366 | 0.5458 | 0.6860 | 0.8810 | 0.4474 | 0.3740 |
+| plus_spin | Other | 3529 | 2.9955 | 4.3632 | 0.6587 | 0.8009 | — | 0.4861 | — |
+| plus_spin | Oxides | 320 | 3.8322 | 5.8405 | 0.5547 | 0.7649 | — | 0.4364 | — |
+| plus_correlation | cross-family | 5773 | 10.4062 | 16.1169 | 0.1218 | 0.5763 | — | 0.4575 | 0.0624 |
+| plus_correlation | Ferrites | 517 | 9.4117 | 11.8288 | 0.4720 | 0.7277 | — | 0.5436 | — |
+| plus_correlation | Cuprates | 874 | 22.2424 | 31.6366 | 0.5443 | 0.6831 | 0.8945 | 0.4474 | 0.3740 |
+| plus_correlation | Other | 3529 | 2.9740 | 4.3632 | 0.6592 | 0.7992 | — | 0.4861 | — |
+| plus_correlation | Oxides | 320 | 3.8452 | 5.8405 | 0.5575 | 0.7597 | — | 0.4364 | — |
+| plus_orbital | cross-family | 5773 | 10.6721 | 16.1169 | 0.0567 | 0.5742 | — | 0.4575 | 0.0624 |
+| plus_orbital | Ferrites | 517 | 9.4111 | 11.8288 | 0.4755 | 0.7354 | — | 0.5436 | — |
+| plus_orbital | Cuprates | 874 | 21.6586 | 31.6366 | 0.5573 | 0.6761 | 0.8957 | 0.4474 | 0.3740 |
+| plus_orbital | Other | 3529 | 2.9817 | 4.3632 | 0.6566 | 0.8046 | — | 0.4861 | — |
+| plus_orbital | Oxides | 320 | 3.6366 | 5.8405 | 0.5901 | 0.7671 | — | 0.4364 | — |
+| all | cross-family | 5773 | 10.4474 | 16.1169 | 0.0296 | 0.5778 | — | 0.4575 | 0.0624 |
+| all | Ferrites | 517 | 9.3188 | 11.8288 | 0.4989 | 0.7505 | — | 0.5436 | — |
+| all | Cuprates | 874 | 20.7372 | 31.6366 | 0.5897 | 0.7001 | 0.8990 | 0.4474 | 0.3740 |
+| all | Other | 3529 | 3.0499 | 4.3632 | 0.6456 | 0.8131 | — | 0.4861 | — |
+| all | Oxides | 320 | 3.7322 | 5.8405 | 0.5664 | 0.7661 | — | 0.4364 | — |
+
+CI cross-family MAE changed from **10.4351 K** for the formula baseline to **10.4474 K** with all physical groups; the mean predictor scored **16.1169 K**. The lattice-only addition scored **10.3516 K**, while orbital-only addition scored **10.6721 K**. Within Oxides, orbital features changed MAE from **3.8240 to 3.6366 K**. These small, mixed changes support the same limited conclusion as the local run: the tested additions do not establish an overall discovery advantage. A missing AUC remains an unscoreable one-class/fold task; it is not zero. No ambient-pressure accuracy is claimed because the 3DSC source does not supply measurement pressure.

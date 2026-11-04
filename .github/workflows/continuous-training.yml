@@ -5,6 +5,31 @@ on:
     - cron: "17 3 * * 0"
   workflow_dispatch:
     inputs:
+      deep_mp_reference_run:
+        description: "Optional successful physical-study run ID to reuse its MP properties"
+        required: false
+        default: ""
+        type: string
+      deep_mp_ids:
+        description: "Optional comma-separated MP/MVC reference IDs (empty selects all)"
+        required: false
+        default: ""
+        type: string
+      deep_ablation:
+        description: "Run the paired physics-feature ablation on all 3DSC CIFs"
+        required: false
+        default: false
+        type: boolean
+      deep_mp_enrichment:
+        description: "Fetch reference DOS, orbital fractions, and bulk moduli using the repository secret"
+        required: false
+        default: false
+        type: boolean
+      deep_mp_limit:
+        description: "Reference MP IDs to query (100 for smoke check; 0 for all)"
+        required: false
+        default: 100
+        type: number
       family:
         description: "Optional chemical family for a within-family shortlist (for example Ferrites)"
         required: false
@@ -41,19 +66,21 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
-  group: continuous-training
+  group: continuous-training-${{ (inputs.deep_ablation || inputs.deep_mp_enrichment || inputs.deep_mp_reference_run) && 'physical-study' || 'regular' }}
   cancel-in-progress: false
 
 jobs:
   train:
+    if: ${{ !inputs.deep_ablation && !inputs.deep_mp_enrichment && !inputs.deep_mp_reference_run }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install machine-learning dependencies
@@ -106,7 +133,7 @@ jobs:
             --data-root data/raw \
             --harmonized data/training/harmonized_supercon.csv \
             --output-dir data/processed/continuous-training \
-            --cif-limit 96 \
+            --all-cifs \
             --batch-size 25
       - name: Compute formula shell and bonding descriptors
         run: |
@@ -131,7 +158,7 @@ jobs:
             --skip-download
       - name: Upload requested family shortlist
         if: ${{ inputs.family != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: family-shortlist-${{ github.run_id }}
           path: data/processed/continuous-training/family-*/
@@ -147,6 +174,7 @@ jobs:
           baseline = run["baseline"]
           pressure = run["pressure_aware"]
           ranking = run["candidate_ranking"]
+          spin_eval = run["structure_spin_ablation"]
           evidence = Path("data/processed/continuous-training/evidence-intake")
           supercon2_rows = sum(1 for _ in (evidence / "supercon2-review-queue.csv").open(encoding="utf-8")) - 1
           supermat = json.loads((evidence / "supermat-intake-manifest.json").read_text())
@@ -159,6 +187,8 @@ jobs:
               f"- UCI baseline: {baseline.get('rows', 'blocked')} rows\n"
               f"- 3DSC empirical training rows: {pressure.get('empirical_training_record_count', 'blocked')}\n"
               f"- Family-held-out pressure model: {pressure.get('training_status', 'blocked')}\n"
+              f"- 3DSC structure/spin ablation: {spin_eval.get('evaluation', {}).get('status', spin_eval.get('status', 'blocked'))}; "
+              f"{spin_eval.get('coverage', {}).get('feature_rows', 0)} CIF-backed feature rows\n"
               f"- Ranked candidates: {ranking.get('ranked_count', 0)}\n"
               f"- Candidate artifact: `data/processed/candidates/top_k.csv`\n"
           )
@@ -166,9 +196,116 @@ jobs:
               handle.write(summary)
           PY
       - name: Upload models, metrics, evidence queues, and shortlist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: continuous-training-${{ github.run_id }}
           path: |
             data/processed/continuous-training/
             data/processed/candidates/
+
+  deep_physics:
+    if: ${{ inputs.deep_ablation || inputs.deep_mp_enrichment || inputs.deep_mp_reference_run }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install ablation and MP dependencies
+        run: python -m pip install '.[ml,mp]'
+      - name: Download pinned sources and requested CIF coverage
+        env:
+          RUN_ABLATION: ${{ inputs.deep_ablation }}
+        run: |
+          if [ "$RUN_ABLATION" = "true" ]; then
+            python scripts/download_training_data.py --all-cifs
+          else
+            python scripts/download_training_data.py --cif-limit 0
+          fi
+          python scripts/ingest_3dsc.py --features data/processed/structure_features.csv
+      - name: Build cached physical and oxide/correlation features
+        if: ${{ inputs.deep_ablation }}
+        run: |
+          python scripts/deep_physics_features.py --workers 2
+          python scripts/deep_physics_checks.py geometry \
+            --output data/processed/structure_features_checks.csv
+      - name: Download an existing reference-property table
+        if: ${{ inputs.deep_mp_reference_run }}
+        uses: actions/download-artifact@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.deep_mp_reference_run }}
+          name: physical-study-${{ inputs.deep_mp_reference_run }}
+          path: data/processed/reference-enrichment
+      - name: Merge reference properties with current geometry
+        if: ${{ inputs.deep_mp_reference_run }}
+        run: |
+          feature_table=data/processed/structure_features.csv
+          if [ -f data/processed/structure_features_checks.csv ]; then
+            feature_table=data/processed/structure_features_checks.csv
+          fi
+          python scripts/merge_physics_enrichment.py --base "$feature_table" \
+            --enrichment data/processed/reference-enrichment/structure_features_mp.csv \
+            --output data/processed/structure_features_mp.csv
+      - name: Retain reference-property collection provenance
+        if: ${{ inputs.deep_mp_reference_run }}
+        env:
+          REFERENCE_RUN_ID: ${{ inputs.deep_mp_reference_run }}
+        run: |
+          python - <<'PYREF'
+          import json, os
+          from pathlib import Path
+          source=Path('data/processed/reference-enrichment/structure_features_mp.json')
+          metadata=json.loads(source.read_text())
+          metadata['reused_from_run_id']=os.environ['REFERENCE_RUN_ID']
+          metadata['reuse_note']='Reference properties reused with record/MP identity validation; geometry coverage comes from the current feature table'
+          metadata['queries_this_run']=0
+          metadata.setdefault('reuse_run_chain',[]).append(os.environ['REFERENCE_RUN_ID'])
+          Path('data/processed/structure_features_reference_source.json').write_text(json.dumps(metadata,indent=2))
+          Path('data/processed/structure_features_mp.json').write_text(json.dumps(metadata,indent=2))
+          PYREF
+      - name: Enrich reference structures with elasticity and projected DOS
+        if: ${{ inputs.deep_mp_enrichment && !inputs.deep_mp_reference_run }}
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
+          DEEP_MP_LIMIT: ${{ inputs.deep_mp_limit }}
+          DEEP_MP_IDS: ${{ inputs.deep_mp_ids }}
+        run: |
+          feature_table=data/processed/structure_features.csv
+          if [ -f data/processed/structure_features_checks.csv ]; then
+            feature_table=data/processed/structure_features_checks.csv
+          fi
+          python scripts/enrich_deep_mp.py --features "$feature_table" \
+            --limit "$DEEP_MP_LIMIT" --ids "$DEEP_MP_IDS" --output data/processed/structure_features_mp.csv
+      - name: Run paired group-held-out ablation
+        if: ${{ inputs.deep_ablation }}
+        run: |
+          feature_table=data/processed/structure_features_checks.csv
+          if [ -f data/processed/structure_features_mp.csv ]; then
+            feature_table=data/processed/structure_features_mp.csv
+          fi
+          python scripts/deep_ablation.py --features "$feature_table"
+      - name: Index physical-study artifacts
+        if: always()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          root=Path('data/processed');root.mkdir(parents=True,exist_ok=True)
+          files=sorted(set(root.glob('structure_features*.csv')) | set(root.glob('structure_features*.json')) | set(root.glob('deep-ablation/*.json')) | set(root.glob('deep-ablation/*.csv')))
+          index=root/'ARTIFACT-INDEX.txt';index.write_text('Paths relative to the downloaded artifact root:\n'+'\n'.join(str(p.relative_to(root)) for p in files)+'\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('Physical-study tables: '+str(len(files))+' files; see ARTIFACT-INDEX.txt in the artifact. Missing or blocked properties retain explicit statuses.\n')
+          PY
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: physical-study-${{ github.run_id }}
+          if-no-files-found: error
+          path: |
+            data/processed/ARTIFACT-INDEX.txt
+            data/processed/structure_features*.csv
+            data/processed/structure_features*.json
+            data/processed/deep-ablation/*.json
+            data/processed/deep-ablation/*.csv

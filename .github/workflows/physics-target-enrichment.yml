@@ -1,0 +1,119 @@
+name: Physics-target model, graph benchmark, and Materials Project enrichment
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/train_physics_targets.py"
+      - "scripts/enrich_physics_mp.py"
+      - "scripts/enrich_candidate_stability.py"
+      - "scripts/run_physics_search.py"
+      - "scripts/evaluate_pretrained_alignn.py"
+      - "data/training/physics-target-source.json"
+      - "pyproject.toml"
+      - ".github/workflows/physics-target-enrichment.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: physics-target-enrichment
+  cancel-in-progress: false
+
+jobs:
+  enrich-and-evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install CPU PyTorch and project dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'numpy<2'
+          python -m pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[ml,mp,graph]'
+      - name: Build checksum-verified JARVIS EPC table and baseline models
+        run: |
+          python scripts/train_physics_targets.py \
+            --data-dir data/raw/jarvis-supercond \
+            --output-dir data/processed/physics-target
+      - name: Enrich every source compound from Materials Project
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
+        run: |
+          python scripts/enrich_physics_mp.py \
+            --input data/processed/physics-target/jarvis-supercond-characteristics.csv \
+            --output data/raw/jarvis-supercond/mp-characteristics.csv
+      - name: Re-evaluate models with Materials Project fields
+        run: |
+          python scripts/train_physics_targets.py \
+            --data-dir data/raw/jarvis-supercond \
+            --output-dir data/processed/physics-target \
+            --mp-cache data/raw/jarvis-supercond/mp-characteristics.csv
+      - name: Evaluate frozen pretrained ALIGNN representations
+        run: |
+          python scripts/evaluate_pretrained_alignn.py \
+            --data-dir data/raw/jarvis-supercond \
+            --output-dir data/processed/physics-target
+      - name: Generate and rank substitution candidates
+        run: |
+          python scripts/run_physics_search.py \
+            --data-zip data/raw/jarvis-supercond/jarvis_epc_data_figshare_1058.json.zip \
+            --model data/processed/physics-target/electron-phonon-target-models.joblib \
+            --output data/processed/physics-target/top-20-prototype-substitutions.csv
+      - name: Enrich exact candidate stability from Materials Project
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
+        run: |
+          python scripts/enrich_candidate_stability.py \
+            --input data/processed/physics-target/top-20-prototype-substitutions.csv \
+            --output data/raw/jarvis-supercond/mp-candidate-stability.csv
+      - name: Re-rank with candidate MP status and stability
+        run: |
+          python scripts/run_physics_search.py \
+            --data-zip data/raw/jarvis-supercond/jarvis_epc_data_figshare_1058.json.zip \
+            --model data/processed/physics-target/electron-phonon-target-models.joblib \
+            --mp-candidate-cache data/raw/jarvis-supercond/mp-candidate-stability.csv \
+            --output data/processed/physics-target/top-20-prototype-substitutions.csv
+      - name: Publish run summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path("data/processed/physics-target")
+          model = json.loads((root / "physics-target-report.json").read_text())
+          graph = json.loads((root / "pretrained-alignn-physics-target-report.json").read_text())
+          search = json.loads((root / "physics-search-summary.json").read_text())
+          mp_counts = model["dataset"].get("mp_match_status_counts", {})
+          lines = [
+              "### Physics-target and Materials Project run",
+              f"- EPC records used: {model['dataset']['rows_used']}",
+              f"- Materials Project row statuses: `{json.dumps(mp_counts, sort_keys=True)}`",
+              f"- Direct RF Tc MAE: {model['ablation']['feature_sets']['magpie_plus_lewis_shell']['metrics']['direct_tc']['mae']:.4f} K",
+              f"- Physics-derived Tc MAE: {model['ablation']['feature_sets']['magpie_plus_lewis_shell']['metrics']['physics_tc']['mae']:.4f} K",
+              f"- Frozen ALIGNN physics-derived Tc MAE: {graph['metrics']['physics_tc_from_lambda_omega_log']['mae']:.4f} K",
+              f"- Search filter counts: `{json.dumps(search['candidate_filter_counts'], sort_keys=True)}`",
+              f"- Top-20 rows by confidence group: `{json.dumps(search['written_by_confidence_group'], sort_keys=True)}`",
+              "- DFT verification remains pending for every proposed substitution.",
+          ]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
+      - name: Upload physics models, MP tables, graph metrics, and candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: physics-target-enrichment-${{ github.run_id }}
+          path: |
+            data/processed/physics-target/
+            data/raw/jarvis-supercond/mp-characteristics.csv
+            data/raw/jarvis-supercond/mp-candidate-stability.csv
+          if-no-files-found: error

@@ -1,0 +1,24 @@
+{
+  "dataset_name": "JARVIS-SuperconDB",
+  "dataset_version": "Figshare v4",
+  "dataset_doi": "10.6084/m9.figshare.21370572.v4",
+  "paper": {
+    "citation": "K. Choudhary and K. Garrity, Designing high-TC superconductors with BCS-inspired screening, density functional theory, and deep-learning, npj Computational Materials 8, 244 (2022).",
+    "doi": "10.1038/s41524-022-00933-1",
+    "url": "https://www.nature.com/articles/s41524-022-00933-1"
+  },
+  "dataset_landing_page": "https://figshare.com/articles/dataset/JARVIS-SuperconDB/21370572",
+  "dataset_file": "jarvis_epc_data_figshare_1058.json.zip",
+  "figshare_file_id": 38307921,
+  "download_url": "https://ndownloader.figshare.com/files/38307921",
+  "license": {
+    "name": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "publisher_md5": "bb4a91e899458f34cbb3b9bf03e9bd56",
+  "downloaded_file_sha256": "4213651cee9b4c13a376dd74ac1f8d3bd9efcd451f1b8da615255c8df0e1487f",
+  "downloaded_file_size_bytes": 8828364,
+  "dataset_fields_used": ["jid", "atoms", "stability", "lamb", "wlog", "Tc", "press"],
+  "interpretation": "Published DFT electron-phonon data, not a new calculation. One row was excluded from model fitting because its lambda or omega_log target was invalid/nonpositive.",
+  "data_attribution": "JARVIS-SuperconDB; Choudhary and Garrity (2022); DOI 10.1038/s41524-022-00933-1; dataset DOI 10.6084/m9.figshare.21370572.v4; CC BY 4.0."
+}

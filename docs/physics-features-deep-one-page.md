@@ -1,0 +1,31 @@
+# Physics-feature study: faculty review brief
+
+The research target is a reproducibly synthesizable superconductor with **Tc = 273.15–298.15 K (0–25 °C)** at **1 atm**, or below a separately justified engineering pressure ceiling. This repository prepares and evaluates hypotheses. It has not established a room-temperature superconductor.
+
+The current benchmark contains **5,773 3DSC records and 5,773 parsed reference CIFs**, with no CIF-processing failures. **3,435** CIFs require a highest-occupancy proxy for descriptor extraction; those proxies are not defensible occupationally ordered candidates for phonon calculations. Synthetic demonstration records and automatic literature extraction are excluded from empirical training. Missing measurement pressure must remain unknown. The 3DSC benchmark is pressure-agnostic, and its zero-Tc convention does not establish that every zero was experimentally tested.
+
+The completed Phase 2/3 and Phase 3.5 comparisons use fixed grouped test folds, fold-local preprocessing and an embargo on shared MP reference IDs. Within-family tests hold out elemental systems; cross-family tests hold out whole families. These are interpolation/generalization tests, not experimental demonstrations.
+
+| Completed comparison | Cross-family MAE (K) |
+|---|---:|
+| Mean predictor | 16.1169 |
+| Formula baseline: Magpie + shell/Lewis proxies | 10.4523 |
+| Baseline + lattice descriptors, initial ablation | 10.3884 |
+| Baseline + DFT spin descriptors, initial ablation | 10.3908 |
+| All scalar physical groups, Phase 3.5 | 10.4464 |
+| Baseline + orbital group, Phase 3.5 | 10.6626 |
+| Frozen CHGNet representation + RF | 10.5140 |
+| Tc-fine-tuned CHGNet representation + RF | 11.4483 |
+| Scratch ALIGNN representation + RF | 12.2198 |
+
+The final scalar combination changed cross-family MAE from **10.4523 to 10.4464 K**, a negligible difference. Orbital features alone worsened that global error to **10.6626 K**, while reducing the within-Oxides MAE from **3.9724 to 3.5957 K**. There is no universal improvement, and none of these graph-encoder pilots beat the formula baseline on cross-family MAE. The fine-tuning and scratch pilots consumed **4.546** and **1.334 cumulative CPU-hours**, respectively. These results do not show that structural physics is unhelpful: reference/sample mismatch, disorder proxies, limited supervision and short training pilots remain substantial limitations. Feature importance is not evidence of a pairing mechanism. Every direct RF Tc readout remains bounded by its training Tc range; adding descriptors does not remove that bound.
+
+The subsequent collection adds metal–oxygen–metal angles for **1,361 rows**, buckling proxies for **231**, and DFT-method/magnetism descriptors. The primary MP collection queried **2,708 references**, supplying DOS/orbital fractions for **5,243 rows** and bulk moduli for **2,757**, with **zero endpoint failures**. Orbital weights integrate s+p+d+f projections within Ef ±0.5 eV; they are not shell occupations. All **5,243** DOS rows passed a reference-element-set check against `original_formula_2`; that check does not establish phase or measured-sample equivalence. **Seven legacy MVC references covering 14 rows remain quarantined**: the four references returning curves (11 rows) mismatched their parent element sets, and the other three rows had no returned DOS. None of those MVC numerical values entered the study. The campaign scored 4,338 accepted substitutions and retained **60 hypotheses** (50 review-tier, 10 low-confidence). **28** ordered inputs completed diagnostic ML phonons: **20** imaginary-mode flags and **8** without that flag; **32** require occupational ordering. Stable Al also failed this surrogate screen across tested settings, so it is not a validated rejection criterion. The empirical forest had **0** OOF predictions above its training maximum. The EPC equation produced **14/1,057** such extrapolations; only **1** corresponding DFT target also exceeded its fold maximum, and none was experimental or room-temperature evidence.
+
+For the conventional electron–phonon lane, **1,057 JARVIS structures** supply computed λ and ω_log targets. Adding five bond descriptors changed ω_log MAE from **93.6672 to 92.6127 K**, while derived-Tc MAE worsened from **5.8582 to 5.8918 K**. These are DFT labels and a fixed-μ* Tc calculation, not measured transitions. Conventional electron–phonon modeling does not supply a universal theory for cuprates or iron-based superconductors.
+
+The most useful next contribution from a faculty mentor is approval of one ordered conventional reference, its computational method and convergence tests. A reproducible DFPT benchmark should precede a blinded candidate/control pilot. ML-potential phonons, candidate scores and reference database properties remain distinct from new first-principles results and experimental evidence. See [next-experiments.md](next-experiments.md) for proposed tests and failure decisions, [modeling.md](modeling.md) for full tables, and the [required checklist](physics-features-deep-checklist.md) for completion status.
+
+Sources and input provenance: [3DSC paper](https://www.nature.com/articles/s41597-023-02721-y), [JARVIS dataset v4](https://doi.org/10.6084/m9.figshare.21370572.v4), [JARVIS paper](https://doi.org/10.1038/s41524-022-00933-1), [CHGNet](https://chgnet.lbl.gov/), [ALIGNN paper](https://www.nature.com/articles/s41524-021-00650-1), [phonopy](https://phonopy.github.io/phonopy/). The benchmark tables and source hashes are retained in the linked machine-readable study reports.
+
+The final, independently versioned [CI integration](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41775076764) also completed all eight paired variants: cross-family MAE **10.4351 K** for the formula baseline and **10.4474 K** for all groups, versus **16.1169 K** for the mean predictor. Within-Oxides orbital MAE was **3.8240 → 3.6366 K**. Library-version changes alter tied-group fold assignments, so these are a separate study from the local graph and ablation comparisons above. They preserve the limited conclusion of no overall gain. Full split/version caveats, all 40 metric rows, coverage and artifact hashes are in the modeling report.

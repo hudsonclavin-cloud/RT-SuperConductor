@@ -39,6 +39,17 @@ def _read_predictions(path: Path) -> list[dict[str, str]]:
     return rows
 
 
+def measured_pressure(row: dict[str, str]) -> float | None:
+    """Return an observed numeric pressure; blank never means ambient."""
+    value = row.get("applied_pressure_gpa", "")
+    if value is None or str(value).strip() == "":
+        return None
+    pressure = float(value)
+    if not math.isfinite(pressure) or pressure < 0:
+        raise ValueError("Applied pressure must be finite, nonnegative, or blank")
+    return pressure
+
+
 def _pearson(actual: list[float], predicted: list[float]) -> float | None:
     if len(actual) < 2:
         return None
@@ -108,7 +119,8 @@ def evaluate_gate(
     )
     ambient = [
         row for row in ambient_rows
-        if eligible(row) and float(row["applied_pressure_gpa"]) <= AMBIENT_PRESSURE_MAX_GPA
+        if eligible(row) and measured_pressure(row) is not None
+        and measured_pressure(row) <= AMBIENT_PRESSURE_MAX_GPA
     ]
     ambient_mae = (
         sum(abs(float(row["tc_kelvin"]) - float(row["predicted_tc_kelvin"])) for row in ambient) / len(ambient)
@@ -129,7 +141,8 @@ def evaluate_gate(
         benchmark = [
             row for row in rows
             if row["formula"] in aliases
-            and float(row["applied_pressure_gpa"]) > AMBIENT_PRESSURE_MAX_GPA
+            and measured_pressure(row) is not None
+            and measured_pressure(row) > AMBIENT_PRESSURE_MAX_GPA
             and eligible(row)
         ]
         trend_rows[benchmark_name] = len(benchmark)
@@ -168,6 +181,7 @@ def evaluate_gate(
         "family": family,
         "ambient_prediction_source": str(within_family_path) if family is not None else str(predictions_path),
         "ambient_eligible_rows": len(ambient),
+        "unknown_pressure_rows": sum(measured_pressure(row) is None for row in rows),
         # Retain the historical key for downstream consumers; the count now
         # includes both confirmed and curated_database empirical rows.
         "ambient_confirmed_rows": len(ambient),

@@ -1,3 +1,17 @@
+# Current study summary for faculty review
+
+**Target:** a reproducibly synthesizable superconductor at **273.15–298.15 K and 1 atm**, or below a separately justified engineering pressure ceiling. No model score or retrieved reference structure is evidence that this target has been achieved.
+
+The completed study includes **5,773 3DSC records and reference CIFs**. The formula baseline's cross-family MAE is **10.4523 K**, compared with **16.1169 K** for the mean predictor. Initial lattice/spin additions changed that error only slightly; frozen CHGNet, Tc-fine-tuned CHGNet and scratch ALIGNN representations scored **10.5140**, **11.4483** and **12.2198 K**. These are grouped, embargoed tests with disclosed proxy structures and short training pilots, not a claim that structural physics is irrelevant. Primary MP collection supplies DOS/orbital fractions for **5,243 rows** and bulk moduli for **2,757**. The completed Phase 3.5 combination scored **10.4464 K**, versus the **10.4523 K** baseline; orbital features alone scored **10.6626 K** globally but improved within-Oxides MAE from **3.9724 to 3.5957 K**. These results show a family-dependent benefit, not a general improvement. The constrained campaign prepared **60 hypotheses**: **28** ordered inputs completed ML phonons (**20** imaginary-mode signals, **8** without that signal); **32** remain blocked by disorder. Al control false positives prevent treating these as confirmed instability verdicts. The EPC extrapolation audit had **14/1,057** above-training-maximum predictions, but only **1** reference-derived target also exceeded that maximum. Independent calibration helped some tasks and worsened the global family-shift task. No first-principles or experimental room-temperature result was obtained.
+
+The current benchmark does not establish ambient-pressure performance: 3DSC does not provide the needed measurement-pressure labels. Reference magnetism is DFT-computed; neutral-atom shell/d-electron counts and DOS-window fractions are different descriptors, not measured electron occupations. The valid **5,243** DOS rows passed a parent-reference element-set check, which does not prove phase/sample equivalence. All **14 MVC rows** remain quarantined: returned curves for 11 rows mismatched their parent element sets and three rows had no returned DOS. No MVC numerical properties were used. The 3DSC zero-Tc convention also requires source review before interpreting a row as a tested negative.
+
+The next useful faculty contribution is to approve an ordered conventional reference and a converged DFPT setup, then evaluate a small blinded candidate/control panel. See the [one-page brief](physics-features-deep-one-page.md), [complete tables](modeling.md), and [proposed tests with failure decisions](next-experiments.md). New first-principles and experimental evidence must remain distinct from ML predictions and prepared calculation templates.
+
+The previous summary is preserved below as project history; current source checks, limitations and metrics above supersede older descriptions of the evaluated feature set or assumed pressure conditions.
+
+---
+
 # Autonomous Superconductor Discovery Engine
 
 ## Executive research summary for NC State faculty review

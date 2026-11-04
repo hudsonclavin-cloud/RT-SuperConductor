@@ -1,0 +1,3760 @@
+{
+  "models": {
+    "Formula baseline": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 10.452328776507072,
+        "mean_mae": 16.116940822937963,
+        "spearman": 0.10065715701202323,
+        "auc0": 0.5791610998562601,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "MagpieData range Electronegativity",
+            0.11535905764372735
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.11527220390345407
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.0689741660058801
+          ],
+          [
+            "MagpieData avg_dev NdValence",
+            0.06171308288873868
+          ],
+          [
+            "MagpieData avg_dev NUnfilled",
+            0.05242678614596589
+          ],
+          [
+            "MagpieData avg_dev GSmagmom",
+            0.03568202369665593
+          ],
+          [
+            "descriptor_total_atoms",
+            0.03169013529899753
+          ],
+          [
+            "descriptor_shell_3_fill_pct",
+            0.029743817618515522
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.02803549042012262
+          ],
+          [
+            "descriptor_shell_3_electrons",
+            0.027225091386591495
+          ],
+          [
+            "MagpieData avg_dev Column",
+            0.020911950106925915
+          ],
+          [
+            "MagpieData avg_dev SpaceGroupNumber",
+            0.01801425692017972
+          ],
+          [
+            "descriptor_avg_p_electrons",
+            0.01791419476797989
+          ],
+          [
+            "MagpieData mean SpaceGroupNumber",
+            0.016375141058247562
+          ],
+          [
+            "MagpieData mean NdValence",
+            0.015490709091048396
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.012473827060116764
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.012161223347591397
+          ],
+          [
+            "MagpieData avg_dev MendeleevNumber",
+            0.012020404132439088
+          ],
+          [
+            "MagpieData mean Electronegativity",
+            0.011849488663628761
+          ],
+          [
+            "MagpieData mean MendeleevNumber",
+            0.011356453279938152
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 9.386957210070921,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.5090404277329809,
+        "auc0": 0.720787289752807,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "MagpieData avg_dev NUnfilled",
+            0.10358781642506276
+          ],
+          [
+            "MagpieData avg_dev Column",
+            0.09140119937092778
+          ],
+          [
+            "MagpieData avg_dev MendeleevNumber",
+            0.047430447160727765
+          ],
+          [
+            "MagpieData mean NValence",
+            0.03306147433598454
+          ],
+          [
+            "MagpieData mean SpaceGroupNumber",
+            0.03242058720103547
+          ],
+          [
+            "MagpieData mean Column",
+            0.031602644508222824
+          ],
+          [
+            "descriptor_avg_p_electrons",
+            0.029525286595421762
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.02516116012858545
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.024817626417508558
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.021720050642883
+          ],
+          [
+            "MagpieData mean NdUnfilled",
+            0.021528890113965467
+          ],
+          [
+            "MagpieData mean NpUnfilled",
+            0.019414611214932553
+          ],
+          [
+            "MagpieData avg_dev GSmagmom",
+            0.016094443240410226
+          ],
+          [
+            "MagpieData mean Electronegativity",
+            0.01590050310237906
+          ],
+          [
+            "MagpieData avg_dev Row",
+            0.015433781343567656
+          ],
+          [
+            "MagpieData range CovalentRadius",
+            0.015317561327774447
+          ],
+          [
+            "MagpieData mode MeltingT",
+            0.014994808610782936
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.014964528681011025
+          ],
+          [
+            "MagpieData mean GSmagmom",
+            0.014743312806485923
+          ],
+          [
+            "MagpieData range NdValence",
+            0.014423087712424062
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 21.357316865751336,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5623606905424785,
+        "auc0": 0.6716565296420581,
+        "auc77": 0.8274800735744943,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "MagpieData mean NUnfilled",
+            0.12377651757688368
+          ],
+          [
+            "MagpieData avg_dev NdValence",
+            0.1140042964606865
+          ],
+          [
+            "MagpieData mean NValence",
+            0.04683001949952399
+          ],
+          [
+            "MagpieData avg_dev SpaceGroupNumber",
+            0.03862284492147207
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.03475071257799687
+          ],
+          [
+            "MagpieData avg_dev NUnfilled",
+            0.03304114667585612
+          ],
+          [
+            "MagpieData mean SpaceGroupNumber",
+            0.030722199524256158
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.02713016505047787
+          ],
+          [
+            "MagpieData mean NdValence",
+            0.02530633266458716
+          ],
+          [
+            "MagpieData avg_dev MeltingT",
+            0.022155998134233287
+          ],
+          [
+            "descriptor_shell_2_fill_pct",
+            0.020820590640787267
+          ],
+          [
+            "descriptor_shell_2_electrons",
+            0.01889136000212991
+          ],
+          [
+            "MagpieData mean NpValence",
+            0.018177396465315725
+          ],
+          [
+            "MagpieData mean Electronegativity",
+            0.017459162480442793
+          ],
+          [
+            "descriptor_shell_3_electrons",
+            0.017430799278508734
+          ],
+          [
+            "descriptor_shell_3_fill_pct",
+            0.01677532558131594
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.014162609849039887
+          ],
+          [
+            "MagpieData mean MendeleevNumber",
+            0.013284634457857079
+          ],
+          [
+            "MagpieData avg_dev MendeleevNumber",
+            0.012602843330836541
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.012410032993501385
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 2.8605743402210257,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.6912538168831416,
+        "auc0": 0.7931691890723935,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "MagpieData mode MeltingT",
+            0.09670052993971204
+          ],
+          [
+            "descriptor_element_count",
+            0.036238149334222244
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.03235899634261013
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.028700375111160394
+          ],
+          [
+            "MagpieData range MeltingT",
+            0.02756683395135618
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.025658452420777494
+          ],
+          [
+            "MagpieData avg_dev MeltingT",
+            0.024837646054415373
+          ],
+          [
+            "MagpieData mean Electronegativity",
+            0.022671533708046428
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.022611624007611155
+          ],
+          [
+            "MagpieData minimum MeltingT",
+            0.020749984644104946
+          ],
+          [
+            "MagpieData mean GSvolume_pa",
+            0.019900642427957953
+          ],
+          [
+            "MagpieData mean MendeleevNumber",
+            0.01823010130047367
+          ],
+          [
+            "MagpieData avg_dev SpaceGroupNumber",
+            0.017722365608200504
+          ],
+          [
+            "MagpieData mean GSbandgap",
+            0.017646513260089522
+          ],
+          [
+            "MagpieData mean NValence",
+            0.016732846425069486
+          ],
+          [
+            "MagpieData mean CovalentRadius",
+            0.016616770966471493
+          ],
+          [
+            "MagpieData range Electronegativity",
+            0.016311763232748095
+          ],
+          [
+            "MagpieData maximum Electronegativity",
+            0.01607374364812713
+          ],
+          [
+            "MagpieData range MendeleevNumber",
+            0.0159391777444855
+          ],
+          [
+            "MagpieData range NdValence",
+            0.014995277350439897
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 3.9724045887083337,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.5659318610199869,
+        "auc0": 0.7343892841527883,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "MagpieData range NValence",
+            0.14423446156056524
+          ],
+          [
+            "MagpieData mean GSvolume_pa",
+            0.11752951404039702
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.076833359544115
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.0741879399652051
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.0716414448263599
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.05712835755258232
+          ],
+          [
+            "descriptor_shell_6_electrons",
+            0.03548677617193918
+          ],
+          [
+            "descriptor_shell_6_fill_pct",
+            0.024170273269904702
+          ],
+          [
+            "MagpieData mean CovalentRadius",
+            0.02053186877956571
+          ],
+          [
+            "MagpieData avg_dev MeltingT",
+            0.017441182723909383
+          ],
+          [
+            "MagpieData avg_dev SpaceGroupNumber",
+            0.017411660678975722
+          ],
+          [
+            "MagpieData avg_dev CovalentRadius",
+            0.015258189745674324
+          ],
+          [
+            "MagpieData mean SpaceGroupNumber",
+            0.01423683125976486
+          ],
+          [
+            "MagpieData minimum Number",
+            0.014132429244824937
+          ],
+          [
+            "MagpieData minimum AtomicWeight",
+            0.013454068949146242
+          ],
+          [
+            "MagpieData avg_dev GSbandgap",
+            0.012576334262023762
+          ],
+          [
+            "descriptor_avg_outer_shell_electrons",
+            0.01230644746237383
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.01210546468169393
+          ],
+          [
+            "MagpieData range CovalentRadius",
+            0.009702653188070873
+          ],
+          [
+            "MagpieData mean Electronegativity",
+            0.009377648725189173
+          ]
+        ]
+      }
+    },
+    "Frozen CHGNet + RF": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 10.513961545307081,
+        "mean_mae": 16.116940822937963,
+        "spearman": -0.034676517318414445,
+        "auc0": 0.5154843441816331,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "CHGNet_6",
+            0.2900287671638515
+          ],
+          [
+            "CHGNet_4",
+            0.12734294293757992
+          ],
+          [
+            "CHGNet_8",
+            0.060514357664513976
+          ],
+          [
+            "CHGNet_60",
+            0.053689702600338216
+          ],
+          [
+            "CHGNet_12",
+            0.04735285301874542
+          ],
+          [
+            "CHGNet_30",
+            0.025223315304787115
+          ],
+          [
+            "CHGNet_17",
+            0.021920209130096676
+          ],
+          [
+            "CHGNet_59",
+            0.01911510224164
+          ],
+          [
+            "CHGNet_7",
+            0.015757034641131783
+          ],
+          [
+            "CHGNet_49",
+            0.01572351180921547
+          ],
+          [
+            "CHGNet_15",
+            0.015285933250728705
+          ],
+          [
+            "CHGNet_40",
+            0.015106322004292981
+          ],
+          [
+            "CHGNet_37",
+            0.013449681769543037
+          ],
+          [
+            "CHGNet_25",
+            0.013346305782021138
+          ],
+          [
+            "CHGNet_47",
+            0.012632098845648778
+          ],
+          [
+            "CHGNet_23",
+            0.011724660176301544
+          ],
+          [
+            "CHGNet_0",
+            0.011486106950875256
+          ],
+          [
+            "CHGNet_39",
+            0.01145488254336349
+          ],
+          [
+            "CHGNet_26",
+            0.011235673534942347
+          ],
+          [
+            "CHGNet_45",
+            0.009705709426651339
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 11.230853602155346,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.24749009477823122,
+        "auc0": 0.5987440642613056,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "CHGNet_51",
+            0.0847592635514426
+          ],
+          [
+            "CHGNet_15",
+            0.07514465202118573
+          ],
+          [
+            "CHGNet_7",
+            0.07005891624003154
+          ],
+          [
+            "CHGNet_30",
+            0.06512010308713886
+          ],
+          [
+            "CHGNet_36",
+            0.04797959771248798
+          ],
+          [
+            "CHGNet_53",
+            0.04691746517531733
+          ],
+          [
+            "CHGNet_25",
+            0.041415425593911995
+          ],
+          [
+            "CHGNet_40",
+            0.03857118057578706
+          ],
+          [
+            "CHGNet_46",
+            0.03535921081191165
+          ],
+          [
+            "CHGNet_4",
+            0.03527400534658821
+          ],
+          [
+            "CHGNet_37",
+            0.029436954679625114
+          ],
+          [
+            "CHGNet_1",
+            0.028736353869430745
+          ],
+          [
+            "CHGNet_44",
+            0.027416333065100777
+          ],
+          [
+            "CHGNet_17",
+            0.017435315990212693
+          ],
+          [
+            "CHGNet_2",
+            0.01662816167973611
+          ],
+          [
+            "CHGNet_6",
+            0.016067164115225976
+          ],
+          [
+            "CHGNet_45",
+            0.01595605358275451
+          ],
+          [
+            "CHGNet_48",
+            0.015671465642753422
+          ],
+          [
+            "CHGNet_31",
+            0.015239235244610393
+          ],
+          [
+            "CHGNet_43",
+            0.014710577794074808
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 22.083275596759858,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5282456910348081,
+        "auc0": 0.6684260812826249,
+        "auc77": 0.8415941140404659,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "CHGNet_37",
+            0.1687462702306645
+          ],
+          [
+            "CHGNet_40",
+            0.08159598219567679
+          ],
+          [
+            "CHGNet_62",
+            0.04719226640535618
+          ],
+          [
+            "CHGNet_27",
+            0.04665802280167916
+          ],
+          [
+            "CHGNet_15",
+            0.04646690963516712
+          ],
+          [
+            "CHGNet_18",
+            0.04386647475789437
+          ],
+          [
+            "CHGNet_59",
+            0.033699020765988054
+          ],
+          [
+            "CHGNet_12",
+            0.031942330695779536
+          ],
+          [
+            "CHGNet_22",
+            0.031599880452770644
+          ],
+          [
+            "CHGNet_6",
+            0.030246414631322615
+          ],
+          [
+            "CHGNet_33",
+            0.027159659188772098
+          ],
+          [
+            "CHGNet_48",
+            0.023714541252415705
+          ],
+          [
+            "CHGNet_45",
+            0.020571377165382612
+          ],
+          [
+            "CHGNet_47",
+            0.019422235454308802
+          ],
+          [
+            "CHGNet_50",
+            0.019393060273138217
+          ],
+          [
+            "CHGNet_63",
+            0.01883438972158942
+          ],
+          [
+            "CHGNet_4",
+            0.017891384591552442
+          ],
+          [
+            "CHGNet_29",
+            0.017660278143385236
+          ],
+          [
+            "CHGNet_0",
+            0.01689453733768578
+          ],
+          [
+            "CHGNet_30",
+            0.01597970539201482
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 3.45345341995018,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.5232149956195652,
+        "auc0": 0.7501415036732241,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "CHGNet_47",
+            0.06870528596784134
+          ],
+          [
+            "CHGNet_51",
+            0.06756599300245
+          ],
+          [
+            "CHGNet_4",
+            0.044249153086153584
+          ],
+          [
+            "CHGNet_59",
+            0.03883741829447232
+          ],
+          [
+            "CHGNet_17",
+            0.036272394642986046
+          ],
+          [
+            "CHGNet_55",
+            0.03216732303901551
+          ],
+          [
+            "CHGNet_48",
+            0.0319769181385207
+          ],
+          [
+            "CHGNet_29",
+            0.02880531066928074
+          ],
+          [
+            "CHGNet_21",
+            0.0264531039274568
+          ],
+          [
+            "CHGNet_20",
+            0.025815090547032862
+          ],
+          [
+            "CHGNet_54",
+            0.023987076844134862
+          ],
+          [
+            "CHGNet_18",
+            0.019546394512779813
+          ],
+          [
+            "CHGNet_61",
+            0.01767997872839469
+          ],
+          [
+            "CHGNet_27",
+            0.017315811754711443
+          ],
+          [
+            "CHGNet_39",
+            0.01706095794784824
+          ],
+          [
+            "CHGNet_24",
+            0.01666484200216675
+          ],
+          [
+            "CHGNet_58",
+            0.016377840953753425
+          ],
+          [
+            "CHGNet_6",
+            0.0156827900341408
+          ],
+          [
+            "CHGNet_41",
+            0.015124858774937543
+          ],
+          [
+            "CHGNet_52",
+            0.014479838091794215
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 4.646408203920449,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.31906580793601624,
+        "auc0": 0.7341508009062363,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "CHGNet_44",
+            0.2827678595526678
+          ],
+          [
+            "CHGNet_25",
+            0.07369807331510472
+          ],
+          [
+            "CHGNet_18",
+            0.06272891486907362
+          ],
+          [
+            "CHGNet_33",
+            0.05229096513695405
+          ],
+          [
+            "CHGNet_49",
+            0.0367048790857695
+          ],
+          [
+            "CHGNet_20",
+            0.029492935381106124
+          ],
+          [
+            "CHGNet_62",
+            0.02943086887391293
+          ],
+          [
+            "CHGNet_15",
+            0.025545202968108558
+          ],
+          [
+            "CHGNet_0",
+            0.024346128826208905
+          ],
+          [
+            "CHGNet_55",
+            0.019105879121666915
+          ],
+          [
+            "CHGNet_61",
+            0.01821718533127073
+          ],
+          [
+            "CHGNet_52",
+            0.016984867710710432
+          ],
+          [
+            "CHGNet_37",
+            0.014106552439360438
+          ],
+          [
+            "CHGNet_63",
+            0.014001922266538196
+          ],
+          [
+            "CHGNet_5",
+            0.01297830851432485
+          ],
+          [
+            "CHGNet_11",
+            0.012382137410607168
+          ],
+          [
+            "CHGNet_4",
+            0.01209682567971483
+          ],
+          [
+            "CHGNet_39",
+            0.011501725657500603
+          ],
+          [
+            "CHGNet_7",
+            0.011441716665582777
+          ],
+          [
+            "CHGNet_26",
+            0.01025026252028439
+          ]
+        ]
+      }
+    },
+    "Formula + frozen CHGNet": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 10.759362800530631,
+        "mean_mae": 16.116940822937963,
+        "spearman": 0.11887505492286393,
+        "auc0": 0.5441646687155345,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "CHGNet_6",
+            0.1946066029922815
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.09493357619787829
+          ],
+          [
+            "descriptor_shell_2_electrons",
+            0.036962166438014254
+          ],
+          [
+            "descriptor_shell_2_fill_pct",
+            0.036119358792612744
+          ],
+          [
+            "MagpieData avg_dev GSmagmom",
+            0.034313176195959
+          ],
+          [
+            "descriptor_shell_3_fill_pct",
+            0.026487799019320368
+          ],
+          [
+            "descriptor_shell_3_electrons",
+            0.025954660814709776
+          ],
+          [
+            "CHGNet_37",
+            0.02500301301090142
+          ],
+          [
+            "MagpieData avg_dev NUnfilled",
+            0.024474915159922703
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.019439990938068922
+          ],
+          [
+            "descriptor_avg_p_electrons",
+            0.018061888117178928
+          ],
+          [
+            "MagpieData mean NdValence",
+            0.018053792905852375
+          ],
+          [
+            "CHGNet_52",
+            0.017231793178910222
+          ],
+          [
+            "MagpieData avg_dev Column",
+            0.017135030386065116
+          ],
+          [
+            "MagpieData avg_dev NdValence",
+            0.01423969248704234
+          ],
+          [
+            "MagpieData avg_dev SpaceGroupNumber",
+            0.013148516849514036
+          ],
+          [
+            "MagpieData avg_dev NfUnfilled",
+            0.012570543269006675
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.01226853226340016
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.011584496899902283
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.010232426643044973
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 9.710629177034171,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.4360808533843893,
+        "auc0": 0.7055873607597747,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "MagpieData avg_dev NUnfilled",
+            0.0935391112089689
+          ],
+          [
+            "MagpieData avg_dev Column",
+            0.06574248775191285
+          ],
+          [
+            "MagpieData mean SpaceGroupNumber",
+            0.032263932042465415
+          ],
+          [
+            "MagpieData avg_dev MendeleevNumber",
+            0.03216810177868404
+          ],
+          [
+            "MagpieData mean NpUnfilled",
+            0.030300259537489965
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.02641156621693432
+          ],
+          [
+            "descriptor_avg_p_electrons",
+            0.025537435790549363
+          ],
+          [
+            "MagpieData mean NValence",
+            0.024562455495923445
+          ],
+          [
+            "CHGNet_15",
+            0.019778851465198442
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.019051637745117124
+          ],
+          [
+            "CHGNet_36",
+            0.01887466773834001
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.018567065390416682
+          ],
+          [
+            "MagpieData range CovalentRadius",
+            0.017453369706820748
+          ],
+          [
+            "MagpieData mean Column",
+            0.016008787391107795
+          ],
+          [
+            "CHGNet_46",
+            0.015444514799852866
+          ],
+          [
+            "MagpieData mean NdUnfilled",
+            0.01531907594790584
+          ],
+          [
+            "CHGNet_25",
+            0.015152644410045638
+          ],
+          [
+            "MagpieData avg_dev GSmagmom",
+            0.013343296308772795
+          ],
+          [
+            "MagpieData mode MeltingT",
+            0.012878060474304624
+          ],
+          [
+            "CHGNet_40",
+            0.011956329734641384
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 20.9908272273074,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5901994796530837,
+        "auc0": 0.6710069444444444,
+        "auc77": 0.8406662579194768,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "MagpieData mean NUnfilled",
+            0.10829319897912096
+          ],
+          [
+            "MagpieData avg_dev NdValence",
+            0.09579666473510337
+          ],
+          [
+            "CHGNet_37",
+            0.04757780990831962
+          ],
+          [
+            "MagpieData avg_dev NUnfilled",
+            0.030533313688999444
+          ],
+          [
+            "MagpieData mean NValence",
+            0.027635676607881417
+          ],
+          [
+            "MagpieData avg_dev SpaceGroupNumber",
+            0.02600538512639595
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.024348091001246127
+          ],
+          [
+            "MagpieData mean SpaceGroupNumber",
+            0.021752132027643922
+          ],
+          [
+            "descriptor_shell_2_fill_pct",
+            0.020336518016699046
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.01935810077913062
+          ],
+          [
+            "CHGNet_62",
+            0.019101521349154032
+          ],
+          [
+            "MagpieData mean NdValence",
+            0.01905001391963794
+          ],
+          [
+            "MagpieData mean NpValence",
+            0.018526344668524458
+          ],
+          [
+            "CHGNet_23",
+            0.017016443325102746
+          ],
+          [
+            "MagpieData avg_dev MeltingT",
+            0.01671899447901239
+          ],
+          [
+            "CHGNet_6",
+            0.016493683782441912
+          ],
+          [
+            "CHGNet_59",
+            0.016272541302464683
+          ],
+          [
+            "descriptor_shell_2_electrons",
+            0.013967765879630162
+          ],
+          [
+            "CHGNet_22",
+            0.011277752786892262
+          ],
+          [
+            "CHGNet_63",
+            0.010493585979210412
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 3.056472415399263,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.6778442388715736,
+        "auc0": 0.7916177373190788,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "MagpieData mode MeltingT",
+            0.08047629306473728
+          ],
+          [
+            "descriptor_element_count",
+            0.03004050687009154
+          ],
+          [
+            "CHGNet_47",
+            0.025631392388973915
+          ],
+          [
+            "MagpieData range MeltingT",
+            0.019032341092310848
+          ],
+          [
+            "MagpieData mean NValence",
+            0.018670815154929472
+          ],
+          [
+            "CHGNet_51",
+            0.018232945722971138
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.017409699723080777
+          ],
+          [
+            "MagpieData avg_dev MeltingT",
+            0.017170614564495715
+          ],
+          [
+            "CHGNet_46",
+            0.015592608664493105
+          ],
+          [
+            "CHGNet_21",
+            0.015267884942403885
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.015080028245480465
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.014302009379763336
+          ],
+          [
+            "MagpieData range Electronegativity",
+            0.013413335427922616
+          ],
+          [
+            "CHGNet_4",
+            0.013210676859266832
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.01298498356059579
+          ],
+          [
+            "CHGNet_55",
+            0.012981406884275428
+          ],
+          [
+            "MagpieData mean GSbandgap",
+            0.012414163749292228
+          ],
+          [
+            "MagpieData minimum MeltingT",
+            0.012298484929539812
+          ],
+          [
+            "MagpieData maximum Electronegativity",
+            0.01219964665876294
+          ],
+          [
+            "MagpieData range MendeleevNumber",
+            0.01141436068208968
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 4.225286249,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.5160206741904404,
+        "auc0": 0.8050001987360388,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "MagpieData range NValence",
+            0.14203386573747653
+          ],
+          [
+            "MagpieData mean GSvolume_pa",
+            0.11755098253696539
+          ],
+          [
+            "MagpieData mean MeltingT",
+            0.07832295223417858
+          ],
+          [
+            "MagpieData avg_dev GSvolume_pa",
+            0.06657785986691107
+          ],
+          [
+            "MagpieData avg_dev NValence",
+            0.06587492363680814
+          ],
+          [
+            "MagpieData mean NUnfilled",
+            0.0469046285537032
+          ],
+          [
+            "descriptor_shell_6_electrons",
+            0.03048953492822691
+          ],
+          [
+            "descriptor_shell_6_fill_pct",
+            0.025078606925363685
+          ],
+          [
+            "MagpieData avg_dev SpaceGroupNumber",
+            0.01747489732626036
+          ],
+          [
+            "MagpieData mean CovalentRadius",
+            0.016924793121080303
+          ],
+          [
+            "MagpieData avg_dev MeltingT",
+            0.014043183672462807
+          ],
+          [
+            "MagpieData minimum Number",
+            0.013681624809635392
+          ],
+          [
+            "MagpieData avg_dev CovalentRadius",
+            0.011659409885669766
+          ],
+          [
+            "MagpieData avg_dev Electronegativity",
+            0.011595252324164793
+          ],
+          [
+            "MagpieData minimum AtomicWeight",
+            0.011124939137681453
+          ],
+          [
+            "CHGNet_15",
+            0.011049031349144851
+          ],
+          [
+            "MagpieData avg_dev GSbandgap",
+            0.01104700501363894
+          ],
+          [
+            "MagpieData mean SpaceGroupNumber",
+            0.01034202149574555
+          ],
+          [
+            "CHGNet_0",
+            0.009601456951326418
+          ],
+          [
+            "descriptor_avg_outer_shell_electrons",
+            0.009559595204658183
+          ]
+        ]
+      }
+    },
+    "Tc-fine-tuned CHGNet + RF": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 11.448300033518553,
+        "mean_mae": 16.116940822937963,
+        "spearman": -0.02338300435967256,
+        "auc0": 0.4970060297531645,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "CHGNet_6",
+            0.19112764096864054
+          ],
+          [
+            "CHGNet_4",
+            0.0735120891093147
+          ],
+          [
+            "CHGNet_8",
+            0.06725601444275131
+          ],
+          [
+            "CHGNet_26",
+            0.06381594702932333
+          ],
+          [
+            "CHGNet_33",
+            0.056911691295012855
+          ],
+          [
+            "CHGNet_0",
+            0.046069411702245405
+          ],
+          [
+            "CHGNet_40",
+            0.04011738330853158
+          ],
+          [
+            "CHGNet_7",
+            0.027516047596649072
+          ],
+          [
+            "CHGNet_60",
+            0.023368577909678147
+          ],
+          [
+            "CHGNet_5",
+            0.021364314603174485
+          ],
+          [
+            "CHGNet_55",
+            0.021152643415041444
+          ],
+          [
+            "CHGNet_27",
+            0.018264081916966546
+          ],
+          [
+            "CHGNet_39",
+            0.017011895293211697
+          ],
+          [
+            "CHGNet_17",
+            0.016495092230984915
+          ],
+          [
+            "CHGNet_58",
+            0.015351490810421222
+          ],
+          [
+            "CHGNet_44",
+            0.014720306724107863
+          ],
+          [
+            "CHGNet_9",
+            0.014187885396275666
+          ],
+          [
+            "CHGNet_37",
+            0.013089913920733817
+          ],
+          [
+            "CHGNet_52",
+            0.013031305738579777
+          ],
+          [
+            "CHGNet_15",
+            0.011990927979035122
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 11.13875924493101,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.29238134307849634,
+        "auc0": 0.5731149869080904,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "CHGNet_30",
+            0.09640533697394267
+          ],
+          [
+            "CHGNet_51",
+            0.08635454212966018
+          ],
+          [
+            "CHGNet_7",
+            0.06864427409868286
+          ],
+          [
+            "CHGNet_40",
+            0.05035837874468393
+          ],
+          [
+            "CHGNet_36",
+            0.050275435247637945
+          ],
+          [
+            "CHGNet_48",
+            0.042489668866361
+          ],
+          [
+            "CHGNet_1",
+            0.0316940775776555
+          ],
+          [
+            "CHGNet_37",
+            0.02798768870491469
+          ],
+          [
+            "CHGNet_44",
+            0.02649533712155632
+          ],
+          [
+            "CHGNet_4",
+            0.02459297120131052
+          ],
+          [
+            "CHGNet_15",
+            0.02274032932695901
+          ],
+          [
+            "CHGNet_0",
+            0.020143970398492233
+          ],
+          [
+            "CHGNet_5",
+            0.018740482479735567
+          ],
+          [
+            "CHGNet_6",
+            0.01804051734853129
+          ],
+          [
+            "CHGNet_45",
+            0.016959640601920945
+          ],
+          [
+            "CHGNet_12",
+            0.016892042106736498
+          ],
+          [
+            "CHGNet_18",
+            0.016803359053087368
+          ],
+          [
+            "CHGNet_46",
+            0.01670903442190475
+          ],
+          [
+            "CHGNet_32",
+            0.015537374137898925
+          ],
+          [
+            "CHGNet_57",
+            0.015388396556306427
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 21.902917722815666,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5378809354398127,
+        "auc0": 0.6454196961222968,
+        "auc77": 0.8236460249335786,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "CHGNet_37",
+            0.15544991183706794
+          ],
+          [
+            "CHGNet_0",
+            0.14746829139106155
+          ],
+          [
+            "CHGNet_40",
+            0.09320449603273714
+          ],
+          [
+            "CHGNet_15",
+            0.04760086666949754
+          ],
+          [
+            "CHGNet_18",
+            0.04740348838794754
+          ],
+          [
+            "CHGNet_48",
+            0.046809521973636525
+          ],
+          [
+            "CHGNet_43",
+            0.026137502309778057
+          ],
+          [
+            "CHGNet_27",
+            0.02526832601994293
+          ],
+          [
+            "CHGNet_12",
+            0.02424495678079758
+          ],
+          [
+            "CHGNet_47",
+            0.019252838242742903
+          ],
+          [
+            "CHGNet_29",
+            0.01924765562449321
+          ],
+          [
+            "CHGNet_6",
+            0.019115843145042874
+          ],
+          [
+            "CHGNet_30",
+            0.0180893197241061
+          ],
+          [
+            "CHGNet_57",
+            0.015475956957732653
+          ],
+          [
+            "CHGNet_25",
+            0.015105841276677147
+          ],
+          [
+            "CHGNet_50",
+            0.014640202592100984
+          ],
+          [
+            "CHGNet_52",
+            0.01378359492613975
+          ],
+          [
+            "CHGNet_26",
+            0.01221428841056691
+          ],
+          [
+            "CHGNet_59",
+            0.010974057617318646
+          ],
+          [
+            "CHGNet_4",
+            0.010788162361913439
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 3.391952323723184,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.5561969969327146,
+        "auc0": 0.7409846698482485,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "CHGNet_51",
+            0.07708309683401236
+          ],
+          [
+            "CHGNet_38",
+            0.06304938899358299
+          ],
+          [
+            "CHGNet_47",
+            0.045575114671921595
+          ],
+          [
+            "CHGNet_4",
+            0.03591849060910577
+          ],
+          [
+            "CHGNet_59",
+            0.03523075940244828
+          ],
+          [
+            "CHGNet_21",
+            0.03510808980633821
+          ],
+          [
+            "CHGNet_27",
+            0.02316925325862731
+          ],
+          [
+            "CHGNet_29",
+            0.021679656276001533
+          ],
+          [
+            "CHGNet_12",
+            0.021573112949022526
+          ],
+          [
+            "CHGNet_16",
+            0.020273057308302308
+          ],
+          [
+            "CHGNet_6",
+            0.020244461327465053
+          ],
+          [
+            "CHGNet_20",
+            0.02021372025460198
+          ],
+          [
+            "CHGNet_5",
+            0.02007499361857159
+          ],
+          [
+            "CHGNet_48",
+            0.019645356775740697
+          ],
+          [
+            "CHGNet_18",
+            0.01822032544578891
+          ],
+          [
+            "CHGNet_41",
+            0.01751807578713214
+          ],
+          [
+            "CHGNet_17",
+            0.01737685688965552
+          ],
+          [
+            "CHGNet_39",
+            0.01599265261407633
+          ],
+          [
+            "CHGNet_33",
+            0.015346930222333206
+          ],
+          [
+            "CHGNet_56",
+            0.015255111744601908
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 4.400184161181393,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.34752956677831975,
+        "auc0": 0.721868913708812,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "CHGNet_44",
+            0.23903053855240758
+          ],
+          [
+            "CHGNet_17",
+            0.11780475829816969
+          ],
+          [
+            "CHGNet_62",
+            0.07955604812810177
+          ],
+          [
+            "CHGNet_18",
+            0.0653924157657606
+          ],
+          [
+            "CHGNet_49",
+            0.05921867948782189
+          ],
+          [
+            "CHGNet_26",
+            0.04694972978996845
+          ],
+          [
+            "CHGNet_27",
+            0.03268210068165619
+          ],
+          [
+            "CHGNet_20",
+            0.02237009123859858
+          ],
+          [
+            "CHGNet_15",
+            0.021305842814012325
+          ],
+          [
+            "CHGNet_37",
+            0.017554697809473028
+          ],
+          [
+            "CHGNet_0",
+            0.01729739150568846
+          ],
+          [
+            "CHGNet_36",
+            0.01408613554290218
+          ],
+          [
+            "CHGNet_58",
+            0.012946628271901753
+          ],
+          [
+            "CHGNet_51",
+            0.01230579135787184
+          ],
+          [
+            "CHGNet_52",
+            0.01184932507299222
+          ],
+          [
+            "CHGNet_43",
+            0.011175962871329137
+          ],
+          [
+            "CHGNet_53",
+            0.010599638056398155
+          ],
+          [
+            "CHGNet_6",
+            0.010336866359579524
+          ],
+          [
+            "CHGNet_25",
+            0.0101103519483581
+          ],
+          [
+            "CHGNet_48",
+            0.009524334711427204
+          ]
+        ]
+      }
+    },
+    "Scratch ALIGNN + RF": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 12.21979933897835,
+        "mean_mae": 16.116940822937963,
+        "spearman": -0.1693207784648853,
+        "auc0": 0.5555328581424194,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "ALIGNN_17",
+            0.07231755628329066
+          ],
+          [
+            "ALIGNN_18",
+            0.07049330439773425
+          ],
+          [
+            "ALIGNN_36",
+            0.069912716996344
+          ],
+          [
+            "ALIGNN_39",
+            0.06572490849084825
+          ],
+          [
+            "ALIGNN_43",
+            0.050075604833343314
+          ],
+          [
+            "ALIGNN_57",
+            0.045238682807213486
+          ],
+          [
+            "ALIGNN_7",
+            0.0388374375914176
+          ],
+          [
+            "ALIGNN_59",
+            0.03872358038169199
+          ],
+          [
+            "ALIGNN_2",
+            0.03406425346256077
+          ],
+          [
+            "ALIGNN_51",
+            0.03222297151410759
+          ],
+          [
+            "ALIGNN_48",
+            0.028633592211388358
+          ],
+          [
+            "ALIGNN_55",
+            0.027250206987229526
+          ],
+          [
+            "ALIGNN_47",
+            0.026205342974061043
+          ],
+          [
+            "ALIGNN_58",
+            0.0224130610525528
+          ],
+          [
+            "ALIGNN_13",
+            0.02089537818341542
+          ],
+          [
+            "ALIGNN_34",
+            0.019012467052137775
+          ],
+          [
+            "ALIGNN_12",
+            0.017119262297605443
+          ],
+          [
+            "ALIGNN_61",
+            0.01579308047116624
+          ],
+          [
+            "ALIGNN_25",
+            0.015151789418323765
+          ],
+          [
+            "ALIGNN_11",
+            0.014190847639254224
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 11.653634095048016,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.1984435781198318,
+        "auc0": 0.6459193183331113,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "ALIGNN_27",
+            0.16512067280549803
+          ],
+          [
+            "ALIGNN_25",
+            0.09710840187152248
+          ],
+          [
+            "ALIGNN_50",
+            0.07476152140208324
+          ],
+          [
+            "ALIGNN_51",
+            0.04208836001882421
+          ],
+          [
+            "ALIGNN_55",
+            0.04087563548479031
+          ],
+          [
+            "ALIGNN_39",
+            0.03163979175036006
+          ],
+          [
+            "ALIGNN_63",
+            0.03041159418726986
+          ],
+          [
+            "ALIGNN_29",
+            0.028040753826319462
+          ],
+          [
+            "ALIGNN_41",
+            0.022398633829938022
+          ],
+          [
+            "ALIGNN_20",
+            0.018039467389936416
+          ],
+          [
+            "ALIGNN_52",
+            0.015944377016292803
+          ],
+          [
+            "ALIGNN_54",
+            0.015052089745845902
+          ],
+          [
+            "ALIGNN_3",
+            0.01496724962216345
+          ],
+          [
+            "ALIGNN_43",
+            0.014932621943802014
+          ],
+          [
+            "ALIGNN_37",
+            0.013196406101093927
+          ],
+          [
+            "ALIGNN_60",
+            0.013020645240392594
+          ],
+          [
+            "ALIGNN_46",
+            0.012329859915672248
+          ],
+          [
+            "ALIGNN_31",
+            0.011988774730294405
+          ],
+          [
+            "ALIGNN_2",
+            0.011943484143990928
+          ],
+          [
+            "ALIGNN_56",
+            0.011829285702089043
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 20.24475095051103,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5736066062665608,
+        "auc0": 0.7034395973154363,
+        "auc77": 0.8822399346004497,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "ALIGNN_47",
+            0.13688818884492449
+          ],
+          [
+            "ALIGNN_39",
+            0.08433828416509256
+          ],
+          [
+            "ALIGNN_29",
+            0.0700329042670654
+          ],
+          [
+            "ALIGNN_49",
+            0.05742758854605786
+          ],
+          [
+            "ALIGNN_20",
+            0.05531844948096691
+          ],
+          [
+            "ALIGNN_24",
+            0.05362567048407105
+          ],
+          [
+            "ALIGNN_56",
+            0.05050521845722014
+          ],
+          [
+            "ALIGNN_59",
+            0.04195796422698144
+          ],
+          [
+            "ALIGNN_46",
+            0.02056008788551198
+          ],
+          [
+            "ALIGNN_51",
+            0.019532749548750783
+          ],
+          [
+            "ALIGNN_12",
+            0.0178710547292925
+          ],
+          [
+            "ALIGNN_63",
+            0.017299455228398177
+          ],
+          [
+            "ALIGNN_42",
+            0.015519081900357105
+          ],
+          [
+            "ALIGNN_32",
+            0.015495231109334477
+          ],
+          [
+            "ALIGNN_0",
+            0.01455796249598549
+          ],
+          [
+            "ALIGNN_10",
+            0.014226484228751196
+          ],
+          [
+            "ALIGNN_25",
+            0.01295995985619516
+          ],
+          [
+            "ALIGNN_21",
+            0.012883345190337509
+          ],
+          [
+            "ALIGNN_58",
+            0.01235483660105008
+          ],
+          [
+            "ALIGNN_60",
+            0.011809334004176343
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 3.2671483257466085,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.5375588012004646,
+        "auc0": 0.7303760044216473,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "ALIGNN_12",
+            0.06535313034586553
+          ],
+          [
+            "ALIGNN_8",
+            0.04000556723345572
+          ],
+          [
+            "ALIGNN_51",
+            0.02477228991497082
+          ],
+          [
+            "ALIGNN_31",
+            0.023705729571239342
+          ],
+          [
+            "ALIGNN_11",
+            0.023188152470636336
+          ],
+          [
+            "ALIGNN_45",
+            0.022387711157037294
+          ],
+          [
+            "ALIGNN_34",
+            0.022369125320964967
+          ],
+          [
+            "ALIGNN_18",
+            0.0210357427239925
+          ],
+          [
+            "ALIGNN_37",
+            0.020891228383663286
+          ],
+          [
+            "ALIGNN_2",
+            0.02087604074684505
+          ],
+          [
+            "ALIGNN_22",
+            0.020490596573365875
+          ],
+          [
+            "ALIGNN_27",
+            0.02037790816235158
+          ],
+          [
+            "ALIGNN_62",
+            0.019731280008645394
+          ],
+          [
+            "ALIGNN_61",
+            0.018657933199722282
+          ],
+          [
+            "ALIGNN_53",
+            0.01844692616966145
+          ],
+          [
+            "ALIGNN_5",
+            0.01735616010429786
+          ],
+          [
+            "ALIGNN_58",
+            0.01654336935820524
+          ],
+          [
+            "ALIGNN_20",
+            0.016519540479090176
+          ],
+          [
+            "ALIGNN_52",
+            0.016480658208285825
+          ],
+          [
+            "ALIGNN_28",
+            0.016225563335543897
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 4.340824118728459,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.36580428958654576,
+        "auc0": 0.6793394014070512,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "ALIGNN_4",
+            0.2713560493591145
+          ],
+          [
+            "ALIGNN_51",
+            0.0652847642062328
+          ],
+          [
+            "ALIGNN_16",
+            0.06312102744743532
+          ],
+          [
+            "ALIGNN_28",
+            0.06049350105874808
+          ],
+          [
+            "ALIGNN_13",
+            0.056387497114326
+          ],
+          [
+            "ALIGNN_57",
+            0.03771308044279497
+          ],
+          [
+            "ALIGNN_18",
+            0.029759352535154493
+          ],
+          [
+            "ALIGNN_2",
+            0.021710912373119496
+          ],
+          [
+            "ALIGNN_17",
+            0.018494473907210575
+          ],
+          [
+            "ALIGNN_11",
+            0.017949104886035672
+          ],
+          [
+            "ALIGNN_31",
+            0.01746449079241475
+          ],
+          [
+            "ALIGNN_19",
+            0.014910864095475386
+          ],
+          [
+            "ALIGNN_15",
+            0.013118773311709651
+          ],
+          [
+            "ALIGNN_53",
+            0.013118625629509483
+          ],
+          [
+            "ALIGNN_0",
+            0.012312864729040663
+          ],
+          [
+            "ALIGNN_45",
+            0.011270150982099783
+          ],
+          [
+            "ALIGNN_41",
+            0.01054019522126309
+          ],
+          [
+            "ALIGNN_48",
+            0.009819080025661764
+          ],
+          [
+            "ALIGNN_21",
+            0.008886086091755938
+          ],
+          [
+            "ALIGNN_40",
+            0.008510070325923503
+          ]
+        ]
+      }
+    }
+  },
+  "fine_tuned_report": {
+    "checkpoint_sha256": "d14ab7c0f093efe64b60a7bcd540bca10e74fb7f46c86108a079af60524659d1",
+    "fine_tune_epochs": 5,
+    "fine_tune_learning_rate": 0.0001,
+    "rows": 5773,
+    "failed_graphs": [],
+    "frozen": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 10.513961545307081,
+        "mean_mae": 16.116940822937963,
+        "spearman": -0.034676517318414445,
+        "auc0": 0.5154843441816331,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "CHGNet_6",
+            0.2900287671638515
+          ],
+          [
+            "CHGNet_4",
+            0.12734294293757992
+          ],
+          [
+            "CHGNet_8",
+            0.060514357664513976
+          ],
+          [
+            "CHGNet_60",
+            0.053689702600338216
+          ],
+          [
+            "CHGNet_12",
+            0.04735285301874542
+          ],
+          [
+            "CHGNet_30",
+            0.025223315304787115
+          ],
+          [
+            "CHGNet_17",
+            0.021920209130096676
+          ],
+          [
+            "CHGNet_59",
+            0.01911510224164
+          ],
+          [
+            "CHGNet_7",
+            0.015757034641131783
+          ],
+          [
+            "CHGNet_49",
+            0.01572351180921547
+          ],
+          [
+            "CHGNet_15",
+            0.015285933250728705
+          ],
+          [
+            "CHGNet_40",
+            0.015106322004292981
+          ],
+          [
+            "CHGNet_37",
+            0.013449681769543037
+          ],
+          [
+            "CHGNet_25",
+            0.013346305782021138
+          ],
+          [
+            "CHGNet_47",
+            0.012632098845648778
+          ],
+          [
+            "CHGNet_23",
+            0.011724660176301544
+          ],
+          [
+            "CHGNet_0",
+            0.011486106950875256
+          ],
+          [
+            "CHGNet_39",
+            0.01145488254336349
+          ],
+          [
+            "CHGNet_26",
+            0.011235673534942347
+          ],
+          [
+            "CHGNet_45",
+            0.009705709426651339
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 11.230853602155346,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.24749009477823122,
+        "auc0": 0.5987440642613056,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "CHGNet_51",
+            0.0847592635514426
+          ],
+          [
+            "CHGNet_15",
+            0.07514465202118573
+          ],
+          [
+            "CHGNet_7",
+            0.07005891624003154
+          ],
+          [
+            "CHGNet_30",
+            0.06512010308713886
+          ],
+          [
+            "CHGNet_36",
+            0.04797959771248798
+          ],
+          [
+            "CHGNet_53",
+            0.04691746517531733
+          ],
+          [
+            "CHGNet_25",
+            0.041415425593911995
+          ],
+          [
+            "CHGNet_40",
+            0.03857118057578706
+          ],
+          [
+            "CHGNet_46",
+            0.03535921081191165
+          ],
+          [
+            "CHGNet_4",
+            0.03527400534658821
+          ],
+          [
+            "CHGNet_37",
+            0.029436954679625114
+          ],
+          [
+            "CHGNet_1",
+            0.028736353869430745
+          ],
+          [
+            "CHGNet_44",
+            0.027416333065100777
+          ],
+          [
+            "CHGNet_17",
+            0.017435315990212693
+          ],
+          [
+            "CHGNet_2",
+            0.01662816167973611
+          ],
+          [
+            "CHGNet_6",
+            0.016067164115225976
+          ],
+          [
+            "CHGNet_45",
+            0.01595605358275451
+          ],
+          [
+            "CHGNet_48",
+            0.015671465642753422
+          ],
+          [
+            "CHGNet_31",
+            0.015239235244610393
+          ],
+          [
+            "CHGNet_43",
+            0.014710577794074808
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 22.083275596759858,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5282456910348081,
+        "auc0": 0.6684260812826249,
+        "auc77": 0.8415941140404659,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "CHGNet_37",
+            0.1687462702306645
+          ],
+          [
+            "CHGNet_40",
+            0.08159598219567679
+          ],
+          [
+            "CHGNet_62",
+            0.04719226640535618
+          ],
+          [
+            "CHGNet_27",
+            0.04665802280167916
+          ],
+          [
+            "CHGNet_15",
+            0.04646690963516712
+          ],
+          [
+            "CHGNet_18",
+            0.04386647475789437
+          ],
+          [
+            "CHGNet_59",
+            0.033699020765988054
+          ],
+          [
+            "CHGNet_12",
+            0.031942330695779536
+          ],
+          [
+            "CHGNet_22",
+            0.031599880452770644
+          ],
+          [
+            "CHGNet_6",
+            0.030246414631322615
+          ],
+          [
+            "CHGNet_33",
+            0.027159659188772098
+          ],
+          [
+            "CHGNet_48",
+            0.023714541252415705
+          ],
+          [
+            "CHGNet_45",
+            0.020571377165382612
+          ],
+          [
+            "CHGNet_47",
+            0.019422235454308802
+          ],
+          [
+            "CHGNet_50",
+            0.019393060273138217
+          ],
+          [
+            "CHGNet_63",
+            0.01883438972158942
+          ],
+          [
+            "CHGNet_4",
+            0.017891384591552442
+          ],
+          [
+            "CHGNet_29",
+            0.017660278143385236
+          ],
+          [
+            "CHGNet_0",
+            0.01689453733768578
+          ],
+          [
+            "CHGNet_30",
+            0.01597970539201482
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 3.45345341995018,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.5232149956195652,
+        "auc0": 0.7501415036732241,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "CHGNet_47",
+            0.06870528596784134
+          ],
+          [
+            "CHGNet_51",
+            0.06756599300245
+          ],
+          [
+            "CHGNet_4",
+            0.044249153086153584
+          ],
+          [
+            "CHGNet_59",
+            0.03883741829447232
+          ],
+          [
+            "CHGNet_17",
+            0.036272394642986046
+          ],
+          [
+            "CHGNet_55",
+            0.03216732303901551
+          ],
+          [
+            "CHGNet_48",
+            0.0319769181385207
+          ],
+          [
+            "CHGNet_29",
+            0.02880531066928074
+          ],
+          [
+            "CHGNet_21",
+            0.0264531039274568
+          ],
+          [
+            "CHGNet_20",
+            0.025815090547032862
+          ],
+          [
+            "CHGNet_54",
+            0.023987076844134862
+          ],
+          [
+            "CHGNet_18",
+            0.019546394512779813
+          ],
+          [
+            "CHGNet_61",
+            0.01767997872839469
+          ],
+          [
+            "CHGNet_27",
+            0.017315811754711443
+          ],
+          [
+            "CHGNet_39",
+            0.01706095794784824
+          ],
+          [
+            "CHGNet_24",
+            0.01666484200216675
+          ],
+          [
+            "CHGNet_58",
+            0.016377840953753425
+          ],
+          [
+            "CHGNet_6",
+            0.0156827900341408
+          ],
+          [
+            "CHGNet_41",
+            0.015124858774937543
+          ],
+          [
+            "CHGNet_52",
+            0.014479838091794215
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 4.646408203920449,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.31906580793601624,
+        "auc0": 0.7341508009062363,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "CHGNet_44",
+            0.2827678595526678
+          ],
+          [
+            "CHGNet_25",
+            0.07369807331510472
+          ],
+          [
+            "CHGNet_18",
+            0.06272891486907362
+          ],
+          [
+            "CHGNet_33",
+            0.05229096513695405
+          ],
+          [
+            "CHGNet_49",
+            0.0367048790857695
+          ],
+          [
+            "CHGNet_20",
+            0.029492935381106124
+          ],
+          [
+            "CHGNet_62",
+            0.02943086887391293
+          ],
+          [
+            "CHGNet_15",
+            0.025545202968108558
+          ],
+          [
+            "CHGNet_0",
+            0.024346128826208905
+          ],
+          [
+            "CHGNet_55",
+            0.019105879121666915
+          ],
+          [
+            "CHGNet_61",
+            0.01821718533127073
+          ],
+          [
+            "CHGNet_52",
+            0.016984867710710432
+          ],
+          [
+            "CHGNet_37",
+            0.014106552439360438
+          ],
+          [
+            "CHGNet_63",
+            0.014001922266538196
+          ],
+          [
+            "CHGNet_5",
+            0.01297830851432485
+          ],
+          [
+            "CHGNet_11",
+            0.012382137410607168
+          ],
+          [
+            "CHGNet_4",
+            0.01209682567971483
+          ],
+          [
+            "CHGNet_39",
+            0.011501725657500603
+          ],
+          [
+            "CHGNet_7",
+            0.011441716665582777
+          ],
+          [
+            "CHGNet_26",
+            0.01025026252028439
+          ]
+        ]
+      }
+    },
+    "pretraining_caveat": "MP structures may overlap held-out inputs; not an independent structural split of pretraining. Tc labels are never used in the frozen encoder.",
+    "cohort_sha256": "108b4d88919adcc7dcc8156f5facf9ae93a00927f5e043a0e58be511f8919f87",
+    "fine_tuned_five_epoch_pilot": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 11.448300033518553,
+        "mean_mae": 16.116940822937963,
+        "spearman": -0.02338300435967256,
+        "auc0": 0.4970060297531645,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "CHGNet_6",
+            0.19112764096864054
+          ],
+          [
+            "CHGNet_4",
+            0.0735120891093147
+          ],
+          [
+            "CHGNet_8",
+            0.06725601444275131
+          ],
+          [
+            "CHGNet_26",
+            0.06381594702932333
+          ],
+          [
+            "CHGNet_33",
+            0.056911691295012855
+          ],
+          [
+            "CHGNet_0",
+            0.046069411702245405
+          ],
+          [
+            "CHGNet_40",
+            0.04011738330853158
+          ],
+          [
+            "CHGNet_7",
+            0.027516047596649072
+          ],
+          [
+            "CHGNet_60",
+            0.023368577909678147
+          ],
+          [
+            "CHGNet_5",
+            0.021364314603174485
+          ],
+          [
+            "CHGNet_55",
+            0.021152643415041444
+          ],
+          [
+            "CHGNet_27",
+            0.018264081916966546
+          ],
+          [
+            "CHGNet_39",
+            0.017011895293211697
+          ],
+          [
+            "CHGNet_17",
+            0.016495092230984915
+          ],
+          [
+            "CHGNet_58",
+            0.015351490810421222
+          ],
+          [
+            "CHGNet_44",
+            0.014720306724107863
+          ],
+          [
+            "CHGNet_9",
+            0.014187885396275666
+          ],
+          [
+            "CHGNet_37",
+            0.013089913920733817
+          ],
+          [
+            "CHGNet_52",
+            0.013031305738579777
+          ],
+          [
+            "CHGNet_15",
+            0.011990927979035122
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 11.13875924493101,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.29238134307849634,
+        "auc0": 0.5731149869080904,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "CHGNet_30",
+            0.09640533697394267
+          ],
+          [
+            "CHGNet_51",
+            0.08635454212966018
+          ],
+          [
+            "CHGNet_7",
+            0.06864427409868286
+          ],
+          [
+            "CHGNet_40",
+            0.05035837874468393
+          ],
+          [
+            "CHGNet_36",
+            0.050275435247637945
+          ],
+          [
+            "CHGNet_48",
+            0.042489668866361
+          ],
+          [
+            "CHGNet_1",
+            0.0316940775776555
+          ],
+          [
+            "CHGNet_37",
+            0.02798768870491469
+          ],
+          [
+            "CHGNet_44",
+            0.02649533712155632
+          ],
+          [
+            "CHGNet_4",
+            0.02459297120131052
+          ],
+          [
+            "CHGNet_15",
+            0.02274032932695901
+          ],
+          [
+            "CHGNet_0",
+            0.020143970398492233
+          ],
+          [
+            "CHGNet_5",
+            0.018740482479735567
+          ],
+          [
+            "CHGNet_6",
+            0.01804051734853129
+          ],
+          [
+            "CHGNet_45",
+            0.016959640601920945
+          ],
+          [
+            "CHGNet_12",
+            0.016892042106736498
+          ],
+          [
+            "CHGNet_18",
+            0.016803359053087368
+          ],
+          [
+            "CHGNet_46",
+            0.01670903442190475
+          ],
+          [
+            "CHGNet_32",
+            0.015537374137898925
+          ],
+          [
+            "CHGNet_57",
+            0.015388396556306427
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 21.902917722815666,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5378809354398127,
+        "auc0": 0.6454196961222968,
+        "auc77": 0.8236460249335786,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "CHGNet_37",
+            0.15544991183706794
+          ],
+          [
+            "CHGNet_0",
+            0.14746829139106155
+          ],
+          [
+            "CHGNet_40",
+            0.09320449603273714
+          ],
+          [
+            "CHGNet_15",
+            0.04760086666949754
+          ],
+          [
+            "CHGNet_18",
+            0.04740348838794754
+          ],
+          [
+            "CHGNet_48",
+            0.046809521973636525
+          ],
+          [
+            "CHGNet_43",
+            0.026137502309778057
+          ],
+          [
+            "CHGNet_27",
+            0.02526832601994293
+          ],
+          [
+            "CHGNet_12",
+            0.02424495678079758
+          ],
+          [
+            "CHGNet_47",
+            0.019252838242742903
+          ],
+          [
+            "CHGNet_29",
+            0.01924765562449321
+          ],
+          [
+            "CHGNet_6",
+            0.019115843145042874
+          ],
+          [
+            "CHGNet_30",
+            0.0180893197241061
+          ],
+          [
+            "CHGNet_57",
+            0.015475956957732653
+          ],
+          [
+            "CHGNet_25",
+            0.015105841276677147
+          ],
+          [
+            "CHGNet_50",
+            0.014640202592100984
+          ],
+          [
+            "CHGNet_52",
+            0.01378359492613975
+          ],
+          [
+            "CHGNet_26",
+            0.01221428841056691
+          ],
+          [
+            "CHGNet_59",
+            0.010974057617318646
+          ],
+          [
+            "CHGNet_4",
+            0.010788162361913439
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 3.391952323723184,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.5561969969327146,
+        "auc0": 0.7409846698482485,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "CHGNet_51",
+            0.07708309683401236
+          ],
+          [
+            "CHGNet_38",
+            0.06304938899358299
+          ],
+          [
+            "CHGNet_47",
+            0.045575114671921595
+          ],
+          [
+            "CHGNet_4",
+            0.03591849060910577
+          ],
+          [
+            "CHGNet_59",
+            0.03523075940244828
+          ],
+          [
+            "CHGNet_21",
+            0.03510808980633821
+          ],
+          [
+            "CHGNet_27",
+            0.02316925325862731
+          ],
+          [
+            "CHGNet_29",
+            0.021679656276001533
+          ],
+          [
+            "CHGNet_12",
+            0.021573112949022526
+          ],
+          [
+            "CHGNet_16",
+            0.020273057308302308
+          ],
+          [
+            "CHGNet_6",
+            0.020244461327465053
+          ],
+          [
+            "CHGNet_20",
+            0.02021372025460198
+          ],
+          [
+            "CHGNet_5",
+            0.02007499361857159
+          ],
+          [
+            "CHGNet_48",
+            0.019645356775740697
+          ],
+          [
+            "CHGNet_18",
+            0.01822032544578891
+          ],
+          [
+            "CHGNet_41",
+            0.01751807578713214
+          ],
+          [
+            "CHGNet_17",
+            0.01737685688965552
+          ],
+          [
+            "CHGNet_39",
+            0.01599265261407633
+          ],
+          [
+            "CHGNet_33",
+            0.015346930222333206
+          ],
+          [
+            "CHGNet_56",
+            0.015255111744601908
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 4.400184161181393,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.34752956677831975,
+        "auc0": 0.721868913708812,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "CHGNet_44",
+            0.23903053855240758
+          ],
+          [
+            "CHGNet_17",
+            0.11780475829816969
+          ],
+          [
+            "CHGNet_62",
+            0.07955604812810177
+          ],
+          [
+            "CHGNet_18",
+            0.0653924157657606
+          ],
+          [
+            "CHGNet_49",
+            0.05921867948782189
+          ],
+          [
+            "CHGNet_26",
+            0.04694972978996845
+          ],
+          [
+            "CHGNet_27",
+            0.03268210068165619
+          ],
+          [
+            "CHGNet_20",
+            0.02237009123859858
+          ],
+          [
+            "CHGNet_15",
+            0.021305842814012325
+          ],
+          [
+            "CHGNet_37",
+            0.017554697809473028
+          ],
+          [
+            "CHGNet_0",
+            0.01729739150568846
+          ],
+          [
+            "CHGNet_36",
+            0.01408613554290218
+          ],
+          [
+            "CHGNet_58",
+            0.012946628271901753
+          ],
+          [
+            "CHGNet_51",
+            0.01230579135787184
+          ],
+          [
+            "CHGNet_52",
+            0.01184932507299222
+          ],
+          [
+            "CHGNet_43",
+            0.011175962871329137
+          ],
+          [
+            "CHGNet_53",
+            0.010599638056398155
+          ],
+          [
+            "CHGNet_6",
+            0.010336866359579524
+          ],
+          [
+            "CHGNet_25",
+            0.0101103519483581
+          ],
+          [
+            "CHGNet_48",
+            0.009524334711427204
+          ]
+        ]
+      }
+    },
+    "cpu_seconds": 16366.951403869
+  },
+  "scratch_report": {
+    "rows": 5773,
+    "five_epoch_scratch_pilot": {
+      "cross-family": {
+        "rows": 5773,
+        "mae": 12.21979933897835,
+        "mean_mae": 16.116940822937963,
+        "spearman": -0.1693207784648853,
+        "auc0": 0.5555328581424194,
+        "auc77": null,
+        "mean_auc0": 0.4575212829309978,
+        "mean_auc77": 0.062433011789925,
+        "mp_overlap_training_rows_purged": 73,
+        "top20": [
+          [
+            "ALIGNN_17",
+            0.07231755628329066
+          ],
+          [
+            "ALIGNN_18",
+            0.07049330439773425
+          ],
+          [
+            "ALIGNN_36",
+            0.069912716996344
+          ],
+          [
+            "ALIGNN_39",
+            0.06572490849084825
+          ],
+          [
+            "ALIGNN_43",
+            0.050075604833343314
+          ],
+          [
+            "ALIGNN_57",
+            0.045238682807213486
+          ],
+          [
+            "ALIGNN_7",
+            0.0388374375914176
+          ],
+          [
+            "ALIGNN_59",
+            0.03872358038169199
+          ],
+          [
+            "ALIGNN_2",
+            0.03406425346256077
+          ],
+          [
+            "ALIGNN_51",
+            0.03222297151410759
+          ],
+          [
+            "ALIGNN_48",
+            0.028633592211388358
+          ],
+          [
+            "ALIGNN_55",
+            0.027250206987229526
+          ],
+          [
+            "ALIGNN_47",
+            0.026205342974061043
+          ],
+          [
+            "ALIGNN_58",
+            0.0224130610525528
+          ],
+          [
+            "ALIGNN_13",
+            0.02089537818341542
+          ],
+          [
+            "ALIGNN_34",
+            0.019012467052137775
+          ],
+          [
+            "ALIGNN_12",
+            0.017119262297605443
+          ],
+          [
+            "ALIGNN_61",
+            0.01579308047116624
+          ],
+          [
+            "ALIGNN_25",
+            0.015151789418323765
+          ],
+          [
+            "ALIGNN_11",
+            0.014190847639254224
+          ]
+        ]
+      },
+      "Ferrites": {
+        "rows": 517,
+        "mae": 11.653634095048016,
+        "mean_mae": 11.772734807528678,
+        "spearman": 0.1984435781198318,
+        "auc0": 0.6459193183331113,
+        "auc77": null,
+        "mean_auc0": 0.4729507832956109,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 932,
+        "top20": [
+          [
+            "ALIGNN_27",
+            0.16512067280549803
+          ],
+          [
+            "ALIGNN_25",
+            0.09710840187152248
+          ],
+          [
+            "ALIGNN_50",
+            0.07476152140208324
+          ],
+          [
+            "ALIGNN_51",
+            0.04208836001882421
+          ],
+          [
+            "ALIGNN_55",
+            0.04087563548479031
+          ],
+          [
+            "ALIGNN_39",
+            0.03163979175036006
+          ],
+          [
+            "ALIGNN_63",
+            0.03041159418726986
+          ],
+          [
+            "ALIGNN_29",
+            0.028040753826319462
+          ],
+          [
+            "ALIGNN_41",
+            0.022398633829938022
+          ],
+          [
+            "ALIGNN_20",
+            0.018039467389936416
+          ],
+          [
+            "ALIGNN_52",
+            0.015944377016292803
+          ],
+          [
+            "ALIGNN_54",
+            0.015052089745845902
+          ],
+          [
+            "ALIGNN_3",
+            0.01496724962216345
+          ],
+          [
+            "ALIGNN_43",
+            0.014932621943802014
+          ],
+          [
+            "ALIGNN_37",
+            0.013196406101093927
+          ],
+          [
+            "ALIGNN_60",
+            0.013020645240392594
+          ],
+          [
+            "ALIGNN_46",
+            0.012329859915672248
+          ],
+          [
+            "ALIGNN_31",
+            0.011988774730294405
+          ],
+          [
+            "ALIGNN_2",
+            0.011943484143990928
+          ],
+          [
+            "ALIGNN_56",
+            0.011829285702089043
+          ]
+        ]
+      },
+      "Cuprates": {
+        "rows": 874,
+        "mae": 20.24475095051103,
+        "mean_mae": 32.668187661464465,
+        "spearman": 0.5736066062665608,
+        "auc0": 0.7034395973154363,
+        "auc77": 0.8822399346004497,
+        "mean_auc0": 0.47927153243847875,
+        "mean_auc77": 0.3186674841610464,
+        "mp_overlap_training_rows_purged": 1478,
+        "top20": [
+          [
+            "ALIGNN_47",
+            0.13688818884492449
+          ],
+          [
+            "ALIGNN_39",
+            0.08433828416509256
+          ],
+          [
+            "ALIGNN_29",
+            0.0700329042670654
+          ],
+          [
+            "ALIGNN_49",
+            0.05742758854605786
+          ],
+          [
+            "ALIGNN_20",
+            0.05531844948096691
+          ],
+          [
+            "ALIGNN_24",
+            0.05362567048407105
+          ],
+          [
+            "ALIGNN_56",
+            0.05050521845722014
+          ],
+          [
+            "ALIGNN_59",
+            0.04195796422698144
+          ],
+          [
+            "ALIGNN_46",
+            0.02056008788551198
+          ],
+          [
+            "ALIGNN_51",
+            0.019532749548750783
+          ],
+          [
+            "ALIGNN_12",
+            0.0178710547292925
+          ],
+          [
+            "ALIGNN_63",
+            0.017299455228398177
+          ],
+          [
+            "ALIGNN_42",
+            0.015519081900357105
+          ],
+          [
+            "ALIGNN_32",
+            0.015495231109334477
+          ],
+          [
+            "ALIGNN_0",
+            0.01455796249598549
+          ],
+          [
+            "ALIGNN_10",
+            0.014226484228751196
+          ],
+          [
+            "ALIGNN_25",
+            0.01295995985619516
+          ],
+          [
+            "ALIGNN_21",
+            0.012883345190337509
+          ],
+          [
+            "ALIGNN_58",
+            0.01235483660105008
+          ],
+          [
+            "ALIGNN_60",
+            0.011809334004176343
+          ]
+        ]
+      },
+      "Other": {
+        "rows": 3529,
+        "mae": 3.2671483257466085,
+        "mean_mae": 4.363014808528961,
+        "spearman": 0.5375588012004646,
+        "auc0": 0.7303760044216473,
+        "auc77": null,
+        "mean_auc0": 0.4885133463602828,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 3286,
+        "top20": [
+          [
+            "ALIGNN_12",
+            0.06535313034586553
+          ],
+          [
+            "ALIGNN_8",
+            0.04000556723345572
+          ],
+          [
+            "ALIGNN_51",
+            0.02477228991497082
+          ],
+          [
+            "ALIGNN_31",
+            0.023705729571239342
+          ],
+          [
+            "ALIGNN_11",
+            0.023188152470636336
+          ],
+          [
+            "ALIGNN_45",
+            0.022387711157037294
+          ],
+          [
+            "ALIGNN_34",
+            0.022369125320964967
+          ],
+          [
+            "ALIGNN_18",
+            0.0210357427239925
+          ],
+          [
+            "ALIGNN_37",
+            0.020891228383663286
+          ],
+          [
+            "ALIGNN_2",
+            0.02087604074684505
+          ],
+          [
+            "ALIGNN_22",
+            0.020490596573365875
+          ],
+          [
+            "ALIGNN_27",
+            0.02037790816235158
+          ],
+          [
+            "ALIGNN_62",
+            0.019731280008645394
+          ],
+          [
+            "ALIGNN_61",
+            0.018657933199722282
+          ],
+          [
+            "ALIGNN_53",
+            0.01844692616966145
+          ],
+          [
+            "ALIGNN_5",
+            0.01735616010429786
+          ],
+          [
+            "ALIGNN_58",
+            0.01654336935820524
+          ],
+          [
+            "ALIGNN_20",
+            0.016519540479090176
+          ],
+          [
+            "ALIGNN_52",
+            0.016480658208285825
+          ],
+          [
+            "ALIGNN_28",
+            0.016225563335543897
+          ]
+        ]
+      },
+      "Oxides": {
+        "rows": 320,
+        "mae": 4.340824118728459,
+        "mean_mae": 5.821531761122659,
+        "spearman": 0.36580428958654576,
+        "auc0": 0.6793394014070512,
+        "auc77": null,
+        "mean_auc0": 0.4643865018482452,
+        "mean_auc77": null,
+        "mp_overlap_training_rows_purged": 229,
+        "top20": [
+          [
+            "ALIGNN_4",
+            0.2713560493591145
+          ],
+          [
+            "ALIGNN_51",
+            0.0652847642062328
+          ],
+          [
+            "ALIGNN_16",
+            0.06312102744743532
+          ],
+          [
+            "ALIGNN_28",
+            0.06049350105874808
+          ],
+          [
+            "ALIGNN_13",
+            0.056387497114326
+          ],
+          [
+            "ALIGNN_57",
+            0.03771308044279497
+          ],
+          [
+            "ALIGNN_18",
+            0.029759352535154493
+          ],
+          [
+            "ALIGNN_2",
+            0.021710912373119496
+          ],
+          [
+            "ALIGNN_17",
+            0.018494473907210575
+          ],
+          [
+            "ALIGNN_11",
+            0.017949104886035672
+          ],
+          [
+            "ALIGNN_31",
+            0.01746449079241475
+          ],
+          [
+            "ALIGNN_19",
+            0.014910864095475386
+          ],
+          [
+            "ALIGNN_15",
+            0.013118773311709651
+          ],
+          [
+            "ALIGNN_53",
+            0.013118625629509483
+          ],
+          [
+            "ALIGNN_0",
+            0.012312864729040663
+          ],
+          [
+            "ALIGNN_45",
+            0.011270150982099783
+          ],
+          [
+            "ALIGNN_41",
+            0.01054019522126309
+          ],
+          [
+            "ALIGNN_48",
+            0.009819080025661764
+          ],
+          [
+            "ALIGNN_21",
+            0.008886086091755938
+          ],
+          [
+            "ALIGNN_40",
+            0.008510070325923503
+          ]
+        ]
+      }
+    },
+    "graph_failures": [],
+    "cpu_seconds": 4804.004417914
+  },
+  "encoder_update_check": {
+    "completed_epochs": 5,
+    "encoder_atom_embedding_l2_change": 0.4723309576511383,
+    "fold_checkpoint": "41d39ac6b835c2727a6d755f"
+  }
+}

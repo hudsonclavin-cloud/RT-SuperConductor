@@ -105,3 +105,7 @@ Required review decisions:
   it must be a nonnegative numeric value in GPa. Do not infer one from the other.
 - `source_doi`, `source_record_id`, `reviewer`, and `review_date` are required.
 - Unknown pressure stays explicit and is not silently treated as ambient.
+
+## Measurement pressure remains unknown when the source omits it
+
+New 3DSC imports leave `applied_pressure_gpa` blank because the source table does not specify measurement pressure. The former 1-atm screening target is retained only in ingestion-report metadata, not stored as an observation. The harmonized schema round-trips blank measurement pressure as `None`; promotion checks exclude unknown pressure from both ambient and high-pressure benchmark subsets. Existing reviewed rows and their observed pressures are preserved. `synthesis_pressure_gpa` describes preparation and never fills missing measurement pressure. The physics-feature comparisons drop measurement pressure from their matrices and therefore remain pressure-agnostic Tc benchmarks, not validations of ambient-pressure performance.

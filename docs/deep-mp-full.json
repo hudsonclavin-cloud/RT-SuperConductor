@@ -1,0 +1,31 @@
+{
+  "status": "completed_with_missingness",
+  "reason": "Missing properties and projections remain missing",
+  "queries": 2708,
+  "bulk_modulus_available": 2757,
+  "dos_available": 5243,
+  "orbital_available": 5243,
+  "failed_endpoint_calls": 0,
+  "endpoint_error_samples": [],
+  "input_rows": 5773,
+  "feature_input_sha256": "74d41b6c4bc5961d067b987b6273813bc4973572aeff9407de70aa21134648f9",
+  "harmonized_sha256": "c834e641908405ff23f13ff9b6894bb3baf32b035bb2642b4c69ed6c55a2a8a4",
+  "source": "https://api.materialsproject.org",
+  "orbital_window_relative_ef_ev": [
+    -0.5,
+    0.5
+  ],
+  "orbital_normalization": "sum of all available element/orbital projected integrals including f, not total-DOS or electron occupations",
+  "units": {
+    "bulk": "GPa",
+    "dos_ef": "states/eV/cell",
+    "orbital_fractions": "dimensionless"
+  },
+  "provenance": "DFT-computed reference structures, not measured sample properties",
+  "mp_document_models": false,
+  "dos_hash_method": "SHA-256 of sorted compact Monty JSON of the CompleteDos object used for feature extraction",
+  "numeric_validation": "finite property values and normalized orbital weights; missing/invalid values remain missing",
+  "cache_hits": 0,
+  "mp_api_version": "0.45.15",
+  "unique_reference_ids": 2708
+}
