@@ -4,6 +4,13 @@ The current research target is **273.15–298.15 K (0–25 °C) at 1 atm**, or b
 
 See the [one-page study brief](docs/physics-features-deep-one-page.md), [full modeling reports](docs/modeling.md), [required checklist](docs/physics-features-deep-checklist.md), and [three proposed next tests](docs/next-experiments.md). Unknown measurement pressure is not an ambient-pressure result; DFT magnetic labels, shell proxies, ML phonons and experimental evidence have different meanings. Rerunning unchanged training data is a reproducibility check, not a new learning cycle.
 
+The expanded CHGNet/phonopy reference-control validation completed 90 runs on
+24 stable and six reported dynamically unstable structures at 3×3×3, 4×4×4,
+and 5×5×5 settings. Al was a false positive at all settings, so the screen is
+**diagnostic only** and is excluded from candidate ranking. See
+[`docs/phonon-screen-validation.md`](docs/phonon-screen-validation.md) for
+false-positive/negative rates and reference conditions.
+
 The earlier project overview below is retained. Its older temperature wording and pipeline descriptions should be read alongside the current target and study reports above.
 
 ---

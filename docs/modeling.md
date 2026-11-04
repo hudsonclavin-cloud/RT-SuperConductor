@@ -831,6 +831,23 @@ Measured cumulative CPU consumption: CHGNet **4.546 core-hours**, scratch ALIGNN
 
 The repeated 1,057-structure JARVIS frozen-encoder benchmark exactly reproduced λ MAE 0.850543 and ω_log MAE 93.762855 K. Its Allen–Dynes-derived Tc MAE is **6.073133 K**, versus **5.8582 K** for the paired formula model. This comparison does not support an improvement from this frozen representation. These labels are DFT electron–phonon calculations, not experimental transitions.
 
+### Reference-control validation of the ML phonon screen (2026-11-04)
+
+The CHGNet 0.3.0/phonopy screen was evaluated on 24 experimentally stable
+ordered structures and six structures with published zero-temperature
+dynamical-instability reports at the current 3×3×3 supercell/q mesh and finer
+4×4×4 and 5×5×5 settings. Each setting completed 30/30 structures (90/90 total;
+zero blocked), using the pre-existing −0.5 THz threshold. At all three settings,
+the screen had 2/24 stable false positives (Al and bcc Fe; 8.3% FPR), detected
+4/5 pressure-matched unstable controls (20.0% FNR), and had 22/24 stable
+controls correctly classified (91.7%). The sixth unstable reference, B2 FeV,
+has a published high-pressure instability and is reported separately rather
+than counted against the 0 GPa relaxation. **Every setting flagged the required
+stable fcc Al control**, so none passes the stated acceptance criterion. The
+screen is marked **diagnostic only** and its flags are not inputs to candidate
+ranking or exclusion. See [the full control set, frequencies, references and
+hashes](phonon-screen-validation.md).
+
 ## Phase 3.5 — collection interface and controls
 
 The reference table has **5773 records**, including **312 GGA+U** and **5461 GGA** calculations. The raw run-type string remains excluded from feature matrices; a requested GGA+U indicator and neutral-atom mean d-electron count form a separate correlation-proxy group. These are computed descriptors, not measured electron occupations or a measurement of correlation strength.
