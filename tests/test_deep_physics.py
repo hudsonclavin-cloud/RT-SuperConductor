@@ -274,8 +274,9 @@ class ChemistryPolicyTests(unittest.TestCase):
     def test_hydrogen_metal_class_valence_and_parent_gap_rules(self):
         from chemistry_policy import substitution_rejection as reject
         self.assertEqual(reject('H','Li','HCl','LiCl'),'hydrogen')
-        self.assertEqual(reject('Na','Cl','NaCl','Cl2'),'metal_nonmetal_swap')
-        self.assertEqual(reject('Na','Mg','NaCl','MgCl'),'group_or_oxidation_mismatch')
+        self.assertEqual(reject('Na','Cl','NaCl','Cl2'),'site_role_mismatch')
+        self.assertEqual(reject('Na','Mg','NaCl','MgCl'),'no_common_oxidation_state')
+        # These counters distinguish valence, coordination/radius, and layer-role rejection.
         self.assertEqual(reject('Na','K','NaCl','KCl',.2),'insulating_parent')
         self.assertEqual(reject('Na','K','NaCl','KCl2'),'ionic_charge_imbalance')
         self.assertIsNone(reject('Nb','Ta','Nb3Sn','Ta3Sn'))
@@ -343,7 +344,7 @@ class CandidateScoringPipelineTests(unittest.TestCase):
                 def __init__(self,values):self.values=np.array(values)
                 def predict(self,matrix):return self.values
             artifact={'model':SimpleNamespace(estimators_=[Tree([0.,20.]),Tree([100.,20.])])}
-            candidates=[{'formula':formula,'chemical_family':'Other','parent_record_id':record.record_id} for formula in ['CuO','ZnO']]
+            candidates=[{'formula':formula,'chemical_family':'Other','parent_record_id':record.record_id} for formula in ['CuS','ZnS']]
             def features(records,**kwargs):
                 self.assertTrue(all(r.tc_kelvin is None and r.is_synthetic==1 for r in records))
                 return np.zeros((2,1)),['unit-feature'],'unit-fixture'
@@ -352,5 +353,5 @@ class CandidateScoringPipelineTests(unittest.TestCase):
             with patch.object(ranker,'enumerate_substitution_candidates',return_value=candidates),patch.object(ranker,'_mp_matches',return_value=({},'degraded_no_mp_api_key',None)),patch.object(ranker.joblib,'load',return_value=artifact),patch.object(ranker,'build_features',side_effect=features),patch.object(ranker,'propose_batch',side_effect=acquisition):
                 report=ranker.rank_candidates(input_path=source,model_dir=model_dir,output_path=output,batch_size=1)
             with output.open() as handle:rows=list(csv.DictReader(handle))
-        self.assertEqual(rows[0]['formula'],'ZnO');self.assertEqual(rows[0]['confidence_group'],'confident')
+        self.assertEqual(rows[0]['formula'],'ZnS');self.assertEqual(rows[0]['confidence_group'],'confident')
         self.assertEqual(report['review_ranked_count'],1);self.assertEqual(report['low_confidence_count'],0)

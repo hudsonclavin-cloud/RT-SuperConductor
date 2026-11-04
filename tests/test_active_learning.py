@@ -152,7 +152,7 @@ class ActiveLearningTests(unittest.TestCase):
                 "dataset_sha256": "b" * 64,
             }
             candidates = [
-                {"formula": "Fe3O4", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
+                {"formula": "FeSe", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
                 {"formula": "FeO", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
             ]
             output_path = root / "candidates" / "ferrites_top25.csv"
@@ -160,7 +160,7 @@ class ActiveLearningTests(unittest.TestCase):
                 patch.object(candidate_ranker, "enumerate_substitution_candidates", return_value=candidates),
                 patch.object(candidate_ranker, "_mp_matches", return_value=(
                     {
-                        "Fe3O4": {"mp_id": "mp-1", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
+                        "FeSe": {"mp_id": "mp-1", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
                         "FeO": {"mp_id": "mp-2", "energy_above_hull": 0.01, "band_gap_ev": 0.2, "is_metal": False},
                     }, "ready", None,
                 )),
@@ -173,10 +173,10 @@ class ActiveLearningTests(unittest.TestCase):
                 )
 
             self.assertEqual(report["score_mode"], "within_family_predicted_tc_and_uncertainty")
-            self.assertEqual(report["rejected_nonmetal_count"], 1)
+            self.assertEqual(report["rejected_insulator_count"], 1)
             with output_path.open(newline="", encoding="utf-8") as handle:
                 row = next(csv.DictReader(handle))
-            self.assertEqual(row["formula"], "Fe3O4")
+            self.assertEqual(row["formula"], "FeSe")
             self.assertEqual(row["band_gap_ev"], "")
             self.assertIn("family mode does not use distance", row["reasons"])
 
@@ -208,11 +208,11 @@ class ActiveLearningTests(unittest.TestCase):
                 "dataset_sha256": "c" * 64,
             }
             candidates = [
-                {"formula": "Fe3O4", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
-                {"formula": "FeO", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
+                {"formula": "FeSe", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
+                {"formula": "FeAs", "chemical_family": "Ferrites", "parent_record_id": "f" * 24},
             ]
             uci = root / "unique_m.csv"
-            uci.write_text("material,critical_temp\nFe3O4,30\n", encoding="utf-8")
+            uci.write_text("material,critical_temp\nFeSe,30\n", encoding="utf-8")
             output = root / "ferrites_top25.csv"
             validation = root / "ferrites_validation.csv"
             hypotheses = root / "ferrites_hypotheses.csv"
@@ -220,8 +220,8 @@ class ActiveLearningTests(unittest.TestCase):
                 patch.object(candidate_ranker, "enumerate_substitution_candidates", return_value=candidates),
                 patch.object(candidate_ranker, "_mp_matches", return_value=(
                     {
-                        "Fe3O4": {"mp_id": "mp-1", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
-                        "FeO": {"mp_id": "mp-2", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
+                        "FeSe": {"mp_id": "mp-1", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
+                        "FeAs": {"mp_id": "mp-2", "energy_above_hull": 0.01, "band_gap_ev": None, "is_metal": True},
                     }, "ready", None,
                 )),
                 patch.object(candidate_ranker.joblib, "load", return_value=artifact),
@@ -240,8 +240,8 @@ class ActiveLearningTests(unittest.TestCase):
                 validation_rows = list(csv.DictReader(handle))
             with hypotheses.open(newline="", encoding="utf-8") as handle:
                 hypothesis_rows = list(csv.DictReader(handle))
-            self.assertEqual(validation_rows[0]["formula"], "Fe3O4")
-            self.assertEqual(hypothesis_rows[0]["formula"], "FeO")
+            self.assertEqual(validation_rows[0]["formula"], "FeSe")
+            self.assertEqual(hypothesis_rows[0]["formula"], "FeAs")
 
     def test_structure_feature_evaluation_reports_family_holdout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

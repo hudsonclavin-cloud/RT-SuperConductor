@@ -179,6 +179,9 @@ def _candidate_record(document: Any, query: FormulaParse) -> dict[str, Any]:
         "energy_above_hull": _optional_float(_value(document, "energy_above_hull")),
         "spacegroup_number": _spacegroup_number(document),
         "band_gap_ev": _optional_float(_value(document, "band_gap")),
+        # Do not infer a functional from a generic MP gap. The method is only
+        # populated when the API document explicitly carries it.
+        "band_gap_method": _value(document, "band_gap_method", _value(document, "run_type", _value(document, "calc_type"))),
         "is_metal": _value(document, "is_metal"),
         "formation_energy_per_atom": _optional_float(_value(document, "formation_energy_per_atom")),
         "total_magnetization_muB": _optional_float(_value(document, "total_magnetization")),
@@ -281,7 +284,7 @@ def audit_materials_project_queries(
                 fields=[
                     "material_id", "formula_pretty", "composition_reduced", "energy_above_hull",
                     "symmetry", "band_gap", "is_metal", "formation_energy_per_atom",
-                    "total_magnetization", "density", "volume",
+                    "total_magnetization", "density", "volume", "origins",
                 ],
             )
             candidates = [_candidate_record(document, parsed) for document in list(documents or [])]

@@ -128,6 +128,26 @@ def elemental_system_signature(formula: str) -> str:
     return "-".join(sorted(elements)) if elements else "unknown"
 
 
+def purge_shared_mp_ids(
+    records: list[HarmonizedRecord], train_indices: np.ndarray, test_indices: np.ndarray,
+) -> tuple[np.ndarray, list[str]]:
+    """Remove training rows whose nonempty MP ID occurs in the held-out fold."""
+    test_ids = {
+        str(getattr(records[int(index)], "mp_id", "") or "").strip()
+        for index in test_indices
+        if str(getattr(records[int(index)], "mp_id", "") or "").strip()
+    }
+    kept: list[int] = []
+    removed: list[str] = []
+    for index in train_indices:
+        mp_id = str(getattr(records[int(index)], "mp_id", "") or "").strip()
+        if mp_id and mp_id in test_ids:
+            removed.append(str(getattr(records[int(index)], "record_id", index)))
+        else:
+            kept.append(int(index))
+    return np.asarray(kept, dtype=int), removed
+
+
 def evaluate_within_family(
     records: list[HarmonizedRecord],
     X: np.ndarray,
@@ -173,19 +193,30 @@ def evaluate_within_family(
         fold_reports: list[dict[str, object]] = []
         splitter = GroupKFold(n_splits=min(n_splits, len(unique_groups)))
         for fold, (train_idx, test_idx) in enumerate(splitter.split(family_X, family_y, groups=groups), 1):
+            safe_train_idx, embargoed_record_ids = purge_shared_mp_ids(family_records, train_idx, test_idx)
+            if len(safe_train_idx) == 0:
+                fold_reports.append({
+                    "fold": fold, "status": "blocked_no_training_rows_after_shared_mp_embargo",
+                    "train_rows_before_embargo": int(len(train_idx)), "train_rows": 0,
+                    "test_rows": int(len(test_idx)), "shared_mp_rows_purged": len(embargoed_record_ids),
+                    "held_out_elemental_systems": sorted(set(groups[test_idx])),
+                })
+                continue
             model = _model(random_state + (family_index + 1) * 100 + fold)
-            model.fit(family_X[train_idx], family_y[train_idx])
+            model.fit(family_X[safe_train_idx], family_y[safe_train_idx])
             fold_predictions = model.predict(family_X[test_idx])
             predictions[test_idx] = fold_predictions
-            mean_predictions[test_idx] = float(family_y[train_idx].mean())
+            mean_predictions[test_idx] = float(family_y[safe_train_idx].mean())
             fold_reports.append({
                 "fold": fold,
-                "train_rows": int(len(train_idx)),
+                "train_rows_before_embargo": int(len(train_idx)),
+                "train_rows": int(len(safe_train_idx)),
+                "shared_mp_rows_purged": len(embargoed_record_ids),
                 "test_rows": int(len(test_idx)),
                 "held_out_elemental_systems": sorted(set(groups[test_idx])),
                 "metrics": _metrics(family_y[test_idx], fold_predictions),
                 "mean_predictor_mae_k": float(mean_absolute_error(
-                    family_y[test_idx], np.full(len(test_idx), family_y[train_idx].mean())
+                    family_y[test_idx], np.full(len(test_idx), family_y[safe_train_idx].mean())
                 )),
             })
 
@@ -214,7 +245,8 @@ def evaluate_within_family(
         status = "blocked_insufficient_elemental_systems"
     return {
         "status": status,
-        "grouping": "GroupKFold by sorted elemental-system signature within each chemical_family",
+        "grouping": "GroupKFold by sorted elemental-system signature within each chemical_family; training MP IDs shared with each held-out fold are purged",
+        "shared_mp_embargo": "for each fold, remove every training record whose nonempty mp_id appears in the test fold",
         "minimum_family_rows": minimum_family_rows,
         "families": family_reports,
     }

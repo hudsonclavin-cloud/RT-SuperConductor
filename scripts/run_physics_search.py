@@ -58,7 +58,7 @@ def _charge_balances_with_common_oxidation_states(formula: str) -> bool:
 
 
 def is_low_confidence(tc_tree_sd_k: float, predicted_tc_k: float) -> bool:
-    return tc_tree_sd_k >= predicted_tc_k
+    return predicted_tc_k <= 0 or tc_tree_sd_k >= 0.5 * predicted_tc_k
 
 
 def select_by_confidence_group(output: list[dict[str, Any]], top_k: int) -> list[dict[str, Any]]:
@@ -92,7 +92,7 @@ def generate_substitutions(
     drop_counts: dict[str, int] | None = None,
 ) -> list[dict[str, Any]]:
     from pymatgen.core import Element
-    from chemistry_policy import substitution_rejection
+    from chemistry_policy import substitution_rejection, insulator_rejection
 
     known = {_formula_and_structure(source)[0] for source in rows}
     observed_elements = {str(element) for row in rows for element in row["atoms"]["elements"]}
@@ -108,7 +108,15 @@ def generate_substitutions(
         "accepted": 0,
         "dropped_group_or_oxidation_mismatch": 0,
         "dropped_insulating_parent": 0,
+        "dropped_family_defining_element": 0,
+        "dropped_active_layer_element": 0,
+        "dropped_site_role_mismatch": 0,
+        "dropped_no_common_oxidation_state": 0,
+        "dropped_ionic_radii_unavailable": 0,
+        "dropped_ionic_radius_mismatch": 0,
+        "dropped_oxide_anion_row_swap": 0,
         "dropped_ionic_charge_imbalance": 0,
+        "dropped_binary_transition_metal_oxide_or_halide": 0,
     }
     prototypes = sorted(rows, key=lambda row: (str(row.get("stability")), str(row.get("jid"))))[:max_prototypes]
     for prototype in prototypes:
@@ -136,10 +144,14 @@ def generate_substitutions(
                 if formula in seen:
                     counts["dropped_duplicate_formula"] += 1
                     continue
-                reason = substitution_rejection(source_element, replacement, _formula_and_structure(prototype)[0], formula, prototype.get("band_gap", prototype.get("bandgap")))
+                reason = substitution_rejection(source_element, replacement, _formula_and_structure(prototype)[0], formula, prototype.get("band_gap", prototype.get("bandgap")), family=prototype.get("chemical_family"))
                 if reason:
                     counts["dropped_"+reason] = counts.get("dropped_"+reason, 0) + 1
                     if reason == 'ionic_charge_imbalance':counts["dropped_no_common_oxidation_state_balance"] += 1
+                    continue
+                insulator_reason = insulator_rejection(formula)
+                if insulator_reason:
+                    counts["dropped_" + insulator_reason] = counts.get("dropped_" + insulator_reason, 0) + 1
                     continue
                 seen.add(formula)
                 output.append({
@@ -165,8 +177,35 @@ def rank_candidates(
     feature_names: list[str], *, mp_candidate_cache: Path | None = None,
     top_k: int = 20, drop_counts: dict[str, int] | None = None,
 ) -> list[dict[str, Any]]:
+    from chemistry_policy import insulator_rejection, radioactive_elements
+
     candidates = generate_substitutions(source_rows, drop_counts=drop_counts)
     if not candidates:
+        return []
+    property_rejections: list[dict[str, str]] = []
+    cache = {}
+    if mp_candidate_cache and mp_candidate_cache.is_file():
+        with mp_candidate_cache.open(newline="", encoding="utf-8-sig") as handle:
+            cache = {row["formula"]: row for row in csv.DictReader(handle)}
+    retained = []
+    for candidate in candidates:
+        match = cache.get(candidate["formula"], {})
+        try:
+            gap = float(match["band_gap_ev"]) if match.get("band_gap_ev") not in (None, "") else None
+        except (TypeError, ValueError):
+            gap = None
+        reason = insulator_rejection(candidate["formula"], gap, match.get("band_gap_method"))
+        if reason:
+            property_rejections.append({"formula": candidate["formula"], "chemical_family": "Phonon-mediated prototype", "parent_formula": candidate["prototype_formula"], "reason": reason})
+            if drop_counts is not None:
+                key = "dropped_" + reason
+                drop_counts[key] = drop_counts.get(key, 0) + 1
+            continue
+        retained.append(candidate)
+    candidates = retained
+    if not candidates:
+        if drop_counts is not None:
+            drop_counts["mp_or_composition_insulator_rejections"] = len(property_rejections)
         return []
     characteristics, _, _ = build_characteristics(candidates)
     X = _make_matrix(characteristics, feature_names)
@@ -181,20 +220,29 @@ def rank_candidates(
     # An upper-confidence acquisition score deliberately balances high mean Tc
     # against model spread. It is a screening priority, not a calibrated bound.
     output = []
+    old_low_count = new_low_count = moved_low_count = radioactive_count = 0
     for idx, cand in enumerate(candidates):
         lam_values = lam_by_tree[:, idx]
         wlog_values = wlog_by_tree[:, idx]
         tc_values = tc_by_tree[:, idx]
         mean_lambda, point_omega, point_tc = physics_point_prediction(lam_values, wlog_values)
-        low_confidence = is_low_confidence(float(np.std(tc_values)), point_tc)
+        radioactive = radioactive_elements(cand["formula"])
+        tree_sd = float(np.std(tc_values))
+        old_low = point_tc <= 0 or tree_sd >= point_tc
+        low_confidence = is_low_confidence(tree_sd, point_tc) or bool(radioactive)
+        old_low_count += int(old_low)
+        new_low_count += int(low_confidence)
+        moved_low_count += int(low_confidence and not old_low)
+        radioactive_count += int(bool(radioactive))
         output.append({
             "candidate_id": cand["candidate_jid"], "chemical_family": "Phonon-mediated prototype",
             "formula": cand["formula"], "prototype_jid": cand["prototype_jid"],
-            "reasons": f"H unchanged; metal/nonmetal/metalloid class preserved; same group or overlapping common oxidation state; ionic charge balance screened when applicable; reference-parent gap={cand.get('parent_band_gap_ev', 'unknown')} eV (not a candidate property); candidate gap and stability require DFT; unrelaxed geometry; tree spread not calibrated",
+            "reasons": f"H unchanged; metal/nonmetal/metalloid class preserved; same group or overlapping common oxidation state; ionic charge balance screened when applicable; binary transition-metal oxide/halide candidates rejected; reference-parent gap={cand.get('parent_band_gap_ev', 'unknown')} eV (not a candidate property); candidate gap and stability require DFT; unrelaxed geometry; tree spread not calibrated" + ("; radioactive elements flagged: " + ", ".join(radioactive) if radioactive else ""),
             "parent_band_gap_ev": cand.get("parent_band_gap_ev"),
             "parent_gap_source": cand.get("parent_gap_source"),
             "review_rank": "" if low_confidence else 1,
             "confidence_group": "low_confidence" if low_confidence else "confident",
+            "lab_access_flags": ",".join(radioactive),
             "tc_estimator": "Allen-Dynes at mean lambda and geometric-mean omega_log; tree spread is an uncalibrated diagnostic",
             "prototype_formula": cand["prototype_formula"], "substitution": cand["substitution"],
             "predicted_lambda": mean_lambda, "lambda_tree_sd": float(np.std(lam_values)),
@@ -207,19 +255,28 @@ def rank_candidates(
             "candidate_stability": "unknown; requires MP phase stability and DFT relaxation",
             "structure_status": cand["structure_status"], "dft_verification": "pending",
         })
-    if mp_candidate_cache and mp_candidate_cache.is_file():
-        with mp_candidate_cache.open(newline="", encoding="utf-8-sig") as handle:
-            cache = {row["formula"]: row for row in csv.DictReader(handle)}
+    if cache:
         for row in output:
             match = cache.get(row["formula"])
             if match:
                 row["candidate_mp_energy_above_hull_ev_atom"] = match.get("energy_above_hull_ev_atom", "")
                 row["candidate_mp_stability_status"] = match.get("status", "exact_composition_match_requires_structure_review")
+                row["candidate_mp_band_gap_ev"] = match.get("band_gap_ev", "")
+                row["candidate_mp_band_gap_method"] = match.get("band_gap_method", "")
                 row["candidate_stability"] = (
                     "unknown; Materials Project query unavailable"
                     if str(match.get("status", "")).startswith(("api_unavailable", "blocked_"))
                     else "Materials Project exact-composition result; phase correspondence must be checked"
                 )
+    if drop_counts is not None:
+        drop_counts.update({
+            "scored_candidate_count": len(output),
+            "confidence_threshold": "tc_tree_sd_k < 0.5 * predicted_tc_k; nonpositive predictions are low-confidence",
+            "old_low_confidence_count_all_scored": old_low_count,
+            "new_low_confidence_count_all_scored": new_low_count,
+            "moved_to_low_confidence_count_all_scored": moved_low_count,
+            "radioactive_candidate_count_all_scored": radioactive_count,
+        })
     # Keep both confidence tiers visible in the top-20 package when both have
     # candidates, reserving half the slots for each and backfilling shortages.
     return select_by_confidence_group(output, top_k)
@@ -261,6 +318,7 @@ def main() -> int:
                "counter_aliases": {"dropped_no_common_oxidation_state_balance": "dropped_ionic_charge_imbalance"},
                "search_limits": {"max_prototypes": 180, "source_prototypes": len(rows)}, "candidates_written": len(result),
                "written_by_confidence_group": counts_by_group, "output": str(args.output),
+               "review_ranked_count": sum(row.get("review_rank") not in ("", None) for row in result),
                       "all_dft_verification_pending": True,
                       "top_predicted_tc_k": max((row["predicted_tc_k"] for row in result), default=None)}
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)

@@ -67,10 +67,10 @@ class PhysicsTargetModelTests(unittest.TestCase):
     def test_search_substitutions_keep_parent_stability_as_a_proxy(self):
         rows = [
             _record("JVASP-KCl", ["K", "Cl"]),
-            _record("JVASP-Na", ["Na"]),
+            _record("JVASP-Rb", ["Rb"]),
         ]
         candidates = generate_substitutions(rows)
-        candidate = next(row for row in candidates if row["formula"] == "NaCl")
+        candidate = next(row for row in candidates if row["formula"] == "RbCl")
         self.assertEqual(candidate["prototype_formula"], "KCl")
         self.assertEqual(candidate["source_stability_proxy"], "stable")
         self.assertEqual(candidate["structure_status"], "unrelaxed parent-prototype substitution")
@@ -98,9 +98,10 @@ class PhysicsTargetModelTests(unittest.TestCase):
         self.assertGreater(counts["dropped_no_common_oxidation_state_balance"], 0)
 
     def test_low_confidence_rows_are_ranked_in_their_own_group(self):
-        self.assertTrue(is_low_confidence(8.1, 8.0))
-        self.assertTrue(is_low_confidence(8.0, 8.0))  # Review requires SD strictly below Tc.
-        self.assertFalse(is_low_confidence(7.9, 8.0))
+        self.assertTrue(is_low_confidence(4.1, 8.0))
+        self.assertTrue(is_low_confidence(4.0, 8.0))  # Review requires SD strictly below half Tc.
+        self.assertFalse(is_low_confidence(3.9, 8.0))
+        self.assertTrue(is_low_confidence(0.1, 0.0))
         rows = [
             {"formula": "S1", "ranking_group": "standard", "acquisition_ucb_k": 10, "predicted_tc_k": 9},
             {"formula": "S2", "ranking_group": "standard", "acquisition_ucb_k": 8, "predicted_tc_k": 7},

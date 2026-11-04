@@ -16,6 +16,13 @@ The 3DSC MP ingestion contained 5,773 records, including 3,529 rows assigned to 
 | Mean-predictor MAE | 4.882 K |
 | Spearman correlation | 0.734 |
 
+**Superseded within-family estimate:** the 1.908 K / 0.734 headline predates
+the shared-MP embargo and can benefit from the same structure reference in both
+train and test folds. With duplicate Materials Project IDs purged, the current
+family-only result is **3.0781 K MAE / 0.6776 Spearman**; the global model on
+the same `Other` rows is **3.0798 K / 0.6623**. The older run remains recorded
+above for provenance, not as the current estimate.
+
 These scores measure ranking/regression on held-out elemental-system groups drawn from the same broad `Other` category. They do not validate room-temperature extrapolation. The model's family score combines predicted Tc (weight 0.8) and capped uncertainty (weight 0.2); it does not reward closeness to the 273.15–298.15 K target interval. The top prediction is only 25.33 K.
 
 Materials Project screened 215 fixed-composition queries, skipped 31 ambiguous inputs, returned 50 composition-validated structure matches overall, rejected zero mismatched returned structures, and had zero API errors. **None of the top ten formulas matched an MP composition**, so the table reports no MP ID, hull energy, or band gap for them. All ten were also absent from the available exact-formula checks against 3DSC, the Stanev table, UCI, SuperCon2, and SuperMat; they are marked `new` by this snapshot-based check, not proven to be novel in the full literature.
