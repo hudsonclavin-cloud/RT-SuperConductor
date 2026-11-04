@@ -261,6 +261,63 @@ def summary_filter_candidates(
     return unmatched, counts
 
 
+def _summary_filter_without_structures(
+    docs: Iterable[Any],
+    known_formulas: set[str] | frozenset[str],
+    unresolved_element_systems: set[tuple[str, ...]] | frozenset[tuple[str, ...]] = frozenset(),
+) -> tuple[list[Any], dict[str, int]]:
+    """Apply inexpensive filters before fetching structures for unmatched rows."""
+
+    items = list(docs)
+    counts: dict[str, int] = {"mp_summary_returned": len(items)}
+    stable = []
+    for doc in items:
+        hull = _get(doc, "energy_above_hull")
+        try:
+            if hull is not None and math.isfinite(float(hull)) and 0 <= float(hull) <= HULL_MAX_EV_PER_ATOM:
+                stable.append(doc)
+        except (TypeError, ValueError):
+            continue
+    counts["energy_above_hull_le_0p025"] = len(stable)
+    small = [doc for doc in stable if _site_count(doc) is not None and 1 <= _site_count(doc) <= MAX_SITES]
+    counts["site_count_le_20"] = len(small)
+    metallic = [doc for doc in small if _is_summary_metallic(doc)]
+    counts["summary_metallic_prefilter"] = len(metallic)
+
+    unknown_formula = 0
+    known_match = 0
+    unresolved_overlap = 0
+    unmatched = []
+    for doc in metallic:
+        formula = _summary_formula(doc)
+        if formula is None:
+            unknown_formula += 1
+            continue
+        if formula in known_formulas:
+            known_match += 1
+            continue
+        elements = formula_elements(formula)
+        if elements and elements in unresolved_element_systems:
+            unresolved_overlap += 1
+        unmatched.append(doc)
+    counts["formula_unparseable"] = unknown_formula
+    counts["formula_matches_known_superconductor_source"] = known_match
+    counts["ambiguous_formula_source_system_overlap"] = unresolved_overlap
+    counts["unmatched_reduced_formula_before_ordering"] = len(unmatched)
+    return unmatched, counts
+
+
+def _descriptor_formula(formula: str) -> str:
+    """Flatten valid grouped formulas into the simple syntax used by descriptors."""
+
+    from pymatgen.core import Composition
+
+    composition = Composition(formula)
+    # Composition.formula expands groups (for example Ba(PdO2)2) into plain
+    # element counts while retaining any fractional stoichiometry.
+    return composition.formula.replace(" ", "")
+
+
 def _run_type_token(value: Any) -> str:
     raw = getattr(value, "value", value)
     token = str(raw).casefold().replace(" ", "").replace("_", "").replace("-", "").replace("+", "")
@@ -469,7 +526,7 @@ def _candidate_record(formula: str, mp_id: str, hull: float, family: str) -> Har
     return HarmonizedRecord(
         record_id=digest,
         source_db="uci",
-        formula=formula,
+        formula=_descriptor_formula(formula),
         tc_kelvin=0.0,
         applied_pressure_gpa=ATMOSPHERIC_PRESSURE_GPA,
         measurement_method="unknown",
@@ -645,7 +702,7 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
     """
     summary_fields = [
         "material_id", "formula_pretty", "composition_reduced", "energy_above_hull", "nsites",
-        "band_gap", "is_metal", "structure", "symmetry", "task_ids",
+        "band_gap", "is_metal", "symmetry", "task_ids",
     ]
     docs = mpr.materials.summary.search(
         energy_above_hull=(0, HULL_MAX_EV_PER_ATOM),
@@ -655,11 +712,46 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
         all_fields=False,
         chunk_size=1000,
     )
-    unmatched, counts = summary_filter_candidates(
+    unmatched, counts = _summary_filter_without_structures(
         docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
     )
-    task_ids: set[str] = set()
+    material_ids = sorted({str(_get(doc, "material_id")) for doc in unmatched if _get(doc, "material_id")})
+    structures: dict[str, Any] = {}
+    for start in range(0, len(material_ids), 1000):
+        structure_docs = mpr.materials.summary.search(
+            material_ids=material_ids[start:start + 1000],
+            fields=["material_id", "structure"],
+            all_fields=False,
+            chunk_size=1000,
+        )
+        for structure_doc in structure_docs:
+            material_id = _get(structure_doc, "material_id")
+            structure = _get(structure_doc, "structure")
+            if material_id and structure is not None:
+                structures[str(material_id)] = structure
+    ordered_unmatched = []
     for doc in unmatched:
+        material_id = str(_get(doc, "material_id", ""))
+        structure = structures.get(material_id)
+        if structure is None:
+            continue
+        merged_doc = {
+            name: _get(doc, name)
+            for name in (
+                "material_id", "formula_pretty", "composition_reduced", "energy_above_hull",
+                "nsites", "band_gap", "is_metal", "symmetry", "task_ids",
+            )
+        }
+        merged_doc["structure"] = structure
+        ordered_unmatched.append(merged_doc)
+    counts["structure_material_ids_queried"] = len(material_ids)
+    counts["structure_documents_returned"] = len(structures)
+    counts["missing_structure_records"] = len(material_ids) - len(structures)
+    ordered_unmatched = [doc for doc in ordered_unmatched if _ordered(doc)]
+    counts["ordered_structures"] = len(ordered_unmatched)
+    counts["unmatched_reduced_formula"] = len(ordered_unmatched)
+    task_ids: set[str] = set()
+    for doc in ordered_unmatched:
         for task_id in (_get(doc, "task_ids") or []):
             if task_id:
                 task_ids.add(str(task_id))
@@ -672,7 +764,7 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
             all_fields=False,
             chunk_size=100,
         ))
-    qualified, method_counts = qualify_by_method(unmatched, tasks)
+    qualified, method_counts = qualify_by_method(ordered_unmatched, tasks)
     counts.update(method_counts)
     counts["task_ids_queried"] = len(task_ids)
     counts["task_documents_returned"] = len(tasks)

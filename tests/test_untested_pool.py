@@ -11,6 +11,7 @@ from build_untested_pool import (  # noqa: E402
     chemistry_policy_flags,
     composition_structure_distance,
     eligible_family_metrics,
+    _candidate_record,
     _fetch_mp_with_client,
     read_formula_source,
     qualify_by_method,
@@ -102,8 +103,12 @@ class UntestedPoolTests(unittest.TestCase):
 
     def test_mp_fetch_uses_current_supported_summary_fields_and_task_ids(self):
         class SummaryRoute:
+            calls = []
+
             def search(self, **kwargs):
-                self.kwargs = kwargs
+                self.calls.append(kwargs)
+                if "material_ids" in kwargs:
+                    return [SimpleNamespace(material_id="mp-new", structure=_structure())]
                 return [_summary("mp-new", "Nb3Sn")]
 
         class TaskRoute:
@@ -123,10 +128,21 @@ class UntestedPoolTests(unittest.TestCase):
 
         qualified, counts = _fetch_mp_with_client(client, source_index)
 
-        self.assertNotIn("es_source_calc_id", summary.kwargs["fields"])
+        self.assertNotIn("es_source_calc_id", summary.calls[0]["fields"])
+        self.assertNotIn("structure", summary.calls[0]["fields"])
+        self.assertEqual(summary.calls[1]["material_ids"], ["mp-new"])
         self.assertEqual(tasks.kwargs["task_ids"], ["mp-new-task"])
         self.assertEqual(len(qualified), 1)
         self.assertEqual(counts["task_ids_queried"], 1)
+
+    def test_grouped_formula_is_flattened_for_the_training_descriptor(self):
+        from rt_superconductor.descriptors import formula_descriptor_vector
+
+        record = _candidate_record("Ba(PdO2)2", "mp-1", 0.01, "Other")
+
+        self.assertEqual(record.formula, "Ba1Pd2O4")
+        values, _ = formula_descriptor_vector(record.formula)
+        self.assertTrue(all(value == value for value in values))
 
     def test_family_gate_requires_explicit_embargo_and_strictly_more_than_half(self):
         report = {"within_family_evaluation": {"families": {
