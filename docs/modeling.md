@@ -972,3 +972,26 @@ All **60 rows** have preserved structure lineage: **32** remain occupationally d
 Atomic forces ≤0.05 eV/Å and residual stress ≤0.1 GPa are numerical stopping criteria for this coarse zero-target-pressure ML screen, not proof of experimental ambient-pressure operation. The FIRE stopping rule checks both quantities directly; cell-filter fmax alone can stop prematurely. Per-displacement checkpoints, cumulative CPU budgets, model/software/input hashes and exact composition checks support restarts. No occupational disorder was rounded away. See [deep-dynamic-stability.json](deep-dynamic-stability.json).
 
 Tables with reasons, uncertainty tiers, known-compound checks and archived unrelaxed/relaxed inputs: [Ferrites](deep-shortlists/ferrites.csv), [Other](deep-shortlists/other.csv), [physics targets](deep-shortlists/physics.csv). The limited lab-access flag marks Tc/Pm and elements with Z≥84; it is not a complete safety or synthesis assessment. All 60 hypotheses retain DFT verification pending; none demonstrates superconductivity or the project temperature target.
+
+## Phase 5 — range bounds, uncertainty and extrapolation
+
+Each regression-tree leaf is a nonnegative weighted mean of training labels. A forest is a nonnegative mean of those leaf predictions, so its output stays within the training-label range. This does not apply to a neural head or to a nonlinear Allen-Dynes transformation of separately predicted targets.
+
+The empirical forest made **0** OOF predictions above its fold training maximum. Full-data label maxima were **132.9 K** for Cuprates, **56.5 K** for Ferrites, **41.4 K** for Other and **31.5 K** for Oxides; all family maxima are in [deep-uncertainty.json](deep-uncertainty.json). A forest cannot reach the project target from those labels by direct Tc regression. A neural head or the nonlinear EPC equation has different range behavior, but numerical extrapolation alone is not evidence.
+
+The error-magnitude calibration uses independent approximately 60/20/20 **group** partitions, with shared MP IDs purged between fit/calibration/test. Counts after embargo are reported. These are fresh models at a different training budget; they do not retroactively calibrate the final full-data shortlist models. The quantity below is MAE of the estimated absolute error, not Tc prediction MAE or confidence-interval coverage.
+
+| Scope | Fit / calibration / test rows | Raw SD-as-error MAE K | Calibrated expected-error MAE K |
+|---|---:|---:|---:|
+| global_all_cross_family | 4043 / 873 / 837 | 8.4577 | 17.6696 |
+| Ferrites | 154 / 46 / 106 | 5.6368 | 5.1748 |
+| Cuprates | 175 / 123 / 168 | 18.5122 | 18.3390 |
+| Other | 1474 / 574 / 686 | 1.8425 | 1.7642 |
+| Oxides | 90 / 49 / 107 | 4.9144 | 5.5501 |
+| DFT EPC | 638 / 201 / 218 | 8.0398 | 2.5182 |
+
+Calibration helped some within-family/DFT tasks and **worsened** the global family-shift and Oxides tasks. There is no universal calibrated confidence claim. The same-group test labels never fit the model or calibrator. The independent group and reference-ID embargo tests guard this boundary.
+
+The median-imputed 1,057-row EPC audit reproduced physics-derived Tc MAE **5.891809 K. **14 / 1,057** held-out predictions exceeded their fold training maximum. **1** corresponding reference-derived target exceeded that maximum; the other **13** were overpredictions. The true reference-derived exceedance was MoN (JVASP-16897): prediction **29.7750 K**, reference-derived **31.9108 K**, fold maximum **29.0141 K**. These are DFT EPC targets, not experimental superconductors; none is a room-temperature result. All cases, source-reported Tc values and formula assumptions are retained in the JSON.
+
+Descriptive OOF error-vs-spread plots: [global](uncertainty-calibration.png), [within families](uncertainty-calibration-within-families.png), [physics targets](uncertainty-calibration-physics.png). Dashed lines are MAE=SD reference lines, not calibrated confidence bands. Mean/tree SD pairing is a heuristic, not a joint posterior for λ and ω_log.
