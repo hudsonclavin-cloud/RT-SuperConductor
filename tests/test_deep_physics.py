@@ -253,3 +253,19 @@ class ReferenceIDCoverageTests(unittest.TestCase):
     def test_unknown_explicit_reference_is_rejected(self):
         from enrich_deep_mp import select_reference_ids
         with self.assertRaises(ValueError):select_reference_ids(['mp-10003'],{'mp-unknown'})
+
+class LegacyIdentityQuarantineTests(unittest.TestCase):
+    def test_legacy_dos_lookup_is_blocked_before_any_endpoint(self):
+        from types import SimpleNamespace
+        from enrich_deep_mp import complete_dos_with_task
+        with self.assertRaisesRegex(ValueError,'manual identity resolution'):complete_dos_with_task(SimpleNamespace(),'mvc-11697')
+    def test_legacy_numeric_properties_become_missing_with_rejected_audit(self):
+        import tempfile,json
+        from enrich_deep_mp import flush_output
+        row={'record_id':'x','mp_dos_ef_states_ev_cell':3.14,'orbital_d_fraction':.75}
+        with tempfile.TemporaryDirectory() as t:
+            report=flush_output([row],{'x':'mvc-11697'},{},Path(t)/'out.csv',{})
+        self.assertIsNone(row['mp_dos_ef_states_ev_cell']);self.assertIsNone(row['orbital_d_fraction'])
+        self.assertEqual(row['mp_dos_status'],'blocked_legacy_namespace')
+        self.assertEqual(json.loads(row['rejected_legacy_properties_json'])['mp_dos_ef_states_ev_cell'],3.14)
+        self.assertEqual(report['dos_available'],0)

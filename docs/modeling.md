@@ -905,3 +905,54 @@ The four paired controls above reuse the exact Phase 2 cohort and folds. Baselin
 The full MP-prefixed reference collection [run 41739776208](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41739776208) queried **2,708 unique IDs** and returned DOS/orbital weights for **5,243/5,773 rows**, bulk moduli for **2,757**, and **0 endpoint failures**. All **5,243** DOS inputs have calculation IDs and content fingerprints. The maximum s+p+d+f normalization error was **2.22e-16**. Another **516 rows** have no DOS returned by the provider. A coverage audit found **7 legacy MVC IDs (14 rows)** skipped by the original MP-only prefix filter; the collector now includes MP and MVC IDs and supports a targeted follow-up. Missing data are not zero DOS or zero orbital occupation. Reports: [deep-mp-full.json](deep-mp-full.json) and [deep-phase35-merge.json](deep-phase35-merge.json).
 
 The checked merge preserves every geometry row and validates reference IDs; duplicate IDs, mismatched cohorts and mismatched MP references fail explicitly. **111 unit tests passed**, including MP/MVC selection and rejection of demo IDs. The final ablation uses the merged table; the legacy-reference follow-up will be reconciled before its final report.
+
+## Phase 3.5 — final paired ablation with verified MP enrichment
+
+Complete fold metrics, sample counts, overlap embargoes, and top-20 importances are retained in [deep-phase35-ablation.json](deep-phase35-ablation.json). Missing values indicate an unscoreable or unreported diagnostic, not zero.
+
+| Model / feature group | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| baseline | cross-family | 5773 | 10.4523 | 16.1169 | 0.1007 | 0.5792 | — | 0.4575 | 0.0624 |
+| baseline | Ferrites | 517 | 9.3870 | 11.7727 | 0.5090 | 0.7208 | — | 0.4730 | — |
+| baseline | Cuprates | 874 | 21.3573 | 32.6682 | 0.5624 | 0.6717 | 0.8275 | 0.4793 | 0.3187 |
+| baseline | Other | 3529 | 2.8606 | 4.3630 | 0.6913 | 0.7932 | — | 0.4885 | — |
+| baseline | Oxides | 320 | 3.9724 | 5.8215 | 0.5659 | 0.7344 | — | 0.4644 | — |
+| plus_electronic | cross-family | 5773 | 10.5445 | 16.1169 | 0.1012 | 0.5877 | — | 0.4575 | 0.0624 |
+| plus_electronic | Ferrites | 517 | 9.4879 | 11.7727 | 0.5158 | 0.7196 | — | 0.4730 | — |
+| plus_electronic | Cuprates | 874 | 21.4098 | 32.6682 | 0.5634 | 0.6792 | 0.8473 | 0.4793 | 0.3187 |
+| plus_electronic | Other | 3529 | 2.8867 | 4.3630 | 0.6929 | 0.8107 | — | 0.4885 | — |
+| plus_electronic | Oxides | 320 | 3.9853 | 5.8215 | 0.5598 | 0.7450 | — | 0.4644 | — |
+| plus_lattice | cross-family | 5773 | 10.3900 | 16.1169 | 0.1079 | 0.5760 | — | 0.4575 | 0.0624 |
+| plus_lattice | Ferrites | 517 | 9.3676 | 11.7727 | 0.5115 | 0.7217 | — | 0.4730 | — |
+| plus_lattice | Cuprates | 874 | 21.4897 | 32.6682 | 0.5569 | 0.6534 | 0.8312 | 0.4793 | 0.3187 |
+| plus_lattice | Other | 3529 | 3.0377 | 4.3630 | 0.6739 | 0.7966 | — | 0.4885 | — |
+| plus_lattice | Oxides | 320 | 3.9866 | 5.8215 | 0.5380 | 0.7707 | — | 0.4644 | — |
+| plus_bonding | cross-family | 5773 | 10.4468 | 16.1169 | 0.1206 | 0.5751 | — | 0.4575 | 0.0624 |
+| plus_bonding | Ferrites | 517 | 9.4855 | 11.7727 | 0.4898 | 0.7101 | — | 0.4730 | — |
+| plus_bonding | Cuprates | 874 | 21.0941 | 32.6682 | 0.5691 | 0.6810 | 0.8194 | 0.4793 | 0.3187 |
+| plus_bonding | Other | 3529 | 2.9896 | 4.3630 | 0.6801 | 0.7992 | — | 0.4885 | — |
+| plus_bonding | Oxides | 320 | 3.9899 | 5.8215 | 0.5491 | 0.7659 | — | 0.4644 | — |
+| plus_spin | cross-family | 5773 | 10.3908 | 16.1169 | 0.1038 | 0.5780 | — | 0.4575 | 0.0624 |
+| plus_spin | Ferrites | 517 | 9.3485 | 11.7727 | 0.5058 | 0.7054 | — | 0.4730 | — |
+| plus_spin | Cuprates | 874 | 21.3103 | 32.6682 | 0.5638 | 0.6669 | 0.8403 | 0.4793 | 0.3187 |
+| plus_spin | Other | 3529 | 2.9015 | 4.3630 | 0.6903 | 0.7980 | — | 0.4885 | — |
+| plus_spin | Oxides | 320 | 3.9945 | 5.8215 | 0.5582 | 0.7465 | — | 0.4644 | — |
+| plus_correlation | cross-family | 5773 | 10.4515 | 16.1169 | 0.1253 | 0.5763 | — | 0.4575 | 0.0624 |
+| plus_correlation | Ferrites | 517 | 9.4595 | 11.7727 | 0.5039 | 0.7314 | — | 0.4730 | — |
+| plus_correlation | Cuprates | 874 | 21.4741 | 32.6682 | 0.5619 | 0.6625 | 0.8386 | 0.4793 | 0.3187 |
+| plus_correlation | Other | 3529 | 2.8651 | 4.3630 | 0.6906 | 0.7966 | — | 0.4885 | — |
+| plus_correlation | Oxides | 320 | 3.9798 | 5.8215 | 0.5562 | 0.7553 | — | 0.4644 | — |
+| plus_orbital | cross-family | 5773 | 10.6626 | 16.1169 | 0.0637 | 0.5742 | — | 0.4575 | 0.0624 |
+| plus_orbital | Ferrites | 517 | 9.4536 | 11.7727 | 0.5081 | 0.7216 | — | 0.4730 | — |
+| plus_orbital | Cuprates | 874 | 21.4051 | 32.6682 | 0.5599 | 0.6651 | 0.8443 | 0.4793 | 0.3187 |
+| plus_orbital | Other | 3529 | 2.9002 | 4.3630 | 0.6921 | 0.7975 | — | 0.4885 | — |
+| plus_orbital | Oxides | 320 | 3.5957 | 5.8215 | 0.5942 | 0.7319 | — | 0.4644 | — |
+| all | cross-family | 5773 | 10.4464 | 16.1169 | 0.0332 | 0.5800 | — | 0.4575 | 0.0624 |
+| all | Ferrites | 517 | 9.4280 | 11.7727 | 0.5078 | 0.7450 | — | 0.4730 | — |
+| all | Cuprates | 874 | 21.8857 | 32.6682 | 0.5382 | 0.6759 | 0.8252 | 0.4793 | 0.3187 |
+| all | Other | 3529 | 3.0656 | 4.3630 | 0.6901 | 0.8100 | — | 0.4885 | — |
+| all | Oxides | 320 | 3.7070 | 5.8215 | 0.5357 | 0.7658 | — | 0.4644 | — |
+
+The final paired comparison used **5,243 verified-reference orbital/DOS rows** and **2,757 bulk-modulus rows**. All **5,243** available primary spectra passed an element-set check against the original reference-parent formula; this check does not prove experimental sample identity, exact stoichiometry, or convergence. **516 rows** have no DOS returned by the provider. The **14 legacy MVC rows** retain missing MP enrichment. The follow-up returned 11 spectra, but every one belonged to incompatible chemistry (for example, MVC-11697 Y–Cu–O received Ta–Sb DOS). Those returned values are rejected audit evidence, never training features. See [deep-reference-identity-audit.json](deep-reference-identity-audit.json). The collector now blocks automatic legacy-namespace retrieval and clears unverified legacy properties into a rejected-data audit field.
+
+Compared with formula-only cross-family MAE **10.4523 K**, all groups together scored **10.4464 K**. Orbital fractions alone scored **10.6626 K**, and their Oxides within-family MAE improved from **3.9724 to 3.5957 K**. These mixed effects do not establish a general mechanism or a robust discovery advantage. The correlation group was essentially redundant. The professor's five suggested factors are now tested explicitly: symmetry, distances and patterns through lattice/bonding groups; a limited electrostatic bond-strength proxy through Ewald energy; and computed spin descriptors through the spin group. None supplies missing experimental sample structures or pressure conditions. DFT NM labels for doped/reference cuprates cannot establish the magnetism of their real parent compounds. All expanded metrics, mean-predictor comparisons and top-20 RF importances are preserved in the linked JSON, not inferred from an isolated improvement.

@@ -1,0 +1,206 @@
+{
+  "rows": 5773,
+  "groups": {
+    "electronic": {
+      "features": [
+        "band_gap_2",
+        "efermi_2",
+        "mp_dos_ef_states_ev_cell"
+      ],
+      "rows_with_any": 5773,
+      "nonmissing_per_feature": {
+        "band_gap_2": 5773,
+        "efermi_2": 5773,
+        "mp_dos_ef_states_ev_cell": 5243
+      }
+    },
+    "lattice": {
+      "features": [
+        "b_over_a",
+        "c_over_a",
+        "crystal_system_cubic",
+        "crystal_system_hexagonal",
+        "crystal_system_monoclinic",
+        "crystal_system_orthorhombic",
+        "crystal_system_tetragonal",
+        "crystal_system_triclinic",
+        "crystal_system_trigonal",
+        "dimensionality",
+        "lata_2",
+        "latb_2",
+        "latc_2",
+        "layer_spacing_proxy_angstrom",
+        "mom_angle_mean_deg",
+        "mom_angle_min_deg",
+        "oxide_buckling_proxy_angstrom",
+        "point_group__-1",
+        "point_group__-3",
+        "point_group__-3m",
+        "point_group__-4",
+        "point_group__-42m",
+        "point_group__-43m",
+        "point_group__-62m",
+        "point_group__1",
+        "point_group__2",
+        "point_group__2/m",
+        "point_group__222",
+        "point_group__23",
+        "point_group__3",
+        "point_group__32",
+        "point_group__3m",
+        "point_group__4",
+        "point_group__4/m",
+        "point_group__4/mmm",
+        "point_group__422",
+        "point_group__432",
+        "point_group__4mm",
+        "point_group__6/m",
+        "point_group__6/mmm",
+        "point_group__622",
+        "point_group__6mm",
+        "point_group__m",
+        "point_group__m-3",
+        "point_group__m-3m",
+        "point_group__mm2",
+        "point_group__mmm",
+        "volume_per_atom"
+      ],
+      "rows_with_any": 5773,
+      "nonmissing_per_feature": {
+        "b_over_a": 5773,
+        "c_over_a": 5773,
+        "crystal_system_cubic": 5773,
+        "crystal_system_hexagonal": 5773,
+        "crystal_system_monoclinic": 5773,
+        "crystal_system_orthorhombic": 5773,
+        "crystal_system_tetragonal": 5773,
+        "crystal_system_triclinic": 5773,
+        "crystal_system_trigonal": 5773,
+        "dimensionality": 5773,
+        "lata_2": 5773,
+        "latb_2": 5773,
+        "latc_2": 5773,
+        "layer_spacing_proxy_angstrom": 358,
+        "mom_angle_mean_deg": 1361,
+        "mom_angle_min_deg": 1361,
+        "oxide_buckling_proxy_angstrom": 231,
+        "point_group__-1": 5773,
+        "point_group__-3": 5773,
+        "point_group__-3m": 5773,
+        "point_group__-4": 5773,
+        "point_group__-42m": 5773,
+        "point_group__-43m": 5773,
+        "point_group__-62m": 5773,
+        "point_group__1": 5773,
+        "point_group__2": 5773,
+        "point_group__2/m": 5773,
+        "point_group__222": 5773,
+        "point_group__23": 5773,
+        "point_group__3": 5773,
+        "point_group__32": 5773,
+        "point_group__3m": 5773,
+        "point_group__4": 5773,
+        "point_group__4/m": 5773,
+        "point_group__4/mmm": 5773,
+        "point_group__422": 5773,
+        "point_group__432": 5773,
+        "point_group__4mm": 5773,
+        "point_group__6/m": 5773,
+        "point_group__6/mmm": 5773,
+        "point_group__622": 5773,
+        "point_group__6mm": 5773,
+        "point_group__m": 5773,
+        "point_group__m-3": 5773,
+        "point_group__m-3m": 5773,
+        "point_group__mm2": 5773,
+        "point_group__mmm": 5773,
+        "volume_per_atom": 5773
+      }
+    },
+    "bonding": {
+      "features": [
+        "coord_fraction_12",
+        "coord_fraction_4",
+        "coord_fraction_6",
+        "coord_fraction_8",
+        "coord_mean",
+        "coord_std",
+        "density_2",
+        "ewald_ev_per_atom",
+        "formation_energy_per_atom_2",
+        "mp_bulk_modulus_gpa",
+        "nearest_mean",
+        "nearest_min",
+        "nearest_std",
+        "shortest_metal_anion",
+        "shortest_metal_metal"
+      ],
+      "rows_with_any": 5773,
+      "nonmissing_per_feature": {
+        "coord_fraction_12": 5773,
+        "coord_fraction_4": 5773,
+        "coord_fraction_6": 5773,
+        "coord_fraction_8": 5773,
+        "coord_mean": 5773,
+        "coord_std": 5773,
+        "density_2": 5773,
+        "ewald_ev_per_atom": 2796,
+        "formation_energy_per_atom_2": 5773,
+        "mp_bulk_modulus_gpa": 2757,
+        "nearest_mean": 5773,
+        "nearest_min": 5773,
+        "nearest_std": 5773,
+        "shortest_metal_anion": 3735,
+        "shortest_metal_metal": 5736
+      }
+    },
+    "spin": {
+      "features": [
+        "is_magnetic_2",
+        "magnetic_sites_per_atom",
+        "ordering_AFM",
+        "ordering_FM",
+        "ordering_FiM",
+        "ordering_NM",
+        "total_magnetization_normalized_formula_units_2"
+      ],
+      "rows_with_any": 5773,
+      "nonmissing_per_feature": {
+        "is_magnetic_2": 5773,
+        "magnetic_sites_per_atom": 5773,
+        "ordering_AFM": 5773,
+        "ordering_FM": 5773,
+        "ordering_FiM": 5773,
+        "ordering_NM": 5773,
+        "total_magnetization_normalized_formula_units_2": 5773
+      }
+    },
+    "correlation": {
+      "features": [
+        "is_gga_plus_u",
+        "mean_d_electron_count"
+      ],
+      "rows_with_any": 5773,
+      "nonmissing_per_feature": {
+        "is_gga_plus_u": 5773,
+        "mean_d_electron_count": 5773
+      }
+    },
+    "orbital": {
+      "features": [
+        "orbital_d_fraction",
+        "orbital_f_fraction",
+        "orbital_p_fraction",
+        "orbital_s_fraction"
+      ],
+      "rows_with_any": 5243,
+      "nonmissing_per_feature": {
+        "orbital_d_fraction": 5243,
+        "orbital_f_fraction": 5243,
+        "orbital_p_fraction": 5243,
+        "orbital_s_fraction": 5243
+      }
+    }
+  },
+  "blocked_groups": []
+}

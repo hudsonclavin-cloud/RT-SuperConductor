@@ -54,6 +54,7 @@ def dos_curve_for_task(route,task_id):
         raise original
 
 def complete_dos_with_task(client,material_id):
+    if str(material_id).startswith('mvc-'):raise ValueError('Legacy MVC namespace requires manual identity resolution; cross-composition DOS collisions observed')
     docs=client.materials.electronic_structure.search(material_ids=[material_id],fields=['dos'])
     if not docs or not docs[0].get('dos'):return None,None
     metadata=docs[0]['dos'];total=metadata.get('total',{});spin=total.get('1',{});task=metadata.get('task_id') or spin.get('task_id')
@@ -64,6 +65,10 @@ def flush_output(rows,by_id,cache,output,report):
     columns=('mp_bulk_modulus_gpa','mp_dos_ef_states_ev_cell','orbital_s_fraction','orbital_p_fraction','orbital_d_fraction','orbital_f_fraction','element_orbital_integrals_json','orbital_window_ev','mp_dos_task_id','mp_dos_content_sha256','mp_orbital_error','mp_bulk_error','mp_dos_error')
     for r in rows:
         mid=by_id.get(r['record_id']);d=cache.get(mid,{})
+        if str(mid).startswith('mvc-'):
+            rejected={k:r[k] for k in columns if r.get(k) not in (None,'')}
+            if rejected:r['rejected_legacy_properties_json']=json.dumps(rejected)
+            r.update({k:None for k in columns});r.update(reference_mp_id=mid,mp_bulk_status='blocked_legacy_namespace',mp_dos_status='blocked_legacy_namespace',mp_orbital_status='blocked_legacy_namespace');continue
         r.update({k:d.get(k) if d.get(k) is not None else r.get(k) for k in columns});r.update(reference_mp_id=mid,mp_bulk_status=d.get('bulk_status','not_queried'),mp_dos_status=d.get('dos_status','not_queried'),mp_orbital_status=d.get('orbital_status','not_queried'))
     report.update(bulk_modulus_available=sum(r.get('mp_bulk_modulus_gpa') not in (None,'') for r in rows),dos_available=sum(r.get('mp_dos_ef_states_ev_cell') not in (None,'') for r in rows),orbital_available=sum(r.get('orbital_d_fraction') not in (None,'') for r in rows))
     output.parent.mkdir(parents=True,exist_ok=True)
@@ -95,6 +100,8 @@ def enrich(input_path,features,output,limit=100,requested_ids=None):
         try:
             with MPRester(os.environ['MP_API_KEY'],use_document_model=False) as client:
                 for mid in ids:
+                    if mid.startswith('mvc-'):
+                        report.setdefault('blocked_legacy_reference_ids',[]).append(mid);continue
                     cache_file=cache_dir/(mid+'.json')
                     if cache_file.exists() and time.time()-cache_file.stat().st_mtime<86400:
                         cached=json.loads(cache_file.read_text())

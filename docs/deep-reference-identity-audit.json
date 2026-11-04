@@ -1,0 +1,82 @@
+{
+  "source_sha256": "353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24",
+  "primary_run": 41739776208,
+  "legacy_audit_run": 41744148063,
+  "primary_dos_element_sets_checked": 5243,
+  "primary_element_set_mismatches": 0,
+  "blocked_legacy_rows": 14,
+  "blocked_legacy_reference_ids": [
+    "mvc-11697",
+    "mvc-11834",
+    "mvc-14149",
+    "mvc-2118",
+    "mvc-4607",
+    "mvc-5806",
+    "mvc-771"
+  ],
+  "legacy_identity_observations": [
+    {
+      "reference_id": "mvc-11697",
+      "original_parent_formula": "Y1Cu1O3",
+      "returned_dos_elements": [
+        "Sb",
+        "Ta"
+      ],
+      "returned_task_id": "aaaeylur",
+      "accepted_for_training": false
+    },
+    {
+      "reference_id": "mvc-11834",
+      "original_parent_formula": "Ba2Tl2Cu2O8",
+      "returned_dos_elements": [
+        "Cu",
+        "Ni",
+        "Sb"
+      ],
+      "returned_task_id": "aaadstzl",
+      "accepted_for_training": false
+    },
+    {
+      "reference_id": "mvc-14149",
+      "original_parent_formula": "Co4O8",
+      "returned_dos_elements": null,
+      "returned_task_id": "",
+      "accepted_for_training": false
+    },
+    {
+      "reference_id": "mvc-2118",
+      "original_parent_formula": "W4O8",
+      "returned_dos_elements": [
+        "N",
+        "Rh"
+      ],
+      "returned_task_id": "aaadvgrd",
+      "accepted_for_training": false
+    },
+    {
+      "reference_id": "mvc-4607",
+      "original_parent_formula": "Mo4O10",
+      "returned_dos_elements": null,
+      "returned_task_id": "",
+      "accepted_for_training": false
+    },
+    {
+      "reference_id": "mvc-5806",
+      "original_parent_formula": "Mo8O16",
+      "returned_dos_elements": null,
+      "returned_task_id": "",
+      "accepted_for_training": false
+    },
+    {
+      "reference_id": "mvc-771",
+      "original_parent_formula": "Sr4Y2Fe2Cu4O14",
+      "returned_dos_elements": [
+        "Al",
+        "Mn"
+      ],
+      "returned_task_id": "aaadsawf",
+      "accepted_for_training": false
+    }
+  ],
+  "scope": "Element-set screen only; does not prove sample stoichiometry, phase, or convergence."
+}
