@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,11 @@ from train_physics_targets import (
     DATASET_FILE, _formula_and_structure, _make_matrix, _write_csv,
     allen_dynes_tc_k, build_characteristics, fit_physics_models,
 )
+
+
+def physics_point_prediction(lambda_trees, omega_log_trees):
+    lam=float(np.mean(lambda_trees));omega=float(np.exp(np.mean(np.log(omega_log_trees))))
+    return lam,omega,allen_dynes_tc_k(lam,omega)
 
 
 def _group(element: str) -> int | None:
@@ -52,7 +58,7 @@ def _charge_balances_with_common_oxidation_states(formula: str) -> bool:
 
 
 def is_low_confidence(tc_tree_sd_k: float, predicted_tc_k: float) -> bool:
-    return tc_tree_sd_k > predicted_tc_k
+    return tc_tree_sd_k >= predicted_tc_k
 
 
 def select_by_confidence_group(output: list[dict[str, Any]], top_k: int) -> list[dict[str, Any]]:
@@ -76,6 +82,8 @@ def select_by_confidence_group(output: list[dict[str, Any]], top_k: int) -> list
             key=lambda row: (-row["acquisition_ucb_k"], -row["predicted_tc_k"], row["formula"]),
         )
         selected.extend(remaining_rows[:remaining])
+    for row in selected:
+        row["review_rank"] = row["group_rank"] if row["ranking_group"] == "standard" else ""
     return sorted(selected, key=lambda row: (row["ranking_group"] != "standard", row["group_rank"]))
 
 
@@ -84,6 +92,7 @@ def generate_substitutions(
     drop_counts: dict[str, int] | None = None,
 ) -> list[dict[str, Any]]:
     from pymatgen.core import Element
+    from chemistry_policy import substitution_rejection
 
     known = {_formula_and_structure(source)[0] for source in rows}
     observed_elements = {str(element) for row in rows for element in row["atoms"]["elements"]}
@@ -97,6 +106,9 @@ def generate_substitutions(
         "dropped_known_formula": 0,
         "dropped_duplicate_formula": 0,
         "accepted": 0,
+        "dropped_group_or_oxidation_mismatch": 0,
+        "dropped_insulating_parent": 0,
+        "dropped_ionic_charge_imbalance": 0,
     }
     prototypes = sorted(rows, key=lambda row: (str(row.get("stability")), str(row.get("jid"))))[:max_prototypes]
     for prototype in prototypes:
@@ -104,10 +116,7 @@ def generate_substitutions(
         distinct = sorted(set(elements))
         for source_element in distinct:
             source_group = _group(source_element)
-            if source_group is None:
-                continue
-            replacements = [el.symbol for el in Element if el.group == source_group
-                            and el.symbol != source_element and el.symbol in observed_elements]
+            replacements = [el.symbol for el in Element if el.symbol != source_element and el.symbol in observed_elements]
             for replacement in replacements:
                 counts["proposals_considered"] += 1
                 if source_element == "H" or replacement == "H":
@@ -127,17 +136,21 @@ def generate_substitutions(
                 if formula in seen:
                     counts["dropped_duplicate_formula"] += 1
                     continue
-                seen.add(formula)
-                if not _charge_balances_with_common_oxidation_states(formula):
-                    counts["dropped_no_common_oxidation_state_balance"] += 1
+                reason = substitution_rejection(source_element, replacement, _formula_and_structure(prototype)[0], formula, prototype.get("band_gap", prototype.get("bandgap")))
+                if reason:
+                    counts["dropped_"+reason] = counts.get("dropped_"+reason, 0) + 1
+                    if reason == 'ionic_charge_imbalance':counts["dropped_no_common_oxidation_state_balance"] += 1
                     continue
+                seen.add(formula)
                 output.append({
                     "candidate_jid": candidate["jid"], "jid": candidate["jid"], "formula": formula,
                     "prototype_jid": prototype["jid"], "prototype_formula": _formula_and_structure(prototype)[0],
                     "source_stability_proxy": prototype.get("stability", "unknown"),
+                    "parent_band_gap_ev": prototype.get("band_gap", prototype.get("bandgap")),
+                    "parent_gap_source": prototype.get("parent_gap_source", "not_available"),
                     "substitution": f"{source_element}->{replacement}",
                     "structure_status": "unrelaxed parent-prototype substitution",
-                    "atoms": candidate["atoms"], "lamb": 0.0, "wlog": 1.0, "Tc": 0.0,
+                    "atoms": candidate["atoms"], "lamb": None, "wlog": None, "Tc": None, "is_generated_candidate": True,
                     "press": "unknown",
                 })
     counts["accepted"] = len(output)
@@ -172,14 +185,22 @@ def rank_candidates(
         lam_values = lam_by_tree[:, idx]
         wlog_values = wlog_by_tree[:, idx]
         tc_values = tc_by_tree[:, idx]
-        low_confidence = is_low_confidence(float(np.std(tc_values)), float(np.mean(tc_values)))
+        mean_lambda, point_omega, point_tc = physics_point_prediction(lam_values, wlog_values)
+        low_confidence = is_low_confidence(float(np.std(tc_values)), point_tc)
         output.append({
+            "candidate_id": cand["candidate_jid"], "chemical_family": "Phonon-mediated prototype",
             "formula": cand["formula"], "prototype_jid": cand["prototype_jid"],
+            "reasons": f"H unchanged; metal/nonmetal/metalloid class preserved; same group or overlapping common oxidation state; ionic charge balance screened when applicable; reference-parent gap={cand.get('parent_band_gap_ev', 'unknown')} eV (not a candidate property); candidate gap and stability require DFT; unrelaxed geometry; tree spread not calibrated",
+            "parent_band_gap_ev": cand.get("parent_band_gap_ev"),
+            "parent_gap_source": cand.get("parent_gap_source"),
+            "review_rank": "" if low_confidence else 1,
+            "confidence_group": "low_confidence" if low_confidence else "confident",
+            "tc_estimator": "Allen-Dynes at mean lambda and geometric-mean omega_log; tree spread is an uncalibrated diagnostic",
             "prototype_formula": cand["prototype_formula"], "substitution": cand["substitution"],
-            "predicted_lambda": float(np.mean(lam_values)), "lambda_tree_sd": float(np.std(lam_values)),
-            "predicted_omega_log_k": float(np.mean(wlog_values)), "omega_log_tree_sd_k": float(np.std(wlog_values)),
-            "predicted_tc_k": float(np.mean(tc_values)), "tc_tree_sd_k": float(np.std(tc_values)),
-            "acquisition_ucb_k": float(np.mean(tc_values) + 0.5 * np.std(tc_values)),
+            "predicted_lambda": mean_lambda, "lambda_tree_sd": float(np.std(lam_values)),
+            "predicted_omega_log_k": point_omega, "omega_log_tree_sd_k": float(np.std(wlog_values)),
+            "predicted_tc_k": point_tc, "tc_tree_sd_k": float(np.std(tc_values)),
+            "acquisition_ucb_k": float(point_tc + 0.5 * np.std(tc_values)),
             "ranking_group": "low_confidence" if low_confidence else "standard",
             "prototype_stability_proxy": cand["source_stability_proxy"],
             "candidate_mp_energy_above_hull_ev_atom": "", "candidate_mp_stability_status": "not_provided",
@@ -204,10 +225,20 @@ def rank_candidates(
     return select_by_confidence_group(output, top_k)
 
 
-def _load_raw(path: Path) -> list[dict[str, Any]]:
+def _load_raw(path: Path, parent_properties: Path | None = None) -> list[dict[str, Any]]:
     import zipfile
     with zipfile.ZipFile(path) as zf:
-        return json.load(zf.open("jarvis_epc_data_figshare_1058.json"))
+        rows=json.load(zf.open("jarvis_epc_data_figshare_1058.json"))
+    parent_properties=parent_properties or ROOT/'data/raw/jarvis-supercond/mp-characteristics.csv'
+    if parent_properties.is_file():
+        with parent_properties.open() as f:properties={r['jid']:r for r in csv.DictReader(f)}
+        for r in rows:
+            d=properties.get(str(r['jid']),{});gap=d.get('mp_band_gap_ev')
+            if gap not in (None,''):
+                value=float(gap)
+                if math.isfinite(value):
+                    r['band_gap']=value;r['parent_gap_source']='MP exact-composition reference; phase correspondence remains a proxy'
+    return rows
 
 
 def main() -> int:
@@ -226,7 +257,9 @@ def main() -> int:
     _write_csv(args.output, result)
     counts_by_group = {group: sum(row["ranking_group"] == group for row in result)
                        for group in ("standard", "low_confidence")}
-    summary = {"candidate_filter_counts": search_counts, "candidates_written": len(result),
+    summary = {"candidate_filter_counts": search_counts,
+               "counter_aliases": {"dropped_no_common_oxidation_state_balance": "dropped_ionic_charge_imbalance"},
+               "search_limits": {"max_prototypes": 180, "source_prototypes": len(rows)}, "candidates_written": len(result),
                "written_by_confidence_group": counts_by_group, "output": str(args.output),
                       "all_dft_verification_pending": True,
                       "top_predicted_tc_k": max((row["predicted_tc_k"] for row in result), default=None)}

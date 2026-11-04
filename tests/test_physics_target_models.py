@@ -84,19 +84,23 @@ class PhysicsTargetModelTests(unittest.TestCase):
             _record("JVASP-Nb3Sn", ["Nb", "Nb", "Nb", "Sn"]),
             _record("JVASP-Ta", ["Ta"]),
             _record("JVASP-BCl3", ["B", "Cl", "Cl", "Cl"]),
+            # Deliberately unbalanced unit fixture; never empirical training data.
+            _record("UNIT-unbalanced-KCl2", ["K", "Cl", "Cl"]),
             _record("JVASP-Al", ["Al"]),
         ]
         counts = {}
         generated = generate_substitutions(rows, drop_counts=counts)
         formulas = {row["formula"] for row in generated}
         self.assertNotIn("HCl", formulas)
+        self.assertTrue(all(not r["substitution"].startswith("H->") and not r["substitution"].endswith("->H") for r in generated))
         self.assertGreater(counts["dropped_hydrogen_substitution"], 0)
         self.assertGreater(counts["dropped_metal_nonmetal_class_swap"], 0)
         self.assertGreater(counts["dropped_no_common_oxidation_state_balance"], 0)
 
     def test_low_confidence_rows_are_ranked_in_their_own_group(self):
         self.assertTrue(is_low_confidence(8.1, 8.0))
-        self.assertFalse(is_low_confidence(8.0, 8.0))
+        self.assertTrue(is_low_confidence(8.0, 8.0))  # Review requires SD strictly below Tc.
+        self.assertFalse(is_low_confidence(7.9, 8.0))
         rows = [
             {"formula": "S1", "ranking_group": "standard", "acquisition_ucb_k": 10, "predicted_tc_k": 9},
             {"formula": "S2", "ranking_group": "standard", "acquisition_ucb_k": 8, "predicted_tc_k": 7},
@@ -108,6 +112,7 @@ class PhysicsTargetModelTests(unittest.TestCase):
             "standard", "standard", "low_confidence", "low_confidence"
         ])
         self.assertEqual([row["group_rank"] for row in selected], [1, 2, 1, 2])
+        self.assertTrue(all(row["review_rank"]=="" for row in selected if row["ranking_group"]=="low_confidence"))
 
     def test_materials_project_failure_preserves_candidate_stability_as_unknown(self):
         class FailingMPRester:

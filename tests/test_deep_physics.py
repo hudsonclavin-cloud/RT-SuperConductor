@@ -269,3 +269,88 @@ class LegacyIdentityQuarantineTests(unittest.TestCase):
         self.assertEqual(row['mp_dos_status'],'blocked_legacy_namespace')
         self.assertEqual(json.loads(row['rejected_legacy_properties_json'])['mp_dos_ef_states_ev_cell'],3.14)
         self.assertEqual(report['dos_available'],0)
+
+class ChemistryPolicyTests(unittest.TestCase):
+    def test_hydrogen_metal_class_valence_and_parent_gap_rules(self):
+        from chemistry_policy import substitution_rejection as reject
+        self.assertEqual(reject('H','Li','HCl','LiCl'),'hydrogen')
+        self.assertEqual(reject('Na','Cl','NaCl','Cl2'),'metal_nonmetal_swap')
+        self.assertEqual(reject('Na','Mg','NaCl','MgCl'),'group_or_oxidation_mismatch')
+        self.assertEqual(reject('Na','K','NaCl','KCl',.2),'insulating_parent')
+        self.assertEqual(reject('Na','K','NaCl','KCl2'),'ionic_charge_imbalance')
+        self.assertIsNone(reject('Nb','Ta','Nb3Sn','Ta3Sn'))
+    def test_epc_point_estimator_matches_reported_lambda_and_omega(self):
+        from run_physics_search import physics_point_prediction
+        from train_physics_targets import allen_dynes_tc_k
+        lam,omega,tc=physics_point_prediction([1,2],[100,400])
+        self.assertAlmostEqual(lam,1.5);self.assertAlmostEqual(omega,200)
+        self.assertAlmostEqual(tc,allen_dynes_tc_k(lam,omega))
+    def test_generated_unknown_targets_are_not_zero_or_trainable(self):
+        from train_physics_targets import build_characteristics,fit_physics_models
+        source={'jid':'candidate-unit','is_generated_candidate':True,'lamb':None,'wlog':None,'Tc':None,'atoms':{'lattice_mat':[[3,0,0],[0,3,0],[0,0,3]],'coords':[[0,0,0],[.5,.5,.5]],'elements':['Nb','Sn']}}
+        rows,names,_=build_characteristics([source]);r=rows[0]
+        self.assertIsNone(r['lambda']);self.assertIsNone(r['omega_log_k']);self.assertIsNone(r['source_tc_k']);self.assertIsNone(r['allen_dynes_tc_mu0p1_k'])
+        with self.assertRaises(ValueError):fit_physics_models(rows,names)
+
+class CandidatePolicyIntegrityTests(unittest.TestCase):
+    def test_global_generation_limit_is_not_exceeded_between_families(self):
+        import tempfile
+        from unittest.mock import patch
+        from rank_candidates import enumerate_substitution_candidates
+        from rt_superconductor.harmonized import HarmonizedRecord
+        records=[HarmonizedRecord(record_id=character*24,source_db='3dsc',formula=formula,tc_kelvin=10.,applied_pressure_gpa=0.,measurement_method='unknown',sample_form='unknown',doi='unit-fixture',review_status='curated_database',provenance='curated',is_synthetic=0,chemical_family=family) for character,formula,family in [('a','NiO','Ferrites'),('b','ZnCl2','Ferrites'),('c','KCl','Other'),('d','Na2O','Other')]]
+        counts={}
+        with tempfile.TemporaryDirectory() as t,patch('rank_candidates.ROOT',Path(t)):
+            rows=enumerate_substitution_candidates(records,max_candidates=1,drop_counts=counts)
+        self.assertEqual(len(rows),1);self.assertEqual(counts['accepted'],1)
+        self.assertEqual(counts['considered'],sum(v for k,v in counts.items() if k!='considered'))
+    def test_generated_source_cannot_copy_parent_labels_even_if_flag_omitted(self):
+        from train_physics_targets import build_characteristics,assert_reference_targets
+        source={'jid':'candidate-unit-stale-parent','lamb':1.,'wlog':200.,'Tc':10.,'atoms':{'lattice_mat':[[3,0,0],[0,3,0],[0,0,3]],'coords':[[0,0,0]],'elements':['Nb']}}
+        rows,_,_=build_characteristics([source]);row=rows[0]
+        for key in ('lambda','omega_log_k','source_tc_k','allen_dynes_tc_mu0p1_k'):self.assertIsNone(row[key])
+        with self.assertRaises(ValueError):assert_reference_targets([{'jid':'candidate-cached-unit','lambda':1.,'omega_log_k':200.}])
+    def test_physics_drop_counts_reconcile_without_legacy_alias(self):
+        from run_physics_search import generate_substitutions
+        def source(jid,symbols):return {'jid':jid,'atoms':{'lattice_mat':[[3,0,0],[0,3,0],[0,0,3]],'coords':[[i/len(symbols),0,0] for i in range(len(symbols))],'elements':symbols},'stability':'stable','lamb':1.,'wlog':200.,'Tc':10.}
+        counts={};generate_substitutions([source('unit-KCl2',['K','Cl','Cl']),source('unit-Na',['Na']),source('unit-HCl',['H','Cl'])],drop_counts=counts)
+        exclusive=sum(value for name,value in counts.items() if name.startswith('dropped_') and name!='dropped_no_common_oxidation_state_balance')
+        self.assertEqual(counts['proposals_considered'],counts['accepted']+exclusive)
+        self.assertEqual(counts['dropped_ionic_charge_imbalance'],counts['dropped_no_common_oxidation_state_balance'])
+
+class CandidateScoringPipelineTests(unittest.TestCase):
+    def test_saved_descriptor_selection_and_imputer_are_used(self):
+        import numpy as np
+        from sklearn.impute import SimpleImputer
+        from rank_candidates import model_feature_matrix
+        imputer=SimpleImputer().fit(np.array([[8.,2.],[10.,4.]]))
+        result=model_feature_matrix(np.array([[4.,np.nan,8.]]),['a','b','c'],{'feature_names':['c','b'],'imputer':imputer})
+        np.testing.assert_allclose(result,[[8.,3.]])
+        with self.assertRaises(ValueError):model_feature_matrix(result,['a','b'],{'feature_names':['missing']})
+    def test_general_mode_preserves_confident_candidates_before_output_limit(self):
+        import csv,json,tempfile
+        import numpy as np
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        import rank_candidates as ranker
+        from rt_superconductor.harmonized import HarmonizedRecord,write_harmonized
+        from rt_superconductor.search import CandidateProposal
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);source=root/'input.csv';model_dir=root/'model';model_dir.mkdir();output=root/'candidates.csv'
+            record=HarmonizedRecord(record_id='a'*24,source_db='3dsc',formula='Nb',tc_kelvin=10.,applied_pressure_gpa=0.,measurement_method='unknown',sample_form='unknown',doi='unit-fixture',review_status='curated_database',provenance='curated',is_synthetic=0,chemical_family='Other')
+            write_harmonized(source,[record]);(model_dir/'pressure-aware-report.json').write_text(json.dumps({'training_status':'ready'}));(model_dir/'pressure-aware-model.joblib').write_bytes(b'unit-only placeholder')
+            class Tree:
+                def __init__(self,values):self.values=np.array(values)
+                def predict(self,matrix):return self.values
+            artifact={'model':SimpleNamespace(estimators_=[Tree([0.,20.]),Tree([100.,20.])])}
+            candidates=[{'formula':formula,'chemical_family':'Other','parent_record_id':record.record_id} for formula in ['CuO','ZnO']]
+            def features(records,**kwargs):
+                self.assertTrue(all(r.tc_kelvin is None and r.is_synthetic==1 for r in records))
+                return np.zeros((2,1)),['unit-feature'],'unit-fixture'
+            def acquisition(hypotheses,*,batch_size):
+                return [CandidateProposal(candidate=hypotheses[0],score=100.,reasons=('unit low-confidence priority',)),CandidateProposal(candidate=hypotheses[1],score=1.,reasons=('unit confident priority',))][:batch_size]
+            with patch.object(ranker,'enumerate_substitution_candidates',return_value=candidates),patch.object(ranker,'_mp_matches',return_value=({},'degraded_no_mp_api_key',None)),patch.object(ranker.joblib,'load',return_value=artifact),patch.object(ranker,'build_features',side_effect=features),patch.object(ranker,'propose_batch',side_effect=acquisition):
+                report=ranker.rank_candidates(input_path=source,model_dir=model_dir,output_path=output,batch_size=1)
+            with output.open() as handle:rows=list(csv.DictReader(handle))
+        self.assertEqual(rows[0]['formula'],'ZnO');self.assertEqual(rows[0]['confidence_group'],'confident')
+        self.assertEqual(report['review_ranked_count'],1);self.assertEqual(report['low_confidence_count'],0)

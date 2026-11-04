@@ -39,7 +39,7 @@ TOP_K_COLUMNS = (
     "3dsc_exists", "3dsc_stanev_exists", "uci_exists", "supercon2_exists", "supermat_exists", "known_in_database",
     "measured_tc_kelvin", "measured_tc_sources", "validation_match_basis",
     "ranking_group", "group_rank", "acquisition_score", "plausibility", "pressure_gpa",
-    "reasons", "status", "model_dataset_sha256",
+    "reasons", "status", "model_dataset_sha256", "confidence_group", "review_rank", "parent_record_id", "parent_formula", "substitution", "parent_mp_id", "parent_energy_above_hull", "parent_property_role",
 )
 
 
@@ -142,50 +142,49 @@ def _text_bool(value: bool | None) -> str:
 
 def enumerate_substitution_candidates(
     records: list[HarmonizedRecord], *, family: str | None = None,
-    max_bases_per_family: int = 40, max_candidates: int = 3000
+    max_bases_per_family: int = 40, max_candidates: int = 3000,
+    drop_counts: dict | None = None,
 ) -> list[dict[str, str]]:
-    """Enumerate deterministic same-family elemental substitutions with pymatgen."""
-
-    by_family: dict[str, list[HarmonizedRecord]] = defaultdict(list)
-    observed = {record.formula for record in records}
-    for record in select_training_records(records):
-        if family is not None and record.chemical_family != family:
-            continue
-        by_family[record.chemical_family].append(record)
-    candidates: dict[tuple[str, str], dict[str, str]] = {}
-    for family in sorted(by_family):
-        family_records = sorted(by_family[family], key=lambda record: record.record_id)[:max_bases_per_family]
-        family_elements = sorted({element for record in family_records for element in _elements(record.formula)})
-        for record in family_records:
-            amounts = _elements(record.formula)
-            for old in sorted(amounts):
+    from chemistry_policy import substitution_rejection
+    from collections import Counter
+    counts=Counter({key:0 for key in ('considered','hydrogen','metal_nonmetal_swap','group_or_oxidation_mismatch','insulating_parent','ionic_charge_imbalance','invalid_formula','known_formula','duplicate','accepted')});by_family=defaultdict(list);observed={r.formula for r in records}
+    feature_path=ROOT/'data/processed/structure_features.csv'
+    gaps={}
+    if feature_path.is_file():
+        with feature_path.open() as f:
+            for r in csv.DictReader(f):
                 try:
-                    from pymatgen.core.periodic_table import Element
-
-                    old_group = Element(old).group
-                except Exception:
-                    old_group = None
-                for replacement in family_elements:
-                    if replacement == old:
-                        continue
-                    try:
-                        replacement_group = Element(replacement).group
-                    except Exception:
-                        replacement_group = None
-                    if old_group is not None and replacement_group != old_group:
-                        continue
-                    formula = _candidate_formula(amounts, old, replacement)
-                    if not formula or formula in observed:
-                        continue
-                    key = (family, formula)
-                    candidates[key] = {
-                        "formula": formula,
-                        "chemical_family": family,
-                        "parent_record_id": record.record_id,
-                    }
-                    if len(candidates) >= max_candidates:
-                        return [candidates[key] for key in sorted(candidates)]
-    return [candidates[key] for key in sorted(candidates)]
+                    value=float(r['band_gap_2'])
+                    if np.isfinite(value):gaps[r['record_id']]=value
+                except (KeyError,ValueError):pass
+    for record in select_training_records(records):
+        if family is None or record.chemical_family==family:by_family[record.chemical_family].append(record)
+    if max_candidates < 1 or max_bases_per_family < 1:raise ValueError("Candidate and parent limits must be positive")
+    candidates={}
+    for fam,family_records in sorted(by_family.items()):
+        if len(candidates)>=max_candidates:break
+        bases=sorted(family_records,key=lambda r:r.record_id)[:max_bases_per_family]
+        elements=sorted({el for r in bases for el in _elements(r.formula)})
+        for r in bases:
+            for old in _elements(r.formula):
+                for new in elements:
+                    if old==new:continue
+                    counts['considered']+=1
+                    formula=_candidate_formula(_elements(r.formula),old,new)
+                    if not formula:counts['invalid_formula']+=1;continue
+                    reason=substitution_rejection(old,new,r.formula,formula,gaps.get(r.record_id))
+                    if reason:counts[reason]+=1;continue
+                    if formula in observed:counts['known_formula']+=1;continue
+                    key=(fam,formula)
+                    if key in candidates:counts['duplicate']+=1;continue
+                    candidates[key]={'formula':formula,'chemical_family':fam,'parent_record_id':r.record_id,'parent_formula':r.formula,'substitution':old+'->'+new,'parent_mp_id':r.mp_id,'parent_energy_above_hull':r.energy_above_hull,
+                       'chemistry_reason':f'{old}->{new}; H unchanged; same metal class; same group or overlapping common oxidation states; ionic charge balance passed when applicable; parent gap={gaps.get(r.record_id,"unknown")} eV'}
+                    counts['accepted']+=1
+                    if len(candidates)>=max_candidates:break
+                if len(candidates)>=max_candidates:break
+            if len(candidates)>=max_candidates:break
+    if drop_counts is not None:drop_counts.update(counts)
+    return [candidates[k] for k in sorted(candidates)]
 
 
 def _mp_matches(formulas: list[str], api_key: str | None) -> tuple[dict[str, dict[str, Any]], str, str | None]:
@@ -238,6 +237,18 @@ def _write_empty(path: Path, report: dict[str, Any], *additional_paths: Path) ->
             csv.writer(handle).writerow(TOP_K_COLUMNS)
     report_path = path.with_name("candidate-ranking-report.json")
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def model_feature_matrix(matrix, feature_names, artifact):
+    """Use the saved formula descriptor schema and its train-fitted imputer."""
+    if isinstance(artifact, dict) and artifact.get('feature_names'):
+        indices={name:i for i,name in enumerate(feature_names)}
+        missing=set(artifact['feature_names'])-set(indices)
+        if missing:raise ValueError('Model descriptor schema is unavailable: '+str(sorted(missing)))
+        matrix=matrix[:,[indices[name] for name in artifact['feature_names']]]
+    if isinstance(artifact, dict) and artifact.get('imputer') is not None:
+        matrix=artifact['imputer'].transform(matrix)
+    return matrix
 
 
 def rank_candidates(
@@ -294,7 +305,8 @@ def rank_candidates(
     stanev_path = stanev_path or _default_source_path("data/raw/3dsc/Supercon_data_by_2018_Stanev.csv")
     supercon2_path = supercon2_path or _default_source_path("data/raw/supercon2.csv", "data/raw/supercon2/SuperCon2.csv")
     supermat_path = supermat_path or _default_source_path("data/raw/SuperMat-2.0.csv", "data/raw/supermat/SuperMat-2.0.csv")
-    candidates = enumerate_substitution_candidates(records, family=family, max_candidates=max_candidates)
+    chemistry_counts = {}
+    candidates = enumerate_substitution_candidates(records, family=family, max_candidates=max_candidates, drop_counts=chemistry_counts)
     matches, mp_status, mp_note = _mp_matches([candidate["formula"] for candidate in candidates], api_key or os.environ.get("MP_API_KEY"))
     measurement_evidence, measurement_source_status = load_measurement_evidence(
         uci_path=uci_path,
@@ -349,7 +361,9 @@ def rank_candidates(
         report = {
             "status": "blocked_no_plausible_candidates",
             "dataset_sha256": digest,
-            "enumerated_candidate_count": len(candidates),
+            "chemistry_filter_counts": chemistry_counts,
+            "search_limits": {"max_bases_per_family": 40, "max_candidates": max_candidates},
+        "enumerated_candidate_count": len(candidates),
             "rejected_hull_count": rejected_hull,
             "rejected_nonmetal_count": rejected_nonmetal,
             "mp_status": mp_status,
@@ -366,19 +380,20 @@ def rank_candidates(
         record_id=hashlib.sha256(f"candidate|{item['chemical_family']}|{item['formula']}".encode()).hexdigest()[:24],
         source_db="3dsc",
         formula=item["formula"],
-        tc_kelvin=0.0,
+        tc_kelvin=None,  # Feature-only holder: the candidate has no measured Tc.
         applied_pressure_gpa=ATMOSPHERIC_PRESSURE_GPA,
         measurement_method="unknown",
         sample_form="unknown",
         doi="candidate-hypothesis",
         review_status="pending",
         provenance="curated",
-        is_synthetic=0,
+        is_synthetic=1,  # Never eligible for empirical fitting.
         chemical_family=item["chemical_family"],
         mp_id=item.get("mp_id", ""),
         energy_above_hull=item.get("energy_above_hull"),
     ) for item in screened]
-    feature_matrix, _, _ = build_features(candidate_records, hull_fill=hull_fill)
+    feature_matrix, current_feature_names, _ = build_features(candidate_records, hull_fill=hull_fill)
+    feature_matrix = model_feature_matrix(feature_matrix, current_feature_names, artifact)
     tree_predictions = np.asarray([tree.predict(feature_matrix) for tree in model.estimators_])
     predicted = tree_predictions.mean(axis=0)
     uncertainty = tree_predictions.std(axis=0)
@@ -395,7 +410,8 @@ def rank_candidates(
             novelty=1.0,
             provenance=("model:pressure-aware-random-forest", "status:hypothesis"),
         ))
-    proposals = propose_batch(hypotheses, batch_size=batch_size)
+    # Select the confidence tier before applying the requested output limit.
+    proposals = propose_batch(hypotheses, batch_size=len(hypotheses))
     if family is not None:
         family_proposals: list[CandidateProposal] = []
         for item, hypothesis in zip(screened, hypotheses):
@@ -413,7 +429,8 @@ def rank_candidates(
     def group_order(proposal: CandidateProposal) -> tuple[int, float, str]:
         item = lookup.get(proposal.candidate.candidate_id, {})
         order = {"new": 0, "known": 1, "unknown": 2}.get(item.get("known_status", "unknown"), 2)
-        return order, -proposal.score, proposal.candidate.candidate_id
+        low = proposal.candidate.tc_uncertainty_k >= proposal.candidate.predicted_tc_k
+        return (int(low)*10+order), -proposal.score, proposal.candidate.candidate_id
 
     lookup = {hypothesis.candidate_id: item for hypothesis, item in zip(hypotheses, screened)}
     proposals = sorted(proposals, key=group_order)[:batch_size]
@@ -422,6 +439,9 @@ def rank_candidates(
     for rank, proposal in enumerate(proposals, start=1):
         item = lookup[proposal.candidate.candidate_id]
         reasons = list(proposal.reasons)
+        reasons.append(item.get("chemistry_reason", "necessary chemistry screens passed; stability not established"))
+        low = proposal.candidate.tc_uncertainty_k >= proposal.candidate.predicted_tc_k
+        reasons.append("low confidence: not ranked for review" if low else "confident: tree spread below predicted Tc; calibration still required")
         if item.get("energy_above_hull") is None:
             reasons.append("Materials Project hull energy is unknown; stability review is required")
         else:
@@ -455,9 +475,17 @@ def rank_candidates(
         group = item["known_status"]
         group_ranks[group] += 1
         ranked_rows.append({
-            "rank": rank,
+            "rank": "" if low else rank,
+            "confidence_group": "low_confidence" if low else "confident",
+            "review_rank": "" if low else rank,
             "candidate_id": proposal.candidate.candidate_id,
             "formula": proposal.candidate.composition,
+            "parent_record_id": item.get("parent_record_id", ""),
+            "parent_formula": item.get("parent_formula", ""),
+            "substitution": item.get("substitution", ""),
+            "parent_mp_id": item.get("parent_mp_id", ""),
+            "parent_energy_above_hull": item.get("parent_energy_above_hull"),
+            "parent_property_role": "reference_parent_proxy_not_candidate",
             "predicted_tc_kelvin": f"{proposal.candidate.predicted_tc_k:.8g}",
             "uncertainty_k": f"{proposal.candidate.tc_uncertainty_k:.8g}",
             "chemical_family": item["chemical_family"],
@@ -504,11 +532,16 @@ def rank_candidates(
         "dataset_sha256": digest,
         "model": str(model_path),
         "model_dataset_sha256": artifact.get("dataset_sha256", digest) if isinstance(artifact, dict) else digest,
+        "chemistry_filter_counts": chemistry_counts,
+            "search_limits": {"max_bases_per_family": 40, "max_candidates": max_candidates},
         "enumerated_candidate_count": len(candidates),
         "rejected_hull_count": rejected_hull,
         "rejected_nonmetal_count": rejected_nonmetal,
         "screened_candidate_count": len(screened),
-        "ranked_count": len(proposals),
+        "ranked_count": len(proposals),  # Legacy total-output field.
+        "written_count": len(ranked_rows),
+        "review_ranked_count": sum(row["review_rank"] != "" for row in ranked_rows),
+        "low_confidence_count": sum(row["confidence_group"] == "low_confidence" for row in ranked_rows),
         "mp_status": mp_status,
         "mp_note": mp_note,
         "hull_cutoff_ev_per_atom": HULL_CUTOFF_EV_PER_ATOM,

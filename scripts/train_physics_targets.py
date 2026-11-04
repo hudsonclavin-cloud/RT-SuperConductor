@@ -174,13 +174,18 @@ def build_characteristics(
         total_atoms = sum(float(value) for value in amounts.values())
         lewis_avg = sum(float(amounts[element]) * lewis_values[element] for element in amounts) / total_atoms
         mp = mp_by_jid.get(str(source["jid"]), {})
+        generated=source.get('is_generated_candidate') in (True,1,'True','true','1') or str(source.get('jid','')).startswith('candidate-')
+        # Even accidentally copied parent labels must not masquerade as new calculations.
+        lam_value=None if generated else _float_or_none(source.get('lamb'))
+        omega_value=None if generated else _float_or_none(source.get('wlog'))
         row: dict[str, Any] = {
             "jid": source["jid"], "formula": formula, "source_dataset_doi": DATASET_DOI,
             "source_dataset_license": "CC BY 4.0", "source_stability": source.get("stability"),
-            "lambda": float(source["lamb"]), "omega_log_k": float(source["wlog"]),
-            "source_tc_k": _float_or_none(source.get("Tc")), "allen_dynes_tc_mu0p1_k": allen_dynes_tc_k(
-                float(source["lamb"]), float(source["wlog"])
-            ),
+            "lambda": lam_value, "omega_log_k": omega_value, "is_generated_candidate": generated,
+            "source_linkage_role": "parent_prototype_reference" if generated else "computed_reference",
+            "source_tc_k": None if generated else _float_or_none(source.get("Tc")), "allen_dynes_tc_mu0p1_k": allen_dynes_tc_k(
+                lam_value, omega_value
+            ) if lam_value is not None and omega_value is not None else None,
             "source_pressure": source.get("press"), "structure_density_g_cm3": structure_density,
             "hydrogen_fraction": h_fraction, "light_element_fraction_z_le_10": light_fraction,
             **_jarvis_bond_features(source["atoms"]),
@@ -237,11 +242,18 @@ def _make_matrix(rows: list[dict[str, Any]], feature_names: list[str]) -> np.nda
                         for name in feature_names] for row in rows], dtype=float)
 
 
+def assert_reference_targets(rows):
+    for row in rows:
+        if row.get('is_generated_candidate') in (True,1,'True','true','1') or str(row.get('jid','')).startswith('candidate-') or _float_or_none(row.get('lambda')) is None or _float_or_none(row.get('omega_log_k')) is None or float(row.get('lambda') or 0)<=0 or float(row.get('omega_log_k') or 0)<=0:
+            raise ValueError('Reference EPC targets required; generated or unlabeled hypotheses cannot train or evaluate an empirical target model')
+
+
 def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str], n_splits: int = 5) -> dict[str, Any]:
     """Group-held-out ablation for direct Tc baseline and lambda/wlog physics model."""
 
     from sklearn.ensemble import RandomForestRegressor
 
+    assert_reference_targets(rows)
     labels_lam = np.asarray([float(row["lambda"]) for row in rows])
     labels_wlog = np.asarray([float(row["omega_log_k"]) for row in rows])
     labels_tc = np.asarray([float(row["allen_dynes_tc_mu0p1_k"]) for row in rows])
@@ -326,6 +338,7 @@ def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str],
 
 
 def fit_physics_models(rows: list[dict[str, Any]], feature_names: list[str]) -> tuple[dict[str, Any], dict[str, Any]]:
+    assert_reference_targets(rows)
     X = _make_matrix(rows, feature_names)
     imputer = SimpleImputer(strategy="median", add_indicator=True)
     X_fit = imputer.fit_transform(X)
