@@ -143,11 +143,11 @@ def _text_bool(value: bool | None) -> str:
 def enumerate_substitution_candidates(
     records: list[HarmonizedRecord], *, family: str | None = None,
     max_bases_per_family: int = 40, max_candidates: int = 3000,
-    drop_counts: dict | None = None,
+    drop_counts: dict | None = None, structure_index_path: Path | None = None,
 ) -> list[dict[str, str]]:
-    from chemistry_policy import substitution_rejection
+    from chemistry_policy import substitution_rejection, uniform_site_coordination
     from collections import Counter
-    counts=Counter({key:0 for key in ('considered','hydrogen','metal_nonmetal_swap','group_or_oxidation_mismatch','insulating_parent','ionic_charge_imbalance','invalid_formula','known_formula','duplicate','accepted')});by_family=defaultdict(list);observed={r.formula for r in records}
+    counts=Counter({key:0 for key in ('considered','hydrogen','family_defining_element','active_layer_element','site_role_mismatch','no_common_oxidation_state','ionic_radii_unavailable','ionic_radius_mismatch','oxide_anion_row_swap','insulating_parent','ionic_charge_imbalance','invalid_formula','known_formula','duplicate','accepted')});by_family=defaultdict(list);observed={r.formula for r in records}
     feature_path=ROOT/'data/processed/structure_features.csv'
     gaps={}
     if feature_path.is_file():
@@ -157,6 +157,13 @@ def enumerate_substitution_candidates(
                     value=float(r['band_gap_2'])
                     if np.isfinite(value):gaps[r['record_id']]=value
                 except (KeyError,ValueError):pass
+    structure_index = {}
+    index_candidates = [structure_index_path] if structure_index_path else []
+    index_candidates.extend(ROOT / value for value in ('data/processed/3dsc-structure-index.csv', 'data/processed/active-learning/3dsc-structure-index.csv', 'data/processed/continuous-training/3dsc-structure-index.csv', 'data/processed/structure-index.csv'))
+    index_path = next((path for path in index_candidates if path and path.is_file()), None)
+    if index_path:
+        with index_path.open(newline='') as handle:
+            structure_index = {row['record_id']:row['cif_path'] for row in csv.DictReader(handle)}
     for record in select_training_records(records):
         if family is None or record.chemical_family==family:by_family[record.chemical_family].append(record)
     if max_candidates < 1 or max_bases_per_family < 1:raise ValueError("Candidate and parent limits must be positive")
@@ -172,13 +179,16 @@ def enumerate_substitution_candidates(
                     counts['considered']+=1
                     formula=_candidate_formula(_elements(r.formula),old,new)
                     if not formula:counts['invalid_formula']+=1;continue
-                    reason=substitution_rejection(old,new,r.formula,formula,gaps.get(r.record_id))
+                    cif_path=structure_index.get(r.record_id)
+                    if cif_path and not Path(cif_path).is_absolute(): cif_path=str(ROOT / cif_path)
+                    cn=uniform_site_coordination(str(cif_path),old) if cif_path and Path(cif_path).is_file() else None
+                    reason=substitution_rejection(old,new,r.formula,formula,gaps.get(r.record_id),family=fam,coordination_number=cn)
                     if reason:counts[reason]+=1;continue
                     if formula in observed:counts['known_formula']+=1;continue
                     key=(fam,formula)
                     if key in candidates:counts['duplicate']+=1;continue
                     candidates[key]={'formula':formula,'chemical_family':fam,'parent_record_id':r.record_id,'parent_formula':r.formula,'substitution':old+'->'+new,'parent_mp_id':r.mp_id,'parent_energy_above_hull':r.energy_above_hull,
-                       'chemistry_reason':f'{old}->{new}; H unchanged; same metal class; same group or overlapping common oxidation states; ionic charge balance passed when applicable; parent gap={gaps.get(r.record_id,"unknown")} eV'}
+                       'chemistry_reason':f'{old}->{new}; family-defining/active-layer elements preserved; cation/anion role retained; common oxidation state and Shannon-radius mismatch <=15% checked at coordination={cn or "unavailable"}; ionic charge balance passed when applicable; parent reference gap={gaps.get(r.record_id,"unknown")} eV'}
                     counts['accepted']+=1
                     if len(candidates)>=max_candidates:break
                 if len(candidates)>=max_candidates:break
@@ -267,6 +277,7 @@ def rank_candidates(
     supermat_path: Path | None = None,
     validation_output_path: Path | None = None,
     hypotheses_output_path: Path | None = None,
+    structure_index_path: Path | None = None,
 ) -> dict[str, Any]:
     if family is not None:
         family_slug = "".join(character.lower() if character.isalnum() else "_" for character in family).strip("_")
@@ -306,7 +317,7 @@ def rank_candidates(
     supercon2_path = supercon2_path or _default_source_path("data/raw/supercon2.csv", "data/raw/supercon2/SuperCon2.csv")
     supermat_path = supermat_path or _default_source_path("data/raw/SuperMat-2.0.csv", "data/raw/supermat/SuperMat-2.0.csv")
     chemistry_counts = {}
-    candidates = enumerate_substitution_candidates(records, family=family, max_candidates=max_candidates, drop_counts=chemistry_counts)
+    candidates = enumerate_substitution_candidates(records, family=family, max_candidates=max_candidates, drop_counts=chemistry_counts, structure_index_path=structure_index_path)
     matches, mp_status, mp_note = _mp_matches([candidate["formula"] for candidate in candidates], api_key or os.environ.get("MP_API_KEY"))
     measurement_evidence, measurement_source_status = load_measurement_evidence(
         uci_path=uci_path,
@@ -586,6 +597,7 @@ def main() -> int:
     parser.add_argument("--supermat", type=Path, help="optional SuperMat export for database-existence flags")
     parser.add_argument("--validation-output", type=Path, help="family-mode CSV for exact measured compounds")
     parser.add_argument("--hypotheses-output", type=Path, help="family-mode CSV for candidates without an exact measured compound")
+    parser.add_argument("--structure-index", type=Path, help="optional record_id to CIF path table for site coordination checks")
     parser.add_argument("--api-key", default=os.environ.get("MP_API_KEY"))
     args = parser.parse_args()
     report = rank_candidates(
@@ -603,6 +615,7 @@ def main() -> int:
         supermat_path=args.supermat,
         validation_output_path=args.validation_output,
         hypotheses_output_path=args.hypotheses_output,
+        structure_index_path=args.structure_index,
     )
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0

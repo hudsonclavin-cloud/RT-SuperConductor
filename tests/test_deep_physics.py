@@ -274,8 +274,9 @@ class ChemistryPolicyTests(unittest.TestCase):
     def test_hydrogen_metal_class_valence_and_parent_gap_rules(self):
         from chemistry_policy import substitution_rejection as reject
         self.assertEqual(reject('H','Li','HCl','LiCl'),'hydrogen')
-        self.assertEqual(reject('Na','Cl','NaCl','Cl2'),'metal_nonmetal_swap')
-        self.assertEqual(reject('Na','Mg','NaCl','MgCl'),'group_or_oxidation_mismatch')
+        self.assertEqual(reject('Na','Cl','NaCl','Cl2'),'site_role_mismatch')
+        self.assertEqual(reject('Na','Mg','NaCl','MgCl'),'no_common_oxidation_state')
+        # These counters distinguish valence, coordination/radius, and layer-role rejection.
         self.assertEqual(reject('Na','K','NaCl','KCl',.2),'insulating_parent')
         self.assertEqual(reject('Na','K','NaCl','KCl2'),'ionic_charge_imbalance')
         self.assertIsNone(reject('Nb','Ta','Nb3Sn','Ta3Sn'))

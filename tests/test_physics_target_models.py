@@ -67,10 +67,10 @@ class PhysicsTargetModelTests(unittest.TestCase):
     def test_search_substitutions_keep_parent_stability_as_a_proxy(self):
         rows = [
             _record("JVASP-KCl", ["K", "Cl"]),
-            _record("JVASP-Na", ["Na"]),
+            _record("JVASP-Rb", ["Rb"]),
         ]
         candidates = generate_substitutions(rows)
-        candidate = next(row for row in candidates if row["formula"] == "NaCl")
+        candidate = next(row for row in candidates if row["formula"] == "RbCl")
         self.assertEqual(candidate["prototype_formula"], "KCl")
         self.assertEqual(candidate["source_stability_proxy"], "stable")
         self.assertEqual(candidate["structure_status"], "unrelaxed parent-prototype substitution")

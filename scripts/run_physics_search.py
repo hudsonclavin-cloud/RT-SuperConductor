@@ -108,6 +108,13 @@ def generate_substitutions(
         "accepted": 0,
         "dropped_group_or_oxidation_mismatch": 0,
         "dropped_insulating_parent": 0,
+        "dropped_family_defining_element": 0,
+        "dropped_active_layer_element": 0,
+        "dropped_site_role_mismatch": 0,
+        "dropped_no_common_oxidation_state": 0,
+        "dropped_ionic_radii_unavailable": 0,
+        "dropped_ionic_radius_mismatch": 0,
+        "dropped_oxide_anion_row_swap": 0,
         "dropped_ionic_charge_imbalance": 0,
     }
     prototypes = sorted(rows, key=lambda row: (str(row.get("stability")), str(row.get("jid"))))[:max_prototypes]
@@ -136,7 +143,7 @@ def generate_substitutions(
                 if formula in seen:
                     counts["dropped_duplicate_formula"] += 1
                     continue
-                reason = substitution_rejection(source_element, replacement, _formula_and_structure(prototype)[0], formula, prototype.get("band_gap", prototype.get("bandgap")))
+                reason = substitution_rejection(source_element, replacement, _formula_and_structure(prototype)[0], formula, prototype.get("band_gap", prototype.get("bandgap")), family=prototype.get("chemical_family"))
                 if reason:
                     counts["dropped_"+reason] = counts.get("dropped_"+reason, 0) + 1
                     if reason == 'ionic_charge_imbalance':counts["dropped_no_common_oxidation_state_balance"] += 1
