@@ -1,3 +1,13 @@
+## Current physics-feature study
+
+The current research target is **273.15–298.15 K (0–25 °C) at 1 atm**, or below a justified engineering pressure ceiling. Predictions remain hypotheses. The completed comparison uses **5,773 3DSC records/CIFs**: the formula baseline achieved **10.4523 K** cross-family MAE versus **16.1169 K** for a mean predictor; the tested frozen, fine-tuned and scratch graph-encoder pilots did not beat it. Reference DOS/orbital features are available for **5,243 rows**. In the completed Phase 3.5 ablation, all scalar physical groups scored **10.4464 K** and the orbital group alone **10.6626 K**; the negligible global gain does not establish physical understanding. The campaign prepared **60 hypotheses**: 28 ordered inputs completed diagnostic ML phonons (20 imaginary-mode flags, 8 below-threshold-free), and 32 remain blocked by occupational disorder. Stable Al also triggered this ML screen, so these are not validated stability verdicts. The uncertainty audit found 14/1,057 physics-derived held-out extrapolations above the training maximum; only one corresponding DFT reference target also exceeded it. No room-temperature or experimental discovery is claimed.
+
+See the [one-page study brief](docs/physics-features-deep-one-page.md), [full modeling reports](docs/modeling.md), [required checklist](docs/physics-features-deep-checklist.md), and [three proposed next tests](docs/next-experiments.md). Unknown measurement pressure is not an ambient-pressure result; DFT magnetic labels, shell proxies, ML phonons and experimental evidence have different meanings. Rerunning unchanged training data is a reproducibility check, not a new learning cycle.
+
+The earlier project overview below is retained. Its older temperature wording and pipeline descriptions should be read alongside the current target and study reports above.
+
+---
+
 # RT-SuperConductor
 
 RT-SuperConductor is an early-stage research software project for proposing and

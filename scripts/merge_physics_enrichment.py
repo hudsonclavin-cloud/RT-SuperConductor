@@ -34,6 +34,11 @@ def merge(base, enrichment, output, reference_ids=None):
             actual = new.get("reference_mp_id", "") or ""
             if actual != expected:
                 raise ValueError("Reference MP ID mismatch for " + row["record_id"])
+        # Current API MVC lookups have produced unrelated MP compounds. Raw
+        # audit artifacts must not turn those unresolved legacy IDs into data.
+        numeric_properties = ("mp_bulk_modulus_gpa", "mp_dos_ef_states_ev_cell", "orbital_s_fraction", "orbital_p_fraction", "orbital_d_fraction", "orbital_f_fraction")
+        if str(new.get("reference_mp_id", "")).startswith("mvc-") and any(new.get(name) not in (None, "") for name in numeric_properties):
+            raise ValueError("Unresolved MVC reference has unvalidated numeric properties: " + row["record_id"])
         for name in properties:
             row[name] = new.get(name, "")
     output.parent.mkdir(parents=True, exist_ok=True)

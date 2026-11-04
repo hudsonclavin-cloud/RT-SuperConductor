@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Paired feature/encoder evaluations on fixed family and elemental-system folds."""
-import argparse,csv,json,sys,warnings,hashlib
+import argparse,csv,json,sys,warnings,hashlib,inspect,platform
+from importlib import metadata
 from pathlib import Path
 import numpy as np
 from scipy.stats import spearmanr
@@ -13,6 +14,34 @@ from rt_superconductor.harmonized import load_harmonized
 from train_pressure_aware import build_features,select_training_records,elemental_system_signature
 from deep_physics_features import assert_safe,number
 FAMILIES=('Ferrites','Cuprates','Other','Oxides')
+EVALUATION_PROTOCOL='group-kfold5-rf150-clf100-mp-embargo-v2'
+
+def software_versions():
+    versions={'python':platform.python_version()}
+    for package in ('numpy','scipy','scikit-learn','matminer','pymatgen','pymatgen-core','mp-api','torch','chgnet','alignn'):
+        try:versions[package]=metadata.version(package)
+        except metadata.PackageNotFoundError:versions[package]=None
+    return versions
+
+def callback_source_hash(callback):
+    if callback is None:return None
+    try:source=inspect.getsourcefile(callback)
+    except (TypeError,OSError):source=None
+    content=Path(source).read_bytes() if source and Path(source).is_file() else repr(callback).encode()
+    return hashlib.sha256(content).hexdigest()
+
+def evaluation_environment(fold_transform=None,train_selector=None):
+    versions=software_versions()
+    required=('python','numpy','scipy','scikit-learn')+ (('torch','chgnet','alignn') if fold_transform is not None else ())
+    return {'protocol':EVALUATION_PROTOCOL,'software':{key:versions[key] for key in required},'evaluation_code_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'fold_transform_source_sha256':callback_source_hash(fold_transform),'train_selector_source_sha256':callback_source_hash(train_selector)}
+
+def write_study_metadata(input_path,features,records,feature_names,output):
+    with features.open(newline='') as handle:rows=list(csv.DictReader(handle))
+    record_ids=[r.record_id for r in records]
+    record_set=set(record_ids)
+    cif_hashes=sorted((r['record_id'],r.get('cif_sha256','')) for r in rows if r['record_id'] in record_set)
+    result={'protocol':EVALUATION_PROTOCOL,'software':software_versions(),'implementation_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'harmonized_sha256':hashlib.sha256(input_path.read_bytes()).hexdigest(),'feature_table_sha256':hashlib.sha256(features.read_bytes()).hexdigest(),'cohort_rows':len(record_ids),'record_ids_sha256':hashlib.sha256(json.dumps(record_ids).encode()).hexdigest(),'cif_hashes_sha256':hashlib.sha256(json.dumps(cif_hashes).encode()).hexdigest(),'cif_hash_column':'cif_sha256 in feature table','baseline_feature_names':feature_names,'target_units':'K','metric_units':{'mae':'K','mean_mae':'K','spearman':'dimensionless','auc0':'dimensionless','auc77':'dimensionless'},'feature_units':{'electronic':'band gap/Fermi energy eV; DOS states/eV/reference cell','lattice':'lengths angstrom; volume/atom angstrom^3; other ratios/one-hot flags dimensionless','bonding':'formation/Ewald energy eV/atom; density g/cm^3; bulk modulus GPa; coordination counts dimensionless','spin':'DFT reference moment in Bohr magnetons/formula unit and site fractions; not measurements','orbital':'dimensionless s/p/d/f fractions within Ef +/-0.5 eV, including f in normalization','correlation':'GGA+U boolean and neutral-atom mean d-electron count, not solid-state occupations','baseline':'provider-defined Magpie units and formula shell/Lewis descriptors; inspect named features'},'pressure_scope':'Pressure-agnostic Tc benchmark; missing measurement pressure is not ambient evidence','split':'5-fold GroupKFold by family across families and by elemental system within each family; shared MP reference IDs embargoed from training'}
+    output.write_text(json.dumps(result,indent=2)+'\n');return result
 def groups_for(names):
     electronic=[n for n in names if n in ('band_gap_2','efermi_2','mp_dos_ef_states_ev_cell')]
     lattice=[n for n in names if n.startswith(('crystal_system_','point_group__')) or n in ('lata_2','latb_2','latc_2','c_over_a','b_over_a','volume_per_atom','dimensionality','layer_spacing_proxy_angstrom','mom_angle_mean_deg','mom_angle_min_deg','oxide_buckling_proxy_angstrom')]
@@ -30,7 +59,8 @@ def evaluate(X,y,families,systems,names,trees=150,embargo=None,fold_transform=No
     out={}; predictions=[]
     scopes=[('cross-family',np.arange(len(y)),families)]
     scopes += [(f,np.where(families==f)[0],systems[families==f]) for f in FAMILIES if sum(families==f)>=100]
-    signature=hashlib.sha256(X.tobytes()+y.tobytes()+repr((names,trees,families.tolist(),systems.tolist(),None if embargo is None else embargo.tolist())).encode()).hexdigest()
+    environment=evaluation_environment(fold_transform,train_selector)
+    signature=hashlib.sha256(X.tobytes()+y.tobytes()+repr((names,trees,families.tolist(),systems.tolist(),None if embargo is None else embargo.tolist())).encode()+json.dumps(environment,sort_keys=True).encode()).hexdigest()
     if checkpoint_dir is not None:Path(checkpoint_dir).mkdir(parents=True,exist_ok=True)
     for label,idx,group in scopes:
         cache_file=Path(checkpoint_dir)/(label+'.json') if checkpoint_dir is not None else None
@@ -64,7 +94,7 @@ def evaluate(X,y,families,systems,names,trees=150,embargo=None,fold_transform=No
         out[label]=dict(rows=len(idx),mae=float(mean_absolute_error(y[idx],pred)),mean_mae=float(mean_absolute_error(y[idx],mean)),spearman=float(spearmanr(y[idx],pred).statistic),auc0=auc(y[idx]>0,cp[0]),auc77=auc(y[idx]>77,cp[77]),mean_auc0=auc(y[idx]>0,mean_cp[0]),mean_auc77=auc(y[idx]>77,mean_cp[77]),mp_overlap_training_rows_purged=skips,top20=sorted(zip(names,imp.tolist()),key=lambda p:-p[1])[:20])
         print(label,out[label]['mae'],flush=True)
         if cache_file is not None:
-            tmp=cache_file.with_suffix('.tmp');tmp.write_text(json.dumps({'signature':signature,'metrics':out[label],'predictions':predictions[prediction_start:]}));tmp.replace(cache_file)
+            tmp=cache_file.with_suffix('.tmp');tmp.write_text(json.dumps({'signature':signature,'environment':environment,'metrics':out[label],'predictions':predictions[prediction_start:]}));tmp.replace(cache_file)
     return out,predictions
 
 def load(input_path,features):
@@ -99,6 +129,7 @@ def run(input_path,features,output,requested_variants=None):
     for g,(a,ns) in extra.items():variants['plus_'+g]=(np.c_[X,a],names+ns)
     variants['all']=(np.column_stack([X]+[a for a,_ in extra.values()]),names+sum([ns for _,ns in extra.values()],[]))
     output.mkdir(parents=True,exist_ok=True);report={}
+    write_study_metadata(input_path,features,records,names,output/'study_metadata.json')
     (output/'coverage.json').write_text(json.dumps({'rows':len(records),'groups':{g:{'features':ns,'rows_with_any':int(np.isfinite(a).any(axis=1).sum()),'nonmissing_per_feature':dict(zip(ns,np.isfinite(a).sum(axis=0).tolist()))} for g,(a,ns) in extra.items()},'blocked_groups':[g for g in ('electronic','lattice','bonding','spin','correlation','orbital') if g not in extra]},indent=2))
     for variant,(a,ns) in select_variants(variants,requested_variants).items():
         print(variant,flush=True);result,preds=evaluate(a,y,fam,systems,ns,embargo=mp,checkpoint_dir=output/'scope-cache'/variant);report[variant]=result

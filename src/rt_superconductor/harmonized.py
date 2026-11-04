@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import math
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,7 +59,7 @@ class HarmonizedRecord:
     source_db: str
     formula: str
     tc_kelvin: float
-    applied_pressure_gpa: float
+    applied_pressure_gpa: float | None
     measurement_method: str
     sample_form: str
     doi: str
@@ -72,10 +73,11 @@ class HarmonizedRecord:
     spacegroup_number: int | None = None
 
 
-def stable_record_id(source_db: str, formula: str, doi: str, tc_kelvin: float, pressure_gpa: float) -> str:
+def stable_record_id(source_db: str, formula: str, doi: str, tc_kelvin: float, pressure_gpa: float | None) -> str:
     """Create a deterministic row identity from source provenance and values."""
 
-    payload = "|".join((source_db, formula, doi, f"{tc_kelvin:.8g}", f"{pressure_gpa:.8g}"))
+    pressure_token = "unknown" if pressure_gpa is None else f"{pressure_gpa:.8g}"
+    payload = "|".join((source_db, formula, doi, f"{tc_kelvin:.8g}", pressure_token))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]
 
 
@@ -130,9 +132,10 @@ def validate_row(row: dict[str, str], row_number: int) -> HarmonizedRecord:
     assert tc_kelvin is not None
     if not 0 <= tc_kelvin <= 300:
         raise ValueError(f"row {row_number}: tc_kelvin must satisfy 0 <= Tc <= 300 K")
-    pressure = _float(row["applied_pressure_gpa"], "applied_pressure_gpa", row_number)
-    assert pressure is not None
-    if pressure < 0:
+    pressure = _float(row["applied_pressure_gpa"], "applied_pressure_gpa", row_number, allow_blank=True)
+    if pressure is not None and not math.isfinite(pressure):
+        raise ValueError(f"row {row_number}: applied_pressure_gpa must be finite or blank")
+    if pressure is not None and pressure < 0:
         raise ValueError(f"row {row_number}: applied_pressure_gpa cannot be negative")
     synthesis_pressure = _float(
         row.get("synthesis_pressure_gpa", "") or "",
@@ -220,7 +223,7 @@ def write_harmonized(path: Path, records: list[HarmonizedRecord]) -> None:
                 "source_db": record.source_db,
                 "formula": record.formula,
                 "tc_kelvin": f"{record.tc_kelvin:g}",
-                "applied_pressure_gpa": f"{record.applied_pressure_gpa:g}",
+                "applied_pressure_gpa": "" if record.applied_pressure_gpa is None else f"{record.applied_pressure_gpa:g}",
                 "measurement_method": record.measurement_method,
                 "sample_form": record.sample_form,
                 "doi": record.doi,
@@ -275,8 +278,7 @@ def reviewed_to_harmonized(record: ReviewedRecord) -> HarmonizedRecord:
     """Convert a confirmed reviewed row without inventing missing metadata."""
 
     formula = _reviewed_formula(record)
-    if record.pressure_gpa is None:
-        raise ValueError(f"reviewed record {record.record_id!r} has no numeric pressure for the harmonized schema")
+    # Unknown reviewed pressure remains unknown; it cannot enter ambient promotion.
     pressure = record.pressure_gpa
     return HarmonizedRecord(
         record_id=stable_record_id("supercon2", formula, record.source_doi, record.tc_kelvin, pressure),
@@ -315,7 +317,7 @@ def bridge_reviewed_records(harmonized_path: Path, reviewed_path: Path) -> dict[
             _reviewed_formula(record),
             record.source_doi,
             record.tc_kelvin,
-            record.pressure_gpa if record.pressure_gpa is not None else 0.0,
+            record.pressure_gpa,
         ) not in existing_ids
     ]
     if bridged:

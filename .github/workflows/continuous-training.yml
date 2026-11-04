@@ -5,6 +5,11 @@ on:
     - cron: "17 3 * * 0"
   workflow_dispatch:
     inputs:
+      deep_mp_reference_run:
+        description: "Optional successful physical-study run ID to reuse its MP properties"
+        required: false
+        default: ""
+        type: string
       deep_mp_ids:
         description: "Optional comma-separated MP/MVC reference IDs (empty selects all)"
         required: false
@@ -61,20 +66,21 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
-  group: continuous-training-${{ (inputs.deep_ablation || inputs.deep_mp_enrichment) && 'physical-study' || 'regular' }}
+  group: continuous-training-${{ (inputs.deep_ablation || inputs.deep_mp_enrichment || inputs.deep_mp_reference_run) && 'physical-study' || 'regular' }}
   cancel-in-progress: false
 
 jobs:
   train:
-    if: ${{ !inputs.deep_ablation && !inputs.deep_mp_enrichment }}
+    if: ${{ !inputs.deep_ablation && !inputs.deep_mp_enrichment && !inputs.deep_mp_reference_run }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install machine-learning dependencies
@@ -152,7 +158,7 @@ jobs:
             --skip-download
       - name: Upload requested family shortlist
         if: ${{ inputs.family != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: family-shortlist-${{ github.run_id }}
           path: data/processed/continuous-training/family-*/
@@ -190,7 +196,7 @@ jobs:
               handle.write(summary)
           PY
       - name: Upload models, metrics, evidence queues, and shortlist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: continuous-training-${{ github.run_id }}
           path: |
@@ -198,7 +204,7 @@ jobs:
             data/processed/candidates/
 
   deep_physics:
-    if: ${{ inputs.deep_ablation || inputs.deep_mp_enrichment }}
+    if: ${{ inputs.deep_ablation || inputs.deep_mp_enrichment || inputs.deep_mp_reference_run }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -224,8 +230,43 @@ jobs:
           python scripts/deep_physics_features.py --workers 2
           python scripts/deep_physics_checks.py geometry \
             --output data/processed/structure_features_checks.csv
+      - name: Download an existing reference-property table
+        if: ${{ inputs.deep_mp_reference_run }}
+        uses: actions/download-artifact@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.deep_mp_reference_run }}
+          name: physical-study-${{ inputs.deep_mp_reference_run }}
+          path: data/processed/reference-enrichment
+      - name: Merge reference properties with current geometry
+        if: ${{ inputs.deep_mp_reference_run }}
+        run: |
+          feature_table=data/processed/structure_features.csv
+          if [ -f data/processed/structure_features_checks.csv ]; then
+            feature_table=data/processed/structure_features_checks.csv
+          fi
+          python scripts/merge_physics_enrichment.py --base "$feature_table" \
+            --enrichment data/processed/reference-enrichment/structure_features_mp.csv \
+            --output data/processed/structure_features_mp.csv
+      - name: Retain reference-property collection provenance
+        if: ${{ inputs.deep_mp_reference_run }}
+        env:
+          REFERENCE_RUN_ID: ${{ inputs.deep_mp_reference_run }}
+        run: |
+          python - <<'PYREF'
+          import json, os
+          from pathlib import Path
+          source=Path('data/processed/reference-enrichment/structure_features_mp.json')
+          metadata=json.loads(source.read_text())
+          metadata['reused_from_run_id']=os.environ['REFERENCE_RUN_ID']
+          metadata['reuse_note']='Reference properties reused with record/MP identity validation; geometry coverage comes from the current feature table'
+          metadata['queries_this_run']=0
+          metadata.setdefault('reuse_run_chain',[]).append(os.environ['REFERENCE_RUN_ID'])
+          Path('data/processed/structure_features_reference_source.json').write_text(json.dumps(metadata,indent=2))
+          Path('data/processed/structure_features_mp.json').write_text(json.dumps(metadata,indent=2))
+          PYREF
       - name: Enrich reference structures with elasticity and projected DOS
-        if: ${{ inputs.deep_mp_enrichment }}
+        if: ${{ inputs.deep_mp_enrichment && !inputs.deep_mp_reference_run }}
         env:
           MP_API_KEY: ${{ secrets.Materials_Project_API }}
           DEEP_MP_LIMIT: ${{ inputs.deep_mp_limit }}
@@ -255,7 +296,7 @@ jobs:
           files=sorted(set(root.glob('structure_features*.csv')) | set(root.glob('structure_features*.json')) | set(root.glob('deep-ablation/*.json')) | set(root.glob('deep-ablation/*.csv')))
           index=root/'ARTIFACT-INDEX.txt';index.write_text('Paths relative to the downloaded artifact root:\n'+'\n'.join(str(p.relative_to(root)) for p in files)+'\n')
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
-              f.write('Physical-study tables: '+str(len(files))+' files; see ARTIFACT-INDEX.txt in the artifact. Missing or blocked measurements retain explicit statuses.\n')
+              f.write('Physical-study tables: '+str(len(files))+' files; see ARTIFACT-INDEX.txt in the artifact. Missing or blocked properties retain explicit statuses.\n')
           PY
       - uses: actions/upload-artifact@v5
         if: always()

@@ -50,8 +50,10 @@ class ActiveLearningTests(unittest.TestCase):
             self.assertEqual(records[0].tc_kelvin, 0)
             self.assertEqual(records[0].review_status, "curated_database")
             self.assertEqual(records[0].provenance, "curated")
-            self.assertEqual(records[0].applied_pressure_gpa, 0.000101325)
-            self.assertEqual(json.loads(report_path.read_text())["pressure_assumption"]["applied_pressure_gpa"], 0.000101325)
+            self.assertIsNone(records[0].applied_pressure_gpa)  # Missing pressure must not become an ambient observation.
+            self.assertIsNone(json.loads(report_path.read_text())["pressure_assumption"]["applied_pressure_gpa"])
+            self.assertEqual(json.loads(report_path.read_text())["pressure_assumption"]["historical_screening_target_gpa"], 0.000101325)
+            self.assertFalse(json.loads(report_path.read_text())["pressure_assumption"]["is_observed"])
 
     def test_3dsc_import_skips_bad_rows_and_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
