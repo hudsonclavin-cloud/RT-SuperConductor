@@ -24,6 +24,7 @@ on:
       - "scripts/build_review_campaign.py"
       - "scripts/run_three_generation_campaign.py"
       - "scripts/run_active_learning.py"
+      - "scripts/build_untested_pool.py"
       - "scripts/download_training_data.py"
       - "scripts/ingest_3dsc.py"
       - "scripts/rank_candidates.py"
@@ -45,7 +46,7 @@ on:
       - "docs/faculty_research_summary.md"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: continuous-training
@@ -53,7 +54,9 @@ concurrency:
 
 jobs:
   train:
-    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) }}
+    if: >-
+      ${{ !((github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
+            (github.event_name == 'push' && contains(toJSON(github.event.commits), 'scripts/build_untested_pool.py'))) }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -121,7 +124,8 @@ jobs:
             --output data/processed/continuous-training/formula-descriptors.csv
       - name: Build and score existing-but-untested Materials Project pool
         if: >-
-          ${{ github.event_name == 'workflow_dispatch' && inputs.build_untested_pool }}
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
+              (github.event_name == 'push' && contains(toJSON(github.event.commits), 'scripts/build_untested_pool.py')) }}
         env:
           MP_API_KEY: ${{ secrets.Materials_Project_API }}
         run: |
@@ -209,7 +213,9 @@ jobs:
             data/processed/candidates/
 
   untested-pool:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_untested_pool }}
+    if: >-
+      ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
+          (github.event_name == 'push' && contains(toJSON(github.event.commits), 'scripts/build_untested_pool.py')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -295,6 +301,17 @@ jobs:
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
               handle.write("\n".join(lines) + "\n")
           PY
+      - name: Commit shortlist and filter report to docs
+        run: |
+          cp data/processed/continuous-training/untested-pool-shortlist.csv docs/untested-pool-shortlist.csv
+          cp data/processed/continuous-training/untested-pool-report.json docs/untested-pool-report.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/untested-pool-shortlist.csv docs/untested-pool-report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh untested Materials Project shortlist"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
       - name: Upload untested-pool shortlist, counts, and model metrics
         uses: actions/upload-artifact@v4
         with:

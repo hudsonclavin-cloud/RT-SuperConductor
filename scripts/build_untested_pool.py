@@ -704,6 +704,7 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
         "material_id", "formula_pretty", "composition_reduced", "energy_above_hull", "nsites",
         "band_gap", "is_metal", "symmetry", "task_ids",
     ]
+    print("Querying Materials Project summaries for stable materials with at most 20 sites...", flush=True)
     docs = mpr.materials.summary.search(
         energy_above_hull=(0, HULL_MAX_EV_PER_ATOM),
         num_sites=(1, MAX_SITES),
@@ -715,9 +716,15 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
     unmatched, counts = _summary_filter_without_structures(
         docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
     )
+    print(
+        f"Summary query returned {counts['mp_summary_returned']} records; "
+        f"{len(unmatched)} remain after stability, size, summary-metallicity, and known-formula filters.",
+        flush=True,
+    )
     material_ids = sorted({str(_get(doc, "material_id")) for doc in unmatched if _get(doc, "material_id")})
     structures: dict[str, Any] = {}
-    for start in range(0, len(material_ids), 1000):
+    structure_batches = list(range(0, len(material_ids), 1000))
+    for batch_number, start in enumerate(structure_batches, start=1):
         structure_docs = mpr.materials.summary.search(
             material_ids=material_ids[start:start + 1000],
             fields=["material_id", "structure"],
@@ -729,6 +736,11 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
             structure = _get(structure_doc, "structure")
             if material_id and structure is not None:
                 structures[str(material_id)] = structure
+        print(
+            f"Fetched structures batch {batch_number}/{len(structure_batches)}; "
+            f"{len(structures)} structures returned so far.",
+            flush=True,
+        )
     ordered_unmatched = []
     for doc in unmatched:
         material_id = str(_get(doc, "material_id", ""))
@@ -750,6 +762,11 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
     ordered_unmatched = [doc for doc in ordered_unmatched if _ordered(doc)]
     counts["ordered_structures"] = len(ordered_unmatched)
     counts["unmatched_reduced_formula"] = len(ordered_unmatched)
+    print(
+        f"{len(ordered_unmatched)} unmatched candidates have ordered structures; "
+        f"querying {sum(len(_get(doc, 'task_ids') or []) for doc in ordered_unmatched)} calculation task references.",
+        flush=True,
+    )
     task_ids: set[str] = set()
     for doc in ordered_unmatched:
         for task_id in (_get(doc, "task_ids") or []):
@@ -757,13 +774,19 @@ def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[l
                 task_ids.add(str(task_id))
     tasks: list[Any] = []
     ordered_ids = sorted(task_ids)
-    for start in range(0, len(ordered_ids), 100):
+    task_batches = list(range(0, len(ordered_ids), 100))
+    for batch_number, start in enumerate(task_batches, start=1):
         tasks.extend(mpr.materials.tasks.search(
             task_ids=ordered_ids[start:start + 100],
             fields=["task_id", "run_type", "output"],
             all_fields=False,
             chunk_size=100,
         ))
+        print(
+            f"Fetched task batch {batch_number}/{len(task_batches)}; "
+            f"{len(tasks)} task documents returned so far.",
+            flush=True,
+        )
     qualified, method_counts = qualify_by_method(ordered_unmatched, tasks)
     counts.update(method_counts)
     counts["task_ids_queried"] = len(task_ids)
