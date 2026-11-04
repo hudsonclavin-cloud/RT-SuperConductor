@@ -992,7 +992,7 @@ The error-magnitude calibration uses independent approximately 60/20/20 **group*
 
 Calibration helped some within-family/DFT tasks and **worsened** the global family-shift and Oxides tasks. There is no universal calibrated confidence claim. The same-group test labels never fit the model or calibrator. The independent group and reference-ID embargo tests guard this boundary.
 
-The median-imputed 1,057-row EPC audit reproduced physics-derived Tc MAE **5.891809 K. **14 / 1,057** held-out predictions exceeded their fold training maximum. **1** corresponding reference-derived target exceeded that maximum; the other **13** were overpredictions. The true reference-derived exceedance was MoN (JVASP-16897): prediction **29.7750 K**, reference-derived **31.9108 K**, fold maximum **29.0141 K**. These are DFT EPC targets, not experimental superconductors; none is a room-temperature result. All cases, source-reported Tc values and formula assumptions are retained in the JSON.
+The median-imputed 1,057-row EPC audit reproduced physics-derived Tc MAE **5.891809 K**. **14 / 1,057** held-out predictions exceeded their fold training maximum. **1** corresponding reference-derived target exceeded that maximum; the other **13** were overpredictions. The true reference-derived exceedance was MoN (JVASP-16897): prediction **29.7750 K**, reference-derived **31.9108 K**, fold maximum **29.0141 K**. These are DFT EPC targets, not experimental superconductors; none is a room-temperature result. All cases, source-reported Tc values and formula assumptions are retained in the JSON.
 
 Descriptive OOF error-vs-spread plots: [global](uncertainty-calibration.png), [within families](uncertainty-calibration-within-families.png), [physics targets](uncertainty-calibration-physics.png). Dashed lines are MAE=SD reference lines, not calibrated confidence bands. Mean/tree SD pairing is a heuristic, not a joint posterior for λ and ω_log.
 
@@ -1001,3 +1001,56 @@ Descriptive OOF error-vs-spread plots: [global](uncertainty-calibration.png), [w
 The integrated implementation passes **147 unit tests**. New 3DSC imports preserve missing measurement pressure as **unknown**, with the previous 1-atm screening target retained only in historical metadata. Nullable pressure now round-trips through the harmonized schema, stable IDs, and reviewed bridge; repeating an unknown-pressure bridge inserts **1 then 0** records. Unknown pressure enters neither ambient nor high-pressure promotion metrics. Existing reviewed data remain unchanged. A feature-vector test confirms the formula-only deep baseline is identical when the old pressure placeholder is replaced by missing pressure, because pressure is excluded from that study.
 
 The dispatch supports full physical-feature ablation, fresh secret-backed MP enrichment, or identity-checked reuse of an earlier primary MP artifact. Reused artifacts retain standard metadata names so they can themselves be reused; provenance records **0 API queries in the reuse run** and does not claim geometry was recomputed unless that step ran. Version/code/callback fingerprints prevent stale numeric scope-cache reuse. The full integration run is recorded separately below once it returns; all source tables and source uncertainties remain hypotheses or reference calculations, not new DFT or experimental results.
+
+The [primary JARVIS EPC paper](https://www.nature.com/articles/s41524-022-00933-1), opened for this study, reports that its minimum benchmark MAE occurred at μ* = 0.09 and specifies Quantum ESPRESSO/GBRV/PBEsol for main-text EPC results. For Ta, this repository's simplified expression gives **7.3842818793 K** at μ* = 0.09 and **6.8822088869 K** at the project's fixed μ* = 0.1, whereas the stored source Tc is **7.6395091414 K**. Changing μ* alone does not fully reconcile the source value; formula details and remaining assumptions must still be checked, rather than tuning a parameter to a desired answer. Reproduction must still match the reference structure, pseudopotentials and convergence settings.
+
+## Phase 6 — completed full GitHub Actions integration
+
+[Full integration run 41775076764](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/41775076764) **succeeded**, including pinned-source download, all-CIF geometry/oxide features, checked reuse of primary MP properties, all eight ablations, indexing and artifact upload. The deep job ran from 04:45:12 to 05:05:39 UTC (20 min 27 s). Artifact `physical-study-41775076764` contains the feature tables, per-row held-out predictions, coverage, hashes and software versions. The downloaded artifact was checked: **5,773 unique records, 8 variants × 5 scopes, 5,243 orbital rows, 2,757 bulk rows, 14 legacy rows still missing enrichment, 0 new MP API calls**. Held-out indices, labels and fold training maxima match across all eight variants within this run.
+
+This is a **separate versioned CI study**, not an exact numerical reproduction of the local tables above. CI used NumPy 2.5.4, scikit-learn 1.9.1 and pymatgen-core 2026.10.31; the local study used older versions. The cause was reproduced in an isolated environment: scikit-learn 1.9.1 uses stable sorting of group sizes in GroupKFold, whereas local 1.8.0 used the default unstable sort. The isolated CI versions exactly reproduce its five split lists and mean baselines. Cross-family fold assignment is unchanged; within-family assignment changes for 263 Ferrites, 393 Cuprates, 2,695 Other and 172 Oxides rows. The ordered record-ID hash and actual Tc/index maps remain identical. Thus the same requested grouping protocol and RF seeds do not guarantee identical tied-group assignment across library versions. Within-family mean baselines also changed, demonstrating that those local/CI test assignments must not be described as identical. All comparisons in the table below are paired within this CI run. Local graph-model and uncertainty results remain tied to their local splits and must not be compared against CI numbers as a same-split experiment. The full versions, matrices/cohort fingerprints and artifact SHA-256 inventory are in [deep-ci-integration.json](deep-ci-integration.json).
+
+| CI variant | Scope | N | MAE K | Mean MAE K | Spearman | AUC >0 | AUC >77 | Mean AUC >0 | Mean AUC >77 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| baseline | cross-family | 5773 | 10.4351 | 16.1169 | 0.1032 | 0.5792 | — | 0.4575 | 0.0624 |
+| baseline | Ferrites | 517 | 9.3935 | 11.8288 | 0.4699 | 0.7283 | — | 0.5436 | — |
+| baseline | Cuprates | 874 | 21.8801 | 31.6366 | 0.5514 | 0.6864 | 0.8804 | 0.4474 | 0.3740 |
+| baseline | Other | 3529 | 2.9747 | 4.3632 | 0.6584 | 0.8023 | — | 0.4861 | — |
+| baseline | Oxides | 320 | 3.8240 | 5.8405 | 0.5480 | 0.7728 | — | 0.4364 | — |
+| plus_electronic | cross-family | 5773 | 10.5146 | 16.1169 | 0.1131 | 0.5877 | — | 0.4575 | 0.0624 |
+| plus_electronic | Ferrites | 517 | 9.5482 | 11.8288 | 0.4650 | 0.7371 | — | 0.5436 | — |
+| plus_electronic | Cuprates | 874 | 21.9531 | 31.6366 | 0.5483 | 0.6812 | 0.8992 | 0.4474 | 0.3740 |
+| plus_electronic | Other | 3529 | 2.9678 | 4.3632 | 0.6567 | 0.8023 | — | 0.4861 | — |
+| plus_electronic | Oxides | 320 | 3.8185 | 5.8405 | 0.5442 | 0.7637 | — | 0.4364 | — |
+| plus_lattice | cross-family | 5773 | 10.3516 | 16.1169 | 0.1152 | 0.5757 | — | 0.4575 | 0.0624 |
+| plus_lattice | Ferrites | 517 | 9.3497 | 11.8288 | 0.4847 | 0.7276 | — | 0.5436 | — |
+| plus_lattice | Cuprates | 874 | 21.2052 | 31.6366 | 0.5686 | 0.6779 | 0.8977 | 0.4474 | 0.3740 |
+| plus_lattice | Other | 3529 | 3.1579 | 4.3632 | 0.6374 | 0.7991 | — | 0.4861 | — |
+| plus_lattice | Oxides | 320 | 3.8482 | 5.8405 | 0.5386 | 0.7778 | — | 0.4364 | — |
+| plus_bonding | cross-family | 5773 | 10.5124 | 16.1169 | 0.0985 | 0.5766 | — | 0.4575 | 0.0624 |
+| plus_bonding | Ferrites | 517 | 9.4432 | 11.8288 | 0.4909 | 0.7269 | — | 0.5436 | — |
+| plus_bonding | Cuprates | 874 | 20.4852 | 31.6366 | 0.5991 | 0.7073 | 0.8855 | 0.4474 | 0.3740 |
+| plus_bonding | Other | 3529 | 3.0123 | 4.3632 | 0.6437 | 0.8088 | — | 0.4861 | — |
+| plus_bonding | Oxides | 320 | 3.8059 | 5.8405 | 0.5380 | 0.7696 | — | 0.4364 | — |
+| plus_spin | cross-family | 5773 | 10.4088 | 16.1169 | 0.0884 | 0.5780 | — | 0.4575 | 0.0624 |
+| plus_spin | Ferrites | 517 | 9.0264 | 11.8288 | 0.5012 | 0.7398 | — | 0.5436 | — |
+| plus_spin | Cuprates | 874 | 21.9168 | 31.6366 | 0.5458 | 0.6860 | 0.8810 | 0.4474 | 0.3740 |
+| plus_spin | Other | 3529 | 2.9955 | 4.3632 | 0.6587 | 0.8009 | — | 0.4861 | — |
+| plus_spin | Oxides | 320 | 3.8322 | 5.8405 | 0.5547 | 0.7649 | — | 0.4364 | — |
+| plus_correlation | cross-family | 5773 | 10.4062 | 16.1169 | 0.1218 | 0.5763 | — | 0.4575 | 0.0624 |
+| plus_correlation | Ferrites | 517 | 9.4117 | 11.8288 | 0.4720 | 0.7277 | — | 0.5436 | — |
+| plus_correlation | Cuprates | 874 | 22.2424 | 31.6366 | 0.5443 | 0.6831 | 0.8945 | 0.4474 | 0.3740 |
+| plus_correlation | Other | 3529 | 2.9740 | 4.3632 | 0.6592 | 0.7992 | — | 0.4861 | — |
+| plus_correlation | Oxides | 320 | 3.8452 | 5.8405 | 0.5575 | 0.7597 | — | 0.4364 | — |
+| plus_orbital | cross-family | 5773 | 10.6721 | 16.1169 | 0.0567 | 0.5742 | — | 0.4575 | 0.0624 |
+| plus_orbital | Ferrites | 517 | 9.4111 | 11.8288 | 0.4755 | 0.7354 | — | 0.5436 | — |
+| plus_orbital | Cuprates | 874 | 21.6586 | 31.6366 | 0.5573 | 0.6761 | 0.8957 | 0.4474 | 0.3740 |
+| plus_orbital | Other | 3529 | 2.9817 | 4.3632 | 0.6566 | 0.8046 | — | 0.4861 | — |
+| plus_orbital | Oxides | 320 | 3.6366 | 5.8405 | 0.5901 | 0.7671 | — | 0.4364 | — |
+| all | cross-family | 5773 | 10.4474 | 16.1169 | 0.0296 | 0.5778 | — | 0.4575 | 0.0624 |
+| all | Ferrites | 517 | 9.3188 | 11.8288 | 0.4989 | 0.7505 | — | 0.5436 | — |
+| all | Cuprates | 874 | 20.7372 | 31.6366 | 0.5897 | 0.7001 | 0.8990 | 0.4474 | 0.3740 |
+| all | Other | 3529 | 3.0499 | 4.3632 | 0.6456 | 0.8131 | — | 0.4861 | — |
+| all | Oxides | 320 | 3.7322 | 5.8405 | 0.5664 | 0.7661 | — | 0.4364 | — |
+
+CI cross-family MAE changed from **10.4351 K** for the formula baseline to **10.4474 K** with all physical groups; the mean predictor scored **16.1169 K**. The lattice-only addition scored **10.3516 K**, while orbital-only addition scored **10.6721 K**. Within Oxides, orbital features changed MAE from **3.8240 to 3.6366 K**. These small, mixed changes support the same limited conclusion as the local run: the tested additions do not establish an overall discovery advantage. A missing AUC remains an unscoreable one-class/fold task; it is not zero. No ambient-pressure accuracy is claimed because the 3DSC source does not supply measurement pressure.
