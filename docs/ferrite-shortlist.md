@@ -11,6 +11,13 @@ Spearman **0.6803** over **517 rows and 162 elemental systems**. The pooled
 family-held-out model had MAE **10.435 K** versus **16.052 K** for the mean
 predictor; cross-family generalization remains weak.
 
+**Superseded within-family estimate:** this 7.019 K / 0.6803 result did not
+purge duplicate nonempty Materials Project IDs between the training and held-out
+rows. With that shared-MP embargo, the current family-only result is MAE
+**9.4102 K** and Spearman **0.5185**; the global model evaluated on Ferrites
+rows is **8.2882 K / 0.6289**. The old values remain here as provenance, not as
+the current estimate. The cause is reference-structure overlap across folds.
+
 Regenerate the complete cycle from the repository root with:
 
 ```bash
@@ -130,3 +137,8 @@ with **42.09%** improvement. The gate remains `fail` overall because H3S/LaH10
 trend rows and excluded-reference rows are still missing. Materials Project
 remained `degraded_no_mp_api_key`, so these outputs still contain no MP-derived
 hull, band-gap, or metallicity claims.
+
+That promotion-cycle MAE is also an unembargoed historical estimate and is
+superseded for within-family model evaluation by **9.4102 K** after shared-MP
+purging. The promotion-gate record is preserved because it describes the
+historical workflow run; use the embargoed metric for current model claims.

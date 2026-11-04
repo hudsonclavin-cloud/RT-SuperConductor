@@ -11,6 +11,15 @@ and 5×5×5 settings. Al was a false positive at all settings, so the screen is
 [`docs/phonon-screen-validation.md`](docs/phonon-screen-validation.md) for
 false-positive/negative rates and reference conditions.
 
+The within-family results have also been corrected for duplicate Materials
+Project IDs crossing GroupKFold train/test splits. The earlier Ferrites estimate
+(MAE 7.019 K, Spearman 0.6803) and Cuprates estimate (Spearman 0.6828) are
+superseded: the MP-ID-embargoed family-only values are **9.4102 K / 0.5185**
+for Ferrites and **21.5510 K / 0.5541** for Cuprates. The corresponding global
+model Spearman values are **0.6289** and **0.5583**. Shared reference structures
+are now purged from each training fold; see the current metrics in
+[`docs/modeling.md`](docs/modeling.md).
+
 The earlier project overview below is retained. Its older temperature wording and pipeline descriptions should be read alongside the current target and study reports above.
 
 ---

@@ -1,5 +1,32 @@
 # Modeling workflows
 
+## Correction: within-family metrics with shared-MP embargo
+
+Historical within-family results in this document and the linked shortlist
+reports used elemental-system GroupKFold but did not consistently purge a
+training row when its nonempty Materials Project ID also appeared in that
+fold's test rows. Repeated reference structures made those scores optimistic.
+Keep the historical values below for provenance, but read them as
+**superseded** wherever they describe the same within-family task. The current
+comparison purges every training record whose MP ID is shared with that fold's
+test partition.
+
+| Family | Historical unembargoed MAE / Spearman | Current family-only MAE / Spearman | Current global-model MAE / Spearman |
+|---|---:|---:|---:|
+| Ferrites | 7.019 K / 0.6803 | **9.4102 K / 0.5185** | **8.2882 K / 0.6289** |
+| Cuprates | 17.264 K / 0.6828 | **21.5510 K / 0.5541** | **21.6791 K / 0.5583** |
+| Other | 1.908 K / 0.7338 | **3.0781 K / 0.6776** | **3.0798 K / 0.6623** |
+
+The corrected results are the measured family-specific and global rows in the
+mechanism comparison below. They use the same five grouped folds; a wholly
+held-out family remains blocked for a family-only model. The code-level
+`evaluate_within_family` routine now applies the same shared-MP purge and
+records the number of rows removed per fold; `tests/test_within_family_mp_embargo.py`
+checks that the fitted training rows cannot contain an MP ID from that fold's
+test rows. These corrections revise estimates of interpolation within known
+families; they do not alter the cross-family baseline or establish new
+room-temperature extrapolation.
+
 ## Reproducible active-learning cycle
 
 One command downloads the pinned UCI snapshot and the pinned 3DSC Materials
