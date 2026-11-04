@@ -636,49 +636,56 @@ def _write_shortlist(path: Path, rows: list[dict[str, Any]]) -> None:
             writer.writerow({name: row.get(name, "") for name in OUTPUT_COLUMNS})
 
 
-def _fetch_mp(api_key: str, source_index: FormulaSourceIndex) -> tuple[list[tuple[Any, tuple[tuple[str, float], ...]]], dict[str, int]]:
-    if not api_key:
-        raise ValueError("MP_API_KEY is required; this script must run in the configured CI workflow")
-    from mp_api.client import MPRester
+def _fetch_mp_with_client(mpr: Any, source_index: FormulaSourceIndex) -> tuple[list[tuple[Any, tuple[tuple[str, float], ...]]], dict[str, int]]:
+    """Query supported MP summary/task fields and verify method-level metallicity.
 
+    The current Materials Project summary schema exposes ``task_ids`` but not
+    ``es_source_calc_id``. Task IDs are therefore the supported bridge to the
+    calculation run types used below.
+    """
     summary_fields = [
         "material_id", "formula_pretty", "composition_reduced", "energy_above_hull", "nsites",
-        "band_gap", "is_metal", "structure", "symmetry", "task_ids", "es_source_calc_id",
+        "band_gap", "is_metal", "structure", "symmetry", "task_ids",
     ]
-    with MPRester(api_key) as mpr:
-        docs = mpr.materials.summary.search(
-            energy_above_hull=(0, HULL_MAX_EV_PER_ATOM),
-            num_sites=(1, MAX_SITES),
-            deprecated=False,
-            fields=summary_fields,
+    docs = mpr.materials.summary.search(
+        energy_above_hull=(0, HULL_MAX_EV_PER_ATOM),
+        num_sites=(1, MAX_SITES),
+        deprecated=False,
+        fields=summary_fields,
+        all_fields=False,
+        chunk_size=1000,
+    )
+    unmatched, counts = summary_filter_candidates(
+        docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
+    )
+    task_ids: set[str] = set()
+    for doc in unmatched:
+        for task_id in (_get(doc, "task_ids") or []):
+            if task_id:
+                task_ids.add(str(task_id))
+    tasks: list[Any] = []
+    ordered_ids = sorted(task_ids)
+    for start in range(0, len(ordered_ids), 100):
+        tasks.extend(mpr.materials.tasks.search(
+            task_ids=ordered_ids[start:start + 100],
+            fields=["task_id", "run_type", "output"],
             all_fields=False,
-            chunk_size=1000,
-        )
-        unmatched, counts = summary_filter_candidates(
-            docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
-        )
-        task_ids: set[str] = set()
-        for doc in unmatched:
-            for task_id in (_get(doc, "task_ids") or []):
-                if task_id:
-                    task_ids.add(str(task_id))
-            source_task = _get(doc, "es_source_calc_id")
-            if source_task:
-                task_ids.add(str(source_task))
-        tasks: list[Any] = []
-        ordered_ids = sorted(task_ids)
-        for start in range(0, len(ordered_ids), 100):
-            tasks.extend(mpr.materials.tasks.search(
-                task_ids=ordered_ids[start:start + 100],
-                fields=["task_id", "run_type", "output"],
-                all_fields=False,
-                chunk_size=100,
-            ))
+            chunk_size=100,
+        ))
     qualified, method_counts = qualify_by_method(unmatched, tasks)
     counts.update(method_counts)
     counts["task_ids_queried"] = len(task_ids)
     counts["task_documents_returned"] = len(tasks)
     return qualified, counts
+
+
+def _fetch_mp(api_key: str, source_index: FormulaSourceIndex) -> tuple[list[tuple[Any, tuple[tuple[str, float], ...]]], dict[str, int]]:
+    if not api_key:
+        raise ValueError("MP_API_KEY is required; this script must run in the configured CI workflow")
+    from mp_api.client import MPRester
+
+    with MPRester(api_key) as mpr:
+        return _fetch_mp_with_client(mpr, source_index)
 
 
 def build_untested_pool(

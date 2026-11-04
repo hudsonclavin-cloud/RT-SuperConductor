@@ -11,6 +11,7 @@ from build_untested_pool import (  # noqa: E402
     chemistry_policy_flags,
     composition_structure_distance,
     eligible_family_metrics,
+    _fetch_mp_with_client,
     read_formula_source,
     qualify_by_method,
     reduced_formula,
@@ -98,6 +99,34 @@ class UntestedPoolTests(unittest.TestCase):
         self.assertEqual(qualified[0][1], (("GGA+U", 0.0),))
         self.assertEqual(counts["method_qualified_metallic"], 1)
         self.assertEqual(counts["no_supported_metallic_method"], 1)
+
+    def test_mp_fetch_uses_current_supported_summary_fields_and_task_ids(self):
+        class SummaryRoute:
+            def search(self, **kwargs):
+                self.kwargs = kwargs
+                return [_summary("mp-new", "Nb3Sn")]
+
+        class TaskRoute:
+            def search(self, **kwargs):
+                self.kwargs = kwargs
+                return [SimpleNamespace(
+                    task_id="mp-new-task", run_type="GGA+U",
+                    output=SimpleNamespace(bandgap=0.0),
+                )]
+
+        summary = SummaryRoute()
+        tasks = TaskRoute()
+        client = SimpleNamespace(materials=SimpleNamespace(
+            summary=summary, tasks=tasks,
+        ))
+        source_index = SimpleNamespace(formulas=set(), unresolved_element_systems=set())
+
+        qualified, counts = _fetch_mp_with_client(client, source_index)
+
+        self.assertNotIn("es_source_calc_id", summary.kwargs["fields"])
+        self.assertEqual(tasks.kwargs["task_ids"], ["mp-new-task"])
+        self.assertEqual(len(qualified), 1)
+        self.assertEqual(counts["task_ids_queried"], 1)
 
     def test_family_gate_requires_explicit_embargo_and_strictly_more_than_half(self):
         report = {"within_family_evaluation": {"families": {
