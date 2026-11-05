@@ -85,16 +85,22 @@ class UntestedPoolV2Tests(unittest.TestCase):
             ("CoCO3", "carbonate_salt"),
             ("Ni(OH)2", "hydroxide_salt"),
             ("K2CuF4", "alkali_alkaline_earth_transition_metal_fluoride"),
+            ("BaCuO2", "undoped_bacuO2_parent_composition"),
         ):
             with self.subTest(formula=formula):
                 self.assertEqual(untested_pool_composition_rejection(formula), reason)
         self.assertEqual(untested_pool_composition_rejection("CuO"),
                          "binary_transition_metal_oxide_or_halide")
-        # BaCuO2 is rejected when its measured MP DOS fails the mandatory gate.
-        self.assertIsNone(untested_pool_composition_rejection("BaCuO2"))
-        self.assertEqual(untested_pool_candidate_rejection("BaCuO2", 0.1),
+        self.assertEqual(untested_pool_candidate_rejection("BaCuO2", 1.0),
+                         "undoped_bacuO2_parent_composition")
+        self.assertEqual(untested_pool_candidate_rejection("Nb3Sn", 0.1),
                          "dos_ef_le_0.1_states_per_ev_per_atom")
         self.assertIsNone(untested_pool_candidate_rejection("Nb3Sn", 0.10001))
+
+    def test_bacuO2_parent_exclusion_is_reduced_formula_aware(self):
+        self.assertEqual(untested_pool_composition_rejection("Ba2Cu2O4"),
+                         "undoped_bacuO2_parent_composition")
+        self.assertIsNone(untested_pool_composition_rejection("Ba2YCu3O7"))
 
     def test_radioactive_exclusion_includes_named_elements_and_all_heavier(self):
         for formula, symbol in (("TcFe2", "Tc"), ("PmNi2", "Pm"), ("PoFe", "Po"),
@@ -191,9 +197,9 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(diagnostics["error_samples"][0]["message"], "missing public DOS object")
 
     def test_dos_threshold_is_strict(self):
-        self.assertEqual(untested_pool_candidate_rejection("BaCuO2", 0.1),
+        self.assertEqual(untested_pool_candidate_rejection("Nb3Sn", 0.1),
                          "dos_ef_le_0.1_states_per_ev_per_atom")
-        self.assertIsNone(untested_pool_candidate_rejection("BaCuO2", 0.100001))
+        self.assertIsNone(untested_pool_candidate_rejection("Nb3Sn", 0.100001))
 
     def test_family_definers_and_distance_cap_are_enforced(self):
         self.assertEqual(family_definer_rejection("Ferrites", "CoO"), "family_definer_missing:Fe")

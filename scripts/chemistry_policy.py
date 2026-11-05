@@ -207,12 +207,38 @@ def alkali_alkaline_earth_transition_metal_fluoride_rejection(formula: str) -> s
     return None
 
 
+def undoped_alkaline_earth_cuprate_parent_rejection(formula: str) -> str | None:
+    """Exclude the stoichiometric BaCuO2 parent explicitly from the search pool.
+
+    This project-level exclusion is intentionally narrow: BaCuO2 passes the
+    generic MP DOS threshold in some calculations, but is an undoped parent
+    composition rather than a useful untested-candidate proposal. It does not
+    imply an experimental Tc measurement or rule out doped Ba-Cu-O phases.
+    """
+    try:
+        composition = Composition(formula).element_composition
+    except (ValueError, TypeError):
+        return None
+    amounts = {element.symbol: float(amount) for element, amount in composition.items()}
+    if set(amounts) == {"Ba", "Cu", "O"}:
+        scale = amounts["Ba"]
+        if scale > 0 and math.isclose(amounts["Cu"] / scale, 1.0, abs_tol=1e-8) and math.isclose(
+            amounts["O"] / scale, 2.0, abs_tol=1e-8
+        ):
+            return "undoped_bacuO2_parent_composition"
+    return None
+
+
 def untested_pool_composition_rejection(formula: str) -> str | None:
     """Composition exclusions applied before any candidate is scored."""
     excluded = radioactive_elements(formula)
     if excluded:
         return "radioactive_element:" + ";".join(excluded)
-    for check in (polyanion_salt_rejection, alkali_alkaline_earth_transition_metal_fluoride_rejection):
+    for check in (
+        polyanion_salt_rejection,
+        alkali_alkaline_earth_transition_metal_fluoride_rejection,
+        undoped_alkaline_earth_cuprate_parent_rejection,
+    ):
         reason = check(formula)
         if reason:
             return reason
