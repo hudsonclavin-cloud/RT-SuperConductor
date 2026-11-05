@@ -14,15 +14,18 @@ import csv
 from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
+import gzip
 import hashlib
 import json
 import math
 import os
 import re
 import sys
+from datetime import datetime, timezone
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Iterable
 
 import numpy as np
@@ -43,6 +46,7 @@ MIN_DOS_EF_STATES_EV_PER_ATOM = 0.1
 MIN_FAMILY_SPEARMAN = 0.5
 MAX_FAMILY_DISTANCE = 0.3
 DEFAULT_TOP_PER_FAMILY = 30
+MP_CACHE_SCHEMA_VERSION = 1
 OUTPUT_COLUMNS = (
     "rank_within_family", "mp_id", "formula", "predicted_tc_kelvin", "uncertainty_k",
     "conservative_score_tc_minus_sd_k", "chemical_family", "within_family_spearman",
@@ -169,6 +173,257 @@ def load_formula_source_index(paths: dict[str, Path]) -> FormulaSourceIndex:
         "unresolved_element_systems": len(unresolved),
     }
     return FormulaSourceIndex(frozenset(formulas), frozenset(unresolved), stats)
+
+
+def _source_index_fingerprint(source_index: FormulaSourceIndex) -> str:
+    """Stable identity for the exact empirical exports used to filter MP."""
+    payload = {
+        "formulas": sorted(source_index.formulas),
+        "unresolved_element_systems": sorted(sorted(items) for items in source_index.unresolved_element_systems),
+        "source_sha256": {
+            name: details.get("sha256")
+            for name, details in sorted(source_index.stats.items())
+            if name != "combined"
+        },
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _snapshot_jsonable(value: Any) -> Any:
+    """Convert MP/Monty/numpy objects to lossless-enough JSON snapshot values.
+
+    Structures retain their pymatgen MSON dictionaries. DOS curves are stored
+    as their numeric grids. The pool's qualification decisions are also saved,
+    so offline replay never needs to reconstruct an MP DOS class.
+    """
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, np.ndarray):
+        return [_snapshot_jsonable(item) for item in value.tolist()]
+    if isinstance(value, np.generic):
+        return _snapshot_jsonable(value.item())
+    if isinstance(value, (list, tuple, set)):
+        return [_snapshot_jsonable(item) for item in value]
+    if isinstance(value, dict):
+        return {str(key): _snapshot_jsonable(item) for key, item in value.items()}
+    if hasattr(value, "get_densities") and hasattr(value, "energies") and hasattr(value, "efermi"):
+        return {
+            "__snapshot_type__": "dos_curve",
+            "energies": _snapshot_jsonable(np.asarray(value.energies, dtype=float)),
+            "densities": _snapshot_jsonable(np.asarray(value.get_densities(), dtype=float)),
+            "efermi": _snapshot_jsonable(value.efermi),
+        }
+    if hasattr(value, "model_dump"):
+        try:
+            return _snapshot_jsonable(value.model_dump(mode="python"))
+        except TypeError:
+            return _snapshot_jsonable(value.model_dump())
+    if hasattr(value, "as_dict"):
+        return _snapshot_jsonable(value.as_dict())
+    if hasattr(value, "value"):
+        return _snapshot_jsonable(value.value)
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    if hasattr(value, "__dict__"):
+        return _snapshot_jsonable({key: item for key, item in vars(value).items() if not key.startswith("_")})
+    raise TypeError(f"cannot serialize Materials Project snapshot value {type(value).__name__}")
+
+
+def _open_mp_cache(path: Path, mode: str):
+    return gzip.open(path, mode + "t", encoding="utf-8") if path.suffix == ".gz" else path.open(mode, encoding="utf-8")
+
+
+def _write_mp_snapshot(
+    path: Path,
+    source_index: FormulaSourceIndex,
+    *,
+    raw_query_results: dict[str, Any],
+    qualified: list[tuple[Any, dict[str, Any]]],
+    counts: dict[str, int],
+    rejected: dict[str, str],
+    diagnostics: dict[str, Any],
+) -> str:
+    """Write raw MP responses and reusable qualified rows without credentials."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": MP_CACHE_SCHEMA_VERSION,
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "source_index_sha256": _source_index_fingerprint(source_index),
+        "raw_query_results": _snapshot_jsonable(raw_query_results),
+        "qualified_candidates": [
+            {"document": _snapshot_jsonable(doc), "dos_evidence": _snapshot_jsonable(evidence)}
+            for doc, evidence in qualified
+        ],
+        "filter_counts": _snapshot_jsonable(counts),
+        "filter_rejections": _snapshot_jsonable(rejected),
+        "diagnostics": _snapshot_jsonable(diagnostics),
+    }
+    with _open_mp_cache(path, "w") as handle:
+        json.dump(payload, handle, sort_keys=True, separators=(",", ":"), allow_nan=False)
+        handle.write("\n")
+    return _file_sha256(path)
+
+
+class _SnapshotFormulaTaskRoute:
+    """Minimal MP task route backed by captured formula-query responses."""
+    use_document_model = False
+
+    def __init__(self, batches: list[dict[str, Any]]):
+        self.batches = batches
+
+    def search(self, **kwargs: Any) -> list[Any]:
+        requested = kwargs.get("formula", [])
+        if isinstance(requested, str):
+            requested = [requested]
+        wanted = set(requested)
+        results: list[Any] = []
+        seen: set[str] = set()
+        for batch in self.batches:
+            if not wanted.intersection(batch.get("formula", [])):
+                continue
+            for task in batch.get("results", []):
+                task_id = str(_get(task, "task_id", ""))
+                task_formula = str(_get(task, "formula_pretty", ""))
+                if task_id and task_id not in seen and (
+                    not task_formula or reduced_formula(task_formula) in wanted
+                ):
+                    seen.add(task_id)
+                    results.append(task)
+        return results
+
+
+def _snapshot_dos_curve(value: Any) -> Any:
+    if not isinstance(value, dict) or value.get("__snapshot_type__") != "dos_curve":
+        return None
+    energies = np.asarray(value.get("energies", []), dtype=float)
+    densities = np.asarray(value.get("densities", []), dtype=float)
+    return SimpleNamespace(
+        energies=energies,
+        efermi=value.get("efermi"),
+        get_densities=lambda densities=densities: densities,
+    )
+
+
+def _read_mp_snapshot(
+    path: Path,
+    source_index: FormulaSourceIndex,
+) -> tuple[list[tuple[dict[str, Any], dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
+    """Rebuild qualification from captured MP responses without network access."""
+    with _open_mp_cache(path, "r") as handle:
+        payload = json.load(handle)
+    if payload.get("schema_version") != MP_CACHE_SCHEMA_VERSION:
+        raise ValueError(f"unsupported MP cache schema in {path}")
+    expected = _source_index_fingerprint(source_index)
+    if payload.get("source_index_sha256") != expected:
+        raise ValueError("MP cache source-index fingerprint differs from the current database exports")
+    raw_queries = payload.get("raw_query_results", {})
+    docs = raw_queries.get("summary_query", [])
+    unmatched, counts, rejected = _summary_filter_without_structures(
+        docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
+    )
+    structures = {
+        str(_get(doc, "material_id", "")): _get(doc, "structure")
+        for doc in raw_queries.get("structure_query", [])
+        if _get(doc, "material_id") and _get(doc, "structure") is not None
+    }
+    ordered_unmatched: list[dict[str, Any]] = []
+    for doc in unmatched:
+        material_id = str(_get(doc, "material_id", ""))
+        structure = structures.get(material_id)
+        if structure is None:
+            rejected[material_id] = "structure_missing"
+            continue
+        merged_doc = {
+            name: _get(doc, name)
+            for name in (
+                "material_id", "formula_pretty", "composition_reduced", "energy_above_hull",
+                "nsites", "symmetry",
+            )
+        }
+        merged_doc["structure"] = structure
+        if _ordered(merged_doc):
+            ordered_unmatched.append(merged_doc)
+        else:
+            rejected[material_id] = "structure_disordered"
+    material_ids = sorted({str(_get(doc, "material_id")) for doc in unmatched if _get(doc, "material_id")})
+    counts["structure_material_ids_queried"] = len(material_ids)
+    counts["structure_documents_returned"] = len(structures)
+    counts["missing_structure_records"] = len(material_ids) - len(structures)
+    counts["ordered_structures"] = len(ordered_unmatched)
+    counts["ordered_and_source_unmatched"] = len(ordered_unmatched)
+
+    es_docs = list(raw_queries.get("electronic_structure_query", []))
+    fallback_task_refs, fallback_diagnostics = _candidate_dos_task_refs_by_formula(
+        _SnapshotFormulaTaskRoute(raw_queries.get("formula_task_fallback_query", [])),
+        ordered_unmatched,
+        es_docs,
+    )
+    es_docs.extend(
+        {"material_id": material_id, "dos": {"task_ids": task_ids}}
+        for material_id, task_ids in sorted(fallback_task_refs.items())
+    )
+    counts["dos_formula_fallback_materials_missing_refs"] = fallback_diagnostics[
+        "materials_missing_es_task_refs"
+    ]
+    counts["dos_formula_fallback_materials_recovered"] = fallback_diagnostics["materials_recovered"]
+    counts["dos_formula_fallback_task_refs_recovered"] = fallback_diagnostics["task_refs_recovered"]
+    counts["dos_formula_fallback_query_errors"] = sum(fallback_diagnostics["error_counts"].values())
+    counts["dos_formula_fallback_task_documents_returned"] = fallback_diagnostics["task_documents_returned"]
+    counts["dos_formula_fallback_non_static_uniform_tasks_rejected"] = fallback_diagnostics[
+        "non_static_uniform_tasks_rejected"
+    ]
+    counts["dos_formula_fallback_structure_comparisons"] = fallback_diagnostics["structure_comparisons"]
+    counts["dos_formula_fallback_structure_matches"] = fallback_diagnostics["structure_matches"]
+
+    task_ids = sorted({task_id for doc in es_docs for task_id in _electronic_structure_task_ids(doc)})
+    tasks = list(raw_queries.get("task_metadata_query", []))
+    curve_payloads = raw_queries.get("dos_curves", {})
+    dos_cache = {task_id: _snapshot_dos_curve(value) for task_id, value in curve_payloads.items()}
+    fetch_diagnostics = dict(payload.get("diagnostics", {}))
+    fetch_diagnostics["formula_task_reference_fallback"] = fallback_diagnostics
+    qualified, dos_counts, dos_rejected, validation_diagnostics = qualify_by_dos(
+        ordered_unmatched,
+        es_docs,
+        tasks,
+        lambda task_id: dos_cache.get(task_id),
+    )
+    counts.update(dos_counts)
+    counts["dos_task_ids_queried"] = len(task_ids)
+    counts["task_documents_returned"] = len(tasks)
+    fetch_diagnostics["curve_validation_error_counts"] = validation_diagnostics["error_counts"]
+    fetch_diagnostics["curve_validation_error_samples"] = validation_diagnostics["error_samples"]
+    eligible_task_count = fetch_diagnostics.get("eligible_task_ids", len(task_ids))
+    curves_returned = fetch_diagnostics.get("curves_returned", sum(value is not None for value in dos_cache.values()))
+    counts["dos_payload_fetch_failures"] = max(0, int(eligible_task_count) - int(curves_returned))
+    counts["dos_curve_validation_failures"] = sum(validation_diagnostics["error_counts"].values())
+    rejected.update(dos_rejected)
+    counts["source_formula_unmatched"] = len(unmatched)
+    counts["metallic_dos_qualified"] = len(qualified)
+
+    diagnostics = fetch_diagnostics
+    diagnostics["mp_query_cache"] = {
+        "mode": "replayed_offline",
+        "path": str(path),
+        "sha256": _file_sha256(path),
+        "created_at_utc": payload.get("created_at_utc"),
+        "raw_result_counts": {
+            name: len(rows) if isinstance(rows, (list, dict)) else None
+            for name, rows in raw_queries.items()
+        },
+        "capture_qualified_candidates": len(payload.get("qualified_candidates", [])),
+    }
+    return qualified, counts, rejected, diagnostics
 
 
 def _structure(doc: Any) -> Any:
@@ -424,6 +679,7 @@ def _candidate_dos_task_refs_by_formula(
     electronic_structure_docs: list[Any],
     *,
     formula_batch_size: int = 100,
+    raw_task_results: list[Any] | None = None,
 ) -> tuple[dict[str, list[str]], dict[str, Any]]:
     """Recover absent ES task references via formula plus exact structure match.
 
@@ -484,6 +740,8 @@ def _candidate_dos_task_refs_by_formula(
                 })
             continue
         task_docs_returned += len(tasks)
+        if raw_task_results is not None:
+            raw_task_results.append({"formula": batch, "results": tasks})
         for task in tasks:
             task_id = _get(task, "task_id")
             if not task_id:
@@ -686,6 +944,7 @@ def qualify_by_material_level_dos(
     *,
     max_workers: int = 8,
     progress_every: int = 250,
+    dos_curve_cache: dict[str, Any] | None = None,
 ) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
     """Use MP's material-ID DOS endpoint after checking eligible task metadata.
 
@@ -748,6 +1007,9 @@ def qualify_by_material_level_dos(
                 material_id = futures[future]
                 try:
                     dos_by_material[material_id] = future.result()
+                    dos, task_id = dos_by_material[material_id]
+                    if dos_curve_cache is not None and dos is not None and task_id:
+                        dos_curve_cache[str(task_id)] = dos
                 except Exception as exc:
                     error_by_material[material_id] = exc
                 if progress_every > 0 and (index % progress_every == 0 or index == len(futures)):
@@ -1314,6 +1576,8 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
 def _fetch_mp_with_client(
     mpr: Any,
     source_index: FormulaSourceIndex,
+    *,
+    snapshot_capture: dict[str, Any] | None = None,
 ) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
     """Query MP, retain ordered structures, and require static/uniform DOS(Ef)."""
     summary_fields = [
@@ -1329,6 +1593,14 @@ def _fetch_mp_with_client(
         all_fields=False,
         chunk_size=1000,
     )
+    raw_query_results: dict[str, Any] = {
+        "summary_query": docs,
+        "structure_query": [],
+        "electronic_structure_query": [],
+        "formula_task_fallback_query": [],
+        "task_metadata_query": [],
+        "dos_curves": {},
+    }
     unmatched, counts, rejected = _summary_filter_without_structures(
         docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
     )
@@ -1347,6 +1619,7 @@ def _fetch_mp_with_client(
             all_fields=False,
             chunk_size=1000,
         )
+        raw_query_results["structure_query"].extend(structure_docs)
         for structure_doc in structure_docs:
             material_id = _get(structure_doc, "material_id")
             structure = _get(structure_doc, "structure")
@@ -1386,12 +1659,15 @@ def _fetch_mp_with_client(
     for start in range(0, len(material_ids), 500):
         batch_ids = material_ids[start:start + 500]
         if batch_ids:
-            es_docs.extend(_search_electronic_structure_raw(
+            es_batch = _search_electronic_structure_raw(
                 mpr.materials.electronic_structure, batch_ids, chunk_size=500
-            ))
+            )
+            es_docs.extend(es_batch)
+            raw_query_results["electronic_structure_query"].extend(es_batch)
         print(f"Fetched DOS metadata for {min(start + 500, len(material_ids))}/{len(material_ids)} structures...", flush=True)
     fallback_task_refs, fallback_diagnostics = _candidate_dos_task_refs_by_formula(
-        mpr.materials.tasks, ordered_unmatched, es_docs
+        mpr.materials.tasks, ordered_unmatched, es_docs,
+        raw_task_results=raw_query_results["formula_task_fallback_query"],
     )
     # DOS summaries sometimes omit their nested task IDs. Formula lookup only
     # recovers references for the exact candidate MP material ID; it never
@@ -1415,12 +1691,14 @@ def _fetch_mp_with_client(
     dos_task_ids = sorted({task_id for doc in es_docs for task_id in _electronic_structure_task_ids(doc)})
     tasks: list[Any] = []
     for batch_number, start in enumerate(range(0, len(dos_task_ids), 100), start=1):
-        tasks.extend(mpr.materials.tasks.search(
+        task_batch = mpr.materials.tasks.search(
             task_ids=dos_task_ids[start:start + 100],
             fields=["task_id", "run_type", "task_type", "calc_type"],
             all_fields=False,
             chunk_size=100,
-        ))
+        )
+        tasks.extend(task_batch)
+        raw_query_results["task_metadata_query"].extend(task_batch)
         print(
             f"Fetched calculation metadata batch {batch_number}/{math.ceil(len(dos_task_ids) / 100)}; "
             f"{len(tasks)} task documents returned so far.",
@@ -1435,6 +1713,7 @@ def _fetch_mp_with_client(
             es_docs,
             tasks,
             load_material_dos,
+            dos_curve_cache=raw_query_results["dos_curves"],
         )
     dos_fetch_diagnostics = {
         "retrieval_method": "candidate material_id -> eligible static/uniform task_id -> parsed DOS",
@@ -1459,16 +1738,49 @@ def _fetch_mp_with_client(
     rejected.update(dos_rejected)
     counts["source_formula_unmatched"] = len(unmatched)
     counts["metallic_dos_qualified"] = len(qualified)
+    if snapshot_capture is not None:
+        snapshot_capture.update(raw_query_results)
     return qualified, counts, rejected, dos_fetch_diagnostics
 
 
-def _fetch_mp(api_key: str, source_index: FormulaSourceIndex) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
+def _fetch_mp(
+    api_key: str,
+    source_index: FormulaSourceIndex,
+    *,
+    mp_cache_path: Path | None = None,
+) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
+    if mp_cache_path is not None and mp_cache_path.is_file():
+        return _read_mp_snapshot(mp_cache_path, source_index)
     if not api_key:
         raise ValueError("MP_API_KEY is required; this script must run in the configured CI workflow")
     from mp_api.client import MPRester
 
+    raw_query_results: dict[str, Any] = {}
     with MPRester(api_key) as mpr:
-        return _fetch_mp_with_client(mpr, source_index)
+        result = _fetch_mp_with_client(mpr, source_index, snapshot_capture=raw_query_results)
+    if mp_cache_path is not None:
+        qualified, counts, rejected, diagnostics = result
+        cache_sha256 = _write_mp_snapshot(
+            mp_cache_path,
+            source_index,
+            raw_query_results=raw_query_results,
+            qualified=qualified,
+            counts=counts,
+            rejected=rejected,
+            diagnostics=diagnostics,
+        )
+        diagnostics = dict(diagnostics)
+        diagnostics["mp_query_cache"] = {
+            "mode": "captured_online",
+            "path": str(mp_cache_path),
+            "sha256": cache_sha256,
+            "raw_result_counts": {
+                name: len(rows) if isinstance(rows, (list, dict)) else None
+                for name, rows in raw_query_results.items()
+            },
+        }
+        return qualified, counts, rejected, diagnostics
+    return result
 
 
 def build_untested_pool(
@@ -1482,6 +1794,7 @@ def build_untested_pool(
     top_per_family: int = DEFAULT_TOP_PER_FAMILY,
     old_shortlist_path: Path | None = None,
     summary_path: Path | None = None,
+    mp_cache_path: Path | None = None,
 ) -> dict[str, Any]:
     source_index = load_formula_source_index(source_paths)
     pressure_report_path = model_dir / "pressure-aware-report.json"
@@ -1511,7 +1824,8 @@ def build_untested_pool(
 
     old_rows = _read_old_shortlist(old_shortlist_path)
     qualified, filter_counts, filter_rejections, dos_fetch_diagnostics = _fetch_mp(
-        api_key or os.environ.get("MP_API_KEY", ""), source_index
+        api_key or os.environ.get("MP_API_KEY", ""), source_index,
+        mp_cache_path=mp_cache_path,
     )
     scored, score_counts, score_rejections = score_family_candidates(
         qualified, records, eligible, source_index.unresolved_element_systems
@@ -1636,6 +1950,10 @@ def main() -> int:
     parser.add_argument("--stanev", type=Path, default=Path("data/raw/3dsc/Supercon_data_by_2018_Stanev.csv"))
     parser.add_argument("--supercon2", type=Path, default=Path("/tmp/supercon2.csv"))
     parser.add_argument("--supermat", type=Path, default=Path("/tmp/supermat/SuperMat-2.0.csv"))
+    parser.add_argument(
+        "--mp-cache", type=Path,
+        help="gzip JSON snapshot of raw Materials Project queries; write it on online runs and replay it offline when it exists",
+    )
     parser.add_argument("--top-per-family", type=int, default=DEFAULT_TOP_PER_FAMILY)
     args = parser.parse_args()
     paths = {
@@ -1654,6 +1972,7 @@ def main() -> int:
         top_per_family=args.top_per_family,
         old_shortlist_path=args.old_shortlist,
         summary_path=args.summary,
+        mp_cache_path=args.mp_cache,
     )
     print(json.dumps({
         "status": report["status"],

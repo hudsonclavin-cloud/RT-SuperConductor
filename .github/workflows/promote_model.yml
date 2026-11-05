@@ -3,6 +3,8 @@ name: Promote pressure-aware surrogate
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - "data/training/harmonized_supercon.csv"
       - "data/training/reviewed/**"
@@ -15,8 +17,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: promote-pressure-aware-model
-  cancel-in-progress: false
+  group: promote-pressure-aware-model-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   evaluate:
@@ -30,6 +32,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
       - name: Install ML dependencies
         run: python -m pip install --upgrade pip '.[ml]'
       - name: Validate harmonized training schema

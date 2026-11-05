@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from build_untested_pool import (  # noqa: E402
+    FormulaSourceIndex,
     _candidate_record,
     _candidate_dos_task_refs_by_formula,
     _electronic_structure_task_ids,
@@ -18,6 +19,9 @@ from build_untested_pool import (  # noqa: E402
     _task_is_static_or_uniform,
     _render_summary,
     _summary_filter_without_structures,
+    _fetch_mp,
+    _source_index_fingerprint,
+    _write_mp_snapshot,
     composition_structure_distance,
     dos_at_fermi_states_ev_per_atom,
     eligible_family_metrics,
@@ -373,6 +377,60 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertIn("selected task ID is recorded", summary)
         self.assertIn("candidate material_id -> eligible task_id -> parsed DOS", summary)
         self.assertNotIn("task IDs are therefore left blank", summary)
+    def test_mp_snapshot_replays_offline_and_checks_source_fingerprint(self):
+        from pymatgen.core import Lattice, Structure
+
+        source_index = FormulaSourceIndex(
+            formulas=frozenset({"CuO", "FeSe"}),
+            unresolved_element_systems=frozenset({("Fe", "O")}),
+            stats={"3dsc": {"sha256": "source-checksum"}},
+        )
+        structure = Structure(
+            Lattice.cubic(6.0), ["Nb", "Nb", "Nb", "Sn"],
+            [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]],
+        )
+        doc = _summary("mp-123", "Nb3Sn", hull=0.01, sites=4, sg=221)
+        task = SimpleNamespace(
+            task_id="task-static", task_type="Static", calc_type=None, run_type="GGA+U"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            cache_path = Path(directory) / "mp-query-cache.json.gz"
+            _write_mp_snapshot(
+                cache_path,
+                source_index,
+                raw_query_results={
+                    "summary_query": [doc, _summary("mp-rejected", "ThFeAsO")],
+                    "structure_query": [SimpleNamespace(material_id="mp-123", structure=structure)],
+                    "electronic_structure_query": [SimpleNamespace(
+                        material_id="mp-123", dos={"task_id": "task-static"}
+                    )],
+                    "formula_task_fallback_query": [],
+                    "task_metadata_query": [task],
+                    "dos_curves": {"task-static": _Dos(1.68, nsites=4)},
+                },
+                qualified=[(doc, {"dos_ef_states_ev_per_atom": 0.42})],
+                counts={"metallic_dos_qualified": 1},
+                rejected={"mp-rejected": "radioactive_element:Th"},
+                diagnostics={"api_errors": 0},
+            )
+            qualified, counts, rejected, diagnostics = _fetch_mp(
+                "", source_index, mp_cache_path=cache_path
+            )
+            self.assertEqual(qualified[0][0]["material_id"], "mp-123")
+            self.assertAlmostEqual(qualified[0][1]["dos_ef_states_ev_per_atom"], 0.42)
+            self.assertEqual(counts["metallic_dos_qualified"], 1)
+            self.assertEqual(rejected["mp-rejected"], "radioactive_element:Th")
+            self.assertEqual(diagnostics["mp_query_cache"]["mode"], "replayed_offline")
+            self.assertEqual(diagnostics["mp_query_cache"]["raw_result_counts"]["summary_query"], 2)
+
+            changed_sources = FormulaSourceIndex(
+                formulas=frozenset({"CuO"}),
+                unresolved_element_systems=frozenset(),
+                stats={"3dsc": {"sha256": "changed-checksum"}},
+            )
+            self.assertNotEqual(_source_index_fingerprint(source_index), _source_index_fingerprint(changed_sources))
+            with self.assertRaisesRegex(ValueError, "fingerprint differs"):
+                _fetch_mp("", changed_sources, mp_cache_path=cache_path)
 
     def test_main_evaluator_embargoes_shared_mp_ids(self):
         rows = [
