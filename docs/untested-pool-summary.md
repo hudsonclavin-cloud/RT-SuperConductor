@@ -2,7 +2,7 @@
 
 This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a retrieved Materials Project DOS(Ef) above 0.1 states/eV/atom from a task whose task_type or calc_type is Static or Uniform; the functional-only run_type is not used to infer calculation type. Relaxation DOS and band gaps are not substitutes.
 
-Run status: **ready_empty_after_family_gate**. Shortlist size: **0**; eligible families: **3**.
+Run status: **blocked_dos_curve_retrieval**. Shortlist size: **0**; eligible families: **3**.
 
 ## Counts per filter
 
@@ -33,8 +33,13 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 | `dos_qualified_gt_0p1_states_ev_atom` | 0 |
 | `dos_task_ids_queried` | 18988 |
 | `task_documents_returned` | 18988 |
+| `dos_payload_fetch_failures` | 0 |
 | `source_formula_unmatched` | 23965 |
 | `metallic_dos_qualified` | 0 |
+
+## DOS payload retrieval diagnostics
+
+Eligible static/uniform task IDs: 18988; curves returned: 18988; fetch errors by type: `{}`.
 
 ## Family gate and shortlist
 
