@@ -388,12 +388,13 @@ def _candidate_dos_task_refs_by_formula(
     *,
     formula_batch_size: int = 100,
 ) -> tuple[dict[str, list[str]], dict[str, Any]]:
-    """Recover absent ES task references through task formula search.
+    """Recover absent ES task references via formula plus exact structure match.
 
-    Formula search may return tasks for other polymorphs, so each returned
-    task is retained only when its MP ``material_id`` exactly matches the
-    candidate. Results are references only; task type is still validated
-    separately before any DOS payload is fetched.
+    Current Materials Project task documents do not expose ``material_id`` as
+    a searchable field. Formula alone is not a safe identity key, so task
+    results are retained only when their output structure matches the exact
+    candidate structure. Static/uniform task metadata is checked here and
+    again before DOS payload retrieval.
     """
     es_by_material = {
         str(_get(doc, "material_id", "")): doc
@@ -410,14 +411,21 @@ def _candidate_dos_task_refs_by_formula(
             missing[material_id] = candidate
 
     formulas_to_materials: dict[str, set[str]] = defaultdict(set)
+    candidates_by_id = {}
     for material_id, candidate in missing.items():
         formula = _summary_formula(candidate)
-        if formula:
+        if formula and _structure(candidate) is not None:
             formulas_to_materials[formula].add(material_id)
+            candidates_by_id[material_id] = candidate
 
     by_material: dict[str, set[str]] = defaultdict(set)
     errors: Counter[str] = Counter()
     error_samples: list[dict[str, str]] = []
+    task_docs_returned = 0
+    non_static_uniform_tasks_rejected = 0
+    task_structures_missing = 0
+    structure_comparisons = 0
+    structure_matches = 0
     formulas = sorted(formulas_to_materials)
     for start in range(0, len(formulas), max(1, formula_batch_size)):
         batch = formulas[start:start + max(1, formula_batch_size)]
@@ -425,7 +433,7 @@ def _candidate_dos_task_refs_by_formula(
             tasks = _search_tasks_raw(
                 task_route,
                 formula=batch,
-                fields=["task_id", "material_id"],
+                fields=["task_id", "formula_pretty", "task_type", "calc_type", "run_type", "structure"],
                 all_fields=False,
                 chunk_size=100,
             )
@@ -438,11 +446,29 @@ def _candidate_dos_task_refs_by_formula(
                     "formula_batch_size": str(len(batch)),
                 })
             continue
+        task_docs_returned += len(tasks)
         for task in tasks:
-            material_id = str(_get(task, "material_id", ""))
             task_id = _get(task, "task_id")
-            if material_id in missing and task_id:
-                by_material[material_id].add(str(task_id))
+            if not task_id:
+                continue
+            if not _task_is_static_or_uniform(task):
+                non_static_uniform_tasks_rejected += 1
+                continue
+            task_formula = reduced_formula(str(_get(task, "formula_pretty", "")))
+            structure = _structure(task)
+            if structure is None:
+                task_structures_missing += 1
+                continue
+            task_formula = task_formula or reduced_formula(structure.composition.reduced_formula)
+            if not task_formula:
+                continue
+            for material_id in formulas_to_materials.get(task_formula, set()):
+                candidate_structure = _structure(candidates_by_id[material_id])
+                if candidate_structure is not None:
+                    structure_comparisons += 1
+                if candidate_structure is not None and _same_structure(candidate_structure, structure):
+                    structure_matches += 1
+                    by_material[material_id].add(str(task_id))
 
     return (
         {material_id: sorted(task_ids) for material_id, task_ids in sorted(by_material.items())},
@@ -451,10 +477,47 @@ def _candidate_dos_task_refs_by_formula(
             "formula_queries": math.ceil(len(formulas) / max(1, formula_batch_size)),
             "materials_recovered": len(by_material),
             "task_refs_recovered": sum(len(task_ids) for task_ids in by_material.values()),
+            "candidate_formulas_without_structures": sum(
+                1 for material_id in missing if material_id not in candidates_by_id
+            ),
+            "task_documents_returned": task_docs_returned,
+            "non_static_uniform_tasks_rejected": non_static_uniform_tasks_rejected,
+            "task_structures_missing": task_structures_missing,
+            "structure_comparisons": structure_comparisons,
+            "structure_matches": structure_matches,
             "error_counts": dict(sorted(errors.items())),
             "error_samples": error_samples,
         },
     )
+
+
+def _same_structure(left: Any, right: Any) -> bool:
+    """Conservatively match same-phase MP structures while allowing rounding."""
+    try:
+        from pymatgen.analysis.structure_matcher import StructureMatcher
+        from pymatgen.core import Structure
+
+        def as_structure(value: Any):
+            if isinstance(value, Structure):
+                return value
+            if isinstance(value, dict):
+                return Structure.from_dict(value)
+            return None
+
+        left_structure, right_structure = as_structure(left), as_structure(right)
+        if left_structure is None or right_structure is None:
+            return False
+        if len(left_structure) != len(right_structure):
+            return False
+        if left_structure.composition.reduced_formula != right_structure.composition.reduced_formula:
+            return False
+        matcher = StructureMatcher(
+            ltol=0.05, stol=0.1, angle_tol=1.0, primitive_cell=False,
+            scale=False, attempt_supercell=False,
+        )
+        return bool(matcher.fit(left_structure, right_structure))
+    except Exception:
+        return False
 
 
 def dos_at_fermi_states_ev_per_atom(dos: Any, nsites: int | None = None) -> float:
@@ -1039,8 +1102,12 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         lines.append(
             "Formula-based task lookup recovered "
             f"{fallback.get('task_refs_recovered', 0)} task references for "
-            f"{fallback.get('materials_recovered', 0)} exact MP material IDs from "
+            f"{fallback.get('materials_recovered', 0)} exact-structure matches from "
             f"{fallback.get('materials_missing_es_task_refs', 0)} candidates missing DOS references; "
+            f"task documents returned: {fallback.get('task_documents_returned', 0)}; "
+            f"non-static/uniform tasks rejected: {fallback.get('non_static_uniform_tasks_rejected', 0)}; "
+            f"structure comparisons/matches: {fallback.get('structure_comparisons', 0)}/"
+            f"{fallback.get('structure_matches', 0)}; "
             f"lookup errors: `{json.dumps(fallback.get('error_counts', {}), sort_keys=True)}`."
         )
         for sample in fallback.get("error_samples", []):
@@ -1185,6 +1252,12 @@ def _fetch_mp_with_client(
     counts["dos_formula_fallback_materials_recovered"] = fallback_diagnostics["materials_recovered"]
     counts["dos_formula_fallback_task_refs_recovered"] = fallback_diagnostics["task_refs_recovered"]
     counts["dos_formula_fallback_query_errors"] = sum(fallback_diagnostics["error_counts"].values())
+    counts["dos_formula_fallback_task_documents_returned"] = fallback_diagnostics["task_documents_returned"]
+    counts["dos_formula_fallback_non_static_uniform_tasks_rejected"] = fallback_diagnostics[
+        "non_static_uniform_tasks_rejected"
+    ]
+    counts["dos_formula_fallback_structure_comparisons"] = fallback_diagnostics["structure_comparisons"]
+    counts["dos_formula_fallback_structure_matches"] = fallback_diagnostics["structure_matches"]
     dos_task_ids = sorted({task_id for doc in es_docs for task_id in _electronic_structure_task_ids(doc)})
     tasks: list[Any] = []
     for batch_number, start in enumerate(range(0, len(dos_task_ids), 100), start=1):

@@ -36,8 +36,8 @@ from rt_superconductor.harmonized import HarmonizedRecord  # noqa: E402
 from train_pressure_aware import purge_shared_mp_ids  # noqa: E402
 
 
-def _summary(mp_id, formula, *, hull=0.01, sites=2, sg=225):
-    return SimpleNamespace(
+def _summary(mp_id, formula, *, hull=0.01, sites=2, sg=225, structure=None):
+    values = dict(
         material_id=mp_id,
         formula_pretty=formula,
         composition_reduced=None,
@@ -45,6 +45,9 @@ def _summary(mp_id, formula, *, hull=0.01, sites=2, sg=225):
         nsites=sites,
         symmetry=SimpleNamespace(number=sg),
     )
+    if structure is not None:
+        values["structure"] = structure
+    return SimpleNamespace(**values)
 
 
 class _Dos:
@@ -142,15 +145,35 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(calls[0]["fields"], ["material_id", "dos"])
         self.assertEqual(_electronic_structure_task_ids(docs[0]), [])
 
-    def test_formula_task_fallback_matches_exact_mp_material_id(self):
-        candidate = _summary("mp-1", "Nb3Sn")
-        unrelated = {"material_id": "mp-other", "task_id": "wrong-phase-task"}
-        matched = {"material_id": "mp-1", "task_id": "static-task"}
+    def test_formula_task_fallback_requires_same_structure_and_static_task(self):
+        from pymatgen.core import Lattice, Structure
+
+        candidate_structure = Structure(
+            Lattice.cubic(4.0), ["Nb", "Nb", "Nb", "Sn"],
+            [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]],
+        )
+        other_polymorph = Structure(
+            Lattice.cubic(5.0), ["Nb", "Nb", "Nb", "Sn"],
+            [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]],
+        )
+        candidate = _summary("mp-1", "Nb3Sn", structure=candidate_structure)
+        unrelated = {
+            "task_id": "wrong-phase-task", "formula_pretty": "Nb3Sn",
+            "task_type": "Static", "structure": other_polymorph.as_dict(),
+        }
+        matched = {
+            "task_id": "static-task", "formula_pretty": "Nb3Sn",
+            "task_type": "Static", "structure": candidate_structure.as_dict(),
+        }
+        relaxation = {
+            "task_id": "relax-task", "formula_pretty": "Nb3Sn",
+            "task_type": "Structure Optimization", "structure": candidate_structure.as_dict(),
+        }
         calls = []
 
         def search(**kwargs):
             calls.append((kwargs, route.use_document_model))
-            return [matched, unrelated]
+            return [matched, unrelated, relaxation]
 
         route = SimpleNamespace(use_document_model=True, search=search)
         refs, diagnostics = _candidate_dos_task_refs_by_formula(
@@ -159,7 +182,11 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(refs, {"mp-1": ["static-task"]})
         self.assertEqual(diagnostics["materials_missing_es_task_refs"], 1)
         self.assertEqual(diagnostics["task_refs_recovered"], 1)
+        self.assertEqual(diagnostics["non_static_uniform_tasks_rejected"], 1)
+        self.assertEqual(diagnostics["structure_comparisons"], 2)
+        self.assertEqual(diagnostics["structure_matches"], 1)
         self.assertFalse(calls[0][1])
+        self.assertNotIn("material_id", calls[0][0]["fields"])
         self.assertTrue(route.use_document_model)
 
     def test_dos_qualification_rejects_relaxation_even_when_dos_is_high(self):
