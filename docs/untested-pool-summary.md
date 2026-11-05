@@ -2,7 +2,7 @@
 
 This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a retrieved Materials Project DOS(Ef) above 0.1 states/eV/atom from a task whose task_type or calc_type is Static or Uniform; the functional-only run_type is not used to infer calculation type. Relaxation DOS and band gaps are not substitutes.
 
-Run status: **blocked_dos_task_reference_missing**. Shortlist size: **0**; eligible families: **4**.
+Run status: **blocked_dos_curve_retrieval**. Shortlist size: **0**; eligible families: **4**.
 
 ## Counts per filter
 
@@ -24,34 +24,43 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 | `ordered_structures` | 23964 |
 | `ordered_and_source_unmatched` | 23964 |
 | `dos_formula_fallback_materials_missing_refs` | 23964 |
-| `dos_formula_fallback_materials_recovered` | 0 |
-| `dos_formula_fallback_task_refs_recovered` | 0 |
-| `dos_formula_fallback_query_errors` | 217 |
-| `dos_metadata_returned` | 23964 |
-| `dos_task_references` | 0 |
-| `dos_static_or_uniform_tasks` | 0 |
+| `dos_formula_fallback_materials_recovered` | 230 |
+| `dos_formula_fallback_task_refs_recovered` | 1221 |
+| `dos_formula_fallback_query_errors` | 0 |
+| `dos_formula_fallback_task_documents_returned` | 5575 |
+| `dos_formula_fallback_non_static_uniform_tasks_rejected` | 4057 |
+| `dos_formula_fallback_structure_comparisons` | 2162 |
+| `dos_formula_fallback_structure_matches` | 1221 |
+| `dos_metadata_returned` | 24194 |
+| `dos_task_references` | 230 |
+| `dos_static_or_uniform_tasks` | 196 |
 | `dos_non_static_uniform_tasks_rejected` | 0 |
 | `dos_curves_retrieved` | 0 |
 | `dos_missing_task_or_curve` | 23964 |
 | `dos_below_or_equal_0p1_states_ev_atom` | 0 |
 | `dos_qualified_gt_0p1_states_ev_atom` | 0 |
-| `dos_task_ids_queried` | 18987 |
-| `task_documents_returned` | 18987 |
-| `dos_payload_fetch_failures` | 0 |
-| `dos_curve_validation_failures` | 0 |
+| `dos_task_ids_queried` | 19973 |
+| `task_documents_returned` | 19973 |
+| `dos_payload_fetch_failures` | 190 |
+| `dos_curve_validation_failures` | 196 |
 | `source_formula_unmatched` | 23964 |
 | `metallic_dos_qualified` | 0 |
 
 ## DOS payload retrieval diagnostics
 
-Eligible static/uniform task IDs: 0; curves returned: 0; fetch errors by type: `{}`.
-Curve-validation errors by type: `{}`.
-Formula-based task lookup recovered 0 task references for 0 exact MP material IDs from 23964 candidates missing DOS references; lookup errors: `{"MPRestError": 217}`.
-- Formula lookup error: MPRestError — invalid fields requested: ['material_id']. Available fields: ['nsites', 'elements', 'nelements', 'composition', 'composition_reduced', 'formula_pretty', 'formula_anonymous', 'chemsys', 'volume', 'density', 'density_atomic', 'symmetry', 'bat
-- Formula lookup error: MPRestError — invalid fields requested: ['material_id']. Available fields: ['nsites', 'elements', 'nelements', 'composition', 'composition_reduced', 'formula_pretty', 'formula_anonymous', 'chemsys', 'volume', 'density', 'density_atomic', 'symmetry', 'bat
-- Formula lookup error: MPRestError — invalid fields requested: ['material_id']. Available fields: ['nsites', 'elements', 'nelements', 'composition', 'composition_reduced', 'formula_pretty', 'formula_anonymous', 'chemsys', 'volume', 'density', 'density_atomic', 'symmetry', 'bat
-- Formula lookup error: MPRestError — invalid fields requested: ['material_id']. Available fields: ['nsites', 'elements', 'nelements', 'composition', 'composition_reduced', 'formula_pretty', 'formula_anonymous', 'chemsys', 'volume', 'density', 'density_atomic', 'symmetry', 'bat
-- Formula lookup error: MPRestError — invalid fields requested: ['material_id']. Available fields: ['nsites', 'elements', 'nelements', 'composition', 'composition_reduced', 'formula_pretty', 'formula_anonymous', 'chemsys', 'volume', 'density', 'density_atomic', 'symmetry', 'bat
+Eligible static/uniform task IDs: 190; curves returned: 0; fetch errors by type: `{"OSError": 190}`.
+Curve-validation errors by type: `{"ValueError": 196}`.
+Formula-based task lookup recovered 1221 task references for 230 exact-structure matches from 23964 candidates missing DOS references; task documents returned: 5575; non-static/uniform tasks rejected: 4057; structure comparisons/matches: 2162/1221; lookup errors: `{}`.
+- Example `aaahnnas`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahnnas.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahlath`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlath.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahjgzx`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahjgzx.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahlabk`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlabk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahmwlb`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahmwlb`: ValueError  — Materials Project returned no DOS curve
+- Example `aaaibxpa`: ValueError  — Materials Project returned no DOS curve
+- Example `aaaiclfo`: ValueError  — Materials Project returned no DOS curve
+- Example `aaaiebhz`: ValueError  — Materials Project returned no DOS curve
+- Example `aaaicggf`: ValueError  — Materials Project returned no DOS curve
 
 ## Family gate and shortlist
 
