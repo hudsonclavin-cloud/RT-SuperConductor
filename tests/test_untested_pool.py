@@ -17,6 +17,7 @@ from build_untested_pool import (  # noqa: E402
     dos_at_fermi_states_ev_per_atom,
     eligible_family_metrics,
     family_definer_rejection,
+    prefetch_static_dos_curves,
     qualify_by_dos,
     reduced_formula,
     score_family_candidates,
@@ -125,6 +126,26 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual([row[0].material_id for row in qualified], ["mp-static"])
         self.assertEqual(rejected["mp-relax"], "dos_task_not_static_or_uniform")
         self.assertEqual(counts["dos_non_static_uniform_tasks_rejected"], 1)
+
+    def test_dos_prefetch_only_loads_unique_static_or_uniform_tasks(self):
+        es_docs = [
+            SimpleNamespace(material_id="mp-1", dos={"task_id": "static"}),
+            SimpleNamespace(material_id="mp-2", dos={"task_id": "static"}),
+            SimpleNamespace(material_id="mp-3", dos={"task_id": "relax"}),
+        ]
+        tasks = [
+            SimpleNamespace(task_id="static", task_type="Static"),
+            SimpleNamespace(task_id="relax", task_type="Structure Optimization"),
+        ]
+        loaded = []
+
+        def loader(task_id):
+            loaded.append(task_id)
+            return task_id
+
+        cache = prefetch_static_dos_curves(es_docs, tasks, loader, max_workers=2, progress_every=0)
+        self.assertEqual(cache, {"static": "static"})
+        self.assertEqual(loaded, ["static"])
 
     def test_dos_threshold_is_strict(self):
         self.assertEqual(untested_pool_candidate_rejection("BaCuO2", 0.1),

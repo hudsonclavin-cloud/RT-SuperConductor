@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 import hashlib
 import json
@@ -427,6 +428,45 @@ def qualify_by_dos(
             "dos_functional_run_type": str(getattr(selected_run_type, "value", selected_run_type)),
         }))
     return qualified, counts, rejected
+
+
+def prefetch_static_dos_curves(
+    electronic_structure_docs: Iterable[Any],
+    task_docs: Iterable[Any],
+    dos_loader: Any,
+    *,
+    max_workers: int = 8,
+    progress_every: int = 1000,
+) -> dict[str, Any]:
+    """Fetch unique eligible DOS payloads concurrently with a bounded pool.
+
+    MP task metadata is still checked before a DOS request is made. Keeping
+    concurrency bounded avoids serial multi-hour S3 retrievals while remaining
+    gentle on the public-data endpoint.
+    """
+    task_by_id = {str(_get(task, "task_id", "")): task for task in task_docs}
+    task_ids = sorted({
+        task_id
+        for doc in electronic_structure_docs
+        for task_id in _electronic_structure_task_ids(doc)
+        if task_id in task_by_id and _task_is_static_or_uniform(task_by_id[task_id])
+    })
+    results: dict[str, Any] = {}
+    if not task_ids:
+        return results
+    workers = max(1, min(int(max_workers), len(task_ids)))
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {executor.submit(dos_loader, task_id): task_id for task_id in task_ids}
+        for index, future in enumerate(as_completed(futures), start=1):
+            task_id = futures[future]
+            try:
+                results[task_id] = future.result()
+            except Exception:
+                # qualify_by_dos records missing/invalid payloads by material.
+                results[task_id] = None
+            if progress_every > 0 and (index % progress_every == 0 or index == len(task_ids)):
+                print(f"Fetched {index}/{len(task_ids)} eligible DOS curves...", flush=True)
+    return results
 
 
 def _spacegroup_number(doc: Any) -> int | None:
@@ -921,11 +961,16 @@ def _fetch_mp_with_client(
             f"{len(tasks)} task documents returned so far.",
             flush=True,
         )
+    dos_cache = prefetch_static_dos_curves(
+        es_docs,
+        tasks,
+        mpr.materials.electronic_structure_dos.get_dos_from_task_id,
+    )
     qualified, dos_counts, dos_rejected = qualify_by_dos(
         ordered_unmatched,
         es_docs,
         tasks,
-        mpr.materials.electronic_structure_dos.get_dos_from_task_id,
+        lambda task_id: dos_cache.get(task_id),
     )
     counts.update(dos_counts)
     counts["dos_task_ids_queried"] = len(dos_task_ids)
