@@ -15,32 +15,32 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 | `site_count_le_20` | 30358 |
 | `formula_unparseable` | 0 |
 | `formula_matches_known_superconductor_source` | 2764 |
-| `ambiguous_formula_source_system_overlap` | 719 |
-| `composition_policy_rejected` | 3629 |
-| `unmatched_reduced_formula` | 23965 |
-| `structure_material_ids_queried` | 23965 |
-| `structure_documents_returned` | 23965 |
+| `ambiguous_formula_source_system_overlap` | 718 |
+| `composition_policy_rejected` | 3630 |
+| `unmatched_reduced_formula` | 23964 |
+| `structure_material_ids_queried` | 23964 |
+| `structure_documents_returned` | 23964 |
 | `missing_structure_records` | 0 |
-| `ordered_structures` | 23965 |
-| `ordered_and_source_unmatched` | 23965 |
-| `dos_metadata_returned` | 23965 |
-| `dos_task_references` | 18988 |
-| `dos_static_or_uniform_tasks` | 18988 |
+| `ordered_structures` | 23964 |
+| `ordered_and_source_unmatched` | 23964 |
+| `dos_metadata_returned` | 23964 |
+| `dos_task_references` | 18987 |
+| `dos_static_or_uniform_tasks` | 18987 |
 | `dos_non_static_uniform_tasks_rejected` | 0 |
-| `dos_curves_retrieved` | 18985 |
+| `dos_curves_retrieved` | 18984 |
 | `dos_missing_task_or_curve` | 4980 |
 | `dos_below_or_equal_0p1_states_ev_atom` | 6515 |
-| `dos_qualified_gt_0p1_states_ev_atom` | 12470 |
-| `dos_task_ids_queried` | 18988 |
-| `task_documents_returned` | 18988 |
+| `dos_qualified_gt_0p1_states_ev_atom` | 12469 |
+| `dos_task_ids_queried` | 18987 |
+| `task_documents_returned` | 18987 |
 | `dos_payload_fetch_failures` | 0 |
 | `dos_curve_validation_failures` | 3 |
-| `source_formula_unmatched` | 23965 |
-| `metallic_dos_qualified` | 12470 |
+| `source_formula_unmatched` | 23964 |
+| `metallic_dos_qualified` | 12469 |
 
 ## DOS payload retrieval diagnostics
 
-Eligible static/uniform task IDs: 18988; curves returned: 18988; fetch errors by type: `{}`.
+Eligible static/uniform task IDs: 18987; curves returned: 18987; fetch errors by type: `{}`.
 Curve-validation errors by type: `{"ValueError": 3}`.
 - Example `aaadrblu`: ValueError  — DOS grid, Fermi level, or site count is invalid
 - Example `aaadrbev`: ValueError  — DOS grid, Fermi level, or site count is invalid
@@ -50,7 +50,7 @@ Curve-validation errors by type: `{"ValueError": 3}`.
 
 | Family | Main within-family Spearman | Assigned candidates | Scored | Top 30 |
 |---|---:|---:|---:|---:|
-| Cuprates | 0.5401 | 85 | 85 | 30 |
+| Cuprates | 0.5401 | 84 | 84 | 30 |
 | Ferrites | 0.5783 | 37 | 37 | 30 |
 | Oxides | 0.5128 | 348 | 348 | 30 |
 
@@ -58,8 +58,8 @@ Curve-validation errors by type: `{"ValueError": 3}`.
 
 | Outcome | Count |
 |---|---:|
-| `family_assigned_within_distance_and_definers` | 4806 |
-| `family_gate_passed` | 470 |
+| `family_assigned_within_distance_and_definers` | 4805 |
+| `family_gate_passed` | 469 |
 | `family_gate_skipped` | 4336 |
 | `no_nearest_training_record` | 0 |
 | `family_unassigned` | 7664 |
@@ -67,7 +67,7 @@ Curve-validation errors by type: `{"ValueError": 3}`.
 | `family_definer_rejected` | 570 |
 | `family_assigned:Carbon-based` | 6 |
 | `family_assigned:Chevrel` | 30 |
-| `family_assigned:Cuprates` | 85 |
+| `family_assigned:Cuprates` | 84 |
 | `family_assigned:Ferrites` | 37 |
 | `family_assigned:Heavy-fermion` | 467 |
 | `family_assigned:Other` | 3833 |
@@ -80,14 +80,14 @@ The family gate uses `within_family_evaluation.families[*].spearman_rho` from `t
 
 ## Previous shortlist: before and after
 
-Previous rows: 150; retained in this top-30 output: 32; removed: 118.
+Previous rows: 150; retained in this top-30 output: 31; removed: 119.
 
 | Old rank | MP ID | Formula | Old family | V2 disposition | Reason |
 |---:|---|---|---|---|---|
 | 1 | mp-1063607 | CrPdO2 | Cuprates | removed | dos_ef_le_0.1_states_per_ev_per_atom |
 | 2 | mp-505110 | FeCuO2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
 | 3 | mp-996990 | BaAgO2 | Cuprates | removed | family_definer_missing:Cu_and_O |
-| 4 | mp-997034 | BaCuO2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 4 | mp-997034 | BaCuO2 | Cuprates | removed | undoped_bacuO2_parent_composition |
 | 5 | mp-1113808 | Rb2MnCuF6 | Cuprates | removed | alkali_alkaline_earth_transition_metal_fluoride |
 | 6 | mp-1025177 | Rb2CuF4 | Cuprates | removed | alkali_alkaline_earth_transition_metal_fluoride |
 | 7 | mp-20982 | K3Cu2F7 | Cuprates | removed | alkali_alkaline_earth_transition_metal_fluoride |
