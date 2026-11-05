@@ -33,6 +33,7 @@ for _path in (ROOT / "src", ROOT / "scripts"):
 
 from rt_superconductor.harmonized import HarmonizedRecord, load_harmonized
 from train_pressure_aware import build_features, select_training_records, _model
+from enrich_deep_mp import dos_curve_for_task
 from untested_pool_policy import dos_ef_rejection, untested_pool_composition_rejection
 
 
@@ -1275,7 +1276,9 @@ def _fetch_mp_with_client(
     dos_cache, dos_fetch_diagnostics = prefetch_static_dos_curves(
         es_docs,
         tasks,
-        mpr.materials.electronic_structure_dos.get_dos_from_task_id,
+        lambda task_id: dos_curve_for_task(
+            mpr.materials.electronic_structure_dos, task_id
+        ),
     )
     dos_fetch_diagnostics["formula_task_reference_fallback"] = fallback_diagnostics
     qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_dos(

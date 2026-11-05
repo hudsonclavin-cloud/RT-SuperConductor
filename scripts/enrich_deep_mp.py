@@ -37,9 +37,12 @@ def dos_storage_keys(task_id,normalize=None):
         from mp_api.client.core.utils import validate_ids
         normalize=lambda task:validate_ids([task])[0]
     normalized=str(normalize(task_id))
-    # The new identifier validator strips the old task prefix; S3 may retain it.
-    legacy='mp-'+normalized if normalized.isdigit() else normalized
-    return list(dict.fromkeys('dos/'+key+'.json.gz' for key in (legacy,str(task_id))))
+    # The API client can normalize both numeric and alpha-numeric identifiers,
+    # while the parsed-DOS bucket may still store the legacy ``mp-`` prefix.
+    # Probe both spellings for either identifier family, plus the input as sent.
+    unprefixed=normalized.removeprefix('mp-')
+    keys=(f'mp-{unprefixed}',unprefixed,str(task_id))
+    return list(dict.fromkeys('dos/'+key+'.json.gz' for key in keys))
 
 def dos_curve_for_task(route,task_id):
     try:return route.get_dos_from_task_id(task_id)
