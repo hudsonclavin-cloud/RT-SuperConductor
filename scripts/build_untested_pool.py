@@ -359,12 +359,14 @@ def qualify_by_dos(
     electronic_structure_docs: Iterable[Any],
     task_docs: Iterable[Any],
     dos_loader: Any,
-) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str]]:
+) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
     """Require DOS(Ef)>0.1 states/eV/atom from a static or uniform MP task."""
     es_by_id = {str(_get(doc, "material_id", "")): doc for doc in electronic_structure_docs}
     task_by_id = {str(_get(task, "task_id", "")): task for task in task_docs}
     qualified: list[tuple[Any, dict[str, Any]]] = []
     rejected: dict[str, str] = {}
+    validation_error_counts: Counter[str] = Counter()
+    validation_error_samples: list[dict[str, str]] = []
     counts = {
         "dos_metadata_returned": len(es_by_id), "dos_task_references": 0,
         "dos_static_or_uniform_tasks": 0, "dos_non_static_uniform_tasks_rejected": 0,
@@ -403,7 +405,18 @@ def qualify_by_dos(
                 value = dos_at_fermi_states_ev_per_atom(dos)
                 counts["dos_curves_retrieved"] += 1
                 values.append((task_id, task, value))
-            except Exception:
+            except Exception as exc:
+                response = getattr(exc, "response", {})
+                code = response.get("Error", {}).get("Code") if isinstance(response, dict) else None
+                error_name = f"{type(exc).__name__}:{code}" if code else type(exc).__name__
+                validation_error_counts[error_name] += 1
+                if len(validation_error_samples) < 5:
+                    validation_error_samples.append({
+                        "task_id": task_id,
+                        "error_type": type(exc).__name__,
+                        "error_code": str(code or ""),
+                        "message": str(exc).replace("\n", " ")[:240],
+                    })
                 continue
         if not values:
             counts["dos_missing_task_or_curve"] += 1
@@ -427,7 +440,11 @@ def qualify_by_dos(
             "dos_task_type": str(getattr(selected_task_type, "value", selected_task_type)),
             "dos_functional_run_type": str(getattr(selected_run_type, "value", selected_run_type)),
         }))
-    return qualified, counts, rejected
+    diagnostics = {
+        "error_counts": dict(sorted(validation_error_counts.items())),
+        "error_samples": validation_error_samples,
+    }
+    return qualified, counts, rejected, diagnostics
 
 
 def prefetch_static_dos_curves(
@@ -875,8 +892,10 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         f"Eligible static/uniform task IDs: {diagnostics.get('eligible_task_ids', 0)}; "
         f"curves returned: {diagnostics.get('curves_returned', 0)}; "
         f"fetch errors by type: `{json.dumps(diagnostics.get('error_counts', {}), sort_keys=True)}`.",
+        f"Curve-validation errors by type: "
+        f"`{json.dumps(diagnostics.get('curve_validation_error_counts', {}), sort_keys=True)}`.",
     ]
-    for sample in diagnostics.get("error_samples", []):
+    for sample in diagnostics.get("error_samples", []) + diagnostics.get("curve_validation_error_samples", []):
         lines.append(
             f"- Example `{sample.get('task_id', '')}`: {sample.get('error_type', '')} "
             f"{sample.get('error_code', '')} — {sample.get('message', '')}"
@@ -1020,18 +1039,21 @@ def _fetch_mp_with_client(
         tasks,
         mpr.materials.electronic_structure_dos.get_dos_from_task_id,
     )
-    qualified, dos_counts, dos_rejected = qualify_by_dos(
+    qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_dos(
         ordered_unmatched,
         es_docs,
         tasks,
         lambda task_id: dos_cache.get(task_id),
     )
+    dos_fetch_diagnostics["curve_validation_error_counts"] = dos_validation_diagnostics["error_counts"]
+    dos_fetch_diagnostics["curve_validation_error_samples"] = dos_validation_diagnostics["error_samples"]
     counts.update(dos_counts)
     counts["dos_task_ids_queried"] = len(dos_task_ids)
     counts["task_documents_returned"] = len(tasks)
     counts["dos_payload_fetch_failures"] = (
         dos_fetch_diagnostics["eligible_task_ids"] - dos_fetch_diagnostics["curves_returned"]
     )
+    counts["dos_curve_validation_failures"] = sum(dos_validation_diagnostics["error_counts"].values())
     rejected.update(dos_rejected)
     counts["source_formula_unmatched"] = len(unmatched)
     counts["metallic_dos_qualified"] = len(qualified)

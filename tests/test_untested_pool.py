@@ -121,12 +121,31 @@ class UntestedPoolV2Tests(unittest.TestCase):
             SimpleNamespace(task_id="relax-task", run_type="GGA", task_type="Structure Optimization"),
             SimpleNamespace(task_id="static-task", run_type="GGA", task_type="Static"),
         ]
-        qualified, counts, rejected = qualify_by_dos(
+        qualified, counts, rejected, diagnostics = qualify_by_dos(
             docs, es_docs, tasks, lambda _task_id: _Dos(1.0)
         )
         self.assertEqual([row[0].material_id for row in qualified], ["mp-static"])
         self.assertEqual(rejected["mp-relax"], "dos_task_not_static_or_uniform")
         self.assertEqual(counts["dos_non_static_uniform_tasks_rejected"], 1)
+        self.assertEqual(diagnostics["error_counts"], {})
+
+    def test_dos_validation_errors_are_retained_for_run_diagnostics(self):
+        invalid_dos = SimpleNamespace(
+            energies=np.asarray([0.0, 1.0]),
+            efermi=0.5,
+            structure=[None],
+            get_densities=lambda: np.asarray([1.0]),
+        )
+        qualified, counts, rejected, diagnostics = qualify_by_dos(
+            [_summary("mp-invalid", "Nb3Sn")],
+            [SimpleNamespace(material_id="mp-invalid", dos={"task_id": "static-task"})],
+            [SimpleNamespace(task_id="static-task", task_type="Static")],
+            lambda _task_id: invalid_dos,
+        )
+        self.assertEqual(qualified, [])
+        self.assertEqual(rejected["mp-invalid"], "static_or_uniform_dos_curve_missing_or_invalid")
+        self.assertEqual(diagnostics["error_counts"], {"ValueError": 1})
+        self.assertIn("DOS grid", diagnostics["error_samples"][0]["message"])
 
     def test_dos_prefetch_only_loads_unique_static_or_uniform_tasks(self):
         es_docs = [
