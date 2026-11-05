@@ -193,7 +193,10 @@ class AblationSelectionTests(unittest.TestCase):
 class DOSStorageCompatibilityTests(unittest.TestCase):
     def test_numeric_normalization_preserves_legacy_s3_prefix(self):
         from enrich_deep_mp import dos_storage_keys
-        self.assertEqual(dos_storage_keys('alpha-fixture',normalize=lambda task:'1676349'),['dos/mp-1676349.json.gz','dos/alpha-fixture.json.gz'])
+        self.assertEqual(dos_storage_keys('alpha-fixture',normalize=lambda task:'1676349'),['dos/mp-1676349.json.gz','dos/1676349.json.gz','dos/alpha-fixture.json.gz'])
+    def test_alphanumeric_task_ids_try_prefixed_and_unprefixed_storage_keys(self):
+        from enrich_deep_mp import dos_storage_keys
+        self.assertEqual(dos_storage_keys('aaahnnas',normalize=lambda task:'aaahnnas'),['dos/mp-aaahnnas.json.gz','dos/aaahnnas.json.gz'])
     def test_missing_numeric_key_retries_literal_equivalent_task_keys(self):
         from types import SimpleNamespace
         from unittest.mock import patch
