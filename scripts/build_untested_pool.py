@@ -44,7 +44,8 @@ DEFAULT_TOP_PER_FAMILY = 30
 OUTPUT_COLUMNS = (
     "rank_within_family", "mp_id", "formula", "predicted_tc_kelvin", "uncertainty_k",
     "conservative_score_tc_minus_sd_k", "chemical_family", "within_family_spearman",
-    "energy_above_hull_ev_per_atom", "dos_ef_states_ev_per_atom", "dos_run_type", "dos_task_id",
+    "energy_above_hull_ev_per_atom", "dos_ef_states_ev_per_atom", "dos_task_type",
+    "dos_functional_run_type", "dos_task_id",
     "spacegroup_number", "num_sites", "nearest_known_superconductor_formula",
     "nearest_known_superconductor_tc_kelvin", "nearest_known_superconductor_record_id",
     "nearest_known_superconductor_family", "nearest_known_superconductor_distance",
@@ -308,6 +309,19 @@ def _is_static_or_uniform(run_type: Any) -> bool:
     return "static" in token or "uniform" in token
 
 
+def _task_is_static_or_uniform(task: Any) -> bool:
+    """Use task/calculation type, not the functional-only MP ``run_type``."""
+    task_type = _get(task, "task_type")
+    calc_type = _get(task, "calc_type")
+    if task_type is not None:
+        return _is_static_or_uniform(task_type)
+    if calc_type is not None:
+        return _is_static_or_uniform(calc_type)
+    # Some older task documents encode the task kind in run_type. Current
+    # MP RunType values (GGA, GGA+U, r2SCAN, ...) alone are never sufficient.
+    return _is_static_or_uniform(_get(task, "run_type"))
+
+
 def _electronic_structure_task_ids(doc: Any) -> list[str]:
     metadata = _get(doc, "dos") or {}
     task_ids: list[str] = []
@@ -371,9 +385,9 @@ def qualify_by_dos(
             rejected[mid] = "dos_task_record_missing"
             continue
         counts["dos_non_static_uniform_tasks_rejected"] += sum(
-            not _is_static_or_uniform(_get(task, "run_type")) for task in tasks_for_material
+            not _task_is_static_or_uniform(task) for task in tasks_for_material
         )
-        allowed_tasks = [task for task in tasks_for_material if _is_static_or_uniform(_get(task, "run_type"))]
+        allowed_tasks = [task for task in tasks_for_material if _task_is_static_or_uniform(task)]
         if not allowed_tasks:
             rejected[mid] = "dos_task_not_static_or_uniform"
             continue
@@ -387,7 +401,7 @@ def qualify_by_dos(
                     raise ValueError("Materials Project returned no DOS curve")
                 value = dos_at_fermi_states_ev_per_atom(dos)
                 counts["dos_curves_retrieved"] += 1
-                values.append((task_id, _get(task, "run_type"), value))
+                values.append((task_id, task, value))
             except Exception:
                 continue
         if not values:
@@ -400,14 +414,17 @@ def qualify_by_dos(
             rejected[mid] = "dos_ef_le_0.1_states_per_ev_per_atom"
             continue
         counts["dos_qualified_gt_0p1_states_ev_atom"] += 1
-        task_id, run_type, value = max(
+        task_id, selected_task, value = max(
             (item for item in values if item[2] > MIN_DOS_EF_STATES_EV_PER_ATOM),
             key=lambda item: item[2],
         )
+        selected_task_type = _get(selected_task, "task_type") or _get(selected_task, "calc_type") or ""
+        selected_run_type = _get(selected_task, "run_type") or ""
         qualified.append((doc, {
             "dos_ef_states_ev_per_atom": value,
             "dos_task_id": task_id,
-            "dos_run_type": str(getattr(run_type, "value", run_type)),
+            "dos_task_type": str(getattr(selected_task_type, "value", selected_task_type)),
+            "dos_functional_run_type": str(getattr(selected_run_type, "value", selected_run_type)),
         }))
     return qualified, counts, rejected
 
@@ -644,7 +661,8 @@ def score_family_candidates(
             "spacegroup_number": sg,
             "num_sites": _site_count(doc),
             "dos_ef_states_ev_per_atom": dos_data["dos_ef_states_ev_per_atom"],
-            "dos_run_type": dos_data["dos_run_type"],
+            "dos_task_type": dos_data["dos_task_type"],
+            "dos_functional_run_type": dos_data["dos_functional_run_type"],
             "dos_task_id": dos_data["dos_task_id"],
             "chemical_family": family,
             "within_family_spearman": eligible_metrics[family],
@@ -701,7 +719,8 @@ def score_family_candidates(
                 "within_family_spearman": row["within_family_spearman"],
                 "energy_above_hull_ev_per_atom": row["hull"],
                 "dos_ef_states_ev_per_atom": row["dos_ef_states_ev_per_atom"],
-                "dos_run_type": row["dos_run_type"],
+                "dos_task_type": row["dos_task_type"],
+                "dos_functional_run_type": row["dos_functional_run_type"],
                 "dos_task_id": row["dos_task_id"],
                 "spacegroup_number": row["spacegroup_number"],
                 "num_sites": row["num_sites"],
@@ -755,7 +774,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     lines = [
         "# Existing-but-untested Materials Project shortlist (v2)",
         "",
-        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a retrieved Materials Project DOS(Ef) above 0.1 states/eV/atom from a static or uniform calculation; relaxation DOS and band gaps are not used as substitutes.",
+        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a retrieved Materials Project DOS(Ef) above 0.1 states/eV/atom from a task whose task_type or calc_type is Static or Uniform; the functional-only run_type is not used to infer calculation type. Relaxation DOS and band gaps are not substitutes.",
         "",
         f"Run status: **{report['status']}**. Shortlist size: **{report['shortlist_rows']}**; eligible families: **{len(report['eligible_family_metrics'])}**.",
         "",
@@ -893,7 +912,7 @@ def _fetch_mp_with_client(
     for batch_number, start in enumerate(range(0, len(dos_task_ids), 100), start=1):
         tasks.extend(mpr.materials.tasks.search(
             task_ids=dos_task_ids[start:start + 100],
-            fields=["task_id", "run_type"],
+            fields=["task_id", "run_type", "task_type", "calc_type"],
             all_fields=False,
             chunk_size=100,
         ))
@@ -1024,6 +1043,7 @@ def build_untested_pool(
         "criteria": {
             "energy_above_hull_ev_per_atom_max": HULL_MAX_EV_PER_ATOM,
             "metallicity": f"Materials Project DOS(Ef) > {MIN_DOS_EF_STATES_EV_PER_ATOM} states/eV/atom from static or uniform task; relaxation tasks are rejected",
+            "metallicity_task_type_fields": ["task_type", "calc_type"],
             "insulator_composition_policy": "shared chemistry_policy.insulator_rejection applied before scoring",
             "composition_exclusions": ["radioactive elements Tc/Pm/Po/Ra/Ac/Th/Pa/U/Np and Z>=93", "carbonates", "sulfates", "hydroxides", "nitrates", "phosphates", "alkali/alkaline-earth transition-metal fluorides"],
             "ordered_structure_required": True,

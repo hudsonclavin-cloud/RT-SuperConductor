@@ -11,7 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from build_untested_pool import (  # noqa: E402
     _candidate_record,
-    _is_static_or_uniform,
+    _task_is_static_or_uniform,
     _summary_filter_without_structures,
     composition_structure_distance,
     dos_at_fermi_states_ev_per_atom,
@@ -103,10 +103,11 @@ class UntestedPoolV2Tests(unittest.TestCase):
 
     def test_dos_is_normalized_per_atom_and_static_or_uniform_only(self):
         self.assertEqual(dos_at_fermi_states_ev_per_atom(_Dos(2.0, nsites=4)), 0.5)
-        self.assertTrue(_is_static_or_uniform("GGA Static"))
-        self.assertTrue(_is_static_or_uniform("GGA Uniform"))
-        self.assertFalse(_is_static_or_uniform("GGA Relaxation"))
-        self.assertFalse(_is_static_or_uniform("GGA+U"))
+        self.assertTrue(_task_is_static_or_uniform(SimpleNamespace(task_type="Static", run_type="GGA")))
+        self.assertTrue(_task_is_static_or_uniform(SimpleNamespace(task_type="NSCF Uniform", run_type="GGA")))
+        self.assertFalse(_task_is_static_or_uniform(SimpleNamespace(task_type="Structure Optimization", run_type="GGA")))
+        self.assertFalse(_task_is_static_or_uniform(SimpleNamespace(task_type="Structure Optimization", calc_type="GGA Static", run_type="GGA")))
+        self.assertFalse(_task_is_static_or_uniform(SimpleNamespace(task_type=None, calc_type=None, run_type="GGA+U")))
 
     def test_dos_qualification_rejects_relaxation_even_when_dos_is_high(self):
         docs = [_summary("mp-relax", "Nb3Sn"), _summary("mp-static", "AlCu")]
@@ -115,8 +116,8 @@ class UntestedPoolV2Tests(unittest.TestCase):
             SimpleNamespace(material_id="mp-static", dos={"task_id": "static-task"}),
         ]
         tasks = [
-            SimpleNamespace(task_id="relax-task", run_type="GGA Relaxation"),
-            SimpleNamespace(task_id="static-task", run_type="GGA Static"),
+            SimpleNamespace(task_id="relax-task", run_type="GGA", task_type="Structure Optimization"),
+            SimpleNamespace(task_id="static-task", run_type="GGA", task_type="Static"),
         ]
         qualified, counts, rejected = qualify_by_dos(
             docs, es_docs, tasks, lambda _task_id: _Dos(1.0)
@@ -159,7 +160,13 @@ class UntestedPoolV2Tests(unittest.TestCase):
             HarmonizedRecord("a" * 24, "3dsc", "FeSe", 20.0, 0.0, "unknown", "unknown", "10.0000/a", "confirmed", "literature", 0, chemical_family="Ferrites", mp_id="mp-train", energy_above_hull=0.01, spacegroup_number=129),
         ]
         candidate_doc = _summary("mp-new", "FeSe", sg=129)
-        qualified = [(candidate_doc, {"dos_ef_states_ev_per_atom": 0.5, "dos_task_id": "task", "dos_run_type": "Static"})]
+        dos_record = {
+            "dos_ef_states_ev_per_atom": 0.5,
+            "dos_task_id": "task",
+            "dos_task_type": "Static",
+            "dos_functional_run_type": "GGA",
+        }
+        qualified = [(candidate_doc, dos_record)]
         scored, counts, rejected = score_family_candidates(qualified, records, {"Ferrites": 0.7})
         self.assertEqual(len(scored), 1)
         self.assertEqual(scored[0]["dft_verification"], "pending")
@@ -167,14 +174,14 @@ class UntestedPoolV2Tests(unittest.TestCase):
 
         non_fe = _summary("mp-no-fe", "CoSe", sg=129)
         scored, counts, rejected = score_family_candidates(
-            [(non_fe, qualified[0][1])], records, {"Ferrites": 0.7}
+            [(non_fe, dos_record)], records, {"Ferrites": 0.7}
         )
         self.assertEqual(scored, [])
         self.assertEqual(rejected["mp-no-fe"], "family_definer_missing:Fe")
 
         far = _summary("mp-far", "FeO", sg=129)
         scored, counts, rejected = score_family_candidates(
-            [(far, qualified[0][1])], records, {"Ferrites": 0.7}
+            [(far, dos_record)], records, {"Ferrites": 0.7}
         )
         self.assertEqual(scored, [])
         self.assertEqual(rejected["mp-far"], "unassigned_family_distance_gt_0.3")
