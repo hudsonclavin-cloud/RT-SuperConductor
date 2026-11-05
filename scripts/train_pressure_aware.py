@@ -169,14 +169,12 @@ def evaluate_within_family(
         if len(indices) < minimum_family_rows:
             continue
         family_records = [records[index] for index in indices]
-        groups = np.asarray(embargoed_family_groups(family_records))
+        groups = np.asarray([elemental_system_signature(record.formula) for record in family_records])
         unique_groups = sorted(set(groups))
         family_report: dict[str, object] = {
             "row_count": len(indices),
-            "elemental_system_count": len({elemental_system_signature(record.formula) for record in family_records}),
-            "embargo_group_count": len(unique_groups),
-            "group_column": "elemental_system_signature_with_shared_mp_id_embargo",
-            "shared_mp_ids_embargoed": True,
+            "elemental_system_count": len(unique_groups),
+            "group_column": "elemental_system_signature",
             "grouped_cv_metrics": None,
             "mae_k": None,
             "mean_predictor_mae_k": None,
@@ -215,10 +213,7 @@ def evaluate_within_family(
                 "train_rows": int(len(safe_train_idx)),
                 "shared_mp_rows_purged": len(embargoed_record_ids),
                 "test_rows": int(len(test_idx)),
-                "held_out_embargo_groups": sorted(set(groups[test_idx])),
-                "held_out_elemental_systems": sorted({
-                    elemental_system_signature(family_records[index].formula) for index in test_idx
-                }),
+                "held_out_elemental_systems": sorted(set(groups[test_idx])),
                 "metrics": _metrics(family_y[test_idx], fold_predictions),
                 "mean_predictor_mae_k": float(mean_absolute_error(
                     family_y[test_idx], np.full(len(test_idx), family_y[safe_train_idx].mean())

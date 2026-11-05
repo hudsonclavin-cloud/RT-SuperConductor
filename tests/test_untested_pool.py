@@ -24,13 +24,13 @@ from build_untested_pool import (  # noqa: E402
     score_family_candidates,
     select_top_per_family,
 )
-from chemistry_policy import (  # noqa: E402
+from untested_pool_policy import (  # noqa: E402
     radioactive_elements,
     untested_pool_candidate_rejection,
     untested_pool_composition_rejection,
 )
 from rt_superconductor.harmonized import HarmonizedRecord  # noqa: E402
-from train_pressure_aware import embargoed_family_groups  # noqa: E402
+from train_pressure_aware import purge_shared_mp_ids  # noqa: E402
 
 
 def _summary(mp_id, formula, *, hull=0.01, sites=2, sg=225):
@@ -221,15 +221,15 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(pool_run_status(1, counts, {"Other": 0.7}), "ready")
         self.assertEqual(pool_run_status(0, {"dos_curves_retrieved": 0}, {"Other": 0.7}), "ready_empty_after_family_gate")
 
-    def test_main_evaluator_groups_shared_mp_ids_together(self):
+    def test_main_evaluator_embargoes_shared_mp_ids(self):
         rows = [
             HarmonizedRecord("a" * 24, "3dsc", "FeSe", 10.0, 0.0, "unknown", "unknown", "10.0000/a", "confirmed", "literature", 0, chemical_family="Ferrites", mp_id="mp-shared"),
             HarmonizedRecord("b" * 24, "3dsc", "CoSe", 11.0, 0.0, "unknown", "unknown", "10.0000/b", "confirmed", "literature", 0, chemical_family="Ferrites", mp_id="mp-shared"),
             HarmonizedRecord("c" * 24, "3dsc", "Nb3Sn", 18.0, 0.0, "unknown", "unknown", "10.0000/c", "confirmed", "literature", 0, chemical_family="Ferrites", mp_id="mp-other"),
         ]
-        groups = embargoed_family_groups(rows)
-        self.assertEqual(groups[0], groups[1])
-        self.assertNotEqual(groups[0], groups[2])
+        safe_train, purged = purge_shared_mp_ids(rows, np.asarray([0, 2]), np.asarray([1]))
+        self.assertEqual(safe_train.tolist(), [2])
+        self.assertEqual(purged, ["a" * 24])
 
     def test_assignment_does_not_score_out_of_range_or_missing_definer(self):
         records = [

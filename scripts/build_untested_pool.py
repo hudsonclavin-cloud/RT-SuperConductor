@@ -33,7 +33,7 @@ for _path in (ROOT / "src", ROOT / "scripts"):
 
 from rt_superconductor.harmonized import HarmonizedRecord, load_harmonized
 from train_pressure_aware import build_features, select_training_records, _model
-from chemistry_policy import dos_ef_rejection, untested_pool_composition_rejection
+from untested_pool_policy import dos_ef_rejection, untested_pool_composition_rejection
 
 
 HULL_MAX_EV_PER_ATOM = 0.025
@@ -1180,7 +1180,7 @@ def build_untested_pool(
             "metallicity": f"Materials Project DOS(Ef) > {MIN_DOS_EF_STATES_EV_PER_ATOM} states/eV/atom from static or uniform task; relaxation tasks are rejected",
             "metallicity_task_type_fields": ["task_type", "calc_type"],
             "insulator_composition_policy": "shared chemistry_policy.insulator_rejection applied before scoring",
-            "composition_exclusions": ["radioactive elements Tc/Pm/Po/Ra/Ac/Th/Pa/U/Np and Z>=93", "carbonates", "sulfates", "hydroxides", "nitrates", "phosphates", "alkali/alkaline-earth transition-metal fluorides"],
+            "composition_exclusions": ["main chemistry_policy radioactive and insulator screens plus Tc/Pm/Po/Ra/Ac/Th/Pa/U/Np and Z>=93", "carbonates", "sulfates", "hydroxides", "nitrates", "phosphates", "alkali/alkaline-earth transition-metal fluorides", "stoichiometric BaCuO2 parent composition"],
             "ordered_structure_required": True,
             "max_sites": MAX_SITES,
             "known_sources": sorted(source_paths),
