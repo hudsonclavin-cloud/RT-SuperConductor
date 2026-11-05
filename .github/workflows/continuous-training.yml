@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "17 3 * * 0"
   workflow_dispatch:
+    inputs:
+      build_untested_pool:
+        description: "Run the secret-backed stable-metal DOS shortlist job"
+        required: false
+        default: false
+        type: boolean
   push:
     paths:
       - "scripts/train_baseline.py"
@@ -13,6 +19,8 @@ on:
       - "scripts/build_review_campaign.py"
       - "scripts/run_three_generation_campaign.py"
       - "scripts/run_active_learning.py"
+      - "scripts/build_untested_pool.py"
+      - "scripts/chemistry_policy.py"
       - "scripts/download_training_data.py"
       - "scripts/ingest_3dsc.py"
       - "scripts/rank_candidates.py"
@@ -37,6 +45,9 @@ concurrency:
 
 jobs:
   train:
+    if: >-
+      ${{ !((github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
+            (github.event_name == 'push' && contains(toJSON(github.event.commits), 'scripts/build_untested_pool.py'))) }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -138,3 +149,106 @@ jobs:
           path: |
             data/processed/continuous-training/
             data/processed/candidates/
+
+  untested-pool-v2:
+    if: >-
+      ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
+          (github.event_name == 'push' && contains(toJSON(github.event.commits), 'scripts/build_untested_pool.py')) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install modeling and Materials Project dependencies
+        run: python -m pip install --upgrade pip '.[ml,mp]'
+      - name: Download pinned source data and prior shortlist
+        run: |
+          mkdir -p data/processed/continuous-training /tmp/supermat
+          python scripts/download_training_data.py \
+            --data-root data/raw \
+            --cif-limit 0 \
+            --report data/processed/continuous-training/source-download-report.json
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --output data/raw/3dsc/Supercon_data_by_2018_Stanev.csv \
+            "https://raw.githubusercontent.com/aimat-lab/3DSC/8d69ca9c94b83d387378549225d3b7c3af85ca42/superconductors_3D/data/source/SuperCon/raw/Supercon_data_by_2018_Stanev.csv"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --output /tmp/supercon2.csv \
+            "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
+          echo "ed55ea8f43a0984d77b5c29576164e06  /tmp/supercon2.csv" | md5sum --check
+          git clone --depth 1 https://github.com/lfoppiano/SuperMat.git /tmp/supermat/repo
+          cp /tmp/supermat/repo/data/csv/SuperMat-2.0.csv /tmp/supermat/SuperMat-2.0.csv
+          git fetch --no-tags origin codex/untested-pool-shortlist
+          git show FETCH_HEAD:docs/untested-pool-shortlist.csv > /tmp/untested-pool-v1.csv
+      - name: Prepare training table and main within-family report
+        run: |
+          python scripts/ingest_3dsc.py \
+            --input data/raw/3dsc/MP/3DSC_MP.csv \
+            --output data/training/harmonized_supercon.csv \
+            --structure-root data/raw/3dsc/MP/cifs \
+            --report data/processed/continuous-training/3dsc-ingestion-report.json \
+            --structure-index data/processed/continuous-training/3dsc-structure-index.csv
+          python scripts/validate_harmonized.py \
+            --input data/training/harmonized_supercon.csv \
+            --report data/processed/continuous-training/harmonized-report.json
+          python scripts/train_pressure_aware.py \
+            --input data/training/harmonized_supercon.csv \
+            --output-dir data/processed/continuous-training/pressure-aware
+      - name: Build v2 pool using Materials Project DOS
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
+        run: |
+          python scripts/build_untested_pool.py \
+            --input data/training/harmonized_supercon.csv \
+            --model-dir data/processed/continuous-training/pressure-aware \
+            --output data/processed/continuous-training/untested-pool-shortlist.csv \
+            --report data/processed/continuous-training/untested-pool-report.json \
+            --summary data/processed/continuous-training/untested-pool-summary.md \
+            --old-shortlist /tmp/untested-pool-v1.csv \
+            --3dsc data/raw/3dsc/MP/3DSC_MP.csv \
+            --uci data/raw/uci/extracted/unique_m.csv \
+            --stanev data/raw/3dsc/Supercon_data_by_2018_Stanev.csv \
+            --supercon2 /tmp/supercon2.csv \
+            --supermat /tmp/supermat/SuperMat-2.0.csv \
+            --top-per-family 30
+      - name: Publish screening counts
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("data/processed/continuous-training/untested-pool-report.json").read_text())
+          rows = [
+              "### Existing-but-untested Materials Project pool v2",
+              f"- DOS-qualified pool: {report['pool_size_after_all_materials_project_and_database_filters']}",
+              f"- Family-assigned: {report['pool_size_assigned_to_families']}",
+              f"- Scored: {report['pool_size_scored_after_family_gate']}",
+              f"- Top-30 shortlist rows: {report['shortlist_rows']}",
+              f"- Prior shortlist retained/removed: {report['old_shortlist_retained']}/{report['old_shortlist_removed']}",
+              "- Filter counts: `" + json.dumps(report["filter_counts"], sort_keys=True) + "`",
+          ]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("\n".join(rows) + "\n")
+          PY
+      - name: Publish requested docs outputs
+        run: |
+          cp data/processed/continuous-training/untested-pool-shortlist.csv docs/untested-pool-shortlist.csv
+          cp data/processed/continuous-training/untested-pool-summary.md docs/untested-pool-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/untested-pool-shortlist.csv docs/untested-pool-summary.md
+          if ! git diff --cached --quiet; then
+            git commit -m "data: publish v2 untested materials shortlist"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+      - name: Upload v2 shortlist and audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: untested-pool-v2-${{ github.run_id }}
+          path: data/processed/continuous-training/
+          if-no-files-found: error
