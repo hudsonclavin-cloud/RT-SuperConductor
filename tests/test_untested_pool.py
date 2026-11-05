@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from build_untested_pool import (  # noqa: E402
     _candidate_record,
+    _candidate_dos_task_refs_by_formula,
     _electronic_structure_task_ids,
     _search_electronic_structure_raw,
     _task_is_static_or_uniform,
@@ -141,6 +142,26 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(calls[0]["fields"], ["material_id", "dos"])
         self.assertEqual(_electronic_structure_task_ids(docs[0]), [])
 
+    def test_formula_task_fallback_matches_exact_mp_material_id(self):
+        candidate = _summary("mp-1", "Nb3Sn")
+        unrelated = {"material_id": "mp-other", "task_id": "wrong-phase-task"}
+        matched = {"material_id": "mp-1", "task_id": "static-task"}
+        calls = []
+
+        def search(**kwargs):
+            calls.append((kwargs, route.use_document_model))
+            return [matched, unrelated]
+
+        route = SimpleNamespace(use_document_model=True, search=search)
+        refs, diagnostics = _candidate_dos_task_refs_by_formula(
+            route, [candidate], [{"material_id": "mp-1", "dos": {"total": {"1": {"band_gap": 0.0}}}}]
+        )
+        self.assertEqual(refs, {"mp-1": ["static-task"]})
+        self.assertEqual(diagnostics["materials_missing_es_task_refs"], 1)
+        self.assertEqual(diagnostics["task_refs_recovered"], 1)
+        self.assertFalse(calls[0][1])
+        self.assertTrue(route.use_document_model)
+
     def test_dos_qualification_rejects_relaxation_even_when_dos_is_high(self):
         docs = [_summary("mp-relax", "Nb3Sn"), _summary("mp-static", "AlCu")]
         es_docs = [
@@ -199,6 +220,8 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(cache, {"static": "static"})
         self.assertEqual(loaded, ["static"])
         self.assertEqual(diagnostics["curves_returned"], 1)
+        _empty, empty_diagnostics = prefetch_static_dos_curves([], [], loader, progress_every=0)
+        self.assertEqual(empty_diagnostics["curves_returned"], 0)
 
     def test_dos_prefetch_preserves_failure_type_for_audit(self):
         es_docs = [SimpleNamespace(material_id="mp-1", dos={"task_id": "missing"})]
@@ -235,6 +258,9 @@ class UntestedPoolV2Tests(unittest.TestCase):
     def test_pool_status_does_not_call_missing_dos_a_valid_empty_search(self):
         counts = {"dos_static_or_uniform_tasks": 12, "dos_curves_retrieved": 0}
         self.assertEqual(pool_run_status(0, counts, {"Other": 0.7}), "blocked_dos_curve_retrieval")
+        self.assertEqual(pool_run_status(
+            0, {"ordered_structures": 100, "dos_metadata_returned": 100, "dos_task_references": 0}, {"Other": 0.7}
+        ), "blocked_dos_task_reference_missing")
         self.assertEqual(pool_run_status(1, counts, {"Other": 0.7}), "ready")
         self.assertEqual(pool_run_status(0, {"dos_curves_retrieved": 0}, {"Other": 0.7}), "ready_empty_after_family_gate")
 

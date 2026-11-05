@@ -329,6 +329,10 @@ def _electronic_structure_task_ids(doc: Any) -> list[str]:
     direct = _get(metadata, "task_id")
     if direct:
         task_ids.append(str(direct))
+    listed = _get(metadata, "task_ids") or []
+    if isinstance(listed, str):
+        listed = [listed]
+    task_ids.extend(str(task_id) for task_id in listed if task_id)
     total = _get(metadata, "total") or {}
     for spin_doc in (total.values() if isinstance(total, dict) else []):
         task_id = _get(spin_doc, "task_id")
@@ -363,6 +367,94 @@ def _search_electronic_structure_raw(route: Any, material_ids: list[str], *, chu
         )
     finally:
         route.use_document_model = previous
+
+
+def _search_tasks_raw(route: Any, **kwargs: Any) -> list[Any]:
+    """Search task docs as dictionaries so missing optional fields stay nullable."""
+    previous = getattr(route, "use_document_model", None)
+    if previous is None:
+        return route.search(**kwargs)
+    route.use_document_model = False
+    try:
+        return route.search(**kwargs)
+    finally:
+        route.use_document_model = previous
+
+
+def _candidate_dos_task_refs_by_formula(
+    task_route: Any,
+    candidate_docs: list[Any],
+    electronic_structure_docs: list[Any],
+    *,
+    formula_batch_size: int = 100,
+) -> tuple[dict[str, list[str]], dict[str, Any]]:
+    """Recover absent ES task references through task formula search.
+
+    Formula search may return tasks for other polymorphs, so each returned
+    task is retained only when its MP ``material_id`` exactly matches the
+    candidate. Results are references only; task type is still validated
+    separately before any DOS payload is fetched.
+    """
+    es_by_material = {
+        str(_get(doc, "material_id", "")): doc
+        for doc in electronic_structure_docs
+        if _get(doc, "material_id")
+    }
+    missing: dict[str, Any] = {}
+    for candidate in candidate_docs:
+        material_id = str(_get(candidate, "material_id", ""))
+        if not material_id:
+            continue
+        es_doc = es_by_material.get(material_id)
+        if es_doc is None or not _electronic_structure_task_ids(es_doc):
+            missing[material_id] = candidate
+
+    formulas_to_materials: dict[str, set[str]] = defaultdict(set)
+    for material_id, candidate in missing.items():
+        formula = _summary_formula(candidate)
+        if formula:
+            formulas_to_materials[formula].add(material_id)
+
+    by_material: dict[str, set[str]] = defaultdict(set)
+    errors: Counter[str] = Counter()
+    error_samples: list[dict[str, str]] = []
+    formulas = sorted(formulas_to_materials)
+    for start in range(0, len(formulas), max(1, formula_batch_size)):
+        batch = formulas[start:start + max(1, formula_batch_size)]
+        try:
+            tasks = _search_tasks_raw(
+                task_route,
+                formula=batch,
+                fields=["task_id", "material_id"],
+                all_fields=False,
+                chunk_size=100,
+            )
+        except Exception as exc:
+            errors[type(exc).__name__] += 1
+            if len(error_samples) < 5:
+                error_samples.append({
+                    "error_type": type(exc).__name__,
+                    "message": str(exc).replace("\n", " ")[:240],
+                    "formula_batch_size": str(len(batch)),
+                })
+            continue
+        for task in tasks:
+            material_id = str(_get(task, "material_id", ""))
+            task_id = _get(task, "task_id")
+            if material_id in missing and task_id:
+                by_material[material_id].add(str(task_id))
+
+    return (
+        {material_id: sorted(task_ids) for material_id, task_ids in sorted(by_material.items())},
+        {
+            "materials_missing_es_task_refs": len(missing),
+            "formula_queries": math.ceil(len(formulas) / max(1, formula_batch_size)),
+            "materials_recovered": len(by_material),
+            "task_refs_recovered": sum(len(task_ids) for task_ids in by_material.values()),
+            "error_counts": dict(sorted(errors.items())),
+            "error_samples": error_samples,
+        },
+    )
 
 
 def dos_at_fermi_states_ev_per_atom(dos: Any, nsites: int | None = None) -> float:
@@ -511,7 +603,12 @@ def prefetch_static_dos_curves(
     error_counts: Counter[str] = Counter()
     error_samples: list[dict[str, str]] = []
     if not task_ids:
-        return results, {"eligible_task_ids": 0, "error_counts": {}, "error_samples": []}
+        return results, {
+            "eligible_task_ids": 0,
+            "curves_returned": 0,
+            "error_counts": {},
+            "error_samples": [],
+        }
     workers = max(1, min(int(max_workers), len(task_ids)))
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(dos_loader, task_id): task_id for task_id in task_ids}
@@ -881,6 +978,9 @@ def pool_run_status(
     """Distinguish a valid empty shortlist from a blocked DOS data fetch."""
     if shortlist_rows:
         return "ready"
+    if (filter_counts.get("ordered_structures", 0)
+            and filter_counts.get("dos_task_references", 0) == 0):
+        return "blocked_dos_task_reference_missing"
     if (filter_counts.get("dos_static_or_uniform_tasks", 0)
             and filter_counts.get("dos_curves_retrieved", 0) == 0):
         return "blocked_dos_curve_retrieval"
@@ -934,6 +1034,19 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         f"Curve-validation errors by type: "
         f"`{json.dumps(diagnostics.get('curve_validation_error_counts', {}), sort_keys=True)}`.",
     ]
+    fallback = diagnostics.get("formula_task_reference_fallback", {})
+    if fallback:
+        lines.append(
+            "Formula-based task lookup recovered "
+            f"{fallback.get('task_refs_recovered', 0)} task references for "
+            f"{fallback.get('materials_recovered', 0)} exact MP material IDs from "
+            f"{fallback.get('materials_missing_es_task_refs', 0)} candidates missing DOS references; "
+            f"lookup errors: `{json.dumps(fallback.get('error_counts', {}), sort_keys=True)}`."
+        )
+        for sample in fallback.get("error_samples", []):
+            lines.append(
+                f"- Formula lookup error: {sample.get('error_type', '')} — {sample.get('message', '')}"
+            )
     for sample in diagnostics.get("error_samples", []) + diagnostics.get("curve_validation_error_samples", []):
         lines.append(
             f"- Example `{sample.get('task_id', '')}`: {sample.get('error_type', '')} "
@@ -1056,6 +1169,22 @@ def _fetch_mp_with_client(
                 mpr.materials.electronic_structure, batch_ids, chunk_size=500
             ))
         print(f"Fetched DOS metadata for {min(start + 500, len(material_ids))}/{len(material_ids)} structures...", flush=True)
+    fallback_task_refs, fallback_diagnostics = _candidate_dos_task_refs_by_formula(
+        mpr.materials.tasks, ordered_unmatched, es_docs
+    )
+    # DOS summaries sometimes omit their nested task IDs. Formula lookup only
+    # recovers references for the exact candidate MP material ID; it never
+    # borrows another polymorph's calculation.
+    es_docs.extend(
+        {"material_id": material_id, "dos": {"task_ids": task_ids}}
+        for material_id, task_ids in sorted(fallback_task_refs.items())
+    )
+    counts["dos_formula_fallback_materials_missing_refs"] = fallback_diagnostics[
+        "materials_missing_es_task_refs"
+    ]
+    counts["dos_formula_fallback_materials_recovered"] = fallback_diagnostics["materials_recovered"]
+    counts["dos_formula_fallback_task_refs_recovered"] = fallback_diagnostics["task_refs_recovered"]
+    counts["dos_formula_fallback_query_errors"] = sum(fallback_diagnostics["error_counts"].values())
     dos_task_ids = sorted({task_id for doc in es_docs for task_id in _electronic_structure_task_ids(doc)})
     tasks: list[Any] = []
     for batch_number, start in enumerate(range(0, len(dos_task_ids), 100), start=1):
@@ -1075,6 +1204,7 @@ def _fetch_mp_with_client(
         tasks,
         mpr.materials.electronic_structure_dos.get_dos_from_task_id,
     )
+    dos_fetch_diagnostics["formula_task_reference_fallback"] = fallback_diagnostics
     qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_dos(
         ordered_unmatched,
         es_docs,
