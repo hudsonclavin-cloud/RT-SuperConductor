@@ -47,7 +47,7 @@ jobs:
   train:
     if: >-
       ${{ !((github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
-            (github.event_name == 'push' && contains(toJSON(github.event.commits), 'scripts/build_untested_pool.py'))) }}
+            (github.event_name == 'push' && github.ref == 'refs/heads/codex/untested-pool-v2')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -153,7 +153,7 @@ jobs:
   untested-pool-v2:
     if: >-
       ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
-          (github.event_name == 'push' && contains(toJSON(github.event.commits), 'scripts/build_untested_pool.py')) }}
+          (github.event_name == 'push' && github.ref == 'refs/heads/codex/untested-pool-v2') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
