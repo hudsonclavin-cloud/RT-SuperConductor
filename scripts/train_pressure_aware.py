@@ -128,50 +128,24 @@ def elemental_system_signature(formula: str) -> str:
     return "-".join(sorted(elements)) if elements else "unknown"
 
 
-def embargoed_family_groups(records: list[HarmonizedRecord]) -> list[str]:
-    """Keep elemental systems and records sharing an MP structure in one fold.
-
-    This is the shared-MP embargo used by the main within-family evaluator; the
-    untested-pool builder consumes its Spearman values rather than recomputing
-    a separate family metric.
-    """
-    parents = list(range(len(records)))
-
-    def find(index: int) -> int:
-        while parents[index] != index:
-            parents[index] = parents[parents[index]]
-            index = parents[index]
-        return index
-
-    def union(left: int, right: int) -> None:
-        left_root, right_root = find(left), find(right)
-        if left_root != right_root:
-            parents[max(left_root, right_root)] = min(left_root, right_root)
-
-    first_by_system: dict[str, int] = {}
-    first_by_mp_id: dict[str, int] = {}
-    systems = [elemental_system_signature(record.formula) for record in records]
-    for index, record in enumerate(records):
-        system = systems[index]
-        if system in first_by_system:
-            union(index, first_by_system[system])
-        else:
-            first_by_system[system] = index
-        mp_id = str(getattr(record, "mp_id", "") or "").strip()
-        if mp_id:
-            if mp_id in first_by_mp_id:
-                union(index, first_by_mp_id[mp_id])
-            else:
-                first_by_mp_id[mp_id] = index
-
-    component_systems: dict[int, set[str]] = {}
-    for index, system in enumerate(systems):
-        component_systems.setdefault(find(index), set()).add(system)
-    labels = {
-        root: next(iter(grouped)) if len(grouped) == 1 else "mp_embargo[" + "|".join(sorted(grouped)) + "]"
-        for root, grouped in component_systems.items()
+def purge_shared_mp_ids(
+    records: list[HarmonizedRecord], train_indices: np.ndarray, test_indices: np.ndarray,
+) -> tuple[np.ndarray, list[str]]:
+    """Remove training rows whose nonempty MP ID occurs in the held-out fold."""
+    test_ids = {
+        str(getattr(records[int(index)], "mp_id", "") or "").strip()
+        for index in test_indices
+        if str(getattr(records[int(index)], "mp_id", "") or "").strip()
     }
-    return [labels[find(index)] for index in range(len(records))]
+    kept: list[int] = []
+    removed: list[str] = []
+    for index in train_indices:
+        mp_id = str(getattr(records[int(index)], "mp_id", "") or "").strip()
+        if mp_id and mp_id in test_ids:
+            removed.append(str(getattr(records[int(index)], "record_id", index)))
+        else:
+            kept.append(int(index))
+    return np.asarray(kept, dtype=int), removed
 
 
 def evaluate_within_family(
@@ -182,6 +156,7 @@ def evaluate_within_family(
     n_splits: int,
     random_state: int,
     minimum_family_rows: int = 100,
+    prediction_sink: dict[str, float] | None = None,
 ) -> dict[str, object]:
     """Evaluate interpolation within large families, grouping whole element systems."""
 
@@ -220,14 +195,25 @@ def evaluate_within_family(
         fold_reports: list[dict[str, object]] = []
         splitter = GroupKFold(n_splits=min(n_splits, len(unique_groups)))
         for fold, (train_idx, test_idx) in enumerate(splitter.split(family_X, family_y, groups=groups), 1):
+            safe_train_idx, embargoed_record_ids = purge_shared_mp_ids(family_records, train_idx, test_idx)
+            if len(safe_train_idx) == 0:
+                fold_reports.append({
+                    "fold": fold, "status": "blocked_no_training_rows_after_shared_mp_embargo",
+                    "train_rows_before_embargo": int(len(train_idx)), "train_rows": 0,
+                    "test_rows": int(len(test_idx)), "shared_mp_rows_purged": len(embargoed_record_ids),
+                    "held_out_elemental_systems": sorted(set(groups[test_idx])),
+                })
+                continue
             model = _model(random_state + (family_index + 1) * 100 + fold)
-            model.fit(family_X[train_idx], family_y[train_idx])
+            model.fit(family_X[safe_train_idx], family_y[safe_train_idx])
             fold_predictions = model.predict(family_X[test_idx])
             predictions[test_idx] = fold_predictions
-            mean_predictions[test_idx] = float(family_y[train_idx].mean())
+            mean_predictions[test_idx] = float(family_y[safe_train_idx].mean())
             fold_reports.append({
                 "fold": fold,
-                "train_rows": int(len(train_idx)),
+                "train_rows_before_embargo": int(len(train_idx)),
+                "train_rows": int(len(safe_train_idx)),
+                "shared_mp_rows_purged": len(embargoed_record_ids),
                 "test_rows": int(len(test_idx)),
                 "held_out_embargo_groups": sorted(set(groups[test_idx])),
                 "held_out_elemental_systems": sorted({
@@ -235,7 +221,7 @@ def evaluate_within_family(
                 }),
                 "metrics": _metrics(family_y[test_idx], fold_predictions),
                 "mean_predictor_mae_k": float(mean_absolute_error(
-                    family_y[test_idx], np.full(len(test_idx), family_y[train_idx].mean())
+                    family_y[test_idx], np.full(len(test_idx), family_y[safe_train_idx].mean())
                 )),
             })
 
@@ -251,6 +237,9 @@ def evaluate_within_family(
             "spearman_rho": rho,
             "folds": fold_reports,
         })
+        if prediction_sink is not None:
+            for local_index, record in enumerate(family_records):
+                prediction_sink[record.record_id] = float(predictions[local_index])
         family_reports[family] = family_report
 
     if not family_reports:
@@ -261,7 +250,8 @@ def evaluate_within_family(
         status = "blocked_insufficient_elemental_systems"
     return {
         "status": status,
-        "grouping": "GroupKFold by elemental-system connected components with shared MP IDs embargoed within each chemical_family",
+        "grouping": "GroupKFold by sorted elemental-system signature within each chemical_family; training MP IDs shared with each held-out fold are purged",
+        "shared_mp_embargo": "for each fold, remove every training record whose nonempty mp_id appears in the test fold",
         "minimum_family_rows": minimum_family_rows,
         "families": family_reports,
     }
@@ -440,7 +430,13 @@ def train_pressure_aware(
     n_splits = min(n_splits, len(unique_groups))
     known_hulls = [record.energy_above_hull for record in training_records if record.energy_above_hull is not None]
     hull_fill = float(np.median(known_hulls)) if known_hulls else 0.0
-    X, feature_names, feature_backend = build_features(training_records, hull_fill=hull_fill)
+    # Featurize the complete harmonized table once.  The empirical training
+    # rows are a strict slice of that matrix, and the full-fit artifact reuses
+    # the same columns.  This keeps the required Magpie backend reproducible
+    # without paying for repeated 5k-row featurization passes.
+    all_X, feature_names, feature_backend = build_features(records, hull_fill=hull_fill)
+    positions = {record.record_id: index for index, record in enumerate(records)}
+    X = all_X[np.asarray([positions[record.record_id] for record in training_records], dtype=int)]
     y = np.asarray([record.tc_kelvin for record in training_records], dtype=float)
 
     oof = np.full(len(training_records), np.nan, dtype=float)
@@ -485,13 +481,18 @@ def train_pressure_aware(
             "classification_mean_predictor": classification_baseline_fold,
         })
 
+    within_family_predictions: dict[str, float] = {}
     within_family_report = evaluate_within_family(
-        training_records, X, y, n_splits=n_splits, random_state=random_state
+        training_records,
+        X,
+        y,
+        n_splits=n_splits,
+        random_state=random_state,
+        prediction_sink=within_family_predictions,
     )
 
     model = _model(random_state)
     model.fit(X, y)
-    all_X, _, _ = build_features(records, hull_fill=hull_fill)
     all_tree_predictions = np.asarray([tree.predict(all_X) for tree in model.estimators_])
     all_predictions = all_tree_predictions.mean(axis=0)
     all_uncertainties = all_tree_predictions.std(axis=0)
@@ -510,6 +511,14 @@ def train_pressure_aware(
     }, model_path)
     oof_path = output_dir / "grouped-oof-predictions.csv"
     _write_predictions(oof_path, training_records, oof, split="grouped_oof", uncertainties=oof_uncertainty)
+    within_family_path = output_dir / "within-family-oof-predictions.csv"
+    within_family_records = [record for record in training_records if record.record_id in within_family_predictions]
+    _write_predictions(
+        within_family_path,
+        within_family_records,
+        [within_family_predictions[record.record_id] for record in within_family_records],
+        split="within_family_oof",
+    )
     prediction_path = output_dir / "candidate_predictions.csv"
     _write_predictions(prediction_path, records, all_predictions, split="full_fit", uncertainties=all_uncertainties)
     promotion_path = output_dir / "promotion_predictions.csv"
@@ -563,6 +572,7 @@ def train_pressure_aware(
         },
         "output_model": str(model_path),
         "output_oof_predictions": str(oof_path),
+        "output_within_family_predictions": str(within_family_path),
         "output_candidate_predictions": str(prediction_path),
         "output_promotion_predictions": str(promotion_path),
         "random_state": random_state,

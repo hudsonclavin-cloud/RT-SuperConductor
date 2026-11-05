@@ -1,0 +1,1154 @@
+{
+  "rows": 5773,
+  "global_oof_bins": [
+    {
+      "n": 722,
+      "mean_sd": 1.2475156188020522,
+      "observed_mae": 4.900932557515236
+    },
+    {
+      "n": 722,
+      "mean_sd": 1.9837301837549692,
+      "observed_mae": 8.574822840781163
+    },
+    {
+      "n": 722,
+      "mean_sd": 2.5796342400092134,
+      "observed_mae": 5.898041106826409
+    },
+    {
+      "n": 722,
+      "mean_sd": 3.497170219584262,
+      "observed_mae": 4.871681302060942
+    },
+    {
+      "n": 722,
+      "mean_sd": 4.700000073874869,
+      "observed_mae": 12.874575398193906
+    },
+    {
+      "n": 721,
+      "mean_sd": 6.335405352959511,
+      "observed_mae": 18.341383178512253
+    },
+    {
+      "n": 721,
+      "mean_sd": 9.378292717266612,
+      "observed_mae": 15.310440008166433
+    },
+    {
+      "n": 721,
+      "mean_sd": 24.031451100770063,
+      "observed_mae": 12.82056417115765
+    }
+  ],
+  "calibration_note": "Approximately 60/20/20 by group (actual row/group counts are reported): fit the model only on fit groups, fit isotonic expected absolute error only on calibration groups, and score once on untouched test groups. Shared reference MP IDs are purged from fit versus calibration/test and calibration versus test. This estimates error magnitude, not interval coverage or a probability of superconductivity. It is a separate model-training-budget experiment, not a calibration claim for the final full-data production model.",
+  "condition_limit": "3DSC measurement conditions are not individually verified here; these pressure-agnostic errors do not establish ambient-pressure performance",
+  "rf_bound_proof": "Each regression-tree leaf is a nonnegative weighted mean of training labels. A forest is a nonnegative mean of those leaf predictions, so its output stays within the training-label range. This does not apply to a neural head or to a nonlinear Allen-Dynes transformation of separately predicted targets.",
+  "family_training_maxima_k": {
+    "Carbon-based": 11.303,
+    "Chevrel": 14.048,
+    "Cuprates": 132.9,
+    "Ferrites": 56.5,
+    "Heavy-fermion": 16.6,
+    "Heavy-fermion/Chevrel": 8.45,
+    "Other": 41.4,
+    "Oxides": 31.5,
+    "Oxides/Heavy-fermion": 1.53333
+  },
+  "rf_oof_predictions_above_fold_training_max": 0,
+  "independent_calibration": {
+    "global_all_cross_family": {
+      "input_rows": 5773,
+      "input_groups": 9,
+      "fit_rows": 4043,
+      "calibration_rows": 873,
+      "test_rows": 837,
+      "fit_groups": 5,
+      "calibration_groups": 2,
+      "test_groups": 2,
+      "fit_rows_purged_shared_reference": 15,
+      "calibration_rows_purged_shared_reference": 5,
+      "fit_indices_sha256": "7263553e3ce0cd9e8155f1a6ff744f50a472832d2d5135e10dfa8e70ea321701",
+      "calibration_indices_sha256": "24d0c5fa34f5f8e502d2c69f27240592065c41eadcc14703895fcecd2d8fa39b",
+      "test_indices_sha256": "c504c90000f2954800407e29ce32f0412b87179b4057a42de4e24cb7e1ddedb4",
+      "seed": 2026,
+      "note": "Approximately 60/20/20 by group (actual row/group counts are reported): fit the model only on fit groups, fit isotonic expected absolute error only on calibration groups, and score once on untouched test groups. Shared reference MP IDs are purged from fit versus calibration/test and calibration versus test. This estimates error magnitude, not interval coverage or a probability of superconductivity. It is a separate model-training-budget experiment, not a calibration claim for the final full-data production model.",
+      "status": "completed",
+      "model": "RF Tc regression, 150 trees and default leaf size by default",
+      "model_fit_training_max_k": 41.4,
+      "prediction_test_mae_k": 10.54155119018638,
+      "sd_as_error_test_mae_k": 8.45770141655455,
+      "calibrated_expected_error_test_mae_k": 17.669566695400544,
+      "constant_calibration_mean_error_test_mae_k": 24.096725420886795,
+      "predicted_expected_error_test_mean_k": 14.839354240653156,
+      "test_observed_mean_absolute_error_k": 10.54155119018638,
+      "calibration_observed_mean_absolute_error_k": 33.18102759800687,
+      "calibration_bins": [
+        {
+          "n": 110,
+          "mean_sd": 4.437663963843014,
+          "observed_mae": 16.25933421
+        },
+        {
+          "n": 109,
+          "mean_sd": 5.105549070538546,
+          "observed_mae": 19.06384360525994
+        },
+        {
+          "n": 109,
+          "mean_sd": 5.69302893463147,
+          "observed_mae": 43.678237960917436
+        },
+        {
+          "n": 109,
+          "mean_sd": 5.973836185059304,
+          "observed_mae": 52.42052419565751
+        },
+        {
+          "n": 109,
+          "mean_sd": 6.086926656187751,
+          "observed_mae": 46.900093633883785
+        },
+        {
+          "n": 109,
+          "mean_sd": 6.1446124455911075,
+          "observed_mae": 18.402126316819572
+        },
+        {
+          "n": 109,
+          "mean_sd": 6.194842862050922,
+          "observed_mae": 21.31217671266055
+        },
+        {
+          "n": 109,
+          "mean_sd": 6.494299960297379,
+          "observed_mae": 47.56712904232416
+        }
+      ],
+      "test_bins": [
+        {
+          "n": 105,
+          "mean_sd": 1.6923214478278803,
+          "observed_mae": 5.644238041206349
+        },
+        {
+          "n": 105,
+          "mean_sd": 2.473427015102615,
+          "observed_mae": 16.516158718412697
+        },
+        {
+          "n": 105,
+          "mean_sd": 2.866209007473186,
+          "observed_mae": 24.215265711365074
+        },
+        {
+          "n": 105,
+          "mean_sd": 3.4947959122263867,
+          "observed_mae": 10.351167995453968
+        },
+        {
+          "n": 105,
+          "mean_sd": 4.197007686104656,
+          "observed_mae": 7.735399996222221
+        },
+        {
+          "n": 104,
+          "mean_sd": 4.9746540448686725,
+          "observed_mae": 9.666408946858976
+        },
+        {
+          "n": 104,
+          "mean_sd": 5.572326215065195,
+          "observed_mae": 5.029151842628206
+        },
+        {
+          "n": 104,
+          "mean_sd": 6.755618930950703,
+          "observed_mae": 5.061594475961538
+        }
+      ],
+      "test_predictions_above_fit_training_max": 0
+    },
+    "Ferrites": {
+      "input_rows": 517,
+      "input_groups": 162,
+      "fit_rows": 154,
+      "calibration_rows": 46,
+      "test_rows": 106,
+      "fit_groups": 60,
+      "calibration_groups": 22,
+      "test_groups": 33,
+      "fit_rows_purged_shared_reference": 167,
+      "calibration_rows_purged_shared_reference": 44,
+      "fit_indices_sha256": "7516210e163dafcfe172b50257336636e33aa5d5bafa030eb40bcf8151b5115b",
+      "calibration_indices_sha256": "da6548a5bcbde94f931b22585cee30675d70795ee83b8a0d61e4756587fe5339",
+      "test_indices_sha256": "e6af85bdfb6b260f58fcd9d63d72589ef90e3c7296bf5231c1dc05055991c6dc",
+      "seed": 2026,
+      "note": "Approximately 60/20/20 by group (actual row/group counts are reported): fit the model only on fit groups, fit isotonic expected absolute error only on calibration groups, and score once on untouched test groups. Shared reference MP IDs are purged from fit versus calibration/test and calibration versus test. This estimates error magnitude, not interval coverage or a probability of superconductivity. It is a separate model-training-budget experiment, not a calibration claim for the final full-data production model.",
+      "status": "completed",
+      "model": "RF Tc regression, 150 trees and default leaf size by default",
+      "model_fit_training_max_k": 52.0,
+      "prediction_test_mae_k": 9.535886610691824,
+      "sd_as_error_test_mae_k": 5.636831288792415,
+      "calibrated_expected_error_test_mae_k": 5.174789817322155,
+      "constant_calibration_mean_error_test_mae_k": 6.410399528985506,
+      "predicted_expected_error_test_mean_k": 7.170816918487203,
+      "test_observed_mean_absolute_error_k": 9.535886610691824,
+      "calibration_observed_mean_absolute_error_k": 6.25177909130435,
+      "calibration_bins": [
+        {
+          "n": 6,
+          "mean_sd": 4.323039764607544,
+          "observed_mae": 3.235395222222228
+        },
+        {
+          "n": 6,
+          "mean_sd": 7.059920476784872,
+          "observed_mae": 1.6060706555555548
+        },
+        {
+          "n": 6,
+          "mean_sd": 7.820139967645811,
+          "observed_mae": 5.669673822222226
+        },
+        {
+          "n": 6,
+          "mean_sd": 10.493920259494805,
+          "observed_mae": 9.241296288888885
+        },
+        {
+          "n": 6,
+          "mean_sd": 12.31796882217268,
+          "observed_mae": 4.871601433333333
+        },
+        {
+          "n": 6,
+          "mean_sd": 12.726103627894261,
+          "observed_mae": 7.394123477777782
+        },
+        {
+          "n": 5,
+          "mean_sd": 14.082598969743197,
+          "observed_mae": 9.227245893333338
+        },
+        {
+          "n": 5,
+          "mean_sd": 17.468124280962222,
+          "observed_mae": 9.867328666666666
+        }
+      ],
+      "test_bins": [
+        {
+          "n": 14,
+          "mean_sd": 4.383771391660477,
+          "observed_mae": 4.232077185714281
+        },
+        {
+          "n": 14,
+          "mean_sd": 7.235230088311901,
+          "observed_mae": 5.501832276190474
+        },
+        {
+          "n": 13,
+          "mean_sd": 9.316689293985615,
+          "observed_mae": 9.468099066666666
+        },
+        {
+          "n": 13,
+          "mean_sd": 9.995598444053801,
+          "observed_mae": 5.861217984615386
+        },
+        {
+          "n": 13,
+          "mean_sd": 10.23066942572342,
+          "observed_mae": 5.949434779487181
+        },
+        {
+          "n": 13,
+          "mean_sd": 13.383383745122915,
+          "observed_mae": 14.201765912820516
+        },
+        {
+          "n": 13,
+          "mean_sd": 16.142462986739147,
+          "observed_mae": 13.021761271794873
+        },
+        {
+          "n": 13,
+          "mean_sd": 19.91050392217588,
+          "observed_mae": 18.769201620512828
+        }
+      ],
+      "test_predictions_above_fit_training_max": 0
+    },
+    "Cuprates": {
+      "input_rows": 874,
+      "input_groups": 214,
+      "fit_rows": 175,
+      "calibration_rows": 123,
+      "test_rows": 168,
+      "fit_groups": 63,
+      "calibration_groups": 38,
+      "test_groups": 43,
+      "fit_rows_purged_shared_reference": 291,
+      "calibration_rows_purged_shared_reference": 117,
+      "fit_indices_sha256": "8dfd60196d93bc1a179f0a4cfe5284adec60f8213e55555d55ab291231ccad10",
+      "calibration_indices_sha256": "9d7141ba31610639d082de8e572ac66eda5f74c41a3c788cb161b91eb367cb9f",
+      "test_indices_sha256": "1e9e9af25c14b5155f6b329e58da359b17c796077c74d34f12d830d9bd123224",
+      "seed": 2026,
+      "note": "Approximately 60/20/20 by group (actual row/group counts are reported): fit the model only on fit groups, fit isotonic expected absolute error only on calibration groups, and score once on untouched test groups. Shared reference MP IDs are purged from fit versus calibration/test and calibration versus test. This estimates error magnitude, not interval coverage or a probability of superconductivity. It is a separate model-training-budget experiment, not a calibration claim for the final full-data production model.",
+      "status": "completed",
+      "model": "RF Tc regression, 150 trees and default leaf size by default",
+      "model_fit_training_max_k": 132.0,
+      "prediction_test_mae_k": 30.378401511904762,
+      "sd_as_error_test_mae_k": 18.51217939704643,
+      "calibrated_expected_error_test_mae_k": 18.339023813106348,
+      "constant_calibration_mean_error_test_mae_k": 20.40506326464705,
+      "predicted_expected_error_test_mean_k": 20.96009523602611,
+      "test_observed_mean_absolute_error_k": 30.378401511904762,
+      "calibration_observed_mean_absolute_error_k": 22.221036476964766,
+      "calibration_bins": [
+        {
+          "n": 16,
+          "mean_sd": 5.591205135539658,
+          "observed_mae": 10.33619991666665
+        },
+        {
+          "n": 16,
+          "mean_sd": 10.322549265248679,
+          "observed_mae": 8.795104166666667
+        },
+        {
+          "n": 16,
+          "mean_sd": 18.413380466295173,
+          "observed_mae": 19.52304929166667
+        },
+        {
+          "n": 15,
+          "mean_sd": 26.29085319031156,
+          "observed_mae": 20.57773333333332
+        },
+        {
+          "n": 15,
+          "mean_sd": 29.17317856014771,
+          "observed_mae": 24.865025866666663
+        },
+        {
+          "n": 15,
+          "mean_sd": 31.277045815576116,
+          "observed_mae": 41.337777822222215
+        },
+        {
+          "n": 15,
+          "mean_sd": 34.49789365888527,
+          "observed_mae": 35.99474222222223
+        },
+        {
+          "n": 15,
+          "mean_sd": 38.83811650806297,
+          "observed_mae": 18.205909599999995
+        }
+      ],
+      "test_bins": [
+        {
+          "n": 21,
+          "mean_sd": 4.6122355662151575,
+          "observed_mae": 15.821909206349206
+        },
+        {
+          "n": 21,
+          "mean_sd": 5.452330680821474,
+          "observed_mae": 22.314487809523808
+        },
+        {
+          "n": 21,
+          "mean_sd": 11.27679477066631,
+          "observed_mae": 12.193525396825397
+        },
+        {
+          "n": 21,
+          "mean_sd": 16.74732836405234,
+          "observed_mae": 32.14698406349206
+        },
+        {
+          "n": 21,
+          "mean_sd": 25.4776003638805,
+          "observed_mae": 34.197397523809514
+        },
+        {
+          "n": 21,
+          "mean_sd": 29.828314147083262,
+          "observed_mae": 60.763317460317445
+        },
+        {
+          "n": 21,
+          "mean_sd": 35.41828137696985,
+          "observed_mae": 34.6263571111111
+        },
+        {
+          "n": 21,
+          "mean_sd": 40.74925388470898,
+          "observed_mae": 30.96323352380952
+        }
+      ],
+      "test_predictions_above_fit_training_max": 0
+    },
+    "Other": {
+      "input_rows": 3529,
+      "input_groups": 1653,
+      "fit_rows": 1474,
+      "calibration_rows": 574,
+      "test_rows": 686,
+      "fit_groups": 820,
+      "calibration_groups": 293,
+      "test_groups": 331,
+      "fit_rows_purged_shared_reference": 615,
+      "calibration_rows_purged_shared_reference": 180,
+      "fit_indices_sha256": "615785e34f2ce3b8854c05c158f7eef405ed91ebff8d3c5c6303dc336840c287",
+      "calibration_indices_sha256": "66415bf595cb675c60d3fb4532dfbea52fa01b61da3f0f8f95baa68c97b22cb7",
+      "test_indices_sha256": "5ecd9a5f0e390a47c4381590dbcd7d6e7a20ee1bdc0924f98cca675f4e317c09",
+      "seed": 2026,
+      "note": "Approximately 60/20/20 by group (actual row/group counts are reported): fit the model only on fit groups, fit isotonic expected absolute error only on calibration groups, and score once on untouched test groups. Shared reference MP IDs are purged from fit versus calibration/test and calibration versus test. This estimates error magnitude, not interval coverage or a probability of superconductivity. It is a separate model-training-budget experiment, not a calibration claim for the final full-data production model.",
+      "status": "completed",
+      "model": "RF Tc regression, 150 trees and default leaf size by default",
+      "model_fit_training_max_k": 36.9,
+      "prediction_test_mae_k": 3.0306599276122443,
+      "sd_as_error_test_mae_k": 1.8424895386556022,
+      "calibrated_expected_error_test_mae_k": 1.7642266662798896,
+      "constant_calibration_mean_error_test_mae_k": 2.2918195074380545,
+      "predicted_expected_error_test_mean_k": 2.7221800884094645,
+      "test_observed_mean_absolute_error_k": 3.0306599276122443,
+      "calibration_observed_mean_absolute_error_k": 2.1505946263472704,
+      "calibration_bins": [
+        {
+          "n": 72,
+          "mean_sd": 0.999576956508638,
+          "observed_mae": 0.5385654427592593
+        },
+        {
+          "n": 72,
+          "mean_sd": 1.5388092790931127,
+          "observed_mae": 1.171571737212963
+        },
+        {
+          "n": 72,
+          "mean_sd": 1.8674230085529122,
+          "observed_mae": 1.3570699537777777
+        },
+        {
+          "n": 72,
+          "mean_sd": 2.2506888760329096,
+          "observed_mae": 1.336002112787037
+        },
+        {
+          "n": 72,
+          "mean_sd": 2.781339963214565,
+          "observed_mae": 2.0474021873796295
+        },
+        {
+          "n": 72,
+          "mean_sd": 3.3522472821672067,
+          "observed_mae": 2.7563759295000003
+        },
+        {
+          "n": 71,
+          "mean_sd": 4.099970828406796,
+          "observed_mae": 1.992971376413145
+        },
+        {
+          "n": 71,
+          "mean_sd": 6.378718807683331,
+          "observed_mae": 6.056862783549296
+        }
+      ],
+      "test_bins": [
+        {
+          "n": 86,
+          "mean_sd": 0.997790639990599,
+          "observed_mae": 0.7700398363643411
+        },
+        {
+          "n": 86,
+          "mean_sd": 1.5985983899258198,
+          "observed_mae": 1.2204838592480618
+        },
+        {
+          "n": 86,
+          "mean_sd": 2.018423355073036,
+          "observed_mae": 1.6894023386821706
+        },
+        {
+          "n": 86,
+          "mean_sd": 2.5318965860609848,
+          "observed_mae": 1.593811077294574
+        },
+        {
+          "n": 86,
+          "mean_sd": 3.1227402237004918,
+          "observed_mae": 2.1203628676821706
+        },
+        {
+          "n": 86,
+          "mean_sd": 3.976873855801239,
+          "observed_mae": 3.82913205987597
+        },
+        {
+          "n": 85,
+          "mean_sd": 5.233475376244398,
+          "observed_mae": 3.925523554901961
+        },
+        {
+          "n": 85,
+          "mean_sd": 8.723389402761434,
+          "observed_mae": 9.17841473892548
+        }
+      ],
+      "test_predictions_above_fit_training_max": 0
+    },
+    "Oxides": {
+      "input_rows": 320,
+      "input_groups": 119,
+      "fit_rows": 90,
+      "calibration_rows": 49,
+      "test_rows": 107,
+      "fit_groups": 53,
+      "calibration_groups": 22,
+      "test_groups": 24,
+      "fit_rows_purged_shared_reference": 70,
+      "calibration_rows_purged_shared_reference": 4,
+      "fit_indices_sha256": "f35e7e1c1f6a7aeb3a3e2a55b345185ba4a7280128068522776de7369388487a",
+      "calibration_indices_sha256": "8fdd69cec6d45b9054d35d4599783078bf65b4f627ff9156503fee2d1f0a0b3c",
+      "test_indices_sha256": "4c57426cafb186e3674389fa9066bfcd60312f31eff101045a5f76d14ae53d0e",
+      "seed": 2026,
+      "note": "Approximately 60/20/20 by group (actual row/group counts are reported): fit the model only on fit groups, fit isotonic expected absolute error only on calibration groups, and score once on untouched test groups. Shared reference MP IDs are purged from fit versus calibration/test and calibration versus test. This estimates error magnitude, not interval coverage or a probability of superconductivity. It is a separate model-training-budget experiment, not a calibration claim for the final full-data production model.",
+      "status": "completed",
+      "model": "RF Tc regression, 150 trees and default leaf size by default",
+      "model_fit_training_max_k": 17.7,
+      "prediction_test_mae_k": 6.830688256697821,
+      "sd_as_error_test_mae_k": 4.914377895048422,
+      "calibrated_expected_error_test_mae_k": 5.550103902228427,
+      "constant_calibration_mean_error_test_mae_k": 6.141433269069872,
+      "predicted_expected_error_test_mean_k": 1.4624765874945405,
+      "test_observed_mean_absolute_error_k": 6.830688256697821,
+      "calibration_observed_mean_absolute_error_k": 0.914221828571428,
+      "calibration_bins": [
+        {
+          "n": 7,
+          "mean_sd": 0.0,
+          "observed_mae": 0.0
+        },
+        {
+          "n": 6,
+          "mean_sd": 0.11707281786517315,
+          "observed_mae": 0.015778888888888887
+        },
+        {
+          "n": 6,
+          "mean_sd": 0.6255422488610997,
+          "observed_mae": 0.3837211111111112
+        },
+        {
+          "n": 6,
+          "mean_sd": 1.4580234678162822,
+          "observed_mae": 0.684050444444444
+        },
+        {
+          "n": 6,
+          "mean_sd": 2.4714818468426696,
+          "observed_mae": 0.9879755111111105
+        },
+        {
+          "n": 6,
+          "mean_sd": 2.897155105433614,
+          "observed_mae": 2.1401937666666657
+        },
+        {
+          "n": 6,
+          "mean_sd": 3.6977982570154775,
+          "observed_mae": 1.90948313333333
+        },
+        {
+          "n": 6,
+          "mean_sd": 4.642057426391641,
+          "observed_mae": 1.3449420777777779
+        }
+      ],
+      "test_bins": [
+        {
+          "n": 14,
+          "mean_sd": 0.5305207935782288,
+          "observed_mae": 0.5379821190476191
+        },
+        {
+          "n": 14,
+          "mean_sd": 2.0280198616606504,
+          "observed_mae": 1.221092385714287
+        },
+        {
+          "n": 14,
+          "mean_sd": 2.7019373274566196,
+          "observed_mae": 3.1848242428571427
+        },
+        {
+          "n": 13,
+          "mean_sd": 3.2463047503686226,
+          "observed_mae": 6.2110612564102565
+        },
+        {
+          "n": 13,
+          "mean_sd": 3.4546232791748563,
+          "observed_mae": 16.6013521025641
+        },
+        {
+          "n": 13,
+          "mean_sd": 3.5573888557141222,
+          "observed_mae": 15.848157435897436
+        },
+        {
+          "n": 13,
+          "mean_sd": 4.406606470106126,
+          "observed_mae": 8.031887194871796
+        },
+        {
+          "n": 13,
+          "mean_sd": 4.747090792323549,
+          "observed_mae": 4.205162087179486
+        }
+      ],
+      "test_predictions_above_fit_training_max": 0
+    }
+  },
+  "within_family_baseline_oof_bins": {
+    "Ferrites": [
+      {
+        "n": 65,
+        "mean_sd": 3.871749493107338,
+        "observed_mae": 5.459611420923077
+      },
+      {
+        "n": 65,
+        "mean_sd": 6.820817242512596,
+        "observed_mae": 5.674075406051281
+      },
+      {
+        "n": 65,
+        "mean_sd": 8.31593907684286,
+        "observed_mae": 6.976628210871789
+      },
+      {
+        "n": 65,
+        "mean_sd": 9.44042648498515,
+        "observed_mae": 8.958055154051284
+      },
+      {
+        "n": 65,
+        "mean_sd": 10.97781984371068,
+        "observed_mae": 10.25005402861538
+      },
+      {
+        "n": 64,
+        "mean_sd": 12.100744328216557,
+        "observed_mae": 9.567518606249998
+      },
+      {
+        "n": 64,
+        "mean_sd": 14.53051997855398,
+        "observed_mae": 10.972679699375
+      },
+      {
+        "n": 64,
+        "mean_sd": 18.482914547271058,
+        "observed_mae": 17.387290808020836
+      }
+    ],
+    "Cuprates": [
+      {
+        "n": 110,
+        "mean_sd": 4.761517760930599,
+        "observed_mae": 15.951472224242421
+      },
+      {
+        "n": 110,
+        "mean_sd": 8.774831620682761,
+        "observed_mae": 12.34770232727273
+      },
+      {
+        "n": 109,
+        "mean_sd": 14.727111634531711,
+        "observed_mae": 13.326680281345563
+      },
+      {
+        "n": 109,
+        "mean_sd": 19.75781739822492,
+        "observed_mae": 15.101294342507643
+      },
+      {
+        "n": 109,
+        "mean_sd": 26.595780877127712,
+        "observed_mae": 25.439169571865445
+      },
+      {
+        "n": 109,
+        "mean_sd": 31.461102678016534,
+        "observed_mae": 19.36288710091743
+      },
+      {
+        "n": 109,
+        "mean_sd": 36.82757263041428,
+        "observed_mae": 30.570613015290512
+      },
+      {
+        "n": 109,
+        "mean_sd": 44.601067824569185,
+        "observed_mae": 38.89096798165138
+      }
+    ],
+    "Other": [
+      {
+        "n": 442,
+        "mean_sd": 0.8977253454206544,
+        "observed_mae": 0.657451255856712
+      },
+      {
+        "n": 441,
+        "mean_sd": 1.5067476394540098,
+        "observed_mae": 1.1579845719803479
+      },
+      {
+        "n": 441,
+        "mean_sd": 1.9062207669222062,
+        "observed_mae": 1.3486667797369614
+      },
+      {
+        "n": 441,
+        "mean_sd": 2.3186366549899318,
+        "observed_mae": 1.7473052303582763
+      },
+      {
+        "n": 441,
+        "mean_sd": 2.8810972664343595,
+        "observed_mae": 2.2015889431776268
+      },
+      {
+        "n": 441,
+        "mean_sd": 3.5008606486931884,
+        "observed_mae": 3.1162267983900227
+      },
+      {
+        "n": 441,
+        "mean_sd": 4.324350712650836,
+        "observed_mae": 4.255799023492063
+      },
+      {
+        "n": 441,
+        "mean_sd": 7.634295791143018,
+        "observed_mae": 8.40456786273167
+      }
+    ],
+    "Oxides": [
+      {
+        "n": 40,
+        "mean_sd": 0.1574312850734264,
+        "observed_mae": 0.09137774499999998
+      },
+      {
+        "n": 40,
+        "mean_sd": 0.7323129487703156,
+        "observed_mae": 6.770507210666658
+      },
+      {
+        "n": 40,
+        "mean_sd": 1.1600993169856502,
+        "observed_mae": 6.032542203666667
+      },
+      {
+        "n": 40,
+        "mean_sd": 2.101674687171667,
+        "observed_mae": 2.0959254273333343
+      },
+      {
+        "n": 40,
+        "mean_sd": 3.032920888588398,
+        "observed_mae": 2.9805747223333334
+      },
+      {
+        "n": 40,
+        "mean_sd": 3.8676773660572232,
+        "observed_mae": 4.102102213333334
+      },
+      {
+        "n": 40,
+        "mean_sd": 5.760413149044925,
+        "observed_mae": 3.7525734586666672
+      },
+      {
+        "n": 40,
+        "mean_sd": 9.958699983003958,
+        "observed_mae": 5.95363372866667
+      }
+    ]
+  },
+  "source_sha256": {
+    "/tmp/rt-3dsc-spin-ablation/harmonized.csv": "a2df2348e27962488b9001795b49a36c6494d180a5559e9bf73431aa5e725ada",
+    "data/processed/structure_features_full.csv": "7bfb47e46aa3b96c2aae7c2128dec80bbecc42880d50880d5d8c9195b14ddb7a",
+    "data/processed/deep-ablation-35/all-predictions.json": "af1a97d8fab3246289d69b3d66abeef680cec8a9a1e6f0d2b8799d3933bbc6b7",
+    "data/processed/deep-ablation-35/baseline-predictions.json": "63dbe037fb4558954159eb8fe6381fccd9313a53fc158ff01796a82308dbbec3",
+    "/tmp/rt-physics-bond-ablation/jarvis-supercond-characteristics.csv": "cb72c7f5a1bea5c0a1a2bc93149f54073014d50f172a5ffe6b6be63c39c4218a"
+  },
+  "software": {
+    "numpy": "1.26.4",
+    "scipy": "1.16.3",
+    "scikit-learn": "1.8.0",
+    "matplotlib": "3.10.8"
+  },
+  "units": {
+    "tc": "K",
+    "tree_spread": "K",
+    "absolute_error": "K",
+    "lambda": "dimensionless",
+    "omega_log": "K"
+  },
+  "physics_extrapolation": {
+    "rows": 1057,
+    "groups": 834,
+    "feature_count": 162,
+    "mu_star": 0.1,
+    "tc_mae_k": 5.891808726147256,
+    "bins": [
+      {
+        "n": 133,
+        "mean_sd": 4.807323100159588,
+        "observed_mae": 1.0328964046686056
+      },
+      {
+        "n": 132,
+        "mean_sd": 7.583881476980809,
+        "observed_mae": 2.439740440364102
+      },
+      {
+        "n": 132,
+        "mean_sd": 9.438249524608358,
+        "observed_mae": 3.2107857554862678
+      },
+      {
+        "n": 132,
+        "mean_sd": 11.135612440001388,
+        "observed_mae": 3.8717701502473894
+      },
+      {
+        "n": 132,
+        "mean_sd": 12.954312292449961,
+        "observed_mae": 5.0304664753795585
+      },
+      {
+        "n": 132,
+        "mean_sd": 15.48327008514976,
+        "observed_mae": 6.37506641570197
+      },
+      {
+        "n": 132,
+        "mean_sd": 19.28340683631926,
+        "observed_mae": 9.563573490912173
+      },
+      {
+        "n": 132,
+        "mean_sd": 29.00680280460657,
+        "observed_mae": 15.646980618247364
+      }
+    ],
+    "count": 14,
+    "fraction": 0.013245033112582781,
+    "folds": [
+      {
+        "fold": 1,
+        "training_max_k": 31.910831135597938,
+        "test_rows": 212,
+        "exceeded_count": 4
+      },
+      {
+        "fold": 2,
+        "training_max_k": 31.910831135597938,
+        "test_rows": 212,
+        "exceeded_count": 4
+      },
+      {
+        "fold": 3,
+        "training_max_k": 31.910831135597938,
+        "test_rows": 211,
+        "exceeded_count": 0
+      },
+      {
+        "fold": 4,
+        "training_max_k": 29.014140513817694,
+        "test_rows": 211,
+        "exceeded_count": 5
+      },
+      {
+        "fold": 5,
+        "training_max_k": 31.910831135597938,
+        "test_rows": 211,
+        "exceeded_count": 1
+      }
+    ],
+    "exceedances": [
+      {
+        "jid": "JVASP-19767",
+        "formula": "NbN",
+        "predicted_tc_k": 32.77280460032828,
+        "reference_derived_tc_k": 11.722577711228078,
+        "source_reported_dft_tc_k": 11.985718774529426,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 21.050226889100202
+      },
+      {
+        "jid": "JVASP-115181",
+        "formula": "LiB2",
+        "predicted_tc_k": 40.88592051155997,
+        "reference_derived_tc_k": 15.940260207452367,
+        "source_reported_dft_tc_k": 16.42799344051992,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 24.945660304107605
+      },
+      {
+        "jid": "JVASP-36335",
+        "formula": "NbN",
+        "predicted_tc_k": 34.98014056779684,
+        "reference_derived_tc_k": 16.166864432189353,
+        "source_reported_dft_tc_k": 17.565177796309943,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 18.813276135607484
+      },
+      {
+        "jid": "JVASP-15025",
+        "formula": "NbN",
+        "predicted_tc_k": 32.500259670015424,
+        "reference_derived_tc_k": 0.005169469981844518,
+        "source_reported_dft_tc_k": 0.022210178576883673,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 32.49509020003358
+      },
+      {
+        "jid": "JVASP-14798",
+        "formula": "MnB2",
+        "predicted_tc_k": 40.21563623201675,
+        "reference_derived_tc_k": 7.496073078063572,
+        "source_reported_dft_tc_k": 7.670296906398985,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 32.719563153953175
+      },
+      {
+        "jid": "JVASP-78264",
+        "formula": "MnB2",
+        "predicted_tc_k": 40.21563623201675,
+        "reference_derived_tc_k": 6.240537072940841,
+        "source_reported_dft_tc_k": 6.3716978754133935,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 33.97509915907591
+      },
+      {
+        "jid": "JVASP-19889",
+        "formula": "NbC",
+        "predicted_tc_k": 37.8295568233465,
+        "reference_derived_tc_k": 15.564423412828981,
+        "source_reported_dft_tc_k": 17.155451017952267,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 22.26513341051752
+      },
+      {
+        "jid": "JVASP-91700",
+        "formula": "B2CN",
+        "predicted_tc_k": 32.98493993178985,
+        "reference_derived_tc_k": 16.278759111602973,
+        "source_reported_dft_tc_k": 19.406984582327393,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 16.70618082018688
+      },
+      {
+        "jid": "JVASP-16897",
+        "formula": "MoN",
+        "predicted_tc_k": 29.7749877788229,
+        "reference_derived_tc_k": 31.910831135597938,
+        "source_reported_dft_tc_k": 33.47022368342787,
+        "training_max_k": 29.014140513817694,
+        "actual_derived_tc_exceeds_training_max": true,
+        "absolute_error_k": 2.1358433567750374
+      },
+      {
+        "jid": "JVASP-18416",
+        "formula": "VH2",
+        "predicted_tc_k": 31.658413523123436,
+        "reference_derived_tc_k": 0.4034026724743974,
+        "source_reported_dft_tc_k": 0.6879952676795233,
+        "training_max_k": 29.014140513817694,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 31.25501085064904
+      },
+      {
+        "jid": "JVASP-8268",
+        "formula": "CoO2",
+        "predicted_tc_k": 41.10915115341075,
+        "reference_derived_tc_k": 15.757948283654713,
+        "source_reported_dft_tc_k": 16.147996464680585,
+        "training_max_k": 29.014140513817694,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 25.351202869756037
+      },
+      {
+        "jid": "JVASP-10063",
+        "formula": "CoO2",
+        "predicted_tc_k": 38.80385526421371,
+        "reference_derived_tc_k": 0.6755375367042173,
+        "source_reported_dft_tc_k": 1.0754218659604184,
+        "training_max_k": 29.014140513817694,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 38.12831772750949
+      },
+      {
+        "jid": "JVASP-14490",
+        "formula": "MoC",
+        "predicted_tc_k": 29.407881013011338,
+        "reference_derived_tc_k": 0.0001685304652386507,
+        "source_reported_dft_tc_k": 0.0020103411623374275,
+        "training_max_k": 29.014140513817694,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 29.4077124825461
+      },
+      {
+        "jid": "JVASP-20067",
+        "formula": "KB6",
+        "predicted_tc_k": 49.122553056663996,
+        "reference_derived_tc_k": 15.793087051555725,
+        "source_reported_dft_tc_k": 18.686987692543607,
+        "training_max_k": 31.910831135597938,
+        "actual_derived_tc_exceeds_training_max": false,
+        "absolute_error_k": 33.32946600510827
+      }
+    ],
+    "real_above_training_max_in_exceedances": 1,
+    "point_estimator": "Allen-Dynes(mean lambda, geometric-mean omega_log)",
+    "spread_note": "SD across independently fitted tree pairs is a heuristic, not a joint posterior",
+    "label_note": "JARVIS labels are DFT EPC calculations, not experimental high-Tc evidence; target Tc is recomputed at mu*=0.1 and can differ from the source-reported Tc",
+    "independent_calibration": {
+      "input_rows": 1057,
+      "input_groups": 834,
+      "fit_rows": 638,
+      "calibration_rows": 201,
+      "test_rows": 218,
+      "fit_groups": 500,
+      "calibration_groups": 167,
+      "test_groups": 167,
+      "fit_rows_purged_shared_reference": 0,
+      "calibration_rows_purged_shared_reference": 0,
+      "fit_indices_sha256": "eb30c3247f410c472fa1a00edfdf03fa77d5867578bff17974dcd0fe140c612c",
+      "calibration_indices_sha256": "d62c1e16f55365f427db72176513148e75675c0a417af9dbac6da7cf7f9e421c",
+      "test_indices_sha256": "c158c8f767196086e88c5ac17ad159c2633f9e546ae2b7e6d21f62887b6f397d",
+      "seed": 2026,
+      "note": "Approximately 60/20/20 by group (actual row/group counts are reported): fit the model only on fit groups, fit isotonic expected absolute error only on calibration groups, and score once on untouched test groups. Shared reference MP IDs are purged from fit versus calibration/test and calibration versus test. This estimates error magnitude, not interval coverage or a probability of superconductivity. It is a separate model-training-budget experiment, not a calibration claim for the final full-data production model.",
+      "status": "completed",
+      "model": "Separate RFs for lambda/log(omega), 180 trees and leaf size 2 by default",
+      "model_fit_training_max_k": 29.014140513817694,
+      "prediction_test_mae_k": 6.251787496632804,
+      "sd_as_error_test_mae_k": 8.039766121827482,
+      "calibrated_expected_error_test_mae_k": 2.518249258800741,
+      "constant_calibration_mean_error_test_mae_k": 4.518065724076706,
+      "predicted_expected_error_test_mean_k": 6.370241045243856,
+      "test_observed_mean_absolute_error_k": 6.251787496632804,
+      "calibration_observed_mean_absolute_error_k": 6.026814285479534,
+      "calibration_bins": [
+        {
+          "n": 26,
+          "mean_sd": 5.200772771578688,
+          "observed_mae": 1.12695159500199
+        },
+        {
+          "n": 25,
+          "mean_sd": 7.934550551611771,
+          "observed_mae": 2.067409573212191
+        },
+        {
+          "n": 25,
+          "mean_sd": 9.603471458068583,
+          "observed_mae": 3.4804581871686042
+        },
+        {
+          "n": 25,
+          "mean_sd": 11.608912465529587,
+          "observed_mae": 5.130869246459266
+        },
+        {
+          "n": 25,
+          "mean_sd": 13.093025481808517,
+          "observed_mae": 5.63810865556629
+        },
+        {
+          "n": 25,
+          "mean_sd": 15.152132006609628,
+          "observed_mae": 6.807675850582968
+        },
+        {
+          "n": 25,
+          "mean_sd": 20.094138913956463,
+          "observed_mae": 10.380915760259736
+        },
+        {
+          "n": 25,
+          "mean_sd": 28.645736778513168,
+          "observed_mae": 13.778119923204322
+        }
+      ],
+      "test_bins": [
+        {
+          "n": 28,
+          "mean_sd": 5.067436924565683,
+          "observed_mae": 0.8688874576835526
+        },
+        {
+          "n": 28,
+          "mean_sd": 7.951720250625825,
+          "observed_mae": 2.1893803188333236
+        },
+        {
+          "n": 27,
+          "mean_sd": 9.70790661867161,
+          "observed_mae": 2.725578135397684
+        },
+        {
+          "n": 27,
+          "mean_sd": 11.690748577992943,
+          "observed_mae": 4.503047333428404
+        },
+        {
+          "n": 27,
+          "mean_sd": 13.788527263869947,
+          "observed_mae": 5.408941816267705
+        },
+        {
+          "n": 27,
+          "mean_sd": 16.121952780584234,
+          "observed_mae": 9.023931449806398
+        },
+        {
+          "n": 27,
+          "mean_sd": 21.17827733923221,
+          "observed_mae": 9.967608534124595
+        },
+        {
+          "n": 27,
+          "mean_sd": 29.402301787018683,
+          "observed_mae": 15.676751120733684
+        }
+      ],
+      "test_predictions_above_fit_training_max": 5
+    }
+  },
+  "imputation_protocol": "Mean for empirical deep baseline; median plus missingness indicators for EPC, matching the published-dataset benchmark pipeline"
+}

@@ -1,0 +1,46 @@
+{
+  "status": "completed_with_missingness",
+  "reason": "Missing properties and projections remain missing",
+  "queries": 3,
+  "bulk_modulus_available": 2,
+  "dos_available": 0,
+  "orbital_available": 0,
+  "failed_endpoint_calls": 3,
+  "endpoint_error_samples": [
+    {
+      "material_id": "mp-10003",
+      "endpoint": "dos",
+      "error": "ValueError: DOS metadata exists but lacks the required calculation task ID; metadata={'task_id': 'aaadrjuz', 'total': {'1': {'band_gap': 0.0, 'cbm': 5.80929481, 'vbm': 5.80929481, 'efermi': 5.80929481, 'spin_polarization': None}}, 'elemental': {'Nb': {'total': {'1': {'band_gap': 0.0, 'cbm': 5.80929481, 'vbm': 5.80929481, 'efermi': 5.80929481, 'spin_polarization': None}}, 's': {'1': {'band_gap': 0.0, 'cbm': 5.80929481, 'vbm': 5.80929481, 'efermi': 5.80929481, 'spin_polarization': None}}, 'p': {'1': {'band_gap': 0.0, 'cbm': 5.80929481, 'vbm': 5.80929481, 'efermi': 5.80929481, 'spin_polarization': None}}, 'd': {'1': {'band_gap': 0.0, 'cbm': 5.80929481, 'vbm': 5.80929481, 'efermi': 5.80929481, '"
+    },
+    {
+      "material_id": "mp-10004",
+      "endpoint": "dos",
+      "error": "ValueError: DOS metadata exists but lacks the required calculation task ID; metadata={'task_id': 'aaadqzzq', 'total': {'1': {'band_gap': 0.0, 'cbm': 9.42488956, 'vbm': 9.42488956, 'efermi': 9.42488956, 'spin_polarization': None}}, 'elemental': {'Mo': {'total': {'1': {'band_gap': 0.0, 'cbm': 9.42488956, 'vbm': 9.42488956, 'efermi': 9.42488956, 'spin_polarization': None}}, 's': {'1': {'band_gap': 0.0, 'cbm': 9.42488956, 'vbm': 9.42488956, 'efermi': 9.42488956, 'spin_polarization': None}}, 'p': {'1': {'band_gap': 0.0, 'cbm': 9.42488956, 'vbm': 9.42488956, 'efermi': 9.42488956, 'spin_polarization': None}}, 'd': {'1': {'band_gap': 0.0, 'cbm': 9.42488956, 'vbm': 9.42488956, 'efermi': 9.42488956, '"
+    },
+    {
+      "material_id": "mp-10020",
+      "endpoint": "dos",
+      "error": "ValueError: DOS metadata exists but lacks the required calculation task ID; metadata={'task_id': 'aaadsbve', 'total': {'1': {'band_gap': 0.0, 'cbm': 4.23553601, 'vbm': 4.23553601, 'efermi': 4.23553601, 'spin_polarization': None}}, 'elemental': {'Sc': {'total': {'1': {'band_gap': 0.0, 'cbm': 4.23553601, 'vbm': 4.23553601, 'efermi': 4.23553601, 'spin_polarization': None}}, 's': {'1': {'band_gap': 0.0, 'cbm': 4.23553601, 'vbm': 4.23553601, 'efermi': 4.23553601, 'spin_polarization': None}}, 'p': {'1': {'band_gap': 0.0, 'cbm': 4.23553601, 'vbm': 4.23553601, 'efermi': 4.23553601, 'spin_polarization': None}}, 'd': {'1': {'band_gap': 0.0, 'cbm': 4.23553601, 'vbm': 4.23553601, 'efermi': 4.23553601, '"
+    }
+  ],
+  "input_rows": 5773,
+  "feature_input_sha256": "74d41b6c4bc5961d067b987b6273813bc4973572aeff9407de70aa21134648f9",
+  "harmonized_sha256": "c834e641908405ff23f13ff9b6894bb3baf32b035bb2642b4c69ed6c55a2a8a4",
+  "source": "https://api.materialsproject.org",
+  "orbital_window_relative_ef_ev": [
+    -0.5,
+    0.5
+  ],
+  "orbital_normalization": "sum of all available element/orbital projected integrals including f, not total-DOS or electron occupations",
+  "units": {
+    "bulk": "GPa",
+    "dos_ef": "states/eV/cell",
+    "orbital_fractions": "dimensionless"
+  },
+  "provenance": "DFT-computed reference structures, not measured sample properties",
+  "mp_document_models": false,
+  "numeric_validation": "finite property values and normalized orbital weights; missing/invalid values remain missing",
+  "cache_hits": 0,
+  "mp_api_version": "0.45.15",
+  "unique_reference_ids": 2708
+}

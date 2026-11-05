@@ -1,3 +1,29 @@
+## Current physics-feature study
+
+The current research target is **273.15–298.15 K (0–25 °C) at 1 atm**, or below a justified engineering pressure ceiling. Predictions remain hypotheses. The completed comparison uses **5,773 3DSC records/CIFs**: the formula baseline achieved **10.4523 K** cross-family MAE versus **16.1169 K** for a mean predictor; the tested frozen, fine-tuned and scratch graph-encoder pilots did not beat it. Reference DOS/orbital features are available for **5,243 rows**. In the completed Phase 3.5 ablation, all scalar physical groups scored **10.4464 K** and the orbital group alone **10.6626 K**; the negligible global gain does not establish physical understanding. The campaign prepared **60 hypotheses**: 28 ordered inputs completed diagnostic ML phonons (20 imaginary-mode flags, 8 below-threshold-free), and 32 remain blocked by occupational disorder. Stable Al also triggered this ML screen, so these are not validated stability verdicts. The uncertainty audit found 14/1,057 physics-derived held-out extrapolations above the training maximum; only one corresponding DFT reference target also exceeded it. No room-temperature or experimental discovery is claimed.
+
+See the [one-page study brief](docs/physics-features-deep-one-page.md), [full modeling reports](docs/modeling.md), [required checklist](docs/physics-features-deep-checklist.md), and [three proposed next tests](docs/next-experiments.md). Unknown measurement pressure is not an ambient-pressure result; DFT magnetic labels, shell proxies, ML phonons and experimental evidence have different meanings. Rerunning unchanged training data is a reproducibility check, not a new learning cycle.
+
+The expanded CHGNet/phonopy reference-control validation completed 90 runs on
+24 stable and six reported dynamically unstable structures at 3×3×3, 4×4×4,
+and 5×5×5 settings. Al was a false positive at all settings, so the screen is
+**diagnostic only** and is excluded from candidate ranking. See
+[`docs/phonon-screen-validation.md`](docs/phonon-screen-validation.md) for
+false-positive/negative rates and reference conditions.
+
+The within-family results have also been corrected for duplicate Materials
+Project IDs crossing GroupKFold train/test splits. The earlier Ferrites estimate
+(MAE 7.019 K, Spearman 0.6803) and Cuprates estimate (Spearman 0.6828) are
+superseded: the MP-ID-embargoed family-only values are **9.4102 K / 0.5185**
+for Ferrites and **21.5510 K / 0.5541** for Cuprates. The corresponding global
+model Spearman values are **0.6289** and **0.5583**. Shared reference structures
+are now purged from each training fold; see the current metrics in
+[`docs/modeling.md`](docs/modeling.md).
+
+The earlier project overview below is retained. Its older temperature wording and pipeline descriptions should be read alongside the current target and study reports above.
+
+---
+
 # RT-SuperConductor
 
 RT-SuperConductor is an early-stage research software project for proposing and
@@ -195,6 +221,28 @@ plan.
 
 For a no-terminal Materials Project run, open the repository's **Actions** tab,
 choose **Low-budget materials screen**, select **Run workflow**, and download
-the resulting `low-budget-screen` artifact. The workflow reads the
-`Materials_Project_API` GitHub secret as a runtime-only `MP_API_KEY`; it never
-writes the key to the repository or to an artifact.
+the resulting `low-budget-screen` artifact. The artifact contains
+`materials_project_audit.json`, an auditable per-query record rather than a
+flattened list of API hits. It reports safe composition matches, rejected
+mismatches, skipped ambiguous formulas, no-match responses, and API errors
+separately. Formula matching is conservative and does not interpret variables,
+mixed phases, sample labels, or oxidation-state annotations. The workflow reads
+the `Materials_Project_API` GitHub secret as a runtime-only `MP_API_KEY`; it
+never writes the key to the repository or to an artifact. A match is a computed
+database reference for review, not AI training, DFT, experimental validation,
+or a superconductivity prediction.
+
+For the within-family ferrite cycle, run:
+
+```bash
+python scripts/run_ferrite_shortlist.py
+```
+
+This command writes the Magpie/elemental-system metrics, the combined 25-row
+`data/processed/candidates/ferrites_top25.csv` shortlist plus stable split files
+`ferrites_validation.csv` and `ferrites_hypotheses.csv`, a pending literature
+review queue, and a blocked QE hand-off report. Materials Project lookup is
+optional: without `MP_API_KEY`, the reports use `degraded_no_mp_api_key` and do
+not treat unknown hull, band-gap, metallicity, or novelty values as negative
+evidence. See [ferrite-shortlist.md](docs/ferrite-shortlist.md) for how to read
+the metrics and DFT boundary.

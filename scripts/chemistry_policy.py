@@ -7,13 +7,12 @@ chemistry when available and conservative stoichiometric signatures otherwise.
 from __future__ import annotations
 
 from functools import lru_cache
-import math
 
 from pymatgen.core import Composition, Element, Species
 
 MAX_RADIUS_FRACTIONAL_MISMATCH = 0.15
 INSULATING_GAP_EV = 0.1
-_RADIOACTIVE_SYMBOLS = {"Tc", "Pm", "Po", "Ra", "Ac", "Th", "Pa", "U", "Np"}
+_RADIOACTIVE_SYMBOLS = {"Tc", "Pm", "Po", "Th", "U"}
 _ROMAN = {2: "II", 3: "III", 4: "IV", 5: "V", 6: "VI", 7: "VII", 8: "VIII", 9: "IX", 10: "X", 11: "XI", 12: "XII"}
 
 
@@ -169,101 +168,10 @@ def substitution_rejection(
 
 
 def radioactive_elements(formula: str) -> list[str]:
-    """List elements excluded by the project's conservative lab-access screen."""
+    """List project-flagged radioactive elements (Tc, Pm, Po, Th, U, Np onward)."""
     present = {el.symbol for el in Composition(formula).elements}
-    heavy_actinides = {el.symbol for el in Element if el.Z >= 93}
+    heavy_actinides = {el.symbol for el in Element if el.Z >= 93 and el.Z <= 103}
     return sorted(present & (_RADIOACTIVE_SYMBOLS | heavy_actinides), key=lambda symbol: Element(symbol).Z)
-
-
-def polyanion_salt_rejection(formula: str) -> str | None:
-    """Reject common insulating polyanion salts by their elemental ratios."""
-    composition = Composition(formula)
-    amounts = {str(symbol): float(amount) for symbol, amount in composition.get_el_amt_dict().items()}
-    has_metal = any(el.is_metal for el in composition.elements)
-    if not has_metal:
-        return None
-    oxygen = amounts.get("O", 0.0)
-    if amounts.get("C", 0.0) > 0 and oxygen >= 3 * amounts["C"]:
-        return "carbonate_salt"
-    if amounts.get("S", 0.0) > 0 and oxygen >= 4 * amounts["S"]:
-        return "sulfate_salt"
-    if amounts.get("O", 0.0) > 0 and amounts.get("H", 0.0) >= amounts["O"]:
-        return "hydroxide_salt"
-    if amounts.get("N", 0.0) > 0 and oxygen >= 3 * amounts["N"]:
-        return "nitrate_salt"
-    if amounts.get("P", 0.0) > 0 and oxygen >= 3 * amounts["P"]:
-        return "phosphate_salt"
-    return None
-
-
-def alkali_alkaline_earth_transition_metal_fluoride_rejection(formula: str) -> str | None:
-    """Reject mixed alkali/alkaline-earth transition-metal fluorides."""
-    elements = Composition(formula).elements
-    symbols = {el.symbol for el in elements}
-    has_alkali_or_alkaline_earth = any(el.group in (1, 2) for el in elements if el.symbol != "H")
-    has_transition_metal = any(el.is_transition_metal for el in elements)
-    if "F" in symbols and has_alkali_or_alkaline_earth and has_transition_metal:
-        return "alkali_alkaline_earth_transition_metal_fluoride"
-    return None
-
-
-def undoped_alkaline_earth_cuprate_parent_rejection(formula: str) -> str | None:
-    """Exclude the stoichiometric BaCuO2 parent explicitly from the search pool.
-
-    This project-level exclusion is intentionally narrow: BaCuO2 passes the
-    generic MP DOS threshold in some calculations, but is an undoped parent
-    composition rather than a useful untested-candidate proposal. It does not
-    imply an experimental Tc measurement or rule out doped Ba-Cu-O phases.
-    """
-    try:
-        composition = Composition(formula).element_composition
-    except (ValueError, TypeError):
-        return None
-    amounts = {element.symbol: float(amount) for element, amount in composition.items()}
-    if set(amounts) == {"Ba", "Cu", "O"}:
-        scale = amounts["Ba"]
-        if scale > 0 and math.isclose(amounts["Cu"] / scale, 1.0, abs_tol=1e-8) and math.isclose(
-            amounts["O"] / scale, 2.0, abs_tol=1e-8
-        ):
-            return "undoped_bacuO2_parent_composition"
-    return None
-
-
-def untested_pool_composition_rejection(formula: str) -> str | None:
-    """Composition exclusions applied before any candidate is scored."""
-    excluded = radioactive_elements(formula)
-    if excluded:
-        return "radioactive_element:" + ";".join(excluded)
-    for check in (
-        polyanion_salt_rejection,
-        alkali_alkaline_earth_transition_metal_fluoride_rejection,
-        undoped_alkaline_earth_cuprate_parent_rejection,
-    ):
-        reason = check(formula)
-        if reason:
-            return reason
-    return insulator_rejection(formula)
-
-
-def untested_pool_candidate_rejection(formula: str, dos_ef_states_ev_per_atom: float | None) -> str | None:
-    """Require both composition-policy clearance and a metallic DOS observation."""
-    reason = untested_pool_composition_rejection(formula)
-    if reason:
-        return reason
-    return dos_ef_rejection(dos_ef_states_ev_per_atom)
-
-
-def dos_ef_rejection(dos_ef_states_ev_per_atom: float | None) -> str | None:
-    """Reject absent, invalid, or too-small DOS at the Fermi level."""
-    if dos_ef_states_ev_per_atom is None:
-        return "static_or_uniform_dos_missing"
-    try:
-        value = float(dos_ef_states_ev_per_atom)
-    except (TypeError, ValueError):
-        return "static_or_uniform_dos_invalid"
-    if not math.isfinite(value) or value <= 0.1:
-        return "dos_ef_le_0.1_states_per_ev_per_atom"
-    return None
 
 
 def is_binary_transition_metal_oxide_or_halide(formula: str) -> bool:

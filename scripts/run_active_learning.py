@@ -18,6 +18,7 @@ for path in (ROOT / "src", ROOT / "scripts"):
 from bridge_reviewed_records import bridge_reviewed_records
 from download_training_data import download_training_data
 from evaluate_structure_features import evaluate_structure_features
+from evaluate_3dsc_structure_spin import run as evaluate_3dsc_structure_spin
 from ingest_3dsc import ingest_3dsc
 from rank_candidates import rank_candidates
 from train_baseline import train_baseline
@@ -125,6 +126,16 @@ def run_active_learning(
             output_path=output_dir / "structure-features-report.json",
         ),
     )
+    structure_spin_report = _run_or_block(
+        "3dsc_structure_spin_ablation",
+        output_dir / "3dsc-structure-spin-ablation-blocked.json",
+        lambda: evaluate_3dsc_structure_spin(
+            harmonized=harmonized_path,
+            source_csv=data_root / "3dsc/MP/3DSC_MP.csv",
+            structure_index=output_dir / "3dsc-structure-index.csv",
+            output_dir=output_dir,
+        ),
+    )
     candidate_path = output_dir.parent / "candidates/top_k.csv"
     candidate_report = _run_or_block(
         "candidate_ranking",
@@ -150,11 +161,13 @@ def run_active_learning(
         "baseline": baseline_report,
         "pressure_aware": pressure_report,
         "structure_features": structure_report,
+        "structure_spin_ablation": structure_spin_report,
         "candidate_ranking": candidate_report,
         "artifacts": {
             "baseline_metrics": str(baseline_dir / "baseline-metrics.json"),
             "pressure_metrics": str(pressure_dir / "pressure-aware-report.json"),
             "structure_metrics": str(output_dir / "structure-features-report.json"),
+            "structure_spin_metrics": str(output_dir / "3dsc-structure-spin-ablation.json"),
             "top_k": str(candidate_path),
         },
     }

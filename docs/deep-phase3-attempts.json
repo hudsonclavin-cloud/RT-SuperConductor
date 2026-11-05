@@ -1,0 +1,27 @@
+{
+  "interruption": "Processes became zombies during environment reconnect; exit status unavailable",
+  "attempts": [
+    {
+      "method": "CHGNet frozen plus fine tune",
+      "cpu_seconds": 1125,
+      "frozen_rows_completed": 5773,
+      "fine_tune_metrics": "not completed before interruption"
+    },
+    {
+      "method": "ALIGNN scratch",
+      "cpu_seconds": 1346,
+      "graphs_constructed": 5773,
+      "metrics": "not completed before interruption"
+    },
+    {
+      "method": "formula plus frozen control",
+      "cpu_seconds": 662,
+      "partial_scope_mae": {
+        "cross-family": 10.759362800530631,
+        "Ferrites": 9.710629177034171,
+        "Cuprates": 20.9908272273074
+      }
+    }
+  ],
+  "recovery": "Persistent graph, epoch/minibatch, and completed-scope checkpoints; interrupted CPU time carried into six-hour budget"
+}

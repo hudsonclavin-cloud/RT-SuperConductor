@@ -1,0 +1,470 @@
+{
+  "rows": 5773,
+  "combined_frozen": {
+    "cross-family": {
+      "rows": 5773,
+      "mae": 10.759362800530631,
+      "mean_mae": 16.116940822937963,
+      "spearman": 0.11887505492286393,
+      "auc0": 0.5441646687155345,
+      "auc77": null,
+      "mean_auc0": 0.4575212829309978,
+      "mean_auc77": 0.062433011789925,
+      "mp_overlap_training_rows_purged": 73,
+      "top20": [
+        [
+          "CHGNet_6",
+          0.1946066029922815
+        ],
+        [
+          "MagpieData mean NUnfilled",
+          0.09493357619787829
+        ],
+        [
+          "descriptor_shell_2_electrons",
+          0.036962166438014254
+        ],
+        [
+          "descriptor_shell_2_fill_pct",
+          0.036119358792612744
+        ],
+        [
+          "MagpieData avg_dev GSmagmom",
+          0.034313176195959
+        ],
+        [
+          "descriptor_shell_3_fill_pct",
+          0.026487799019320368
+        ],
+        [
+          "descriptor_shell_3_electrons",
+          0.025954660814709776
+        ],
+        [
+          "CHGNet_37",
+          0.02500301301090142
+        ],
+        [
+          "MagpieData avg_dev NUnfilled",
+          0.024474915159922703
+        ],
+        [
+          "MagpieData avg_dev NValence",
+          0.019439990938068922
+        ],
+        [
+          "descriptor_avg_p_electrons",
+          0.018061888117178928
+        ],
+        [
+          "MagpieData mean NdValence",
+          0.018053792905852375
+        ],
+        [
+          "CHGNet_52",
+          0.017231793178910222
+        ],
+        [
+          "MagpieData avg_dev Column",
+          0.017135030386065116
+        ],
+        [
+          "MagpieData avg_dev NdValence",
+          0.01423969248704234
+        ],
+        [
+          "MagpieData avg_dev SpaceGroupNumber",
+          0.013148516849514036
+        ],
+        [
+          "MagpieData avg_dev NfUnfilled",
+          0.012570543269006675
+        ],
+        [
+          "MagpieData mean MeltingT",
+          0.01226853226340016
+        ],
+        [
+          "MagpieData avg_dev GSvolume_pa",
+          0.011584496899902283
+        ],
+        [
+          "MagpieData avg_dev Electronegativity",
+          0.010232426643044973
+        ]
+      ]
+    },
+    "Ferrites": {
+      "rows": 517,
+      "mae": 9.710629177034171,
+      "mean_mae": 11.772734807528678,
+      "spearman": 0.4360808533843893,
+      "auc0": 0.7055873607597747,
+      "auc77": null,
+      "mean_auc0": 0.4729507832956109,
+      "mean_auc77": null,
+      "mp_overlap_training_rows_purged": 932,
+      "top20": [
+        [
+          "MagpieData avg_dev NUnfilled",
+          0.0935391112089689
+        ],
+        [
+          "MagpieData avg_dev Column",
+          0.06574248775191285
+        ],
+        [
+          "MagpieData mean SpaceGroupNumber",
+          0.032263932042465415
+        ],
+        [
+          "MagpieData avg_dev MendeleevNumber",
+          0.03216810177868404
+        ],
+        [
+          "MagpieData mean NpUnfilled",
+          0.030300259537489965
+        ],
+        [
+          "MagpieData mean NUnfilled",
+          0.02641156621693432
+        ],
+        [
+          "descriptor_avg_p_electrons",
+          0.025537435790549363
+        ],
+        [
+          "MagpieData mean NValence",
+          0.024562455495923445
+        ],
+        [
+          "CHGNet_15",
+          0.019778851465198442
+        ],
+        [
+          "MagpieData avg_dev GSvolume_pa",
+          0.019051637745117124
+        ],
+        [
+          "CHGNet_36",
+          0.01887466773834001
+        ],
+        [
+          "MagpieData avg_dev NValence",
+          0.018567065390416682
+        ],
+        [
+          "MagpieData range CovalentRadius",
+          0.017453369706820748
+        ],
+        [
+          "MagpieData mean Column",
+          0.016008787391107795
+        ],
+        [
+          "CHGNet_46",
+          0.015444514799852866
+        ],
+        [
+          "MagpieData mean NdUnfilled",
+          0.01531907594790584
+        ],
+        [
+          "CHGNet_25",
+          0.015152644410045638
+        ],
+        [
+          "MagpieData avg_dev GSmagmom",
+          0.013343296308772795
+        ],
+        [
+          "MagpieData mode MeltingT",
+          0.012878060474304624
+        ],
+        [
+          "CHGNet_40",
+          0.011956329734641384
+        ]
+      ]
+    },
+    "Cuprates": {
+      "rows": 874,
+      "mae": 20.9908272273074,
+      "mean_mae": 32.668187661464465,
+      "spearman": 0.5901994796530837,
+      "auc0": 0.6710069444444444,
+      "auc77": 0.8406662579194768,
+      "mean_auc0": 0.47927153243847875,
+      "mean_auc77": 0.3186674841610464,
+      "mp_overlap_training_rows_purged": 1478,
+      "top20": [
+        [
+          "MagpieData mean NUnfilled",
+          0.10829319897912096
+        ],
+        [
+          "MagpieData avg_dev NdValence",
+          0.09579666473510337
+        ],
+        [
+          "CHGNet_37",
+          0.04757780990831962
+        ],
+        [
+          "MagpieData avg_dev NUnfilled",
+          0.030533313688999444
+        ],
+        [
+          "MagpieData mean NValence",
+          0.027635676607881417
+        ],
+        [
+          "MagpieData avg_dev SpaceGroupNumber",
+          0.02600538512639595
+        ],
+        [
+          "MagpieData avg_dev NValence",
+          0.024348091001246127
+        ],
+        [
+          "MagpieData mean SpaceGroupNumber",
+          0.021752132027643922
+        ],
+        [
+          "descriptor_shell_2_fill_pct",
+          0.020336518016699046
+        ],
+        [
+          "MagpieData mean MeltingT",
+          0.01935810077913062
+        ],
+        [
+          "CHGNet_62",
+          0.019101521349154032
+        ],
+        [
+          "MagpieData mean NdValence",
+          0.01905001391963794
+        ],
+        [
+          "MagpieData mean NpValence",
+          0.018526344668524458
+        ],
+        [
+          "CHGNet_23",
+          0.017016443325102746
+        ],
+        [
+          "MagpieData avg_dev MeltingT",
+          0.01671899447901239
+        ],
+        [
+          "CHGNet_6",
+          0.016493683782441912
+        ],
+        [
+          "CHGNet_59",
+          0.016272541302464683
+        ],
+        [
+          "descriptor_shell_2_electrons",
+          0.013967765879630162
+        ],
+        [
+          "CHGNet_22",
+          0.011277752786892262
+        ],
+        [
+          "CHGNet_63",
+          0.010493585979210412
+        ]
+      ]
+    },
+    "Other": {
+      "rows": 3529,
+      "mae": 3.056472415399263,
+      "mean_mae": 4.363014808528961,
+      "spearman": 0.6778442388715736,
+      "auc0": 0.7916177373190788,
+      "auc77": null,
+      "mean_auc0": 0.4885133463602828,
+      "mean_auc77": null,
+      "mp_overlap_training_rows_purged": 3286,
+      "top20": [
+        [
+          "MagpieData mode MeltingT",
+          0.08047629306473728
+        ],
+        [
+          "descriptor_element_count",
+          0.03004050687009154
+        ],
+        [
+          "CHGNet_47",
+          0.025631392388973915
+        ],
+        [
+          "MagpieData range MeltingT",
+          0.019032341092310848
+        ],
+        [
+          "MagpieData mean NValence",
+          0.018670815154929472
+        ],
+        [
+          "CHGNet_51",
+          0.018232945722971138
+        ],
+        [
+          "MagpieData mean NUnfilled",
+          0.017409699723080777
+        ],
+        [
+          "MagpieData avg_dev MeltingT",
+          0.017170614564495715
+        ],
+        [
+          "CHGNet_46",
+          0.015592608664493105
+        ],
+        [
+          "CHGNet_21",
+          0.015267884942403885
+        ],
+        [
+          "MagpieData avg_dev GSvolume_pa",
+          0.015080028245480465
+        ],
+        [
+          "MagpieData mean MeltingT",
+          0.014302009379763336
+        ],
+        [
+          "MagpieData range Electronegativity",
+          0.013413335427922616
+        ],
+        [
+          "CHGNet_4",
+          0.013210676859266832
+        ],
+        [
+          "MagpieData avg_dev Electronegativity",
+          0.01298498356059579
+        ],
+        [
+          "CHGNet_55",
+          0.012981406884275428
+        ],
+        [
+          "MagpieData mean GSbandgap",
+          0.012414163749292228
+        ],
+        [
+          "MagpieData minimum MeltingT",
+          0.012298484929539812
+        ],
+        [
+          "MagpieData maximum Electronegativity",
+          0.01219964665876294
+        ],
+        [
+          "MagpieData range MendeleevNumber",
+          0.01141436068208968
+        ]
+      ]
+    },
+    "Oxides": {
+      "rows": 320,
+      "mae": 4.225286249,
+      "mean_mae": 5.821531761122659,
+      "spearman": 0.5160206741904404,
+      "auc0": 0.8050001987360388,
+      "auc77": null,
+      "mean_auc0": 0.4643865018482452,
+      "mean_auc77": null,
+      "mp_overlap_training_rows_purged": 229,
+      "top20": [
+        [
+          "MagpieData range NValence",
+          0.14203386573747653
+        ],
+        [
+          "MagpieData mean GSvolume_pa",
+          0.11755098253696539
+        ],
+        [
+          "MagpieData mean MeltingT",
+          0.07832295223417858
+        ],
+        [
+          "MagpieData avg_dev GSvolume_pa",
+          0.06657785986691107
+        ],
+        [
+          "MagpieData avg_dev NValence",
+          0.06587492363680814
+        ],
+        [
+          "MagpieData mean NUnfilled",
+          0.0469046285537032
+        ],
+        [
+          "descriptor_shell_6_electrons",
+          0.03048953492822691
+        ],
+        [
+          "descriptor_shell_6_fill_pct",
+          0.025078606925363685
+        ],
+        [
+          "MagpieData avg_dev SpaceGroupNumber",
+          0.01747489732626036
+        ],
+        [
+          "MagpieData mean CovalentRadius",
+          0.016924793121080303
+        ],
+        [
+          "MagpieData avg_dev MeltingT",
+          0.014043183672462807
+        ],
+        [
+          "MagpieData minimum Number",
+          0.013681624809635392
+        ],
+        [
+          "MagpieData avg_dev CovalentRadius",
+          0.011659409885669766
+        ],
+        [
+          "MagpieData avg_dev Electronegativity",
+          0.011595252324164793
+        ],
+        [
+          "MagpieData minimum AtomicWeight",
+          0.011124939137681453
+        ],
+        [
+          "CHGNet_15",
+          0.011049031349144851
+        ],
+        [
+          "MagpieData avg_dev GSbandgap",
+          0.01104700501363894
+        ],
+        [
+          "MagpieData mean SpaceGroupNumber",
+          0.01034202149574555
+        ],
+        [
+          "CHGNet_0",
+          0.009601456951326418
+        ],
+        [
+          "descriptor_avg_outer_shell_electrons",
+          0.009559595204658183
+        ]
+      ]
+    }
+  }
+}
