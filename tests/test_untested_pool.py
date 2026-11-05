@@ -11,6 +11,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from build_untested_pool import (  # noqa: E402
     _candidate_record,
+    _electronic_structure_task_ids,
+    _search_electronic_structure_raw,
     _task_is_static_or_uniform,
     _summary_filter_without_structures,
     composition_structure_distance,
@@ -123,6 +125,21 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertFalse(_task_is_static_or_uniform(SimpleNamespace(task_type="Structure Optimization", run_type="GGA")))
         self.assertFalse(_task_is_static_or_uniform(SimpleNamespace(task_type="Structure Optimization", calc_type="GGA Static", run_type="GGA")))
         self.assertFalse(_task_is_static_or_uniform(SimpleNamespace(task_type=None, calc_type=None, run_type="GGA+U")))
+
+    def test_electronic_structure_search_uses_raw_dicts_for_incomplete_mp_dos(self):
+        incomplete = {"material_id": "mp-1", "dos": {"total": {"1": {"band_gap": 0.0}}}}
+        calls = []
+
+        def search(**kwargs):
+            calls.append(kwargs)
+            return [incomplete]
+
+        route = SimpleNamespace(use_document_model=True, search=search)
+        docs = _search_electronic_structure_raw(route, ["mp-1"])
+        self.assertEqual(docs, [incomplete])
+        self.assertTrue(route.use_document_model)
+        self.assertEqual(calls[0]["fields"], ["material_id", "dos"])
+        self.assertEqual(_electronic_structure_task_ids(docs[0]), [])
 
     def test_dos_qualification_rejects_relaxation_even_when_dos_is_high(self):
         docs = [_summary("mp-relax", "Nb3Sn"), _summary("mp-static", "AlCu")]

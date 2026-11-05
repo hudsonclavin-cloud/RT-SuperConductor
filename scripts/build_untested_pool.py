@@ -337,6 +337,34 @@ def _electronic_structure_task_ids(doc: Any) -> list[str]:
     return list(dict.fromkeys(task_ids))
 
 
+def _search_electronic_structure_raw(route: Any, material_ids: list[str], *, chunk_size: int = 500) -> list[Any]:
+    """Read MP DOS metadata as dictionaries to tolerate incomplete nested docs.
+
+    The MP endpoint has returned DOS summaries without nested ``task_id``
+    values. The client model currently marks those fields required and aborts
+    an otherwise valid batch. Raw dictionaries preserve available references;
+    missing task IDs are conservatively rejected downstream.
+    """
+    previous = getattr(route, "use_document_model", None)
+    if previous is None:
+        return route.search(
+            material_ids=material_ids,
+            fields=["material_id", "dos"],
+            all_fields=False,
+            chunk_size=chunk_size,
+        )
+    route.use_document_model = False
+    try:
+        return route.search(
+            material_ids=material_ids,
+            fields=["material_id", "dos"],
+            all_fields=False,
+            chunk_size=chunk_size,
+        )
+    finally:
+        route.use_document_model = previous
+
+
 def dos_at_fermi_states_ev_per_atom(dos: Any, nsites: int | None = None) -> float:
     """Interpolate total DOS at Ef and normalize cell DOS by the site count.
 
@@ -1024,11 +1052,8 @@ def _fetch_mp_with_client(
     for start in range(0, len(material_ids), 500):
         batch_ids = material_ids[start:start + 500]
         if batch_ids:
-            es_docs.extend(mpr.materials.electronic_structure.search(
-                material_ids=batch_ids,
-                fields=["material_id", "dos"],
-                all_fields=False,
-                chunk_size=500,
+            es_docs.extend(_search_electronic_structure_raw(
+                mpr.materials.electronic_structure, batch_ids, chunk_size=500
             ))
         print(f"Fetched DOS metadata for {min(start + 500, len(material_ids))}/{len(material_ids)} structures...", flush=True)
     dos_task_ids = sorted({task_id for doc in es_docs for task_id in _electronic_structure_task_ids(doc)})
