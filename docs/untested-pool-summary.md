@@ -51,11 +51,11 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 Eligible static/uniform task IDs: 190; curves returned: 0; fetch errors by type: `{"OSError": 190}`.
 Curve-validation errors by type: `{"ValueError": 196}`.
 Formula-based task lookup recovered 1221 task references for 230 exact-structure matches from 23964 candidates missing DOS references; task documents returned: 5575; non-static/uniform tasks rejected: 4057; structure comparisons/matches: 2162/1221; lookup errors: `{}`.
-- Example `aaahnnas`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahnnas.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahlath`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlath.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahjgzx`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahjgzx.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahlabk`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlabk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahoeub`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahoeub.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 - Example `aaahmwlb`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahnnas`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahnnas.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahlabk`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlabk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `aaahlath`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlath.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 - Example `aaahmwlb`: ValueError  — Materials Project returned no DOS curve
 - Example `aaaibxpa`: ValueError  — Materials Project returned no DOS curve
 - Example `aaaiclfo`: ValueError  — Materials Project returned no DOS curve
