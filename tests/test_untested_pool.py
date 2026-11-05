@@ -18,6 +18,7 @@ from build_untested_pool import (  # noqa: E402
     eligible_family_metrics,
     family_definer_rejection,
     prefetch_static_dos_curves,
+    pool_run_status,
     qualify_by_dos,
     reduced_formula,
     score_family_candidates,
@@ -143,9 +144,25 @@ class UntestedPoolV2Tests(unittest.TestCase):
             loaded.append(task_id)
             return task_id
 
-        cache = prefetch_static_dos_curves(es_docs, tasks, loader, max_workers=2, progress_every=0)
+        cache, diagnostics = prefetch_static_dos_curves(
+            es_docs, tasks, loader, max_workers=2, progress_every=0
+        )
         self.assertEqual(cache, {"static": "static"})
         self.assertEqual(loaded, ["static"])
+        self.assertEqual(diagnostics["curves_returned"], 1)
+
+    def test_dos_prefetch_preserves_failure_type_for_audit(self):
+        es_docs = [SimpleNamespace(material_id="mp-1", dos={"task_id": "missing"})]
+        tasks = [SimpleNamespace(task_id="missing", task_type="Static")]
+
+        def loader(_task_id):
+            raise FileNotFoundError("missing public DOS object")
+
+        _cache, diagnostics = prefetch_static_dos_curves(
+            es_docs, tasks, loader, max_workers=1, progress_every=0
+        )
+        self.assertEqual(diagnostics["error_counts"], {"FileNotFoundError": 1})
+        self.assertEqual(diagnostics["error_samples"][0]["message"], "missing public DOS object")
 
     def test_dos_threshold_is_strict(self):
         self.assertEqual(untested_pool_candidate_rejection("BaCuO2", 0.1),
@@ -165,6 +182,12 @@ class UntestedPoolV2Tests(unittest.TestCase):
             "Blocked": {"status": "blocked", "spearman_rho": 0.9},
         }}}
         self.assertEqual(eligible_family_metrics(report), {"Pass": 0.51})
+
+    def test_pool_status_does_not_call_missing_dos_a_valid_empty_search(self):
+        counts = {"dos_static_or_uniform_tasks": 12, "dos_curves_retrieved": 0}
+        self.assertEqual(pool_run_status(0, counts, {"Other": 0.7}), "blocked_dos_curve_retrieval")
+        self.assertEqual(pool_run_status(1, counts, {"Other": 0.7}), "ready")
+        self.assertEqual(pool_run_status(0, {"dos_curves_retrieved": 0}, {"Other": 0.7}), "ready_empty_after_family_gate")
 
     def test_main_evaluator_groups_shared_mp_ids_together(self):
         rows = [

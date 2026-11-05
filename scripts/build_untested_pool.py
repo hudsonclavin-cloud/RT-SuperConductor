@@ -19,7 +19,7 @@ import math
 import os
 import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -437,7 +437,7 @@ def prefetch_static_dos_curves(
     *,
     max_workers: int = 8,
     progress_every: int = 1000,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Fetch unique eligible DOS payloads concurrently with a bounded pool.
 
     MP task metadata is still checked before a DOS request is made. Keeping
@@ -452,8 +452,10 @@ def prefetch_static_dos_curves(
         if task_id in task_by_id and _task_is_static_or_uniform(task_by_id[task_id])
     })
     results: dict[str, Any] = {}
+    error_counts: Counter[str] = Counter()
+    error_samples: list[dict[str, str]] = []
     if not task_ids:
-        return results
+        return results, {"eligible_task_ids": 0, "error_counts": {}, "error_samples": []}
     workers = max(1, min(int(max_workers), len(task_ids)))
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(dos_loader, task_id): task_id for task_id in task_ids}
@@ -461,12 +463,34 @@ def prefetch_static_dos_curves(
             task_id = futures[future]
             try:
                 results[task_id] = future.result()
-            except Exception:
+            except Exception as exc:
                 # qualify_by_dos records missing/invalid payloads by material.
                 results[task_id] = None
+                response = getattr(exc, "response", {})
+                code = response.get("Error", {}).get("Code") if isinstance(response, dict) else None
+                error_counts[f"{type(exc).__name__}:{code}" if code else type(exc).__name__] += 1
+                if len(error_samples) < 5:
+                    error_samples.append({
+                        "task_id": task_id,
+                        "error_type": type(exc).__name__,
+                        "error_code": str(code or ""),
+                        "message": str(exc).replace("\n", " ")[:240],
+                    })
             if progress_every > 0 and (index % progress_every == 0 or index == len(task_ids)):
-                print(f"Fetched {index}/{len(task_ids)} eligible DOS curves...", flush=True)
-    return results
+                print(f"Processed {index}/{len(task_ids)} eligible DOS fetches...", flush=True)
+    diagnostics = {
+        "eligible_task_ids": len(task_ids),
+        "curves_returned": sum(value is not None for value in results.values()),
+        "error_counts": dict(sorted(error_counts.items())),
+        "error_samples": error_samples,
+    }
+    print(
+        "DOS fetch diagnostics: " + json.dumps({
+            key: value for key, value in diagnostics.items() if key != "error_samples"
+        }, sort_keys=True),
+        flush=True,
+    )
+    return results, diagnostics
 
 
 def _spacegroup_number(doc: Any) -> int | None:
@@ -793,6 +817,22 @@ def select_top_per_family(rows: Iterable[dict[str, Any]], limit: int = DEFAULT_T
     return result
 
 
+def pool_run_status(
+    shortlist_rows: int,
+    filter_counts: dict[str, Any],
+    eligible_family_metrics: dict[str, float],
+) -> str:
+    """Distinguish a valid empty shortlist from a blocked DOS data fetch."""
+    if shortlist_rows:
+        return "ready"
+    if (filter_counts.get("dos_static_or_uniform_tasks", 0)
+            and filter_counts.get("dos_curves_retrieved", 0) == 0):
+        return "blocked_dos_curve_retrieval"
+    if eligible_family_metrics:
+        return "ready_empty_after_family_gate"
+    return "blocked_no_family_passed_spearman_gate"
+
+
 def _write_shortlist(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
@@ -827,6 +867,20 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     ]
     for key, value in report["filter_counts"].items():
         lines.append(f"| `{key}` | {value} |")
+    diagnostics = report.get("dos_fetch_diagnostics", {})
+    lines += [
+        "",
+        "## DOS payload retrieval diagnostics",
+        "",
+        f"Eligible static/uniform task IDs: {diagnostics.get('eligible_task_ids', 0)}; "
+        f"curves returned: {diagnostics.get('curves_returned', 0)}; "
+        f"fetch errors by type: `{json.dumps(diagnostics.get('error_counts', {}), sort_keys=True)}`.",
+    ]
+    for sample in diagnostics.get("error_samples", []):
+        lines.append(
+            f"- Example `{sample.get('task_id', '')}`: {sample.get('error_type', '')} "
+            f"{sample.get('error_code', '')} — {sample.get('message', '')}"
+        )
     lines += ["", "## Family gate and shortlist", "", "| Family | Main within-family Spearman | Assigned candidates | Scored | Top 30 |", "|---|---:|---:|---:|---:|"]
     for family, values in sorted(report["families"].items()):
         lines.append(
@@ -868,7 +922,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
 def _fetch_mp_with_client(
     mpr: Any,
     source_index: FormulaSourceIndex,
-) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str]]:
+) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
     """Query MP, retain ordered structures, and require static/uniform DOS(Ef)."""
     summary_fields = [
         "material_id", "formula_pretty", "composition_reduced", "energy_above_hull", "nsites",
@@ -961,7 +1015,7 @@ def _fetch_mp_with_client(
             f"{len(tasks)} task documents returned so far.",
             flush=True,
         )
-    dos_cache = prefetch_static_dos_curves(
+    dos_cache, dos_fetch_diagnostics = prefetch_static_dos_curves(
         es_docs,
         tasks,
         mpr.materials.electronic_structure_dos.get_dos_from_task_id,
@@ -975,13 +1029,16 @@ def _fetch_mp_with_client(
     counts.update(dos_counts)
     counts["dos_task_ids_queried"] = len(dos_task_ids)
     counts["task_documents_returned"] = len(tasks)
+    counts["dos_payload_fetch_failures"] = (
+        dos_fetch_diagnostics["eligible_task_ids"] - dos_fetch_diagnostics["curves_returned"]
+    )
     rejected.update(dos_rejected)
     counts["source_formula_unmatched"] = len(unmatched)
     counts["metallic_dos_qualified"] = len(qualified)
-    return qualified, counts, rejected
+    return qualified, counts, rejected, dos_fetch_diagnostics
 
 
-def _fetch_mp(api_key: str, source_index: FormulaSourceIndex) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str]]:
+def _fetch_mp(api_key: str, source_index: FormulaSourceIndex) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
     if not api_key:
         raise ValueError("MP_API_KEY is required; this script must run in the configured CI workflow")
     from mp_api.client import MPRester
@@ -1029,7 +1086,7 @@ def build_untested_pool(
         raise ValueError("there are no empirical training records to assign families or score candidates")
 
     old_rows = _read_old_shortlist(old_shortlist_path)
-    qualified, filter_counts, filter_rejections = _fetch_mp(
+    qualified, filter_counts, filter_rejections, dos_fetch_diagnostics = _fetch_mp(
         api_key or os.environ.get("MP_API_KEY", ""), source_index
     )
     scored, score_counts, score_rejections = score_family_candidates(
@@ -1083,7 +1140,7 @@ def build_untested_pool(
         }
     report: dict[str, Any] = {
         "schema_version": 2,
-        "status": "ready" if shortlist else ("ready_empty_after_family_gate" if eligible else "blocked_no_family_passed_spearman_gate"),
+        "status": pool_run_status(len(shortlist), filter_counts, eligible),
         "interpretation": "Existing MP materials absent by reduced formula from normalized rows in the five specified data exports; not proof that no experiment has ever tested them.",
         "criteria": {
             "energy_above_hull_ev_per_atom_max": HULL_MAX_EV_PER_ATOM,
@@ -1110,6 +1167,7 @@ def build_untested_pool(
         "family_gate_decisions": family_gate_decisions,
         "eligible_family_metrics": eligible,
         "filter_counts": filter_counts,
+        "dos_fetch_diagnostics": dos_fetch_diagnostics,
         "filter_rejection_reason_counts": dict(sorted(filter_rejection_counts.items())),
         "scoring_counts": score_counts,
         "scoring_rejection_reason_counts": dict(sorted(score_rejection_counts.items())),
