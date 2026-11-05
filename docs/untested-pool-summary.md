@@ -34,12 +34,19 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 | `dos_task_ids_queried` | 18988 |
 | `task_documents_returned` | 18988 |
 | `dos_payload_fetch_failures` | 0 |
+| `dos_curve_validation_failures` | 18988 |
 | `source_formula_unmatched` | 23965 |
 | `metallic_dos_qualified` | 0 |
 
 ## DOS payload retrieval diagnostics
 
 Eligible static/uniform task IDs: 18988; curves returned: 18988; fetch errors by type: `{}`.
+Curve-validation errors by type: `{"AttributeError": 18988}`.
+- Example `aaadqxtn`: AttributeError  — 'Dos' object has no attribute 'structure'
+- Example `aaadtbgy`: AttributeError  — 'Dos' object has no attribute 'structure'
+- Example `aaadqyvj`: AttributeError  — 'Dos' object has no attribute 'structure'
+- Example `aaaduwhy`: AttributeError  — 'Dos' object has no attribute 'structure'
+- Example `aaadsotf`: AttributeError  — 'Dos' object has no attribute 'structure'
 
 ## Family gate and shortlist
 
