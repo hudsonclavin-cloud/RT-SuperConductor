@@ -337,12 +337,23 @@ def _electronic_structure_task_ids(doc: Any) -> list[str]:
     return list(dict.fromkeys(task_ids))
 
 
-def dos_at_fermi_states_ev_per_atom(dos: Any) -> float:
-    """Interpolate total DOS at Ef and normalize cell DOS by the site count."""
+def dos_at_fermi_states_ev_per_atom(dos: Any, nsites: int | None = None) -> float:
+    """Interpolate total DOS at Ef and normalize cell DOS by the site count.
+
+    MP's total DOS endpoint returns a ``Dos`` object without an attached
+    structure. Prefer the candidate's independently retrieved MP ``nsites``;
+    fall back to ``CompleteDos.structure`` for callers that have one.
+    """
     energies = np.asarray(dos.energies, dtype=float)
     densities = np.asarray(dos.get_densities(), dtype=float)
     efermi = float(dos.efermi)
-    nsites = len(dos.structure)
+    if nsites is None:
+        structure = getattr(dos, "structure", None)
+        nsites = len(structure) if structure is not None else 0
+    try:
+        nsites = int(nsites)
+    except (TypeError, ValueError):
+        nsites = 0
     if (energies.ndim != 1 or densities.shape != energies.shape or len(energies) < 2
             or nsites < 1 or not np.isfinite(energies).all() or not np.isfinite(densities).all()
             or not math.isfinite(efermi) or np.any(np.diff(energies) <= 0)
@@ -402,7 +413,7 @@ def qualify_by_dos(
                 dos = dos_loader(task_id)
                 if dos is None:
                     raise ValueError("Materials Project returned no DOS curve")
-                value = dos_at_fermi_states_ev_per_atom(dos)
+                value = dos_at_fermi_states_ev_per_atom(dos, nsites=_site_count(doc))
                 counts["dos_curves_retrieved"] += 1
                 values.append((task_id, task, value))
             except Exception as exc:

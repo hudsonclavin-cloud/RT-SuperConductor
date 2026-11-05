@@ -105,6 +105,13 @@ class UntestedPoolV2Tests(unittest.TestCase):
 
     def test_dos_is_normalized_per_atom_and_static_or_uniform_only(self):
         self.assertEqual(dos_at_fermi_states_ev_per_atom(_Dos(2.0, nsites=4)), 0.5)
+        # MP's total DOS is a Dos object without its own crystal structure.
+        mp_dos = SimpleNamespace(
+            energies=np.asarray([-1.0, 0.0, 1.0]),
+            efermi=0.0,
+            get_densities=lambda: np.asarray([1.0, 2.0, 3.0]),
+        )
+        self.assertEqual(dos_at_fermi_states_ev_per_atom(mp_dos, nsites=4), 0.5)
         self.assertTrue(_task_is_static_or_uniform(SimpleNamespace(task_type="Static", run_type="GGA")))
         self.assertTrue(_task_is_static_or_uniform(SimpleNamespace(task_type="NSCF Uniform", run_type="GGA")))
         self.assertFalse(_task_is_static_or_uniform(SimpleNamespace(task_type="Structure Optimization", run_type="GGA")))
