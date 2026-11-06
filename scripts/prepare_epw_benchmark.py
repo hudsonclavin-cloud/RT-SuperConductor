@@ -198,7 +198,7 @@ def prepare_epw_benchmark(
     (output_dir / "q2r.in").write_text("! BLOCKED q2r template; requires converged phonon dynamical matrices.\n" + render_q2r("nb3sn"), encoding="utf-8")
     (output_dir / "matdyn.in").write_text("! BLOCKED matdyn template; review q mesh and acoustic sum rule.\n" + render_matdyn("nb3sn"), encoding="utf-8")
     (output_dir / "epw.in").write_text(
-        "! BLOCKED benchmark template; confirm Wannier windows, projections, and interpolation meshes with an EPW user.\n"
+        "! BLOCKED benchmark template; review nbndsub, projections, dis_win/dis_froz windows, nkf/nqf, muc, and fsthick with an EPW user.\n"
         + render_epw("nb3sn"),
         encoding="utf-8",
     )

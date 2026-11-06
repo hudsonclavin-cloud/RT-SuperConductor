@@ -50,7 +50,8 @@ MP_CACHE_SCHEMA_VERSION = 1
 OUTPUT_COLUMNS = (
     "rank_within_family", "mp_id", "formula", "predicted_tc_kelvin", "uncertainty_k",
     "conservative_score_tc_minus_sd_k", "chemical_family", "within_family_spearman",
-    "energy_above_hull_ev_per_atom", "dos_ef_states_ev_per_atom", "dos_task_type",
+    "energy_above_hull_ev_per_atom", "metallicity_source", "metallicity_evidence",
+    "dos_ef_states_ev_per_atom", "dos_ef_gt_0p1_states_ev_atom", "dos_optional_enrichment_status", "dos_task_type",
     "dos_functional_run_type", "dos_task_id", "dos_retrieval_method",
     "spacegroup_number", "num_sites", "nearest_known_superconductor_formula",
     "nearest_known_superconductor_tc_kelvin", "nearest_known_superconductor_record_id",
@@ -315,6 +316,59 @@ def _snapshot_dos_curve(value: Any) -> Any:
     )
 
 
+def summary_metallicity_evidence(doc: Any) -> str | None:
+    """Return provisional MP summary evidence for metallicity, if present.
+
+    MP summary ``is_metal`` and zero band gap are screening labels. DOS(E_F)
+    remains a useful independent enrichment when an electronic-structure
+    curve can be retrieved, but curve availability is not a pool prerequisite.
+    """
+    is_metal = _get(doc, "is_metal")
+    metal_flag = is_metal is True or str(is_metal).strip().casefold() in {"true", "1"}
+    band_gap_zero = False
+    try:
+        band_gap = _get(doc, "band_gap")
+        band_gap_zero = band_gap is not None and math.isfinite(float(band_gap)) and float(band_gap) == 0.0
+    except (TypeError, ValueError):
+        pass
+    evidence = []
+    if metal_flag:
+        evidence.append("is_metal_true")
+    if band_gap_zero:
+        evidence.append("band_gap_zero")
+    return ";".join(evidence) or None
+
+
+def filter_by_summary_metallicity(
+    docs: Iterable[Any],
+) -> tuple[list[Any], dict[str, int], dict[str, str]]:
+    """Keep records marked metallic by the MP summary endpoint only."""
+    accepted: list[Any] = []
+    rejected: dict[str, str] = {}
+    is_metal_true = 0
+    band_gap_zero = 0
+    metallicity_rejected = 0
+    for doc in docs:
+        mid = str(_get(doc, "material_id", ""))
+        evidence = summary_metallicity_evidence(doc)
+        parts = set(evidence.split(";")) if evidence else set()
+        is_metal_true += "is_metal_true" in parts
+        band_gap_zero += "band_gap_zero" in parts
+        if evidence:
+            accepted.append(doc)
+        else:
+            metallicity_rejected += 1
+            if mid:
+                rejected[mid] = "mp_summary_not_metallic"
+    counts = {
+        "mp_summary_is_metal_true": is_metal_true,
+        "mp_summary_band_gap_zero": band_gap_zero,
+        "mp_summary_metallicity_accepted": len(accepted),
+        "mp_summary_metallicity_rejected": metallicity_rejected,
+    }
+    return accepted, counts, rejected
+
+
 def _read_mp_snapshot(
     path: Path,
     source_index: FormulaSourceIndex,
@@ -332,13 +386,16 @@ def _read_mp_snapshot(
     unmatched, counts, rejected = _summary_filter_without_structures(
         docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
     )
+    summary_metallic, metallicity_counts, metallicity_rejected = filter_by_summary_metallicity(unmatched)
+    counts.update(metallicity_counts)
+    rejected.update(metallicity_rejected)
     structures = {
         str(_get(doc, "material_id", "")): _get(doc, "structure")
         for doc in raw_queries.get("structure_query", [])
         if _get(doc, "material_id") and _get(doc, "structure") is not None
     }
     ordered_unmatched: list[dict[str, Any]] = []
-    for doc in unmatched:
+    for doc in summary_metallic:
         material_id = str(_get(doc, "material_id", ""))
         structure = structures.get(material_id)
         if structure is None:
@@ -348,7 +405,7 @@ def _read_mp_snapshot(
             name: _get(doc, name)
             for name in (
                 "material_id", "formula_pretty", "composition_reduced", "energy_above_hull",
-                "nsites", "symmetry",
+                "nsites", "symmetry", "is_metal", "band_gap",
             )
         }
         merged_doc["structure"] = structure
@@ -356,7 +413,7 @@ def _read_mp_snapshot(
             ordered_unmatched.append(merged_doc)
         else:
             rejected[material_id] = "structure_disordered"
-    material_ids = sorted({str(_get(doc, "material_id")) for doc in unmatched if _get(doc, "material_id")})
+    material_ids = sorted({str(_get(doc, "material_id")) for doc in summary_metallic if _get(doc, "material_id")})
     counts["structure_material_ids_queried"] = len(material_ids)
     counts["structure_documents_returned"] = len(structures)
     counts["missing_structure_records"] = len(material_ids) - len(structures)
@@ -392,12 +449,33 @@ def _read_mp_snapshot(
     dos_cache = {task_id: _snapshot_dos_curve(value) for task_id, value in curve_payloads.items()}
     fetch_diagnostics = dict(payload.get("diagnostics", {}))
     fetch_diagnostics["formula_task_reference_fallback"] = fallback_diagnostics
-    qualified, dos_counts, dos_rejected, validation_diagnostics = qualify_by_dos(
+    dos_enrichment, dos_counts, _dos_rejected, validation_diagnostics = qualify_by_material_level_dos(
         ordered_unmatched,
         es_docs,
         tasks,
-        lambda task_id: dos_cache.get(task_id),
+        lambda material_id, eligible_task_ids: next(
+            ((dos_cache[task_id], task_id) for task_id in eligible_task_ids if dos_cache.get(task_id) is not None),
+            (None, ""),
+        ),
     )
+    enrichment_by_id = {str(_get(doc, "material_id", "")): data for doc, data in dos_enrichment}
+    qualified = []
+    for doc in ordered_unmatched:
+        evidence = summary_metallicity_evidence(doc)
+        if not evidence:
+            continue
+        optional = enrichment_by_id.get(str(_get(doc, "material_id", "")), {})
+        qualified.append((doc, {
+            "metallicity_source": "mp_summary_provisional",
+            "metallicity_evidence": evidence,
+            "dos_ef_states_ev_per_atom": optional.get("dos_ef_states_ev_per_atom", ""),
+            "dos_ef_gt_0p1_states_ev_atom": optional.get("dos_ef_gt_0p1_states_ev_atom", ""),
+            "dos_task_id": optional.get("dos_task_id", ""),
+            "dos_task_type": optional.get("dos_task_type", ""),
+            "dos_functional_run_type": optional.get("dos_functional_run_type", ""),
+            "dos_retrieval_method": optional.get("dos_retrieval_method", ""),
+            "dos_optional_enrichment_status": optional.get("dos_optional_enrichment_status", "missing"),
+        }))
     counts.update(dos_counts)
     counts["dos_task_ids_queried"] = len(task_ids)
     counts["task_documents_returned"] = len(tasks)
@@ -407,9 +485,8 @@ def _read_mp_snapshot(
     curves_returned = fetch_diagnostics.get("curves_returned", sum(value is not None for value in dos_cache.values()))
     counts["dos_payload_fetch_failures"] = max(0, int(eligible_task_count) - int(curves_returned))
     counts["dos_curve_validation_failures"] = sum(validation_diagnostics["error_counts"].values())
-    rejected.update(dos_rejected)
     counts["source_formula_unmatched"] = len(unmatched)
-    counts["metallic_dos_qualified"] = len(qualified)
+    counts["summary_metallicity_qualified"] = len(qualified)
 
     diagnostics = fetch_diagnostics
     diagnostics["mp_query_cache"] = {
@@ -469,8 +546,8 @@ def summary_filter_candidates(
 ) -> tuple[list[Any], dict[str, int], dict[str, str]]:
     """Apply stability, size, exact-source and composition screens to MP summaries.
 
-    No summary band gap or relaxation gap is used as a metallicity label. DOS is
-    queried separately and is mandatory for acceptance.
+    Summary metallicity is handled as a separate provisional screen; this
+    function only applies stability, size, source, and composition filters.
     """
 
     items = list(docs)
@@ -946,12 +1023,11 @@ def qualify_by_material_level_dos(
     progress_every: int = 250,
     dos_curve_cache: dict[str, Any] | None = None,
 ) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
-    """Use MP's material-ID DOS endpoint after checking eligible task metadata.
+    """Optionally enrich candidates with validated MP DOS curves.
 
     The DOS curve is retrieved by material ID, not by a possibly stale or
-    missing task ID. We still require the material's DOS metadata to reference
-    at least one Static/Uniform calculation and record that the material-level
-    endpoint does not identify which eligible task supplied its curve.
+    missing task ID. Curves are only enrichment: missing curves and DOS values
+    at or below 0.1 states/eV/atom never reject a summary-qualified candidate.
     """
     es_by_id = {str(_get(doc, "material_id", "")): doc for doc in electronic_structure_docs}
     task_by_id = {str(_get(task, "task_id", "")): task for task in task_docs}
@@ -964,6 +1040,7 @@ def qualify_by_material_level_dos(
         "dos_static_or_uniform_tasks": 0, "dos_non_static_uniform_tasks_rejected": 0,
         "dos_curves_retrieved": 0, "dos_missing_task_or_curve": 0,
         "dos_below_or_equal_0p1_states_ev_atom": 0, "dos_qualified_gt_0p1_states_ev_atom": 0,
+        "dos_ef_gt_0p1_optional_enrichment": 0,
         "dos_material_ids_queried": 0,
     }
     eligible_docs: list[tuple[Any, str, list[Any]]] = []
@@ -1035,11 +1112,12 @@ def qualify_by_material_level_dos(
             counts["dos_missing_task_or_curve"] += 1
             rejected[material_id] = "material_level_dos_curve_missing_or_invalid"
             continue
-        if dos_ef_rejection(value):
+        above_threshold = dos_ef_rejection(value) is None
+        if above_threshold:
+            counts["dos_qualified_gt_0p1_states_ev_atom"] += 1
+            counts["dos_ef_gt_0p1_optional_enrichment"] += 1
+        else:
             counts["dos_below_or_equal_0p1_states_ev_atom"] += 1
-            rejected[material_id] = "dos_ef_le_0.1_states_per_ev_per_atom"
-            continue
-        counts["dos_qualified_gt_0p1_states_ev_atom"] += 1
         task_types = sorted({str(getattr(_get(task, "task_type") or _get(task, "calc_type") or "", "value", _get(task, "task_type") or _get(task, "calc_type") or "")) for task in allowed})
         run_types = sorted({str(getattr(_get(task, "run_type") or "", "value", _get(task, "run_type") or "")) for task in allowed})
         qualified.append((doc, {
@@ -1048,6 +1126,8 @@ def qualify_by_material_level_dos(
             "dos_task_type": ";".join(task_types),
             "dos_functional_run_type": ";".join(run_types),
             "dos_retrieval_method": "material_id -> verified static/uniform task_id -> parsed DOS",
+            "dos_ef_gt_0p1_states_ev_atom": above_threshold,
+            "dos_optional_enrichment_status": "retrieved_gt_0.1" if above_threshold else "retrieved_le_0.1",
         }))
     return qualified, counts, rejected, {
         "error_counts": dict(sorted(errors.items())), "error_samples": samples,
@@ -1354,11 +1434,15 @@ def score_family_candidates(
             "hull": hull,
             "spacegroup_number": sg,
             "num_sites": _site_count(doc),
-            "dos_ef_states_ev_per_atom": dos_data["dos_ef_states_ev_per_atom"],
-            "dos_task_type": dos_data["dos_task_type"],
-            "dos_functional_run_type": dos_data["dos_functional_run_type"],
-            "dos_task_id": dos_data["dos_task_id"],
-            "dos_retrieval_method": dos_data.get("dos_retrieval_method", "task_id"),
+            "metallicity_source": dos_data.get("metallicity_source", "mp_summary_provisional"),
+            "metallicity_evidence": dos_data.get("metallicity_evidence", "is_metal_true"),
+            "dos_ef_states_ev_per_atom": dos_data.get("dos_ef_states_ev_per_atom", ""),
+            "dos_ef_gt_0p1_states_ev_atom": dos_data.get("dos_ef_gt_0p1_states_ev_atom", ""),
+            "dos_optional_enrichment_status": dos_data.get("dos_optional_enrichment_status", "missing"),
+            "dos_task_type": dos_data.get("dos_task_type", ""),
+            "dos_functional_run_type": dos_data.get("dos_functional_run_type", ""),
+            "dos_task_id": dos_data.get("dos_task_id", ""),
+            "dos_retrieval_method": dos_data.get("dos_retrieval_method", ""),
             "chemical_family": family,
             "within_family_spearman": eligible_metrics[family],
             "family_assignment_distance": family_distance,
@@ -1413,10 +1497,15 @@ def score_family_candidates(
                 "chemical_family": family,
                 "within_family_spearman": row["within_family_spearman"],
                 "energy_above_hull_ev_per_atom": row["hull"],
+                "metallicity_source": row["metallicity_source"],
+                "metallicity_evidence": row["metallicity_evidence"],
                 "dos_ef_states_ev_per_atom": row["dos_ef_states_ev_per_atom"],
+                "dos_ef_gt_0p1_states_ev_atom": row["dos_ef_gt_0p1_states_ev_atom"],
+                "dos_optional_enrichment_status": row["dos_optional_enrichment_status"],
                 "dos_task_type": row["dos_task_type"],
                 "dos_functional_run_type": row["dos_functional_run_type"],
                 "dos_task_id": row["dos_task_id"],
+                "dos_retrieval_method": row["dos_retrieval_method"],
                 "spacegroup_number": row["spacegroup_number"],
                 "num_sites": row["num_sites"],
                 "nearest_known_superconductor_formula": nearest_sc.formula if nearest_sc else "",
@@ -1453,15 +1542,12 @@ def pool_run_status(
     filter_counts: dict[str, Any],
     eligible_family_metrics: dict[str, float],
 ) -> str:
-    """Distinguish a valid empty shortlist from a blocked DOS data fetch."""
+    """Classify screening outcomes without treating optional DOS as a blocker."""
     if shortlist_rows:
         return "ready"
-    if (filter_counts.get("ordered_structures", 0)
-            and filter_counts.get("dos_task_references", 0) == 0):
-        return "blocked_dos_task_reference_missing"
-    if (filter_counts.get("dos_static_or_uniform_tasks", 0)
-            and filter_counts.get("dos_curves_retrieved", 0) == 0):
-        return "blocked_dos_curve_retrieval"
+    if (filter_counts.get("ordered_and_source_unmatched", 0)
+            and filter_counts.get("mp_summary_metallicity_accepted", 0) == 0):
+        return "ready_empty_after_summary_metallicity"
     if eligible_family_metrics:
         return "ready_empty_after_family_gate"
     return "blocked_no_family_passed_spearman_gate"
@@ -1488,7 +1574,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     lines = [
         "# Existing-but-untested Materials Project shortlist (v2)",
         "",
-        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a Materials Project DOS(Ef) above 0.1 states/eV/atom from a Static or Uniform calculation. DOS curves are resolved from task IDs linked to the candidate material and checked against task metadata; the selected task ID is recorded for any qualified candidate. Missing parsed DOS objects remain blocked. Relaxation calculations and band gaps are not substitutes.",
+        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. The provisional metallicity gate accepts Materials Project summary `is_metal=true` or `band_gap=0` and records `metallicity_source=mp_summary_provisional`; these are screening labels, not experimental validation. DOS(Ef) above 0.1 states/eV/atom from a Static or Uniform calculation is optional enrichment when its curve is available. Missing curves and DOS at or below the threshold never block pool inclusion.",
         "",
         f"Run status: **{report['status']}**. Shortlist size: **{report['shortlist_rows']}**; eligible families: **{len(report['eligible_family_metrics'])}**.",
         "",
@@ -1504,7 +1590,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     diagnostics = report.get("dos_fetch_diagnostics", {})
     lines += [
         "",
-        "## DOS payload retrieval diagnostics",
+        "## Optional DOS(Ef) enrichment diagnostics",
         "",
         f"Material-associated DOS retrievals attempted: {diagnostics.get('eligible_material_ids', 0)}; "
         f"curves returned: {diagnostics.get('curves_returned', 0)}; "
@@ -1579,10 +1665,10 @@ def _fetch_mp_with_client(
     *,
     snapshot_capture: dict[str, Any] | None = None,
 ) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
-    """Query MP, retain ordered structures, and require static/uniform DOS(Ef)."""
+    """Query MP summaries, retain ordered structures, and optionally fetch DOS."""
     summary_fields = [
         "material_id", "formula_pretty", "composition_reduced", "energy_above_hull", "nsites",
-        "symmetry",
+        "symmetry", "is_metal", "band_gap",
     ]
     print("Querying Materials Project summaries for stable materials with at most 20 sites...", flush=True)
     docs = mpr.materials.summary.search(
@@ -1604,12 +1690,15 @@ def _fetch_mp_with_client(
     unmatched, counts, rejected = _summary_filter_without_structures(
         docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
     )
+    summary_metallic, metallicity_counts, metallicity_rejected = filter_by_summary_metallicity(unmatched)
+    counts.update(metallicity_counts)
+    rejected.update(metallicity_rejected)
     print(
         f"Summary query returned {counts['mp_summary_returned']} records; "
-        f"{len(unmatched)} remain after stability, size, known-source, and composition screens.",
+        f"{len(summary_metallic)} remain after stability, size, source, composition, and provisional summary-metallicity screens.",
         flush=True,
     )
-    material_ids = sorted({str(_get(doc, "material_id")) for doc in unmatched if _get(doc, "material_id")})
+    material_ids = sorted({str(_get(doc, "material_id")) for doc in summary_metallic if _get(doc, "material_id")})
     structures: dict[str, Any] = {}
     structure_batches = list(range(0, len(material_ids), 1000))
     for batch_number, start in enumerate(structure_batches, start=1):
@@ -1631,7 +1720,7 @@ def _fetch_mp_with_client(
             flush=True,
         )
     ordered_unmatched = []
-    for doc in unmatched:
+    for doc in summary_metallic:
         material_id = str(_get(doc, "material_id", ""))
         structure = structures.get(material_id)
         if structure is None:
@@ -1641,7 +1730,7 @@ def _fetch_mp_with_client(
             name: _get(doc, name)
             for name in (
                 "material_id", "formula_pretty", "composition_reduced", "energy_above_hull",
-                "nsites", "symmetry",
+                "nsites", "symmetry", "is_metal", "band_gap",
             )
         }
         merged_doc["structure"] = structure
@@ -1708,15 +1797,33 @@ def _fetch_mp_with_client(
     # get_dos_by_material_id currently assumes a nested task_id that can be
     # absent, so use the proven deep-enrichment task resolver and record the ID.
     with material_level_dos_lookup(mpr) as load_material_dos:
-        qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_material_level_dos(
+        dos_enrichment, dos_counts, _dos_rejected, dos_validation_diagnostics = qualify_by_material_level_dos(
             ordered_unmatched,
             es_docs,
             tasks,
             load_material_dos,
             dos_curve_cache=raw_query_results["dos_curves"],
         )
+    enrichment_by_id = {str(_get(doc, "material_id", "")): data for doc, data in dos_enrichment}
+    qualified = []
+    for doc in ordered_unmatched:
+        evidence = summary_metallicity_evidence(doc)
+        if not evidence:
+            continue
+        optional = enrichment_by_id.get(str(_get(doc, "material_id", "")), {})
+        qualified.append((doc, {
+            "metallicity_source": "mp_summary_provisional",
+            "metallicity_evidence": evidence,
+            "dos_ef_states_ev_per_atom": optional.get("dos_ef_states_ev_per_atom", ""),
+            "dos_ef_gt_0p1_states_ev_atom": optional.get("dos_ef_gt_0p1_states_ev_atom", ""),
+            "dos_task_id": optional.get("dos_task_id", ""),
+            "dos_task_type": optional.get("dos_task_type", ""),
+            "dos_functional_run_type": optional.get("dos_functional_run_type", ""),
+            "dos_retrieval_method": optional.get("dos_retrieval_method", ""),
+            "dos_optional_enrichment_status": optional.get("dos_optional_enrichment_status", "missing"),
+        }))
     dos_fetch_diagnostics = {
-        "retrieval_method": "candidate material_id -> eligible static/uniform task_id -> parsed DOS",
+        "retrieval_method": "optional: candidate material_id -> eligible static/uniform task_id -> parsed DOS",
         "eligible_material_ids": dos_counts["dos_material_ids_queried"],
         "curves_returned": dos_counts["dos_curves_retrieved"],
         "error_counts": dos_validation_diagnostics["error_counts"],
@@ -1724,7 +1831,7 @@ def _fetch_mp_with_client(
         "formula_task_reference_fallback": fallback_diagnostics,
         "curve_validation_error_counts": dos_validation_diagnostics["error_counts"],
         "curve_validation_error_samples": dos_validation_diagnostics["error_samples"],
-        "dos_curve_task_linkage": "exact candidate material-to-task reference; selected DOS task ID recorded",
+        "dos_curve_task_linkage": "optional enrichment; exact candidate material-to-task reference; selected DOS task ID recorded",
         "material_level_request_workers": dos_validation_diagnostics["workers"],
     }
     counts.update(dos_counts)
@@ -1735,9 +1842,8 @@ def _fetch_mp_with_client(
         0, dos_fetch_diagnostics["eligible_material_ids"] - dos_fetch_diagnostics["curves_returned"]
     )
     counts["dos_curve_validation_failures"] = sum(dos_validation_diagnostics["error_counts"].values())
-    rejected.update(dos_rejected)
     counts["source_formula_unmatched"] = len(unmatched)
-    counts["metallic_dos_qualified"] = len(qualified)
+    counts["summary_metallicity_qualified"] = len(qualified)
     if snapshot_capture is not None:
         snapshot_capture.update(raw_query_results)
     return qualified, counts, rejected, dos_fetch_diagnostics
@@ -1882,8 +1988,9 @@ def build_untested_pool(
         "interpretation": "Existing MP materials absent by reduced formula from normalized rows in the five specified data exports; not proof that no experiment has ever tested them.",
         "criteria": {
             "energy_above_hull_ev_per_atom_max": HULL_MAX_EV_PER_ATOM,
-            "metallicity": f"Materials Project DOS(Ef) > {MIN_DOS_EF_STATES_EV_PER_ATOM} states/eV/atom from static or uniform task; relaxation tasks are rejected",
-            "metallicity_task_type_fields": ["task_type", "calc_type"],
+            "metallicity": "provisional Materials Project summary is_metal=true OR band_gap exactly 0 eV; output labels source as mp_summary_provisional",
+            "optional_dos_enrichment": f"When available, record DOS(Ef) and whether it exceeds {MIN_DOS_EF_STATES_EV_PER_ATOM} states/eV/atom from a Static/Uniform calculation; missing or low DOS never blocks pool inclusion",
+            "optional_dos_task_type_fields": ["task_type", "calc_type"],
             "insulator_composition_policy": "shared chemistry_policy.insulator_rejection applied before scoring",
             "composition_exclusions": ["main chemistry_policy radioactive and insulator screens plus Tc/Pm/Po/Ra/Ac/Th/Pa/U/Np and Z>=93", "carbonates", "sulfates", "hydroxides", "nitrates", "phosphates", "alkali/alkaline-earth transition-metal fluorides", "stoichiometric BaCuO2 parent composition"],
             "ordered_structure_required": True,
@@ -1910,7 +2017,8 @@ def build_untested_pool(
         "scoring_counts": score_counts,
         "scoring_rejection_reason_counts": dict(sorted(score_rejection_counts.items())),
         "candidate_assignment_outcomes": candidate_outcomes,
-        "pool_size_after_all_materials_project_and_database_filters": filter_counts.get("metallic_dos_qualified", 0),
+        "pool_size_after_summary_metallicity": filter_counts.get("summary_metallicity_qualified", 0),
+        "pool_size_after_all_materials_project_and_database_filters": filter_counts.get("summary_metallicity_qualified", 0),
         "pool_size_assigned_to_families": score_counts.get("family_assigned_within_distance_and_definers", 0),
         "pool_size_scored_after_family_gate": len(scored),
         "shortlist_rows": len(shortlist),
