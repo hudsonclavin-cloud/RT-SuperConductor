@@ -105,11 +105,6 @@ jobs:
         with:
           path: data/raw
           key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
-      - name: Cache CIF feature calculations
-        uses: actions/cache@v4
-        with:
-          path: data/processed/cif-feature-cache
-          key: rt-supercon-features-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py', 'scripts/ingest_3dsc.py', 'scripts/deep_physics_features.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install machine-learning dependencies
         run: python -m pip install --upgrade pip '.[ml,mp]'
       - name: Validate reviewed records
@@ -255,6 +250,7 @@ jobs:
           path: data/raw
           key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Cache CIF feature calculations
+        if: ${{ inputs.deep_ablation }}
         uses: actions/cache@v4
         with:
           path: data/processed/cif-feature-cache
@@ -379,11 +375,6 @@ jobs:
         with:
           path: data/raw
           key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
-      - name: Cache CIF feature calculations
-        uses: actions/cache@v4
-        with:
-          path: data/processed/cif-feature-cache
-          key: rt-supercon-features-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py', 'scripts/ingest_3dsc.py', 'scripts/deep_physics_features.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install modeling and Materials Project dependencies
         run: python -m pip install --upgrade pip '.[ml,mp]'
       - name: Download pinned source data and prior shortlist

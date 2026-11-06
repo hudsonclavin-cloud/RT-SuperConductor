@@ -37,16 +37,6 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
-      - name: Cache pinned raw datasets
-        uses: actions/cache@v4
-        with:
-          path: data/raw
-          key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
-      - name: Cache CIF feature calculations
-        uses: actions/cache@v4
-        with:
-          path: data/processed/cif-feature-cache
-          key: rt-supercon-features-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py', 'scripts/ingest_3dsc.py', 'scripts/deep_physics_features.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install structure dependencies
         run: python -m pip install --upgrade pip '.[ml,mp]'
       - name: Enrich harmonized records with Materials Project ids
