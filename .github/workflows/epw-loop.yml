@@ -1,0 +1,85 @@
+name: EPW loop - rescore candidates after new results
+
+# Closes the loop automatically: when a reviewed Hazel result is promoted into
+# data/training/hazel-epw-records.json, or the candidate lists change, refit
+# the formula-only lambda/omega_log models and rescore the EPW candidates.
+# Lightweight on purpose (no PyTorch, no Materials Project calls).
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/training/hazel-epw-records.json"
+      - "data/training/physics-target-characteristics.csv"
+      - "docs/epw-eligible-shortlist.csv"
+      - "docs/untested-pool-shortlist.csv"
+      - "scripts/score_pool_physics.py"
+      - "scripts/train_physics_targets.py"
+      - ".github/workflows/epw-loop.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: epw-loop-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  rescore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip '.[ml]'
+      - name: Refit physics models and rescore candidates
+        run: |
+          python scripts/score_pool_physics.py \
+            --output data/processed/epw-loop/epw-next-candidates.csv \
+            --summary data/processed/epw-loop/epw-next-candidates.json
+      - name: Publish run summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          report = json.loads(Path("data/processed/epw-loop/epw-next-candidates.json").read_text())
+          quality = report["model"].get("held_out_quality", {}).get("tc_k", {})
+          lines = [
+              "### EPW loop rescoring",
+              f"- Candidates file: `{report['candidates_path']}`",
+              f"- Scored: {report['candidates_scored']}; EPW-eligible: {report['epw_eligible']}",
+              f"- Reviewed Hazel records in training: {len(report['model'].get('hazel_records_used', []))}",
+              f"- Held-out Tc MAE {quality.get('mae', float('nan')):.2f} K vs median guess "
+              f"{quality.get('median_guess_mae', float('nan')):.2f} K; Spearman {quality.get('spearman', float('nan')):.2f}",
+              "",
+              "| Rank | MP ID | Formula | Consensus Tc (K) | Physics Tc (K) | Measured-Tc RF (K) |",
+              "| --- | --- | --- | --- | --- | --- |",
+          ]
+          for row in report["top_eligible"]:
+              lines.append(
+                  f"| {row['epw_rank']} | {row['mp_id']} | {row['formula']} | "
+                  f"{(row['consensus_tc_k'] or 0):.1f} | {row['physics_tc_k']:.1f} | {row['rf_family_tc_k']} |"
+              )
+          lines.append("")
+          lines.append("Screening hypotheses only; DFT verification pending for every row.")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
+      - name: Upload rescored candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: epw-loop-${{ github.run_id }}
+          path: data/processed/epw-loop/
+          if-no-files-found: error
