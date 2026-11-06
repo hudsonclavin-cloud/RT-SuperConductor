@@ -1,0 +1,20 @@
+# Excerpt from Quantum ESPRESSO test-suite/epw_super/benchmark.out.git.inp=epw7.in.args=3
+# (MgB2 EPW benchmark, https://github.com/QEF/q-e, GPL-2.0). Lines kept verbatim; others removed.
+     Parameters for IR basis: Lambda =     1.00E+05, eps_IR =     1.00E-06
+
+     a2f file is found and will be used to estimate initial gap
+ 
+
+     Finish reading a2f file
+
+     Electron-phonon coupling strength =    0.8714948
+ 
+     Estimated Tc using McMillan expression =  26.4082 K for muc =   0.1600
+  
+     Estimated Tc using Allen-Dynes modified McMillan expression =  27.4569 K
+  
+     Estimated Tc using SISSO machine learning model =  31.5015 K
+  
+     Estimated w_log =  61.4704 meV
+  
+     Estimated BCS superconducting gap using McMillan Tc =   4.0052 meV

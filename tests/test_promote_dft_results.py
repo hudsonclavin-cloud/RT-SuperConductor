@@ -33,13 +33,43 @@ def test_allen_dynes_matches_tantalum_worked_example():
     assert allen_dynes_tc_k(0.05, 100.0, 0.1) is None
 
 
-def test_fallback_parser_reads_epw_summary_wording():
-    text = ("Electron-phonon coupling strength =   0.7621\n"
-            "Estimated w_log in McMillan Tc =   14.20 meV\n")
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "epw_super_mgb2_excerpt.out"
+
+
+def test_real_epw_output_is_parsed_and_tc_matches_epw():
+    from promote_dft_results import epw_printed_mcmillan
+
+    text = FIXTURE.read_text()
     lam, wlog, parser = parse_targets(text)
-    assert lam == pytest.approx(0.7621)
-    assert wlog == pytest.approx(14.20 * 11.60451812155)
-    assert parser == "epw_summary_fallback_unconfirmed"
+    assert parser == "epw_summary"
+    assert lam == pytest.approx(0.8714948)  # not the IR-basis "Lambda = 1.00E+05"
+    assert wlog == pytest.approx(61.4704 * 11.60451812155)
+    epw_tc, muc = epw_printed_mcmillan(text)
+    assert (epw_tc, muc) == (pytest.approx(26.4082), pytest.approx(0.16))
+    assert allen_dynes_tc_k(lam, wlog, muc) == pytest.approx(epw_tc, abs=1e-3)
+
+
+def test_muc_is_used_line_wins_over_mislabelled_mcmillan_line():
+    from promote_dft_results import epw_printed_mcmillan
+
+    text = ("     Electron-phonon coupling strength =    0.8714948\n"
+            "     muc = 0.15 is used in the following estimations\n"
+            "     Estimated Tc using McMillan expression =  28.4619 K for muc =   0.2000\n"
+            "     Estimated w_log =  61.4704 meV\n")
+    epw_tc, muc = epw_printed_mcmillan(text)
+    assert muc == pytest.approx(0.15)
+    assert allen_dynes_tc_k(0.8714948, 61.4704 * 11.60451812155, muc) == pytest.approx(epw_tc, abs=1e-3)
+
+
+def test_real_epw_candidate_promotes_with_consistency_check(tmp_path):
+    _write_run(tmp_path / "run", formula="MgB2", element="Mg", epw_text=FIXTURE.read_text())
+    outcome = evaluate_directory(tmp_path / "run")
+    # The fixture CIF is Mg, so the formula check must reject MgB2: provenance first.
+    assert outcome["reason"] == "review_formula_does_not_match_cif"
+    _write_run(tmp_path / "run2", formula="Mg", element="Mg", epw_text=FIXTURE.read_text())
+    outcome = evaluate_directory(tmp_path / "run2")
+    assert outcome["outcome"] == "candidate"
+    assert outcome["epw_consistency"]["matches_epw_printed_tc"] is True
 
 
 def test_accepted_candidate_becomes_jarvis_format_training_record(tmp_path):

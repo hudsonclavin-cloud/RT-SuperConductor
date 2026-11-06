@@ -51,11 +51,14 @@ SOURCE_LABEL = "hazel-epw (reviewed local calculation)"
 DEFAULT_TOLERANCE = 0.25  # suggested benchmark tolerance: 25% relative error
 
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eEdD][-+]?\d+)?"
-# EPW's isotropic summary is commonly worded like the lines below. These
-# patterns are a fallback until they are confirmed against real Stage 0 output.
-_LAMBDA_FALLBACK = re.compile(rf"electron-phonon coupling strength\s*=\s*({_FLOAT})", re.I)
-_WLOG_FALLBACK = re.compile(rf"w_?log[^=\n]*=\s*({_FLOAT})\s*(meV|K)\b", re.I)
-_MEV_TO_K = 11.60451812155
+# EPW prints its own McMillan-form Tc; the formula below reproduces it exactly
+# (checked against the QE test-suite epw_super benchmark: 26.4082 K at
+# muc=0.16 and 28.4619 K at muc=0.15). EPW's separately printed
+# "Allen-Dynes modified" value adds f1*f2 strong-coupling factors we omit.
+_EPW_MCMILLAN_TC = re.compile(
+    rf"Estimated Tc using McMillan expression\s*=\s*({_FLOAT})\s*K(?:\s*for muc\s*=\s*({_FLOAT}))?", re.I)
+_EPW_MUC_USED = re.compile(rf"muc\s*=\s*({_FLOAT})\s*is used", re.I)
+_EPW_SUMMARY = re.compile(r"Electron-phonon coupling strength\s*=", re.I)
 
 
 def allen_dynes_tc_k(lam: float, omega_log_k: float, mu_star: float = 0.1) -> float | None:
@@ -67,18 +70,20 @@ def allen_dynes_tc_k(lam: float, omega_log_k: float, mu_star: float = 0.1) -> fl
 
 
 def parse_targets(text: str) -> tuple[float | None, float | None, str]:
-    """Return (lambda, omega_log in K, which parser matched)."""
+    """Return (lambda, omega_log in K, which kind of line they came from)."""
     lam, wlog = parse_epw_targets(text)
-    if lam is not None and wlog is not None:
-        return lam, wlog, "ingest_dft_results"
-    lam_match = _LAMBDA_FALLBACK.search(text)
-    wlog_match = _WLOG_FALLBACK.search(text)
-    if lam is None and lam_match:
-        lam = float(lam_match.group(1).replace("D", "E").replace("d", "e"))
-    if wlog is None and wlog_match:
-        value = float(wlog_match.group(1).replace("D", "E").replace("d", "e"))
-        wlog = value * _MEV_TO_K if wlog_match.group(2).lower() == "mev" else value
-    return lam, wlog, "epw_summary_fallback_unconfirmed"
+    return lam, wlog, "epw_summary" if _EPW_SUMMARY.search(text) else "generic_lambda_line"
+
+
+def epw_printed_mcmillan(text: str) -> tuple[float | None, float | None]:
+    """EPW's own printed McMillan Tc (K) and the muc it says it used, if present."""
+    tc = _EPW_MCMILLAN_TC.search(text)
+    # Prefer "muc = X is used": in the epw_super benchmark the McMillan line's
+    # own "for muc" label can disagree with it, and the printed Tc follows the
+    # "is used" value.
+    used = _EPW_MUC_USED.search(text)
+    muc = used.group(1) if used else (tc.group(2) if tc and tc.group(2) else None)
+    return (float(tc.group(1)) if tc else None, float(muc) if muc else None)
 
 
 def _atoms_from_cif(path: Path) -> tuple[dict[str, Any], str]:
@@ -122,7 +127,8 @@ def evaluate_directory(directory: Path, tolerance: float = DEFAULT_TOLERANCE) ->
         return {**outcome, "outcome": "rejected", "reason": f"expected_one_cif_found_{len(cifs)}"}
     if review.get("converged") is not True:
         return {**outcome, "outcome": "rejected", "reason": "review_does_not_confirm_convergence"}
-    lam, wlog, parser = parse_targets(epw_path.read_text(encoding="utf-8", errors="replace"))
+    epw_text = epw_path.read_text(encoding="utf-8", errors="replace")
+    lam, wlog, parser = parse_targets(epw_text)
     if lam is None or wlog is None:
         return {**outcome, "outcome": "rejected", "reason": "lambda_or_omega_log_not_parsed",
                 "parsed_lambda": lam, "parsed_omega_log_k": wlog}
@@ -132,12 +138,21 @@ def evaluate_directory(directory: Path, tolerance: float = DEFAULT_TOLERANCE) ->
         return {**outcome, "outcome": "rejected", "reason": "review_formula_does_not_match_cif",
                 "review_formula": claimed, "cif_formula": structure_formula}
     mu_star = float(review.get("mu_star", 0.1))
+    epw_tc, epw_muc = epw_printed_mcmillan(epw_text)
+    check: dict[str, Any] = {"epw_printed_mcmillan_tc_k": epw_tc, "epw_reported_muc": epw_muc}
+    if epw_tc is not None and epw_muc is not None:
+        recomputed = allen_dynes_tc_k(lam, wlog, epw_muc)
+        check["recomputed_tc_at_epw_muc_k"] = recomputed
+        check["matches_epw_printed_tc"] = recomputed is not None and abs(recomputed - epw_tc) <= 0.01 * epw_tc
     evidence = {
         "formula": structure_formula, "lambda": lam, "omega_log_k": wlog, "mu_star": mu_star,
         "allen_dynes_tc_k": allen_dynes_tc_k(lam, wlog, mu_star), "parser": parser,
         "epw_out_sha256": _sha256(epw_path), "cif_sha256": _sha256(cifs[0]),
         "reviewer": review.get("reviewer", ""), "notes": review.get("notes", ""),
+        "epw_consistency": check,
     }
+    if check.get("matches_epw_printed_tc") is False:
+        return {**outcome, **evidence, "outcome": "rejected", "reason": "recomputed_tc_disagrees_with_epw_output"}
     if role == "benchmark":
         reference = review.get("reference") or {}
         ref_lam, ref_wlog = reference.get("lambda"), reference.get("omega_log_k")

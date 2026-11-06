@@ -30,8 +30,8 @@ Benchmarks and candidates go to different places on purpose. A benchmark like ta
 | 4. EPW-eligible list | Pending (`codex/pool-label-quarantine`) | In progress | Needs the magnetism filter and an oxygen-variant check |
 | 5. QE/EPW inputs | `scripts/generate_qe_inputs.py`, `scripts/prepare_*_benchmark.py` | QE fixed; EPW input blocked | EPW input still lacks nbndsub, projections, windows, fine meshes, μ* |
 | 6. Run on Hazel | `scripts/hpc/stage_inputs.sh`, `scripts/hpc/job.slurm.sh.template` | Waiting on access | Slurm confirmed; partition and QoS names pending |
-| 7. Ingest outputs | `scripts/ingest_dft_results.py` | Built, unproven | The λ/ωlog parser has never seen real EPW output; Stage 0 confirms it |
-| 8. Review and promote | `scripts/promote_dft_results.py` + `results/<id>/review.json` | New | Benchmarks go to a comparison report; accepted candidates become training records |
+| 7. Ingest outputs | `scripts/ingest_dft_results.py` | Working on real EPW output | Parser now reads EPW's summary lines; tested on the QE test-suite MgB2 benchmark (λ = 0.8715, ωlog = 61.47 meV). It previously found nothing there, or a bogus λ = 100,000 from an "IR basis: Lambda" line |
+| 8. Review and promote | `scripts/promote_dft_results.py` + `results/<id>/review.json` | Working | Benchmarks go to a comparison report; accepted candidates become training records; recomputed Tc must match EPW's printed McMillan Tc within 1% |
 | 9. Retrain with results | `train_physics_targets.py --extra-records data/training/hazel-epw-records.json` | New | Records reuse the JARVIS format, so features build the same way |
 | 10. Physics models score the pool | Missing | **Gap** | λ/ωlog models only rank prototype substitutions in `run_physics_search.py` today |
 
@@ -59,6 +59,10 @@ Each stage must pass before the next starts. The 25% tolerance is a suggested st
 
 The work area on Hazel is wiped after about 30 days untouched and is not backed up. A result exists only once it is copied into `results/<id>/` in the repository.
 
+## A note on the Tc formula
+
+The project's "Allen-Dynes" Tc uses ωlog/1.2 as the prefactor, with no strong-coupling factors. EPW labels this same number its **McMillan expression**, and our formula reproduces EPW's printed value exactly (26.4082 K for MgB2 at μ* = 0.16). EPW's separate "Allen-Dynes modified" line adds strong-coupling factors f1·f2 and comes out about 4% higher in that example. When comparing with papers, check which of the two they report.
+
 ## Running one turn of the loop
 
 ```bash
@@ -76,6 +80,6 @@ python scripts/train_physics_targets.py --extra-records data/training/hazel-epw-
 
 1. **Hazel access.** Requested through Research Facilitation; Lib Students project.
 2. **The EPW input.** Start from EPW tutorial 04's Pb inputs instead of the generated template.
-3. **The parser.** Confirm `promote_dft_results.py` reads λ and ωlog from Stage 0's real `epw.out`, and fix the pattern if not.
+3. **The parser.** Confirmed on real EPW output from the QE test suite (MgB2). Stage 0 rechecks it on Pb with the EPW version installed on Hazel.
 4. **Physics models scoring the pool (step 10).** Score the EPW-eligible list with the retrained λ and ωlog models, so new results change the next choice.
 5. **Automation.** Globus Compute could let GitHub Actions submit Hazel jobs. Set it up only after manual runs work (see `docs/hazel-runbook.md`).
