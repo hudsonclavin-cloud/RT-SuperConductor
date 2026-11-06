@@ -2,7 +2,7 @@
 
 This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. The provisional metallicity gate accepts Materials Project summary `is_metal=true` or `band_gap=0` and records `metallicity_source=mp_summary_provisional`; these are screening labels, not experimental validation. DOS(Ef) above 0.1 states/eV/atom from a Static or Uniform calculation is optional enrichment when its curve is available. Missing curves and DOS at or below the threshold never block pool inclusion.
 
-Run status: **ready**. Shortlist size: **120**; eligible families: **4**.
+Run status: **ready**. Main shortlist size: **120**; EPW-eligible list size: **3370**; eligible families: **4**.
 
 ## Counts per filter
 
@@ -15,87 +15,117 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 | `site_count_le_20` | 30358 |
 | `formula_unparseable` | 0 |
 | `formula_matches_known_superconductor_source` | 2764 |
-| `ambiguous_formula_source_system_overlap` | 718 |
-| `composition_policy_rejected` | 3630 |
-| `unmatched_reduced_formula` | 23964 |
-| `mp_summary_is_metal_true` | 15500 |
-| `mp_summary_band_gap_zero` | 15493 |
-| `mp_summary_metallicity_accepted` | 15500 |
-| `mp_summary_metallicity_rejected` | 8464 |
-| `structure_material_ids_queried` | 15500 |
-| `structure_documents_returned` | 15500 |
+| `oxygen_variant_of_known` | 138 |
+| `ambiguous_formula_source_system_overlap` | 678 |
+| `composition_policy_rejected` | 3574 |
+| `unmatched_reduced_formula` | 23882 |
+| `mp_summary_is_metal_true` | 15472 |
+| `mp_summary_band_gap_zero` | 15465 |
+| `mp_summary_metallicity_accepted` | 15472 |
+| `mp_summary_metallicity_rejected` | 8410 |
+| `structure_material_ids_queried` | 15472 |
+| `structure_documents_returned` | 15472 |
 | `missing_structure_records` | 0 |
-| `ordered_structures` | 15500 |
-| `ordered_and_source_unmatched` | 15500 |
-| `dos_formula_fallback_materials_missing_refs` | 15500 |
-| `dos_formula_fallback_materials_recovered` | 154 |
-| `dos_formula_fallback_task_refs_recovered` | 806 |
+| `ordered_structures` | 15472 |
+| `ordered_and_source_unmatched` | 15472 |
+| `dos_formula_fallback_materials_missing_refs` | 15472 |
+| `dos_formula_fallback_materials_recovered` | 157 |
+| `dos_formula_fallback_task_refs_recovered` | 802 |
 | `dos_formula_fallback_query_errors` | 0 |
-| `dos_formula_fallback_task_documents_returned` | 3358 |
-| `dos_formula_fallback_non_static_uniform_tasks_rejected` | 2416 |
-| `dos_formula_fallback_structure_comparisons` | 1112 |
-| `dos_formula_fallback_structure_matches` | 806 |
-| `dos_metadata_returned` | 15654 |
-| `dos_task_references` | 154 |
-| `dos_static_or_uniform_tasks` | 115 |
+| `dos_formula_fallback_task_documents_returned` | 3224 |
+| `dos_formula_fallback_non_static_uniform_tasks_rejected` | 2341 |
+| `dos_formula_fallback_structure_comparisons` | 1145 |
+| `dos_formula_fallback_structure_matches` | 802 |
+| `dos_metadata_returned` | 15629 |
+| `dos_task_references` | 157 |
+| `dos_static_or_uniform_tasks` | 124 |
 | `dos_non_static_uniform_tasks_rejected` | 0 |
 | `dos_curves_retrieved` | 0 |
-| `dos_missing_task_or_curve` | 15500 |
+| `dos_missing_task_or_curve` | 15472 |
 | `dos_below_or_equal_0p1_states_ev_atom` | 0 |
 | `dos_qualified_gt_0p1_states_ev_atom` | 0 |
 | `dos_ef_gt_0p1_optional_enrichment` | 0 |
-| `dos_material_ids_queried` | 88 |
-| `dos_task_ids_queried` | 13284 |
-| `task_documents_returned` | 13284 |
-| `dos_payload_fetch_failures` | 88 |
-| `dos_curve_validation_failures` | 88 |
-| `source_formula_unmatched` | 23964 |
-| `summary_metallicity_qualified` | 15500 |
+| `dos_material_ids_queried` | 92 |
+| `dos_task_ids_queried` | 13237 |
+| `task_documents_returned` | 13237 |
+| `dos_payload_fetch_failures` | 92 |
+| `dos_curve_validation_failures` | 92 |
+| `source_formula_unmatched` | 23882 |
+| `summary_metallicity_qualified` | 15472 |
+
+## Label quarantine and training comparison
+
+Active quarantined labels excluded from empirical training: **9**. Source observations are preserved. The quarantined 3DSC rows are treated as suspected label errors because three high transition labels share the same MP structure (`mp-510625`); this is an audit flag, not a declaration that the source rows are false. Other 3DSC records above 77 K without Cu are also queued by rule.
+Previous shortlist nearest-neighbor references directly affected by these quarantined rows: **4**.
+
+| Family | Before rows / MAE / Spearman | After quarantine rows / MAE / Spearman |
+|---|---|---|
+| Cuprates | 879 / 21.508 K / 0.5322 | 876 / 21.340 K / 0.5442 |
+| Ferrites | 517 / 9.039 K / 0.5153 | 517 / 9.039 K / 0.5153 |
+| Heavy-fermion | 418 / 1.150 K / 0.2761 | 418 / 1.150 K / 0.2761 |
+| Other | 3529 / 3.036 K / 0.6392 | 3529 / 3.036 K / 0.6392 |
+| Oxides | 320 / 3.810 K / 0.5576 | 320 / 3.810 K / 0.5576 |
 
 ## Optional DOS(Ef) enrichment diagnostics
 
-Material-associated DOS retrievals attempted: 88; curves returned: 0; fetch errors by type: `{"OSError": 88}`.
+Material-associated DOS retrievals attempted: 92; curves returned: 0; fetch errors by type: `{"OSError": 92}`.
 Retrieval path: `optional: candidate material_id -> eligible static/uniform task_id -> parsed DOS`.
-Curve-validation errors by type: `{"OSError": 88}`.
-Formula-based task lookup recovered 806 task references for 154 exact-structure matches from 15500 candidates missing DOS references; task documents returned: 3358; non-static/uniform tasks rejected: 2416; structure comparisons/matches: 1112/806; lookup errors: `{}`.
+Curve-validation errors by type: `{"OSError": 92}`.
+Formula-based task lookup recovered 802 task references for 157 exact-structure matches from 15472 candidates missing DOS references; task documents returned: 3224; non-static/uniform tasks rejected: 2341; structure comparisons/matches: 1145/802; lookup errors: `{}`.
 - Example `mp-1025306`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaicryh.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 - Example `mp-12073`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaibdzy.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `mp-755117`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaicdxr.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `mp-1103999`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaifnbi.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `mp-335`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaidnto.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-1227433`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiiwmo.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-1227663`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaijmkz.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-15889`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaigraw.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 - Example `mp-1025306`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaicryh.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 - Example `mp-12073`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaibdzy.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `mp-755117`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaicdxr.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `mp-1103999`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaifnbi.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `mp-335`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaidnto.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-1227433`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiiwmo.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-1227663`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaijmkz.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-15889`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaigraw.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 
 ## Family gate and shortlist
 
 | Family | Main within-family Spearman | Assigned candidates | Scored | Top 30 |
 |---|---:|---:|---:|---:|
-| Cuprates | 0.5322 | 95 | 95 | 30 |
+| Cuprates | 0.5442 | 84 | 84 | 30 |
 | Ferrites | 0.5153 | 61 | 61 | 30 |
 | Other | 0.6392 | 4827 | 4827 | 30 |
-| Oxides | 0.5576 | 439 | 439 | 30 |
+| Oxides | 0.5576 | 428 | 428 | 30 |
+
+## Magnetic exclusions for the EPW route
+
+MP summary magnetic order and total magnetization are carried into each scored row. Any MP `is_magnetic=true`, FM/AFM/FiM ordering, or nonzero total magnetization is excluded from the EPW-eligible list. Unknown magnetic state is also excluded rather than assumed non-magnetic. The separate EPW audit CSV retains each candidate and its reason.
+
+| EPW decision | Count |
+|---|---:|
+| `eligible_non_magnetic_other_max_20_sites` | 3370 |
+| `family_not_other` | 573 |
+| `magnetic_excluded_from_epw` | 1457 |
+
+## FeCuO2 follow-up
+
+Previous-shortlist outcome for `FeCuO2` (`mp-505110`): **retained** — `still ranks within the v2 top 30 for its family`. Its oxygen-insensitive key is `FeCu`; matching source formulas: `[]`. If that list is empty, FeCuO2 was not removed by the oxygen-variant rule; any removal comes from the current family assignment/gate/rank and is named above.
+
+The separate EPW list is `data/processed/continuous-training/epw-eligible-shortlist.csv` and contains only Other-family, explicitly non-magnetic entries with at most 20 sites, ranked by predicted Tc minus tree-spread SD. Its nearest known compound and measured Tc are included for context.
 
 ### Assignment/scoring outcomes
 
 | Outcome | Count |
 |---|---:|
-| `family_assigned_within_distance_and_definers` | 6013 |
-| `family_gate_passed` | 5422 |
+| `family_assigned_within_distance_and_definers` | 5991 |
+| `family_gate_passed` | 5400 |
 | `family_gate_skipped` | 591 |
 | `no_nearest_training_record` | 0 |
-| `family_unassigned` | 9487 |
-| `family_assignment_distance_rejected` | 8822 |
-| `family_definer_rejected` | 665 |
+| `family_unassigned` | 9481 |
+| `family_assignment_distance_rejected` | 8830 |
+| `family_definer_rejected` | 651 |
 | `family_assigned:Carbon-based` | 7 |
 | `family_assigned:Chevrel` | 52 |
-| `family_assigned:Cuprates` | 95 |
+| `family_assigned:Cuprates` | 84 |
 | `family_assigned:Ferrites` | 61 |
 | `family_assigned:Heavy-fermion` | 532 |
 | `family_assigned:Other` | 4827 |
-| `family_assigned:Oxides` | 439 |
+| `family_assigned:Oxides` | 428 |
 
 Rejected candidate counts are keyed by MP ID in the report JSON under `candidate_assignment_outcomes`; unassigned records carry a reason and are never scored.
 
@@ -104,15 +134,135 @@ The family gate uses `within_family_evaluation.families[*].spearman_rho` from `t
 
 ## Previous shortlist: before and after
 
-Previous rows: 0; retained in this top-30 output: 0; removed: 0.
+Previous rows: 120; retained in this top-30 output: 111; removed: 9.
 
 | Old rank | MP ID | Formula | Old family | V2 disposition | Reason |
 |---:|---|---|---|---|---|
-| — | — | — | — | baseline unavailable | Prior shortlist CSV was not provided to the CI run. |
+| 1 | mp-505110 | FeCuO2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 2 | mp-1216344 | VGa(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 3 | mp-1221799 | Mn3Cu2NiO8 | Cuprates | removed | unassigned_family_distance_gt_0.3 |
+| 4 | mp-22618 | Y(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 5 | mp-755805 | Sc(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 6 | mp-9417 | Sm(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 7 | mp-4371 | Nd(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 8 | mp-1228298 | Ba3SrTl2Cu2HgO10 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 9 | mp-1045774 | YCo4(CuO4)3 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 10 | mp-561182 | Ba4Tl2Cu2HgO10 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 11 | mp-754674 | Lu(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 12 | mp-1045844 | YCu3(NiO3)4 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 13 | mp-9416 | La(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 14 | mp-1227234 | CaMn2Cu3(RuO6)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 15 | mp-20707 | Gd(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 16 | mp-504573 | Cr2CuO4 | Cuprates | removed | unassigned_family_distance_gt_0.3 |
+| 17 | mp-1147633 | LiCu2BiO4 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 18 | mp-1103973 | Cr2CuO4 | Cuprates | removed | unassigned_family_distance_gt_0.3 |
+| 19 | mp-1272781 | Cr2CuO4 | Cuprates | removed | unassigned_family_distance_gt_0.3 |
+| 20 | mp-10335 | Ba2CuTeO6 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 21 | mp-1223089 | La3Nd(CuO4)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 22 | mp-9418 | Eu(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 23 | mp-9420 | Dy(CuO2)2 | Cuprates | removed | accepted and scored, but ranked below the v2 top 30 for its family |
+| 24 | mp-622576 | Ba2Sm(CuO2)3 | Cuprates | removed | oxygen_variant_of_known |
+| 25 | mp-1101476 | Pr(CuO2)2 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 26 | mp-1045770 | YFe4(CuO4)3 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 27 | mp-1099249 | Mg3CuO4 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 28 | mp-1186515 | PrCuO3 | Cuprates | retained | still ranks within the v2 top 30 for its family |
+| 29 | mp-9421 | Ho(CuO2)2 | Cuprates | removed | accepted and scored, but ranked below the v2 top 30 for its family |
+| 30 | mp-616166 | Ba2Ho(CuO2)3 | Cuprates | removed | oxygen_variant_of_known |
+| 1 | mp-1219594 | RbTl(FeSe)8 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 2 | mp-1220955 | NaSr2(FeAs)6 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 3 | mp-616481 | NbFeTe2 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 4 | mp-9884 | KFeSe2 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 5 | mp-15120 | RbFe2Se3 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 6 | mp-22434 | HfFeP | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 7 | mp-662563 | CsFe2Se3 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 8 | mp-1102843 | FeMoP | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 9 | mp-1216176 | Y(CrFe3)3 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 10 | mp-1189647 | Ba(FeSb3)4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 11 | mp-1188542 | Sr(FeSb3)4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 12 | mp-1219022 | SmTiFe11 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 13 | mp-1218432 | Sr3Sm(FeO4)2 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 14 | mp-13464 | Ca(FeSb3)4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 15 | mp-1209892 | Nd(FeAs3)4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 16 | mp-1218069 | SrPr(FeO3)2 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 17 | mp-1224771 | Fe3NiP4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 18 | mp-1207125 | Cs(FeP)2 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 19 | mp-1189397 | Pr(FeAs3)4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 20 | mp-1224768 | Fe3NiAs8 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 21 | mp-1219069 | SmFe11Mo | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 22 | mp-1218464 | Sr4TlFe2O9 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 23 | mp-20856 | Eu(FeP3)4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 24 | mp-1217545 | TbFe11Mo | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 25 | mp-1226290 | CrFe3As4 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 26 | mp-1217868 | Tb(Fe3Mo)3 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 27 | mp-1225727 | DyTiFe11 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 28 | mp-1101988 | MnFeP | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 29 | mp-1217506 | TbTiFe11 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 30 | mp-505312 | Sr2FeCuSO3 | Ferrites | retained | still ranks within the v2 top 30 for its family |
+| 1 | mp-1221007 | Nb12InSn3 | Other | retained | still ranks within the v2 top 30 for its family |
+| 2 | mp-1220795 | Nb12Sn3Sb | Other | retained | still ranks within the v2 top 30 for its family |
+| 3 | mp-1215994 | YLu(BRh)8 | Other | retained | still ranks within the v2 top 30 for its family |
+| 4 | mp-1229062 | Al(V4Si)3 | Other | retained | still ranks within the v2 top 30 for its family |
+| 5 | mp-1220758 | Nb12IrAu3 | Other | retained | still ranks within the v2 top 30 for its family |
+| 6 | mp-1216436 | V6GaGe | Other | retained | still ranks within the v2 top 30 for its family |
+| 7 | mp-1229060 | Al(V4Ge)3 | Other | retained | still ranks within the v2 top 30 for its family |
+| 8 | mp-1228829 | AlV6Ge | Other | retained | still ranks within the v2 top 30 for its family |
+| 9 | mp-1228831 | AlV6Sb | Other | retained | still ranks within the v2 top 30 for its family |
+| 10 | mp-1228822 | AlV6Sn | Other | retained | still ranks within the v2 top 30 for its family |
+| 11 | mp-1229114 | Al(V4Sn)3 | Other | retained | still ranks within the v2 top 30 for its family |
+| 12 | mp-1224108 | HgPb4 | Other | retained | still ranks within the v2 top 30 for its family |
+| 13 | mp-1216450 | V6GaSb | Other | retained | still ranks within the v2 top 30 for its family |
+| 14 | mp-1221653 | MnNb4(CS2)2 | Other | retained | still ranks within the v2 top 30 for its family |
+| 15 | mp-1217435 | TbY2Ni6(B2C)3 | Other | retained | still ranks within the v2 top 30 for its family |
+| 16 | mp-1224285 | HfTaC2 | Other | retained | still ranks within the v2 top 30 for its family |
+| 17 | mp-1219462 | SbTe2 | Other | retained | still ranks within the v2 top 30 for its family |
+| 18 | mp-1223890 | In4Pb | Other | retained | still ranks within the v2 top 30 for its family |
+| 19 | mp-1215219 | ZrTaC2 | Other | retained | still ranks within the v2 top 30 for its family |
+| 20 | mp-9459 | Y4C5 | Other | retained | still ranks within the v2 top 30 for its family |
+| 21 | mp-867883 | La3Pb | Other | retained | still ranks within the v2 top 30 for its family |
+| 22 | mp-1224247 | HfZrN2 | Other | retained | still ranks within the v2 top 30 for its family |
+| 23 | mp-1215233 | ZrNb3C4 | Other | retained | still ranks within the v2 top 30 for its family |
+| 24 | mp-1220391 | Nb6PdPt | Other | retained | still ranks within the v2 top 30 for its family |
+| 25 | mp-1216692 | TiNbB4 | Other | retained | still ranks within the v2 top 30 for its family |
+| 26 | mp-1215222 | ZrNbC2 | Other | retained | still ranks within the v2 top 30 for its family |
+| 27 | mp-11473 | TlHg | Other | retained | still ranks within the v2 top 30 for its family |
+| 28 | mp-1220596 | Nb4AgS8 | Other | retained | still ranks within the v2 top 30 for its family |
+| 29 | mp-11028 | K3Hg11 | Other | retained | still ranks within the v2 top 30 for its family |
+| 30 | mp-1189574 | YWC2 | Other | retained | still ranks within the v2 top 30 for its family |
+| 1 | mp-1223105 | La4Bi4S8O3F | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 2 | mp-975106 | Rb2Bi2O5 | Oxides | removed | oxygen_variant_of_known |
+| 3 | mp-1278550 | LiV3O4 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 4 | mp-754378 | LiV3O4 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 5 | mp-11906 | LiPr2IrO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 6 | mp-11905 | LiNd2IrO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 7 | mp-10321 | La2ZnRhO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 8 | mp-1041214 | CaHo(FeO3)2 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 9 | mp-1043900 | CaLa(FeO3)2 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 10 | mp-1044733 | CaPr(NiO3)2 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 11 | mp-1217787 | SrSmMn2O6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 12 | mp-1218059 | SrPrMn2O6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 13 | mp-1218091 | SrPr(CoO3)2 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 14 | mp-1218102 | SrNdMn2O6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 15 | mp-1218109 | SrPrFeCoO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 16 | mp-1218237 | SrLa(FeO3)2 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 17 | mp-1218831 | Sr2FeRuO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 18 | mp-1220568 | Nd2CoNiO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 19 | mp-1223335 | La2FeNiO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 20 | mp-1272890 | La2ZnCoO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 21 | mp-1274023 | La2ZnFeO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 22 | mp-1279341 | Sr2MnMoO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 23 | mp-1295386 | La2MgFeO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 24 | mp-18847 | V2CdO4 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 25 | mp-19170 | PrNiO3 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 26 | mp-19208 | La2MnCoO6 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 27 | mp-22280 | PrNiO3 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 28 | mp-22495 | SmNiO3 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 29 | mp-755865 | TbNiO3 | Oxides | retained | still ranks within the v2 top 30 for its family |
+| 30 | mp-1208510 | Sr2YFe3O8 | Oxides | retained | still ranks within the v2 top 30 for its family |
 
 ## Limits
 
 Materials Project formation energies, ordering, and DOS are DFT outputs. The random-forest Tc values are family-specific screening predictions with tree-spread uncertainty, not calibrated probabilities or discoveries. The term ‘untested’ only means absent by reduced formula from the five indexed exports; a literature review is still required. Candidate ranking is pending independent DFT and experimental validation.
+
 
 ## Archived report before the provisional summary-metallicity gate
 

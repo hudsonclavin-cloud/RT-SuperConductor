@@ -1,4 +1,10 @@
 record_id,source_db,mp_id,formula,tc_kelvin,reason,audit_status,review_decision,reviewer,review_date,notes,excluded_from_training
+000000000000000000000009,3dsc,mp-demo-h3s,H3S,155,high_tc_above_77K_formula_without_Cu_needs_label_audit,pending,,,,,true
+000000000000000000000010,3dsc,mp-demo-h3s,H3S,190,high_tc_above_77K_formula_without_Cu_needs_label_audit,pending,,,,,true
+000000000000000000000011,3dsc,mp-demo-h3s,H3S,203,high_tc_above_77K_formula_without_Cu_needs_label_audit,pending,,,,,true
+000000000000000000000012,3dsc,mp-demo-lah10,LaH10,250,high_tc_above_77K_formula_without_Cu_needs_label_audit,pending,,,,,true
+000000000000000000000013,3dsc,mp-demo-lah10,LaH10,265,high_tc_above_77K_formula_without_Cu_needs_label_audit,pending,,,,,true
+000000000000000000000014,3dsc,mp-demo-lah10,LaH10,280,high_tc_above_77K_formula_without_Cu_needs_label_audit,pending,,,,,true
 753f61ce67dbeaa5b0ba55b3,3dsc,mp-510625,Cr0.95CuFe0.05O2,117.5,suspected_label_error_shared_mp_structure_mp-510625,pending,,,,,true
 63bba0713820ff3c7ccba6b7,3dsc,mp-510625,Cr0.9CuFe0.1O2,98,suspected_label_error_shared_mp_structure_mp-510625,pending,,,,,true
 fa15366311cbef338d8a63b2,3dsc,mp-510625,CrCuO2,132,suspected_label_error_shared_mp_structure_mp-510625,pending,,,,,true
