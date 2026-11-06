@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,6 +16,7 @@ from build_untested_pool import (  # noqa: E402
     _electronic_structure_task_ids,
     _search_electronic_structure_raw,
     _task_is_static_or_uniform,
+    _render_summary,
     _summary_filter_without_structures,
     composition_structure_distance,
     dos_at_fermi_states_ev_per_atom,
@@ -342,6 +344,35 @@ class UntestedPoolV2Tests(unittest.TestCase):
         ), "blocked_dos_task_reference_missing")
         self.assertEqual(pool_run_status(1, counts, {"Other": 0.7}), "ready")
         self.assertEqual(pool_run_status(0, {"dos_curves_retrieved": 0}, {"Other": 0.7}), "ready_empty_after_family_gate")
+
+    def test_summary_documents_verified_material_to_task_dos_resolution(self):
+        report = {
+            "status": "blocked_dos_curve_retrieval",
+            "shortlist_rows": 0,
+            "eligible_family_metrics": {"Other": 0.6},
+            "filter_counts": {},
+            "dos_fetch_diagnostics": {
+                "eligible_material_ids": 2,
+                "curves_returned": 0,
+                "error_counts": {"OSError": 2},
+                "curve_validation_error_counts": {},
+                "retrieval_method": "candidate material_id -> eligible task_id -> parsed DOS",
+                "formula_task_reference_fallback": {},
+            },
+            "families": {},
+            "scoring_counts": {},
+            "old_shortlist_rows": 0,
+            "old_shortlist_retained": 0,
+            "old_shortlist_removed": 0,
+            "old_shortlist_comparison": [],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "summary.md"
+            _render_summary(path, report)
+            summary = path.read_text(encoding="utf-8")
+        self.assertIn("selected task ID is recorded", summary)
+        self.assertIn("candidate material_id -> eligible task_id -> parsed DOS", summary)
+        self.assertNotIn("task IDs are therefore left blank", summary)
 
     def test_main_evaluator_embargoes_shared_mp_ids(self):
         rows = [

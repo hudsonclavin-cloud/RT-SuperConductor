@@ -1,6 +1,6 @@
 # Existing-but-untested Materials Project shortlist (v2)
 
-This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a material-level Materials Project DOS(Ef) above 0.1 states/eV/atom, plus at least one referenced task whose task_type or calc_type is Static or Uniform. The material-level endpoint does not identify which task supplied the curve; task IDs are therefore left blank. Relaxation DOS and band gaps are not substitutes.
+This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a Materials Project DOS(Ef) above 0.1 states/eV/atom from a Static or Uniform calculation. DOS curves are resolved from task IDs linked to the candidate material and checked against task metadata; the selected task ID is recorded for any qualified candidate. Missing parsed DOS objects remain blocked. Relaxation calculations and band gaps are not substitutes.
 
 Run status: **blocked_dos_curve_retrieval**. Shortlist size: **0**; eligible families: **4**.
 
@@ -49,7 +49,8 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 
 ## DOS payload retrieval diagnostics
 
-Material-level DOS retrievals attempted: 150; curves returned: 0; fetch errors by type: `{"OSError": 150}`.
+Material-associated DOS retrievals attempted: 150; curves returned: 0; fetch errors by type: `{"OSError": 150}`.
+Retrieval path: `candidate material_id -> eligible static/uniform task_id -> parsed DOS`.
 Curve-validation errors by type: `{"OSError": 150}`.
 Formula-based task lookup recovered 1221 task references for 230 exact-structure matches from 23964 candidates missing DOS references; task documents returned: 5575; non-static/uniform tasks rejected: 4057; structure comparisons/matches: 2162/1221; lookup errors: `{}`.
 - Example `mp-1214889`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.

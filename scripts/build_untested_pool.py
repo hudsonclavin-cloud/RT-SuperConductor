@@ -1226,7 +1226,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     lines = [
         "# Existing-but-untested Materials Project shortlist (v2)",
         "",
-        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a material-level Materials Project DOS(Ef) above 0.1 states/eV/atom, plus at least one referenced task whose task_type or calc_type is Static or Uniform. The material-level endpoint does not identify which task supplied the curve; task IDs are therefore left blank. Relaxation DOS and band gaps are not substitutes.",
+        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a Materials Project DOS(Ef) above 0.1 states/eV/atom from a Static or Uniform calculation. DOS curves are resolved from task IDs linked to the candidate material and checked against task metadata; the selected task ID is recorded for any qualified candidate. Missing parsed DOS objects remain blocked. Relaxation calculations and band gaps are not substitutes.",
         "",
         f"Run status: **{report['status']}**. Shortlist size: **{report['shortlist_rows']}**; eligible families: **{len(report['eligible_family_metrics'])}**.",
         "",
@@ -1244,9 +1244,10 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         "",
         "## DOS payload retrieval diagnostics",
         "",
-        f"Material-level DOS retrievals attempted: {diagnostics.get('eligible_material_ids', 0)}; "
+        f"Material-associated DOS retrievals attempted: {diagnostics.get('eligible_material_ids', 0)}; "
         f"curves returned: {diagnostics.get('curves_returned', 0)}; "
         f"fetch errors by type: `{json.dumps(diagnostics.get('error_counts', {}), sort_keys=True)}`.",
+        f"Retrieval path: `{diagnostics.get('retrieval_method', 'not recorded')}`.",
         f"Curve-validation errors by type: "
         f"`{json.dumps(diagnostics.get('curve_validation_error_counts', {}), sort_keys=True)}`.",
     ]
