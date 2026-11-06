@@ -49,19 +49,19 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 
 ## DOS payload retrieval diagnostics
 
-Material-level DOS retrievals attempted: 150; curves returned: 0; fetch errors by type: `{"MPRestError": 22, "ValidationError": 128}`.
-Curve-validation errors by type: `{"MPRestError": 22, "ValidationError": 128}`.
+Material-level DOS retrievals attempted: 150; curves returned: 0; fetch errors by type: `{"KeyError": 128, "MPRestError": 22}`.
+Curve-validation errors by type: `{"KeyError": 128, "MPRestError": 22}`.
 Formula-based task lookup recovered 1221 task references for 230 exact-structure matches from 23964 candidates missing DOS references; task documents returned: 5575; non-static/uniform tasks rejected: 4057; structure comparisons/matches: 2162/1221; lookup errors: `{}`.
-- Example `mp-1214889`: ValidationError  — 24 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 0.0, 'cbm': ...': 0.012211931880690698}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-2172`: ValidationError  — 12 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 1.6481897168...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-8881`: ValidationError  — 12 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 1.7059742634...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-643253`: ValidationError  — 16 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 1.7823032187...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-1018178`: ValidationError  — 12 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 0.0, 'cbm': ...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-1214889`: ValidationError  — 24 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 0.0, 'cbm': ...': 0.012211931880690698}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-2172`: ValidationError  — 12 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 1.6481897168...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-8881`: ValidationError  — 12 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 1.7059742634...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-643253`: ValidationError  — 16 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 1.7823032187...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
-- Example `mp-1018178`: ValidationError  — 12 validation errors for MPDataDoc dos.total.1.task_id   Field required [type=missing, input_value={'band_gap': 0.0, 'cbm': ...pin_polarization': None}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.14/v/m
+- Example `mp-1214889`: KeyError  — 'task_id'
+- Example `mp-2172`: KeyError  — 'task_id'
+- Example `mp-8881`: KeyError  — 'task_id'
+- Example `mp-643253`: KeyError  — 'task_id'
+- Example `mp-1018178`: KeyError  — 'task_id'
+- Example `mp-1214889`: KeyError  — 'task_id'
+- Example `mp-2172`: KeyError  — 'task_id'
+- Example `mp-8881`: KeyError  — 'task_id'
+- Example `mp-643253`: KeyError  — 'task_id'
+- Example `mp-1018178`: KeyError  — 'task_id'
 
 ## Family gate and shortlist
 
