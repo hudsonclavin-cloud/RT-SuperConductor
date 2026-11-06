@@ -77,6 +77,7 @@ def feature_matrix(rows: list[dict[str, str]], systems: list[str]) -> tuple[np.n
 
 
 DEFAULT_MODEL = "gradient_boosting"  # best AUC in docs/sc-model-benchmark.json
+DEFAULT_EXTRA_LABELS = ROOT / "data/candidates/mp-wide-labelled.csv.gz"
 
 
 def _model(name: str, seed: int):
@@ -104,8 +105,14 @@ def group_cv_auc(X: np.ndarray, y: np.ndarray, groups: np.ndarray, model_name: s
 
 def run(candidates: Path, scores_out: Path, ranking_out: Path, summary_out: Path,
         *, top: int = 200, evaluate: bool = True, physics_table: Path = DEFAULT_TABLE,
-        model_name: str = DEFAULT_MODEL, extra_features: Path | None = None) -> dict[str, Any]:
+        model_name: str = DEFAULT_MODEL, extra_features: Path | None = None,
+        extra_labels: Path | None = DEFAULT_EXTRA_LABELS) -> dict[str, Any]:
+    from collections import Counter
+
     from sklearn.inspection import permutation_importance
+
+    from benchmark_sc_models import _fit
+    from build_mp_candidates import reduced
 
     with gzip.open(candidates, "rt", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
@@ -125,7 +132,30 @@ def run(candidates: Path, scores_out: Path, ranking_out: Path, summary_out: Path
                               "feature_count": len(names)}
     if evaluate:
         report["held_out_quality"] = group_cv_auc(X[labelled], y, groups, model_name)
-    model = _model(model_name, 42).fit(X[labelled], y)
+    # Final fit: the snapshot's labels plus extra labelled materials from the wider MP
+    # window (docs/sc-label-expansion.md). Each composition's polymorphs share a total
+    # weight of 1, so one literature report is not counted once per crystal form.
+    X_train, y_train, train_rows = X[labelled], y, [r for r, keep in zip(rows, labelled) if keep]
+    if extra_labels is not None and extra_labels.is_file() and extra_features is None:
+        with gzip.open(extra_labels, "rt", encoding="utf-8") as handle:
+            known_ids = {r["mp_id"] for r in rows}
+            extra_rows = [r for r in csv.DictReader(handle)
+                          if r["mp_id"] not in known_ids and r["known_status"] in ("superconductor",
+                                                                                 "tested_non_superconductor")]
+        if extra_rows:
+            X_extra_rows, _ = feature_matrix(extra_rows, systems)
+            X_train = np.vstack([X_train, X_extra_rows])
+            y_train = np.concatenate([y_train, [int(r["known_status"] == "superconductor") for r in extra_rows]])
+            train_rows = train_rows + extra_rows
+        report["extra_labels"] = {"path": str(extra_labels.relative_to(ROOT)) if extra_labels.resolve()
+                                  .is_relative_to(ROOT) else str(extra_labels), "rows": len(extra_rows)}
+    compositions = [reduced(r["formula"]) for r in train_rows]
+    counts = Counter(compositions)
+    weights = np.asarray([1.0 / counts[c] for c in compositions])
+    model = _fit(_model(model_name, 42), model_name, X_train, y_train,
+                 np.asarray(["-".join(sorted(r["elements"].split())) for r in train_rows]), None, weight=weights)
+    report["training_rows"] = int(len(y_train))
+    report["training_weighting"] = "1 / (polymorphs of the same composition in the training set)"
     probability = model.predict_proba(X)[:, 1]
     importance = permutation_importance(model, X[labelled], y, scoring="roc_auc", n_repeats=3,
                                         random_state=0, n_jobs=1).importances_mean
@@ -195,9 +225,11 @@ def main() -> int:
     parser.add_argument("--top", type=int, default=200)
     parser.add_argument("--model", default=DEFAULT_MODEL, help="a model name from benchmark_sc_models.py")
     parser.add_argument("--extra-features", type=Path, default=None)
+    parser.add_argument("--extra-labels", type=Path, default=DEFAULT_EXTRA_LABELS,
+                        help="labelled materials from the wider MP window; pass a missing path to disable")
     args = parser.parse_args()
     report = run(args.candidates, args.scores, args.ranking, args.summary, top=args.top,
-                 model_name=args.model, extra_features=args.extra_features)
+                 model_name=args.model, extra_features=args.extra_features, extra_labels=args.extra_labels)
     print(json.dumps({k: report[k] for k in ("materials", "labelled", "held_out_quality", "epw_eligible",
                                               "top_eligible")}, indent=2))
     return 0

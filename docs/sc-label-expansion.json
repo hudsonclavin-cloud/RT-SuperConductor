@@ -1,0 +1,118 @@
+{
+  "core_labels": 2244,
+  "extra_labels": 1420,
+  "extra_new_compositions": 707,
+  "provenance": {
+    "candidates_sha256": "70678f0506fc7b2e373ee08db6acac3a143c4e4ef5ad1cad9033ca1b34858513",
+    "cpu_count": 4,
+    "feature_matrix_sha256": "f833e69fd1df29f612d9ff1177de6364473ff765a87a747f556b7b57559657eb",
+    "git_commit": "081b1f122911535caa17144a15c3437d31a00728",
+    "numpy": "2.5.3",
+    "python": "3.13.18",
+    "scikit_learn": "1.9.1",
+    "seeds": {
+      "models": "7 + repeat",
+      "outer_split": "1000 + repeat"
+    }
+  },
+  "results": {
+    "gradient_boosting": {
+      "core_only": {
+        "auc_mean": 0.8144689168573608,
+        "auc_per_repeat": [
+          0.8082491100940757,
+          0.8209739702517164,
+          0.8141836702262903
+        ],
+        "paired_gain_vs_core_only": 0.0,
+        "wins_vs_core_only": 0
+      },
+      "core_plus_extra": {
+        "auc_mean": 0.8184035723366386,
+        "auc_per_repeat": [
+          0.8254068141367912,
+          0.8128686753114671,
+          0.8169352275616578
+        ],
+        "paired_gain_vs_core_only": 0.003934655479277886,
+        "wins_vs_core_only": 2
+      },
+      "core_plus_extra_w": {
+        "auc_mean": 0.8188649461818799,
+        "auc_per_repeat": [
+          0.8198258326976864,
+          0.817901411136537,
+          0.8188675947114162
+        ],
+        "paired_gain_vs_core_only": 0.0043960293245190645,
+        "wins_vs_core_only": 2
+      }
+    },
+    "random_forest": {
+      "core_only": {
+        "auc_mean": 0.8023079286380201,
+        "auc_per_repeat": [
+          0.7993568046020849,
+          0.8017027396389524,
+          0.8058642416730231
+        ],
+        "paired_gain_vs_core_only": 0.0,
+        "wins_vs_core_only": 0
+      },
+      "core_plus_extra": {
+        "auc_mean": 0.8082013041359438,
+        "auc_per_repeat": [
+          0.8103793224002034,
+          0.8099677409102466,
+          0.8042568490973812
+        ],
+        "paired_gain_vs_core_only": 0.00589337549792357,
+        "wins_vs_core_only": 2
+      },
+      "core_plus_extra_w": {
+        "auc_mean": 0.809461739342317,
+        "auc_per_repeat": [
+          0.8105791539537248,
+          0.810083746503941,
+          0.8077223175692854
+        ],
+        "paired_gain_vs_core_only": 0.0071538107042969186,
+        "wins_vs_core_only": 3
+      }
+    },
+    "torch_mlp": {
+      "core_only": {
+        "auc_mean": 0.7674294431731502,
+        "auc_per_repeat": [
+          0.7712663679125349,
+          0.7710701118738876,
+          0.7599518497330282
+        ],
+        "paired_gain_vs_core_only": 0.0,
+        "wins_vs_core_only": 0
+      },
+      "core_plus_extra": {
+        "auc_mean": 0.7468026951436563,
+        "auc_per_repeat": [
+          0.7462242562929062,
+          0.7546958428680397,
+          0.7394879862700229
+        ],
+        "paired_gain_vs_core_only": -0.020626748029493974,
+        "wins_vs_core_only": 0
+      },
+      "core_plus_extra_w": {
+        "auc_mean": 0.7667957824815662,
+        "auc_per_repeat": [
+          0.7603395944571574,
+          0.7691921720061022,
+          0.7708555809814391
+        ],
+        "paired_gain_vs_core_only": -0.0006336606915839926,
+        "wins_vs_core_only": 1
+      }
+    }
+  },
+  "split": "StratifiedGroupKFold over element systems of core+extra, 5 folds x 3 shuffles",
+  "test_rows": "core labels only, identical across conditions"
+}

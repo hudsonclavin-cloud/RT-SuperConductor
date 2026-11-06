@@ -79,28 +79,50 @@ def model_factories(seed: int) -> dict[str, Callable[[], Any]]:
     def ensemble():
         return VotingClassifier([("rf", forest()), ("hgb", boosting()), ("mlp", neural_net())], voting="soft")
 
-    return {"logistic_regression": logistic, "random_forest": forest, "extra_trees": extra_trees,
-            "gradient_boosting": boosting, "neural_network_mlp": neural_net, "ensemble_rf_hgb_mlp": ensemble}
+    factories = {"logistic_regression": logistic, "random_forest": forest, "extra_trees": extra_trees,
+                 "gradient_boosting": boosting, "neural_network_mlp": neural_net, "ensemble_rf_hgb_mlp": ensemble}
+    from torch_models import torch_available, torch_factories
+
+    if torch_available():
+        factories.update(torch_factories(seed))
+    return factories
+
+
+BLENDS = [("gradient_boosting", "torch_mlp"), ("gradient_boosting", "torch_mlp_multitask_tc"),
+          ("gradient_boosting", "torch_mlp_tuned"), ("gradient_boosting", "random_forest")]
+
+
+def _fit(model: Any, name: str, X: np.ndarray, y: np.ndarray, groups: np.ndarray, aux: np.ndarray | None,
+         weight: np.ndarray | None = None) -> Any:
+    """Torch models also receive element-system groups (inner validation) and the Tc auxiliary target."""
+    if name.startswith("torch_"):
+        return model.fit(X, y, groups=groups, aux_target=aux, sample_weight=weight)
+    if weight is not None:
+        last = model.steps[-1][0] + "__sample_weight" if hasattr(model, "steps") else "sample_weight"
+        return model.fit(X, y, **{last: weight})
+    return model.fit(X, y)
 
 
 def evaluate(X: np.ndarray, y: np.ndarray, groups: np.ndarray, *, repeats: int = 3, folds: int = 5,
              models: list[str] | None = None, ids: list[str] | None = None,
-             oof_rows: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+             oof_rows: list[dict[str, Any]] | None = None, aux: np.ndarray | None = None) -> dict[str, Any]:
     """Outer StratifiedGroupKFold; preprocessing and early stopping use training folds only."""
     from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
     from sklearn.model_selection import StratifiedGroupKFold
 
     results: dict[str, Any] = {}
     names = models or list(model_factories(0))
+    oof_by_model: dict[str, list[np.ndarray]] = {}
     for name in names:
         aucs, aps, briers, tops, seconds = [], [], [], [], 0.0
+        oof_by_model[name] = []
         for repeat in range(repeats):
             splitter = StratifiedGroupKFold(n_splits=folds, shuffle=True, random_state=1000 + repeat)
             pred = np.zeros(len(y))
             for fold, (train, test) in enumerate(splitter.split(X, y, groups)):
                 model = model_factories(7 + repeat)[name]()
                 start = time.perf_counter()
-                model.fit(X[train], y[train])
+                _fit(model, name, X[train], y[train], groups[train], None if aux is None else aux[train])
                 seconds += time.perf_counter() - start
                 pred[test] = model.predict_proba(X[test])[:, 1]
                 k = max(1, len(test) // 10)
@@ -109,6 +131,7 @@ def evaluate(X: np.ndarray, y: np.ndarray, groups: np.ndarray, *, repeats: int =
                     oof_rows.extend({"mp_id": ids[i] if ids else i, "model": name, "repeat": repeat,
                                      "fold": fold, "label": int(y[i]), "score": round(float(pred[i]), 6)}
                                     for i in test)
+            oof_by_model[name].append(pred.copy())
             aucs.append(roc_auc_score(y, pred))
             aps.append(average_precision_score(y, pred))
             briers.append(brier_score_loss(y, pred))
@@ -119,6 +142,19 @@ def evaluate(X: np.ndarray, y: np.ndarray, groups: np.ndarray, *, repeats: int =
             "top_decile_superconductor_share_mean": float(np.mean(tops)),
             "fit_seconds_total": round(seconds, 1),
         }
+    for a, b in BLENDS:
+        if a in oof_by_model and b in oof_by_model:
+            aucs = [roc_auc_score(y, (pa + pb) / 2) for pa, pb in zip(oof_by_model[a], oof_by_model[b])]
+            results[f"blend_{a}+{b}"] = {
+                "auc_per_repeat": [float(v) for v in aucs], "auc_mean": float(np.mean(aucs)),
+                "auc_sd_across_repeats": float(np.std(aucs)),
+                "average_precision_mean": float(np.mean([average_precision_score(y, (pa + pb) / 2) for pa, pb in
+                                                         zip(oof_by_model[a], oof_by_model[b])])),
+                "brier_mean": float(np.mean([brier_score_loss(y, (pa + pb) / 2) for pa, pb in
+                                             zip(oof_by_model[a], oof_by_model[b])])),
+                "top_decile_superconductor_share_mean": float("nan"), "fit_seconds_total": 0.0,
+                "note": "average of the two models' out-of-fold probabilities on identical folds",
+            }
     if "random_forest" in results:
         reference = np.asarray(results["random_forest"]["auc_per_repeat"])
         for name, result in results.items():
@@ -141,7 +177,14 @@ def provenance(X: np.ndarray, candidates: Path) -> dict[str, Any]:
                                 text=True, check=True).stdout.strip()
     except Exception:  # noqa: BLE001 - not a git checkout
         commit = None
+    try:
+        import torch
+
+        torch_version = torch.__version__
+    except ImportError:
+        torch_version = None
     return {"git_commit": commit, "python": platform.python_version(), "scikit_learn": sklearn.__version__,
+            "torch": torch_version,
             "numpy": np.__version__, "cpu_count": __import__("os").cpu_count(),
             "candidates_sha256": hashlib.sha256(candidates.read_bytes()).hexdigest(),
             "feature_matrix_sha256": hashlib.sha256(np.nan_to_num(X, nan=-9.99e9).tobytes()).hexdigest(),
@@ -163,6 +206,7 @@ def run(candidates: Path, out_json: Path, *, extra_features: Path | None = None,
         X, names = np.hstack([X, X_extra]), names + extra_names
     y = np.asarray([LABELS[r["known_status"]] for r in rows])
     oof: list[dict[str, Any]] = []
+    aux = np.asarray([float(r["known_tc_max_k"]) if r["known_tc_max_k"] else np.nan for r in rows])
     groups = np.asarray(["-".join(sorted(r["elements"].split())) for r in rows])
     report = {
         "task": "superconductor (reported Tc > 0) vs tested non-superconductor, Materials Project materials",
@@ -170,7 +214,7 @@ def run(candidates: Path, out_json: Path, *, extra_features: Path | None = None,
         "features": len(names),
         "split": f"StratifiedGroupKFold by element system, 5 folds x {repeats} shuffles",
         "models": evaluate(X, y, groups, repeats=repeats, models=models,
-                           ids=[r["mp_id"] for r in rows], oof_rows=oof),
+                           ids=[r["mp_id"] for r in rows], oof_rows=oof, aux=aux),
         "label_policy": ("positives: reported Tc > 0 (SuperCon/3DSC); negatives: explicit Tc = 0 reports in 3DSC. "
                          "Materials with no report are never used as negatives. One row per MP material."),
         "inner_validation": ("gradient boosting and the MLP early-stop on a random 15% of the training fold; "

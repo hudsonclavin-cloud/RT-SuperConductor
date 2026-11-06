@@ -75,10 +75,11 @@ def http_fetch(url: str, *, retries: int = 4) -> dict[str, Any]:
     raise RuntimeError("unreachable")
 
 
-def page_url(skip: int, limit: int = PAGE) -> str:
+def page_url(skip: int, limit: int = PAGE, *, hull_max: float = HULL_MAX_EV_PER_ATOM,
+             max_sites: int = MAX_SITES) -> str:
     params = {
-        "energy_above_hull_min": 0, "energy_above_hull_max": HULL_MAX_EV_PER_ATOM,
-        "nsites_min": 1, "nsites_max": MAX_SITES, "deprecated": "false",
+        "energy_above_hull_min": 0, "energy_above_hull_max": hull_max,
+        "nsites_min": 1, "nsites_max": max_sites, "deprecated": "false",
         "_fields": ",".join(FIELDS), "_limit": limit, "_skip": skip,
     }
     return API + "?" + urllib.parse.urlencode(params)
@@ -106,13 +107,14 @@ def flatten(doc: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def fetch_all(fetch: Fetcher = http_fetch, *, progress: bool = True) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    first = fetch(page_url(0))
+def fetch_all(fetch: Fetcher = http_fetch, *, progress: bool = True, hull_max: float = HULL_MAX_EV_PER_ATOM,
+              max_sites: int = MAX_SITES) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    first = fetch(page_url(0, hull_max=hull_max, max_sites=max_sites))
     meta = first.get("meta", {})
     total = int(meta["total_doc"])
     rows = [flatten(d) for d in first.get("data", [])]
     while len(rows) < total:
-        page = fetch(page_url(len(rows)))
+        page = fetch(page_url(len(rows), hull_max=hull_max, max_sites=max_sites))
         data = page.get("data", [])
         if not data:
             break
@@ -128,7 +130,8 @@ def fetch_all(fetch: Fetcher = http_fetch, *, progress: bool = True) -> tuple[li
     return rows, meta
 
 
-def write_snapshot(rows: list[dict[str, Any]], meta: dict[str, Any], out_csv: Path, manifest: Path) -> dict[str, Any]:
+def write_snapshot(rows: list[dict[str, Any]], meta: dict[str, Any], out_csv: Path, manifest: Path,
+                   *, hull_max: float = HULL_MAX_EV_PER_ATOM, max_sites: int = MAX_SITES) -> dict[str, Any]:
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=COLUMNS, lineterminator="\n")
     writer.writeheader()
@@ -144,7 +147,7 @@ def write_snapshot(rows: list[dict[str, Any]], meta: dict[str, Any], out_csv: Pa
         "source": "Materials Project summary API", "api_url": API,
         "api_version": meta.get("api_version"), "retrieved_utc": meta.get("time_stamp")
         or datetime.now(timezone.utc).isoformat(),
-        "query": {"energy_above_hull_ev_per_atom": [0, HULL_MAX_EV_PER_ATOM], "nsites": [1, MAX_SITES],
+        "query": {"energy_above_hull_ev_per_atom": [0, hull_max], "nsites": [1, max_sites],
                   "deprecated": False, "fields": FIELDS},
         "materials": len(rows),
         "counts": {
@@ -165,9 +168,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--output", type=Path, default=ROOT / "data/candidates/mp-stable-summary.csv.gz")
     parser.add_argument("--manifest", type=Path, default=ROOT / "data/candidates/mp-stable-summary.manifest.json")
+    parser.add_argument("--hull-max", type=float, default=HULL_MAX_EV_PER_ATOM)
+    parser.add_argument("--max-sites", type=int, default=MAX_SITES)
     args = parser.parse_args()
-    rows, meta = fetch_all()
-    record = write_snapshot(rows, meta, args.output, args.manifest)
+    rows, meta = fetch_all(hull_max=args.hull_max, max_sites=args.max_sites)
+    record = write_snapshot(rows, meta, args.output, args.manifest, hull_max=args.hull_max,
+                            max_sites=args.max_sites)
     print(json.dumps(record, indent=2))
     return 0
 
