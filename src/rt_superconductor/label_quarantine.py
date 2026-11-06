@@ -26,6 +26,10 @@ def suspected_label_reason(record: Any) -> str | None:
     mp_id = str(getattr(record, "mp_id", "") or "").strip().casefold()
     if source != "3dsc":
         return None
+    if int(getattr(record, "is_synthetic", 0) or 0) != 0 or str(
+        getattr(record, "provenance", "") or ""
+    ).strip().casefold() == "synthetic_demo":
+        return None
     if mp_id == "mp-510625":
         return "suspected_label_error_shared_mp_structure_mp-510625"
     try:
@@ -68,13 +72,24 @@ def write_label_audit_queue(records: list[Any], output: Path) -> dict[str, int]:
     """Refresh the queue while preserving any reviewer-entered decision fields."""
     existing = load_quarantine_decisions(output)
     rows: list[dict[str, str]] = []
+    seen: set[str] = set()
     for record in records:
+        seen.add(record.record_id)
         reason = suspected_label_reason(record)
-        if reason is None:
-            continue
         prior = existing.get(record.record_id, {})
+        if reason is None and not prior:
+            continue
         status = prior.get("audit_status", "pending") or "pending"
         decision = prior.get("review_decision", "")
+        if reason is None:
+            status = "not_applicable"
+            decision = decision or "synthetic_demo_not_empirical_label"
+            reason = "not_applicable_synthetic_demo_not_source_measurement"
+            notes = prior.get("notes", "") or (
+                "Retained for queue history; this is a synthetic demo fixture, not a 3DSC source measurement."
+            )
+        else:
+            notes = prior.get("notes", "")
         released = status.strip().casefold() in {"reviewed", "complete"} and decision.strip().casefold() in {"retain", "validated"}
         rows.append({
             "record_id": record.record_id,
@@ -87,9 +102,15 @@ def write_label_audit_queue(records: list[Any], output: Path) -> dict[str, int]:
             "review_decision": decision,
             "reviewer": prior.get("reviewer", ""),
             "review_date": prior.get("review_date", ""),
-            "notes": prior.get("notes", ""),
-            "excluded_from_training": "false" if released else "true",
+            "notes": notes,
+            "excluded_from_training": "false" if released or status == "not_applicable" else "true",
         })
+    for record_id, prior in existing.items():
+        if record_id in seen:
+            continue
+        # Keep review provenance even when a source export is temporarily not
+        # part of the current harmonized input. Missing is not a review decision.
+        rows.append({column: prior.get(column, "") for column in QUEUE_COLUMNS})
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=QUEUE_COLUMNS, lineterminator="\n")
@@ -98,5 +119,11 @@ def write_label_audit_queue(records: list[Any], output: Path) -> dict[str, int]:
     return {
         "queue_rows": len(rows),
         "active_exclusions": sum(row["excluded_from_training"] == "true" for row in rows),
-        "released_after_review": sum(row["excluded_from_training"] == "false" for row in rows),
+        "released_after_review": sum(
+            row["audit_status"].strip().casefold() in {"reviewed", "complete"}
+            and row["review_decision"].strip().casefold() in {"retain", "validated"}
+            for row in rows
+        ),
+        "not_applicable": sum(row["audit_status"] == "not_applicable" for row in rows),
+        "preserved_prior_rows_not_in_input": sum(row["record_id"] not in seen for row in rows),
     }

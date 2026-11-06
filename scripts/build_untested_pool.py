@@ -1711,7 +1711,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         "",
         "## Label quarantine and training comparison",
         "",
-        f"Active quarantined labels excluded from empirical training: **{quarantine.get('excluded_training_rows', 0)}**. Source observations are preserved. The quarantined 3DSC rows are treated as suspected label errors because three high transition labels share the same MP structure (`mp-510625`); this is an audit flag, not a declaration that the source rows are false. Other 3DSC records above 77 K without Cu are also queued by rule.",
+        f"Active quarantined labels excluded from empirical training: **{quarantine.get('excluded_training_rows', 0)}**. Source observations are preserved. The three `mp-510625` 3DSC entries are suspected label errors because their high transition labels share one MP structure; this is an audit flag, not a declaration that the source values are false. The pinned 3DSC scan found **{quarantine.get('other_high_tc_no_cu_count', 0)}** other empirical records above 77 K without Cu (the rule remains enabled for future rows). Synthetic demo fixtures are marked not applicable, not label errors.",
         f"Previous shortlist nearest-neighbor references directly affected by these quarantined rows: **{quarantine.get('old_shortlist_nearest_neighbor_chain_rows_affected', 0)}**.",
         "",
         "| Family | Before rows / MAE / Spearman | After quarantine rows / MAE / Spearman |",
@@ -1784,11 +1784,21 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     for reason, count in sorted(report.get("epw_eligibility_counts", {}).items()):
         lines.append(f"| `{reason}` | {count} |")
     fecu = report.get("fecu_o2_old_shortlist_outcome", {})
+    fecu_current = report.get("fecu_o2_current_shortlist_row", {})
+    if fecu_current:
+        fecu_current_context = (
+            f" Current run screening values: predicted Tc {fecu_current.get('predicted_tc_kelvin')} K, "
+            f"tree spread {fecu_current.get('uncertainty_k')} K; nearest measured reference "
+            f"{fecu_current.get('nearest_known_superconductor_formula')} at "
+            f"{fecu_current.get('nearest_known_superconductor_tc_kelvin')} K."
+        )
+    else:
+        fecu_current_context = " It is not present in the new top-30 output."
     lines += [
         "",
         "## FeCuO2 follow-up",
         "",
-        f"Previous-shortlist outcome for `FeCuO2` (`mp-505110`): **{fecu.get('disposition', 'not reported')}** — `{fecu.get('reason', 'no reason recorded')}`. Its oxygen-insensitive key is `{report.get('fecu_o2_source_formula_check', {}).get('oxygen_agnostic_key', 'not calculated')}`; matching source formulas: `{report.get('fecu_o2_source_formula_check', {}).get('known_oxygen_bearing_source_formulas_with_same_nonoxygen_stoichiometry', [])}`. If that list is empty, FeCuO2 was not removed by the oxygen-variant rule; any removal comes from the current family assignment/gate/rank and is named above.",
+        f"Previous-shortlist outcome for `FeCuO2` (`mp-505110`): **{fecu.get('disposition', 'not reported')}** — `{fecu.get('reason', 'no reason recorded')}`. Its oxygen-insensitive key is `{report.get('fecu_o2_source_formula_check', {}).get('oxygen_agnostic_key', 'not calculated')}`; matching source formulas: `{report.get('fecu_o2_source_formula_check', {}).get('known_oxygen_bearing_source_formulas_with_same_nonoxygen_stoichiometry', [])}`. With no matching source formula, the oxygen-variant rule does not remove it.{fecu_current_context} It is assigned to Cuprates and is therefore outside the Other-only EPW list.",
         "",
         f"The separate EPW list is `{report.get('epw_eligible_shortlist_csv', 'not written')}` and contains only Other-family, explicitly non-magnetic entries with at most {MAX_SITES} sites, ranked by predicted Tc minus tree-spread SD. Its nearest known compound and measured Tc are included for context.",
     ]
@@ -2225,6 +2235,10 @@ def build_untested_pool(
         "label_quarantine": {
             "excluded_training_rows": len(label_quarantine_rows),
             "records": label_quarantine_rows,
+            "other_high_tc_no_cu_count": sum(
+                row.get("reason") == "high_tc_above_77K_formula_without_Cu_needs_label_audit"
+                for row in label_quarantine_rows
+            ),
             "source_rows_preserved": True,
             "old_shortlist_nearest_neighbor_chain_rows_affected": old_nearest_chain_quarantined,
         },
@@ -2238,6 +2252,10 @@ def build_untested_pool(
         "fecu_o2_old_shortlist_outcome": next(
             (row for row in old_comparison if row.get("mp_id") == "mp-505110" or row.get("formula") == "FeCuO2"),
             {"disposition": "not_in_previous_shortlist", "reason": "no previous FeCuO2 row to compare"},
+        ),
+        "fecu_o2_current_shortlist_row": next(
+            (row for row in shortlist if row.get("mp_id") == "mp-505110" or row.get("formula") == "FeCuO2"),
+            {},
         ),
         "fecu_o2_source_formula_check": {
             "oxygen_agnostic_key": fecu_oxygen_key,

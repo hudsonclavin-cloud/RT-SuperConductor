@@ -1246,3 +1246,17 @@ The following real run used all 5,778 harmonized observations built from that pi
 The saved pressure-aware report also records mean-predictor MAE: Cuprates 32.2035 K before and 31.1756 K after; Ferrites 11.7727 K; Heavy-fermion 1.1048 K; Other 4.3630 K; and Oxides 5.8215 K (the unaffected families have identical before/after values). All three suspect records are excluded until a reviewer marks the queue item reviewed and retain/validated. No prior shortlist nearest-measured anchor should be considered usable if it references one of these record IDs; the regenerated pool report counts such prior references and every new shortlist row resolves its nearest measured record using the post-quarantine training set.
 
 The pool now copies Materials Project summary `is_magnetic`, `ordering`, and `total_magnetization` into the candidate table. The separate EPW list includes only the `Other` family, at most 20 sites, and explicit non-magnetic evidence; magnetic and unknown cases remain in the audit output with an exclusion reason. Source matching also reduces away oxygen when comparing oxygen-bearing formulas, so candidates that differ only in oxygen content are marked `oxygen_variant_of_known` and excluded.
+
+## CI label-audit result and regenerated EPW pool
+
+GitHub Actions run [42247241676](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/42247241676) completed the live Materials Project screen in 10m39s. Its training table had 5,799 total rows and 5,778 empirical rows before quarantine; three real 3DSC `mp-510625` labels were excluded, leaving 5,775. The harmonized input SHA-256 was `2b0cfa494904aa4c4d2c391c3b353872b0a31944eefdc2db8e9529404fc8666b`. Metrics below are the report from that run; the next snapshot-replay run will refresh the published queue and summary with synthetic fixtures correctly marked not applicable.
+
+| Family | Before rows | Before MAE (K) | Before Spearman | After rows | After MAE (K) | After Spearman |
+|---|---:|---:|---:|---:|---:|---:|
+| Cuprates | 879 | 21.5078 | 0.5322 | 876 | 21.3397 | 0.5442 |
+| Ferrites | 517 | 9.0390 | 0.5153 | 517 | 9.0390 | 0.5153 |
+| Heavy-fermion | 418 | 1.1498 | 0.2761 | 418 | 1.1498 | 0.2761 |
+| Other | 3,529 | 3.0359 | 0.6392 | 3,529 | 3.0359 | 0.6392 |
+| Oxides | 320 | 3.8099 | 0.5576 | 320 | 3.8099 | 0.5576 |
+
+Mean-predictor MAE was 31.6222 K before and 31.6037 K after for Cuprates; unchanged-family values were Ferrites 11.8288 K, Heavy-fermion 1.1232 K, Other 4.3632 K, and Oxides 5.8405 K. The pinned 3DSC table contained zero other empirical records with Tc above 77 K and no Cu. The new pool screened 30,358 MP summaries, accepted 15,472 by the existing stability, composition, metallicity and structure filters, assigned 5,991 to families, scored 5,400, and published 120 family-shortlist rows plus 3,370 Other-family, explicitly non-magnetic EPW candidates. It identified 138 oxygen variants of known source formulas. `FeCuO2` (`mp-505110`) remained in the Cuprate top 30: its `FeCu` non-oxygen key matched no oxygen-bearing source formula, its nearest measured reference was YBa2Cu4O8 at 80 K, and it is outside the Other-only EPW list. The EPW candidates are computational hypotheses; DFT verification remains pending.

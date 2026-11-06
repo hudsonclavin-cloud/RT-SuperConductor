@@ -113,6 +113,8 @@ New 3DSC imports leave `applied_pressure_gpa` blank because the source table doe
 
 `label_audit_queue.csv` is a human-review queue for suspect experimental labels. It never edits or removes the harmonized source observation. The queue builder scans 3DSC records for the known shared-structure group `mp-510625` and for any future record with reported Tc above 77 K whose formula has no Cu. Active pending rows are excluded from all model fitting by `select_training_records`; training reports preserve their IDs, formulas, Tc values, reasons, and before/after within-family metrics.
 
+Synthetic demo fixtures are never considered source labels. If a prior queue generation included a synthetic fixture, it remains in the file as `audit_status=not_applicable` with `excluded_from_training=false` so that the correction is traceable; it is not an active review item. Prior queue rows also remain if their source record is absent from a particular input snapshot.
+
 To refresh the queue after ingesting an updated source table, run:
 
 ```bash
