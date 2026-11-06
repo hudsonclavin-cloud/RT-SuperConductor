@@ -1,6 +1,6 @@
 # The RT-SuperConductor loop: where we are and where results go
 
-**Main idea:** the project is one loop. Machine learning ranks materials, Quantum ESPRESSO and EPW on Hazel check the best ones, and reviewed results go back into training so the next ranking is better. As of 2026-11-06, every step exists except two. One is the Hazel runs themselves, which wait on cluster access. The other is that the physics models don't yet score the untested pool.
+**Main idea:** the project is one loop. Machine learning ranks materials, Quantum ESPRESSO and EPW on Hazel check the best ones, and reviewed results go back into training so the next ranking is better. As of 2026-11-06, every step exists in code. The only missing piece is the Hazel runs themselves, which wait on cluster access.
 
 ```mermaid
 flowchart LR
@@ -33,7 +33,7 @@ Benchmarks and candidates go to different places on purpose. A benchmark like ta
 | 7. Ingest outputs | `scripts/ingest_dft_results.py` | Working on real EPW output | Parser now reads EPW's summary lines; tested on the QE test-suite MgB2 benchmark (λ = 0.8715, ωlog = 61.47 meV). It previously found nothing there, or a bogus λ = 100,000 from an "IR basis: Lambda" line |
 | 8. Review and promote | `scripts/promote_dft_results.py` + `results/<id>/review.json` | Working | Benchmarks go to a comparison report; accepted candidates become training records; recomputed Tc must match EPW's printed McMillan Tc within 1% |
 | 9. Retrain with results | `train_physics_targets.py --extra-records data/training/hazel-epw-records.json` | New | Records reuse the JARVIS format, so features build the same way |
-| 10. Physics models score the pool | Missing | **Gap** | λ/ωlog models only rank prototype substitutions in `run_physics_search.py` today |
+| 10. Physics models score the pool | `scripts/score_pool_physics.py` → `docs/epw-next-candidates.csv`; `.github/workflows/epw-loop.yml` reruns it | Working | Refits on JARVIS plus reviewed Hazel records and ranks EPW-eligible candidates by agreement between the two models. A test proves a new Hazel record changes the predictions |
 
 ## What we will test, in order
 
@@ -59,6 +59,25 @@ Each stage must pass before the next starts. The 25% tolerance is a suggested st
 
 The work area on Hazel is wiped after about 30 days untouched and is not backed up. A result exists only once it is copied into `results/<id>/` in the repository.
 
+## How the next candidate is chosen
+
+`scripts/score_pool_physics.py` scores each candidate twice:
+
+- **Physics model:** predicts λ and ωlog from formula features, then turns them into Tc. It is trained on 1,057 JARVIS DFT calculations plus any reviewed Hazel records.
+- **Measured-Tc random forest:** the Tc prediction already in the pool file. It is trained on measured Tc values.
+
+The ranking uses the **lower** of the two, so a candidate rises only when both independent models agree it is promising. Candidates are EPW-eligible only if they are in the Other family (not cuprate or iron-based), non-magnetic and at most 20 sites. Magnetism uses Materials Project's `is_magnetic` when the input file has it, and otherwise a heuristic based on Fe, Co, Ni, Mn and Cr.
+
+Held-out quality of the physics model, from 5-fold GroupKFold by elemental system on JARVIS:
+
+| Target | MAE | Median-guess MAE | Spearman |
+| --- | --- | --- | --- |
+| λ | 0.68 | 0.73 | 0.48 |
+| ωlog | 92 K | 115 K | 0.57 |
+| Tc (μ* = 0.1) | 2.7 K | 3.0 K | 0.51 |
+
+That is a weak but real signal. Treat the ranking as a way to order EPW checks, not as a prediction of what will superconduct. On the current 120-row shortlist, the top EPW-eligible candidates are A15-type compounds: Al(V4Si)3 (related to V3Si), Nb12IrAu3, V6GaGe and Al(V4Ge)3.
+
 ## A note on the Tc formula
 
 The project's "Allen-Dynes" Tc uses ωlog/1.2 as the prefactor, with no strong-coupling factors. EPW labels this same number its **McMillan expression**, and our formula reproduces EPW's printed value exactly (26.4082 K for MgB2 at μ* = 0.16). EPW's separate "Allen-Dynes modified" line adds strong-coupling factors f1·f2 and comes out about 4% higher in that example. When comparing with papers, check which of the two they report.
@@ -81,5 +100,5 @@ python scripts/train_physics_targets.py --extra-records data/training/hazel-epw-
 1. **Hazel access.** Requested through Research Facilitation; Lib Students project.
 2. **The EPW input.** Start from EPW tutorial 04's Pb inputs instead of the generated template.
 3. **The parser.** Confirmed on real EPW output from the QE test suite (MgB2). Stage 0 rechecks it on Pb with the EPW version installed on Hazel.
-4. **Physics models scoring the pool (step 10).** Score the EPW-eligible list with the retrained λ and ωlog models, so new results change the next choice.
+4. **Physics-model quality.** Pool scoring uses formula features only. Its held-out Tc error (2.7 K) only modestly beats guessing the median (3.0 K), with Spearman 0.51. Adding structure features from MP CIFs is the next improvement. `train_physics_targets.py` should also fit log λ, because fitting λ directly doubles its held-out Tc error (5.9 K).
 5. **Automation.** Globus Compute could let GitHub Actions submit Hazel jobs. Set it up only after manual runs work (see `docs/hazel-runbook.md`).
