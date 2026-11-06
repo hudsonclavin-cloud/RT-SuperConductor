@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 import hashlib
@@ -379,6 +380,25 @@ def _search_tasks_raw(route: Any, **kwargs: Any) -> list[Any]:
         return route.search(**kwargs)
     finally:
         route.use_document_model = previous
+
+
+@contextmanager
+def material_level_dos_lookup(mpr: Any):
+    """Call the material-ID DOS endpoint in raw-response mode.
+
+    MP DOS documents can omit optional nested task IDs. The typed document
+    model rejects those otherwise usable DOS payloads, so turn off that route's
+    model conversion for the duration of the material-level lookup.
+    """
+    route = mpr.materials.electronic_structure_dos
+    previous = getattr(route, "use_document_model", None)
+    if previous is not None:
+        route.use_document_model = False
+    try:
+        yield mpr.get_dos_by_material_id
+    finally:
+        if previous is not None:
+            route.use_document_model = previous
 
 
 def _candidate_dos_task_refs_by_formula(
@@ -1384,12 +1404,16 @@ def _fetch_mp_with_client(
             f"{len(tasks)} task documents returned so far.",
             flush=True,
         )
-    qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_material_level_dos(
-        ordered_unmatched,
-        es_docs,
-        tasks,
-        lambda material_id: mpr.get_dos_by_material_id(material_id),
-    )
+    # MP's typed response model currently rejects valid material-level DOS
+    # documents when nested task IDs are absent. Keep this endpoint in raw
+    # mode for the complete concurrent fetch, then restore the client's mode.
+    with material_level_dos_lookup(mpr) as get_dos_by_material_id:
+        qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_material_level_dos(
+            ordered_unmatched,
+            es_docs,
+            tasks,
+            get_dos_by_material_id,
+        )
     dos_fetch_diagnostics = {
         "retrieval_method": "MPRester.get_dos_by_material_id(material_id)",
         "eligible_material_ids": dos_counts["dos_material_ids_queried"],

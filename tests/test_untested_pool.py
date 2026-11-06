@@ -20,6 +20,7 @@ from build_untested_pool import (  # noqa: E402
     dos_at_fermi_states_ev_per_atom,
     eligible_family_metrics,
     family_definer_rejection,
+    material_level_dos_lookup,
     prefetch_static_dos_curves,
     pool_run_status,
     qualify_by_dos,
@@ -235,6 +236,23 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(rejected["mp-relax"], "dos_task_not_static_or_uniform")
         self.assertEqual(counts["dos_material_ids_queried"], 1)
         self.assertEqual(diagnostics["error_counts"], {})
+
+    def test_material_level_dos_lookup_uses_raw_route_and_restores_mode(self):
+        route = SimpleNamespace(use_document_model=True)
+
+        def get_by_material_id(material_id):
+            self.assertEqual(material_id, "mp-raw")
+            self.assertFalse(route.use_document_model)
+            return "raw-dos-payload"
+
+        mpr = SimpleNamespace(
+            materials=SimpleNamespace(electronic_structure_dos=route),
+            get_dos_by_material_id=get_by_material_id,
+        )
+        with material_level_dos_lookup(mpr) as loader:
+            self.assertFalse(route.use_document_model)
+            self.assertEqual(loader("mp-raw"), "raw-dos-payload")
+        self.assertTrue(route.use_document_model)
 
     def test_dos_validation_errors_are_retained_for_run_diagnostics(self):
         invalid_dos = SimpleNamespace(
