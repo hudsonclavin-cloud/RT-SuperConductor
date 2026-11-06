@@ -1228,3 +1228,21 @@ The rows below list every formula present in the previous shortlist but absent f
 | Physics targets | `ZnB6` | low_confidence | not retained in regenerated shortlist; no single exclusion rule can be assigned from the prior row |
 
 Complete before/after row details are preserved in the linked shortlist CSVs.
+
+## Suspected 3DSC label quarantine: within-family before/after
+
+The pinned 3DSC source table (5,773 rows; SHA-256 `353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24`) contains three high reported transition temperatures attached to the same Materials Project structure, `mp-510625`: CrCuO2 (132 K), Cr0.95CuFe0.05O2 (117.5 K), and Cr0.9CuFe0.1O2 (98 K). These are marked **suspected label errors** and placed in `data/training/label_audit_queue.csv`; the table rows remain in the harmonized source data. The current reason is an audit concern (multiple high-Tc records linked to one shared structure and possible confusion with a non-superconducting transition), not a claim that the values have been disproved. A source scan found **0** other 3DSC records with Tc > 77 K and no Cu; the general rule remains active so future/new such rows enter the queue.
+
+The following real run used all 5,778 harmonized observations built from that pinned 3DSC export plus the five reviewed records. The pre-quarantine and post-quarantine evaluations use the same Magpie/shell feature construction, GroupKFold-by-elemental-system within each family, shared-MP embargo, five folds, and random seed 42. The three queued rows reduce the empirical training table from 5,778 to 5,775. Only the Cuprate family changes because all three rows belong there; differences in its metrics are small and should not be read as evidence that the model became more physically accurate.
+
+| Family | Before rows | Before MAE (K) | Before Spearman | After rows | After MAE (K) | After Spearman |
+|---|---:|---:|---:|---:|---:|---:|
+| Cuprates | 879 | 21.4025 | 0.5571 | 876 | 20.8450 | 0.5709 |
+| Ferrites | 517 | 9.2894 | 0.5394 | 517 | 9.2894 | 0.5394 |
+| Heavy-fermion | 418 | 1.0978 | 0.3486 | 418 | 1.0978 | 0.3486 |
+| Other | 3,529 | 2.9557 | 0.6787 | 3,529 | 2.9557 | 0.6787 |
+| Oxides | 320 | 3.9942 | 0.5649 | 320 | 3.9942 | 0.5649 |
+
+The saved pressure-aware report also records mean-predictor MAE: Cuprates 32.2035 K before and 31.1756 K after; Ferrites 11.7727 K; Heavy-fermion 1.1048 K; Other 4.3630 K; and Oxides 5.8215 K (the unaffected families have identical before/after values). All three suspect records are excluded until a reviewer marks the queue item reviewed and retain/validated. No prior shortlist nearest-measured anchor should be considered usable if it references one of these record IDs; the regenerated pool report counts such prior references and every new shortlist row resolves its nearest measured record using the post-quarantine training set.
+
+The pool now copies Materials Project summary `is_magnetic`, `ordering`, and `total_magnetization` into the candidate table. The separate EPW list includes only the `Other` family, at most 20 sites, and explicit non-magnetic evidence; magnetic and unknown cases remain in the audit output with an exclusion reason. Source matching also reduces away oxygen when comparing oxygen-bearing formulas, so candidates that differ only in oxygen content are marked `oxygen_variant_of_known` and excluded.

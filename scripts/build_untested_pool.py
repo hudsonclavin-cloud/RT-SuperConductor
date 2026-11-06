@@ -56,7 +56,16 @@ OUTPUT_COLUMNS = (
     "spacegroup_number", "num_sites", "nearest_known_superconductor_formula",
     "nearest_known_superconductor_tc_kelvin", "nearest_known_superconductor_record_id",
     "nearest_known_superconductor_family", "nearest_known_superconductor_distance",
-    "nearest_training_formula", "family_assignment_distance", "unresolved_source_formula_overlap", "dft_verification",
+    "nearest_training_formula", "family_assignment_distance", "unresolved_source_formula_overlap",
+    "is_magnetic", "ordering", "total_magnetization", "magnetism_classification",
+    "epw_eligibility_reason", "dft_verification",
+)
+EPW_COLUMNS = (
+    "rank_epw", "mp_id", "formula", "predicted_tc_kelvin", "uncertainty_k",
+    "conservative_score_tc_minus_sd_k", "chemical_family", "num_sites", "is_magnetic",
+    "ordering", "total_magnetization", "nearest_known_superconductor_formula",
+    "nearest_known_superconductor_tc_kelvin", "nearest_known_superconductor_record_id",
+    "epw_eligibility_reason", "dft_verification",
 )
 
 
@@ -65,6 +74,7 @@ class FormulaSourceIndex:
     formulas: frozenset[str]
     unresolved_element_systems: frozenset[tuple[str, ...]]
     stats: dict[str, dict[str, int | str]]
+    oxygen_parent_keys: frozenset[str] = frozenset()
 
 
 def _get(value: Any, name: str, default: Any = None) -> Any:
@@ -85,6 +95,24 @@ def reduced_formula(value: str | None) -> str | None:
         if not composition or not composition.elements:
             return None
         return composition.reduced_formula
+    except Exception:
+        return None
+
+
+def oxygen_agnostic_formula_key(value: str | None) -> str | None:
+    """Reduce the non-oxygen composition, for identifying oxygen variants."""
+    if not value:
+        return None
+    try:
+        from pymatgen.core import Composition
+
+        composition = Composition(str(value).strip())
+        if "O" not in composition or not composition.elements:
+            return None
+        without_oxygen = {element: amount for element, amount in composition.items() if element.symbol != "O"}
+        if not without_oxygen:
+            return None
+        return Composition(without_oxygen).reduced_formula
     except Exception:
         return None
 
@@ -172,14 +200,19 @@ def load_formula_source_index(paths: dict[str, Path]) -> FormulaSourceIndex:
     stats["combined"] = {
         "distinct_reduced_formulas": len(formulas),
         "unresolved_element_systems": len(unresolved),
+        "oxygen_bearing_parent_keys": len({key for formula in formulas if (key := oxygen_agnostic_formula_key(formula))}),
     }
-    return FormulaSourceIndex(frozenset(formulas), frozenset(unresolved), stats)
+    oxygen_parents = frozenset(
+        key for formula in formulas if (key := oxygen_agnostic_formula_key(formula))
+    )
+    return FormulaSourceIndex(frozenset(formulas), frozenset(unresolved), stats, oxygen_parents)
 
 
 def _source_index_fingerprint(source_index: FormulaSourceIndex) -> str:
     """Stable identity for the exact empirical exports used to filter MP."""
     payload = {
         "formulas": sorted(source_index.formulas),
+        "oxygen_parent_keys": sorted(source_index.oxygen_parent_keys),
         "unresolved_element_systems": sorted(sorted(items) for items in source_index.unresolved_element_systems),
         "source_sha256": {
             name: details.get("sha256")
@@ -384,7 +417,8 @@ def _read_mp_snapshot(
     raw_queries = payload.get("raw_query_results", {})
     docs = raw_queries.get("summary_query", [])
     unmatched, counts, rejected = _summary_filter_without_structures(
-        docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
+        docs, set(source_index.formulas), set(source_index.unresolved_element_systems),
+        set(source_index.oxygen_parent_keys),
     )
     summary_metallic, metallicity_counts, metallicity_rejected = filter_by_summary_metallicity(unmatched)
     counts.update(metallicity_counts)
@@ -406,6 +440,7 @@ def _read_mp_snapshot(
             for name in (
                 "material_id", "formula_pretty", "composition_reduced", "energy_above_hull",
                 "nsites", "symmetry", "is_metal", "band_gap",
+                "is_magnetic", "ordering", "total_magnetization",
             )
         }
         merged_doc["structure"] = structure
@@ -475,6 +510,9 @@ def _read_mp_snapshot(
             "dos_functional_run_type": optional.get("dos_functional_run_type", ""),
             "dos_retrieval_method": optional.get("dos_retrieval_method", ""),
             "dos_optional_enrichment_status": optional.get("dos_optional_enrichment_status", "missing"),
+            "is_magnetic": _get(doc, "is_magnetic"),
+            "ordering": _get(doc, "ordering"),
+            "total_magnetization": _get(doc, "total_magnetization"),
         }))
     counts.update(dos_counts)
     counts["dos_task_ids_queried"] = len(task_ids)
@@ -539,10 +577,45 @@ def _summary_formula(doc: Any) -> str | None:
     return reduced_formula(str(reduced or _get(doc, "formula_pretty", "")))
 
 
+def magnetism_classification(doc_or_row: Any) -> str:
+    """Classify MP summary magnetism conservatively for the phonon track."""
+    magnetic_flag = _get(doc_or_row, "is_magnetic")
+    ordering_value = _get(doc_or_row, "ordering")
+    ordering = re.sub(r"[^A-Z]", "", str(getattr(ordering_value, "value", ordering_value) or "").upper())
+    magnetization = _get(doc_or_row, "total_magnetization")
+    try:
+        nonzero_magnetization = magnetization is not None and abs(float(magnetization)) > 1e-3
+    except (TypeError, ValueError):
+        nonzero_magnetization = False
+    if magnetic_flag is True or ordering in {"FM", "AFM", "FIM", "FERROMAGNETIC", "ANTIFERROMAGNETIC", "FERRIMAGNETIC"} or nonzero_magnetization:
+        return "magnetic"
+    if ordering in {"NM", "NONMAGNETIC"} or magnetic_flag is False:
+        return "non_magnetic"
+    return "unknown"
+
+
+def epw_eligibility_reason(row: dict[str, Any]) -> str:
+    """Explain why a scored record is or is not eligible for EPW preparation."""
+    if row.get("chemical_family") != "Other":
+        return "family_not_other"
+    try:
+        if int(row.get("num_sites") or 0) > MAX_SITES:
+            return "site_count_gt_20"
+    except (TypeError, ValueError):
+        return "site_count_missing"
+    kind = row.get("magnetism_classification") or magnetism_classification(row)
+    if kind == "magnetic":
+        return "magnetic_excluded_from_epw"
+    if kind != "non_magnetic":
+        return "magnetism_unknown_excluded_from_epw"
+    return "eligible_non_magnetic_other_max_20_sites"
+
+
 def summary_filter_candidates(
     docs: Iterable[Any],
     known_formulas: set[str] | frozenset[str],
     unresolved_element_systems: set[tuple[str, ...]] | frozenset[tuple[str, ...]] = frozenset(),
+    known_oxygen_parent_keys: set[str] | frozenset[str] | None = None,
 ) -> tuple[list[Any], dict[str, int], dict[str, str]]:
     """Apply stability, size, exact-source and composition screens to MP summaries.
 
@@ -579,6 +652,12 @@ def summary_filter_candidates(
     known_match = 0
     unresolved_overlap = 0
     composition_rejected = 0
+    oxygen_variant_rejected = 0
+    oxygen_parent_keys = known_oxygen_parent_keys
+    if oxygen_parent_keys is None:
+        oxygen_parent_keys = {
+            key for known in known_formulas if (key := oxygen_agnostic_formula_key(known))
+        }
     unmatched = []
     for doc in small:
         mid = str(_get(doc, "material_id", ""))
@@ -593,6 +672,12 @@ def summary_filter_candidates(
             if mid:
                 rejected[mid] = "formula_matches_known_superconductor_source"
             continue
+        parent_key = oxygen_agnostic_formula_key(formula)
+        if parent_key and parent_key in oxygen_parent_keys:
+            oxygen_variant_rejected += 1
+            if mid:
+                rejected[mid] = "oxygen_variant_of_known"
+            continue
         composition_reason = untested_pool_composition_rejection(formula)
         if composition_reason:
             composition_rejected += 1
@@ -605,6 +690,7 @@ def summary_filter_candidates(
         unmatched.append(doc)
     counts["formula_unparseable"] = unknown_formula
     counts["formula_matches_known_superconductor_source"] = known_match
+    counts["oxygen_variant_of_known"] = oxygen_variant_rejected
     counts["ambiguous_formula_source_system_overlap"] = unresolved_overlap
     counts["composition_policy_rejected"] = composition_rejected
     counts["unmatched_reduced_formula"] = len(unmatched)
@@ -615,9 +701,10 @@ def _summary_filter_without_structures(
     docs: Iterable[Any],
     known_formulas: set[str] | frozenset[str],
     unresolved_element_systems: set[tuple[str, ...]] | frozenset[tuple[str, ...]] = frozenset(),
+    known_oxygen_parent_keys: set[str] | frozenset[str] | None = None,
 ) -> tuple[list[Any], dict[str, int], dict[str, str]]:
     """Compatibility name for the inexpensive MP summary filters."""
-    return summary_filter_candidates(docs, known_formulas, unresolved_element_systems)
+    return summary_filter_candidates(docs, known_formulas, unresolved_element_systems, known_oxygen_parent_keys)
 
 
 def _descriptor_formula(formula: str) -> str:
@@ -1443,6 +1530,10 @@ def score_family_candidates(
             "dos_functional_run_type": dos_data.get("dos_functional_run_type", ""),
             "dos_task_id": dos_data.get("dos_task_id", ""),
             "dos_retrieval_method": dos_data.get("dos_retrieval_method", ""),
+            "is_magnetic": _get(doc, "is_magnetic"),
+            "ordering": _get(doc, "ordering"),
+            "total_magnetization": _get(doc, "total_magnetization"),
+            "magnetism_classification": magnetism_classification(doc),
             "chemical_family": family,
             "within_family_spearman": eligible_metrics[family],
             "family_assignment_distance": family_distance,
@@ -1516,8 +1607,14 @@ def score_family_candidates(
                 "nearest_training_formula": row["nearest_training_record"].formula,
                 "family_assignment_distance": row["family_assignment_distance"],
                 "unresolved_source_formula_overlap": row["unresolved_source_formula_overlap"],
+                "is_magnetic": row["is_magnetic"],
+                "ordering": row["ordering"],
+                "total_magnetization": row["total_magnetization"],
+                "magnetism_classification": row["magnetism_classification"],
                 "dft_verification": "pending",
             })
+    for row in scored:
+        row["epw_eligibility_reason"] = epw_eligibility_reason(row)
     return scored, counts, rejected
 
 
@@ -1562,6 +1659,28 @@ def _write_shortlist(path: Path, rows: list[dict[str, Any]]) -> None:
             writer.writerow({name: row.get(name, "") for name in OUTPUT_COLUMNS})
 
 
+def _write_epw_outputs(shortlist_path: Path, audit_path: Path, rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Publish all scored EPW decisions and a conservative eligible ranking."""
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    with audit_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=OUTPUT_COLUMNS)
+        writer.writeheader()
+        writer.writerows({name: row.get(name, "") for name in OUTPUT_COLUMNS} for row in rows)
+    reasons = Counter(row.get("epw_eligibility_reason", "") for row in rows)
+    eligible = [row for row in rows if row.get("epw_eligibility_reason") == "eligible_non_magnetic_other_max_20_sites"]
+    eligible.sort(key=lambda row: (-float(row["conservative_score_tc_minus_sd_k"]), str(row["mp_id"])))
+    shortlist_path.parent.mkdir(parents=True, exist_ok=True)
+    with shortlist_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=EPW_COLUMNS)
+        writer.writeheader()
+        for rank, row in enumerate(eligible, start=1):
+            writer.writerow({
+                "rank_epw": rank,
+                **{name: row.get(name, "") for name in EPW_COLUMNS if name != "rank_epw"},
+            })
+    return eligible, dict(sorted(reasons.items()))
+
+
 def _read_old_shortlist(path: Path | None) -> list[dict[str, str]]:
     if path is None or not path.is_file():
         return []
@@ -1576,7 +1695,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         "",
         "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. The provisional metallicity gate accepts Materials Project summary `is_metal=true` or `band_gap=0` and records `metallicity_source=mp_summary_provisional`; these are screening labels, not experimental validation. DOS(Ef) above 0.1 states/eV/atom from a Static or Uniform calculation is optional enrichment when its curve is available. Missing curves and DOS at or below the threshold never block pool inclusion.",
         "",
-        f"Run status: **{report['status']}**. Shortlist size: **{report['shortlist_rows']}**; eligible families: **{len(report['eligible_family_metrics'])}**.",
+        f"Run status: **{report['status']}**. Main shortlist size: **{report['shortlist_rows']}**; EPW-eligible list size: **{report.get('epw_eligible_rows', 0)}**; eligible families: **{len(report['eligible_family_metrics'])}**.",
         "",
         "## Counts per filter",
         "",
@@ -1587,6 +1706,30 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     ]
     for key, value in report["filter_counts"].items():
         lines.append(f"| `{key}` | {value} |")
+    quarantine = report.get("label_quarantine", {})
+    lines += [
+        "",
+        "## Label quarantine and training comparison",
+        "",
+        f"Active quarantined labels excluded from empirical training: **{quarantine.get('excluded_training_rows', 0)}**. Source observations are preserved. The quarantined 3DSC rows are treated as suspected label errors because three high transition labels share the same MP structure (`mp-510625`); this is an audit flag, not a declaration that the source rows are false. Other 3DSC records above 77 K without Cu are also queued by rule.",
+        f"Previous shortlist nearest-neighbor references directly affected by these quarantined rows: **{quarantine.get('old_shortlist_nearest_neighbor_chain_rows_affected', 0)}**.",
+        "",
+        "| Family | Before rows / MAE / Spearman | After quarantine rows / MAE / Spearman |",
+        "|---|---|---|",
+    ]
+    comparison = report.get("label_quarantine_metrics", {})
+    for family, values in sorted(comparison.items()):
+        before = values.get("before", {})
+        after = values.get("after", {})
+        def _fmt(metric: dict[str, Any]) -> str:
+            if metric.get("status") != "ready":
+                return str(metric.get("status", "not_evaluated"))
+            mae = metric.get("mae_k")
+            rho = metric.get("spearman_rho")
+            return f"{metric.get('row_count')} / {mae:.3f} K / {rho:.4f}" if mae is not None and rho is not None else f"{metric.get('row_count')} / MAE {mae} / Spearman {rho}"
+        lines.append(f"| {family} | {_fmt(before)} | {_fmt(after)} |")
+    if not comparison:
+        lines.append("| *(not present in this pressure-aware training report)* | — | — |")
     diagnostics = report.get("dos_fetch_diagnostics", {})
     lines += [
         "",
@@ -1629,6 +1772,26 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         )
     if not report["families"]:
         lines.append("| *(none passed the main within-family Spearman gate)* | — | — | — | 0 |")
+    lines += [
+        "",
+        "## Magnetic exclusions for the EPW route",
+        "",
+        "MP summary magnetic order and total magnetization are carried into each scored row. Any MP `is_magnetic=true`, FM/AFM/FiM ordering, or nonzero total magnetization is excluded from the EPW-eligible list. Unknown magnetic state is also excluded rather than assumed non-magnetic. The separate EPW audit CSV retains each candidate and its reason.",
+        "",
+        "| EPW decision | Count |",
+        "|---|---:|",
+    ]
+    for reason, count in sorted(report.get("epw_eligibility_counts", {}).items()):
+        lines.append(f"| `{reason}` | {count} |")
+    fecu = report.get("fecu_o2_old_shortlist_outcome", {})
+    lines += [
+        "",
+        "## FeCuO2 follow-up",
+        "",
+        f"Previous-shortlist outcome for `FeCuO2` (`mp-505110`): **{fecu.get('disposition', 'not reported')}** — `{fecu.get('reason', 'no reason recorded')}`. Its oxygen-insensitive key is `{report.get('fecu_o2_source_formula_check', {}).get('oxygen_agnostic_key', 'not calculated')}`; matching source formulas: `{report.get('fecu_o2_source_formula_check', {}).get('known_oxygen_bearing_source_formulas_with_same_nonoxygen_stoichiometry', [])}`. If that list is empty, FeCuO2 was not removed by the oxygen-variant rule; any removal comes from the current family assignment/gate/rank and is named above.",
+        "",
+        f"The separate EPW list is `{report.get('epw_eligible_shortlist_csv', 'not written')}` and contains only Other-family, explicitly non-magnetic entries with at most {MAX_SITES} sites, ranked by predicted Tc minus tree-spread SD. Its nearest known compound and measured Tc are included for context.",
+    ]
     lines += ["", "### Assignment/scoring outcomes", "", "| Outcome | Count |", "|---|---:|"]
     for key, value in report["scoring_counts"].items():
         lines.append(f"| `{key}` | {value} |")
@@ -1668,7 +1831,7 @@ def _fetch_mp_with_client(
     """Query MP summaries, retain ordered structures, and optionally fetch DOS."""
     summary_fields = [
         "material_id", "formula_pretty", "composition_reduced", "energy_above_hull", "nsites",
-        "symmetry", "is_metal", "band_gap",
+        "symmetry", "is_metal", "band_gap", "is_magnetic", "ordering", "total_magnetization",
     ]
     print("Querying Materials Project summaries for stable materials with at most 20 sites...", flush=True)
     docs = mpr.materials.summary.search(
@@ -1688,7 +1851,8 @@ def _fetch_mp_with_client(
         "dos_curves": {},
     }
     unmatched, counts, rejected = _summary_filter_without_structures(
-        docs, set(source_index.formulas), set(source_index.unresolved_element_systems)
+        docs, set(source_index.formulas), set(source_index.unresolved_element_systems),
+        set(source_index.oxygen_parent_keys),
     )
     summary_metallic, metallicity_counts, metallicity_rejected = filter_by_summary_metallicity(unmatched)
     counts.update(metallicity_counts)
@@ -1730,7 +1894,7 @@ def _fetch_mp_with_client(
             name: _get(doc, name)
             for name in (
                 "material_id", "formula_pretty", "composition_reduced", "energy_above_hull",
-                "nsites", "symmetry", "is_metal", "band_gap",
+                "nsites", "symmetry", "is_metal", "band_gap", "is_magnetic", "ordering", "total_magnetization",
             )
         }
         merged_doc["structure"] = structure
@@ -1821,6 +1985,9 @@ def _fetch_mp_with_client(
             "dos_functional_run_type": optional.get("dos_functional_run_type", ""),
             "dos_retrieval_method": optional.get("dos_retrieval_method", ""),
             "dos_optional_enrichment_status": optional.get("dos_optional_enrichment_status", "missing"),
+            "is_magnetic": _get(doc, "is_magnetic"),
+            "ordering": _get(doc, "ordering"),
+            "total_magnetization": _get(doc, "total_magnetization"),
         }))
     dos_fetch_diagnostics = {
         "retrieval_method": "optional: candidate material_id -> eligible static/uniform task_id -> parsed DOS",
@@ -1901,8 +2068,15 @@ def build_untested_pool(
     old_shortlist_path: Path | None = None,
     summary_path: Path | None = None,
     mp_cache_path: Path | None = None,
+    epw_shortlist_path: Path | None = Path("docs/epw-eligible-shortlist.csv"),
+    epw_audit_path: Path | None = Path("data/processed/continuous-training/epw-eligibility-audit.csv"),
 ) -> dict[str, Any]:
     source_index = load_formula_source_index(source_paths)
+    fecu_oxygen_key = oxygen_agnostic_formula_key("FeCuO2")
+    fecu_known_oxygen_parents = sorted(
+        formula for formula in source_index.formulas
+        if oxygen_agnostic_formula_key(formula) == fecu_oxygen_key
+    )
     pressure_report_path = model_dir / "pressure-aware-report.json"
     if not pressure_report_path.is_file():
         raise FileNotFoundError(f"trained pressure-aware report not found: {pressure_report_path}")
@@ -1924,7 +2098,19 @@ def build_untested_pool(
         }
         for family, metric in sorted(family_metrics.items())
     }
-    records = select_training_records(load_harmonized(input_path))
+    all_training_table_records = load_harmonized(input_path)
+    from rt_superconductor.label_quarantine import load_quarantine_decisions, quarantine_reason
+    quarantine_decisions = load_quarantine_decisions(Path("data/training/label_audit_queue.csv"))
+    label_quarantine_rows = [
+        {
+            "record_id": record.record_id, "mp_id": record.mp_id,
+            "formula": record.formula, "tc_kelvin": record.tc_kelvin,
+            "reason": quarantine_reason(record, quarantine_decisions),
+        }
+        for record in all_training_table_records
+        if quarantine_reason(record, quarantine_decisions)
+    ]
+    records = select_training_records(all_training_table_records)
     if not records:
         raise ValueError("there are no empirical training records to assign families or score candidates")
 
@@ -1938,10 +2124,17 @@ def build_untested_pool(
     )
     shortlist = select_top_per_family(scored, top_per_family)
     _write_shortlist(output_path, shortlist)
+    epw_eligible, epw_eligibility_counts = _write_epw_outputs(
+        epw_shortlist_path or output_path.with_name("epw-eligible-shortlist.csv"),
+        epw_audit_path or report_path.with_name("epw-eligibility-audit.csv"),
+        scored,
+    )
     qualified_ids = {str(_get(doc, "material_id", "")) for doc, _ in qualified}
     scored_ids = {row["mp_id"] for row in scored}
     shortlist_ids = {row["mp_id"] for row in shortlist}
     old_comparison: list[dict[str, str]] = []
+    quarantine_record_ids = {row["record_id"] for row in label_quarantine_rows}
+    old_nearest_chain_quarantined = 0
     for old in old_rows:
         mid = old.get("mp_id", "")
         if mid in shortlist_ids:
@@ -1961,6 +2154,8 @@ def build_untested_pool(
             "disposition": disposition,
             "reason": reason,
         })
+        if old.get("nearest_known_superconductor_record_id", "") in quarantine_record_ids:
+            old_nearest_chain_quarantined += 1
     scored_family_by_id = {row["mp_id"]: row["chemical_family"] for row in scored}
     candidate_outcomes = {
         str(_get(doc, "material_id", "")): f"scored:{scored_family_by_id[str(_get(doc, 'material_id', ''))]}"
@@ -2027,6 +2222,28 @@ def build_untested_pool(
         "old_shortlist_retained": sum(row["disposition"] == "retained" for row in old_comparison),
         "old_shortlist_removed": sum(row["disposition"] == "removed" for row in old_comparison),
         "old_shortlist_comparison": old_comparison,
+        "label_quarantine": {
+            "excluded_training_rows": len(label_quarantine_rows),
+            "records": label_quarantine_rows,
+            "source_rows_preserved": True,
+            "old_shortlist_nearest_neighbor_chain_rows_affected": old_nearest_chain_quarantined,
+        },
+        "label_quarantine_metrics": pressure_report.get("label_quarantine", {}).get(
+            "within_family_metrics_before_after", {}
+        ),
+        "epw_eligible_rows": len(epw_eligible),
+        "epw_eligibility_counts": epw_eligibility_counts,
+        "epw_eligibility_audit_csv": str(epw_audit_path or report_path.with_name("epw-eligibility-audit.csv")),
+        "epw_eligible_shortlist_csv": str(epw_shortlist_path or output_path.with_name("epw-eligible-shortlist.csv")),
+        "fecu_o2_old_shortlist_outcome": next(
+            (row for row in old_comparison if row.get("mp_id") == "mp-505110" or row.get("formula") == "FeCuO2"),
+            {"disposition": "not_in_previous_shortlist", "reason": "no previous FeCuO2 row to compare"},
+        ),
+        "fecu_o2_source_formula_check": {
+            "oxygen_agnostic_key": fecu_oxygen_key,
+            "known_oxygen_bearing_source_formulas_with_same_nonoxygen_stoichiometry": fecu_known_oxygen_parents,
+            "oxygen_variant_of_known": bool(fecu_known_oxygen_parents),
+        },
         "output_csv": str(output_path),
         "output_csv_sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
         "output_dft_results_status": "pending",
@@ -2052,6 +2269,8 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=Path("docs/untested-pool-shortlist.csv"))
     parser.add_argument("--report", type=Path, default=Path("data/processed/continuous-training/untested-pool-report.json"))
     parser.add_argument("--summary", type=Path, default=Path("docs/untested-pool-summary.md"))
+    parser.add_argument("--epw-shortlist", type=Path, default=Path("docs/epw-eligible-shortlist.csv"))
+    parser.add_argument("--epw-audit", type=Path, default=Path("data/processed/continuous-training/epw-eligibility-audit.csv"))
     parser.add_argument("--old-shortlist", type=Path, default=Path("/tmp/untested-pool-v1.csv"))
     parser.add_argument("--3dsc", dest="threedsc", type=Path, default=Path("data/raw/3dsc/MP/3DSC_MP.csv"))
     parser.add_argument("--uci", type=Path, default=Path("data/raw/uci/extracted/unique_m.csv"))
@@ -2081,6 +2300,8 @@ def main() -> int:
         old_shortlist_path=args.old_shortlist,
         summary_path=args.summary,
         mp_cache_path=args.mp_cache,
+        epw_shortlist_path=args.epw_shortlist,
+        epw_audit_path=args.epw_audit,
     )
     print(json.dumps({
         "status": report["status"],
