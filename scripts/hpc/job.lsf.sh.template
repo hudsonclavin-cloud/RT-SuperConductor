@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# OBSOLETE FOR HAZEL: NC State HPC staff confirmed Hazel uses Slurm (2026-11-06).
+# Use job.slurm.sh.template. Kept for reference only.
 # UNCONFIRMED TEMPLATE: use only after the account owner confirms the site uses LSF.
 # Replace all placeholders and have the HPC support team review resource syntax.
 #BSUB -J qe-epw-<candidate>
