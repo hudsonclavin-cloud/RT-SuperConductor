@@ -1,0 +1,298 @@
+{
+  "best": {
+    "auc_mean": 0.8168536528519366,
+    "feature_set": "formula+mp+struct",
+    "model": "gradient_boosting"
+  },
+  "block_sizes": {
+    "formula": 157,
+    "mp": 20,
+    "stiff": 5,
+    "struct": 60
+  },
+  "paired_gain_vs_formula_mp": {
+    "formula": {
+      "gradient_boosting": {
+        "mean": -0.004009873718111641,
+        "wins": 0
+      },
+      "neural_network_mlp": {
+        "mean": -0.010682049326214083,
+        "wins": 1
+      },
+      "random_forest": {
+        "mean": -0.007111036952284063,
+        "wins": 0
+      }
+    },
+    "formula+mp": {
+      "gradient_boosting": {
+        "mean": 0.0,
+        "wins": 0
+      },
+      "neural_network_mlp": {
+        "mean": 0.0,
+        "wins": 0
+      },
+      "random_forest": {
+        "mean": 0.0,
+        "wins": 0
+      }
+    },
+    "formula+mp+struct": {
+      "gradient_boosting": {
+        "mean": 0.0003262988388846866,
+        "wins": 2
+      },
+      "neural_network_mlp": {
+        "mean": 0.005310566573438462,
+        "wins": 2
+      },
+      "random_forest": {
+        "mean": 0.006022623739299997,
+        "wins": 3
+      }
+    },
+    "formula+mp+struct+stiff": {
+      "gradient_boosting": {
+        "mean": 1.8804559708411144e-05,
+        "wins": 2
+      },
+      "neural_network_mlp": {
+        "mean": 0.004602349775404709,
+        "wins": 2
+      },
+      "random_forest": {
+        "mean": 0.007401448215950494,
+        "wins": 3
+      }
+    },
+    "mp+struct+stiff": {
+      "gradient_boosting": {
+        "mean": -0.06031456585303837,
+        "wins": 0
+      },
+      "neural_network_mlp": {
+        "mean": -0.05664277693024833,
+        "wins": 0
+      },
+      "random_forest": {
+        "mean": -0.03066056975167386,
+        "wins": 0
+      }
+    }
+  },
+  "positives": 1140,
+  "provenance": {
+    "candidates_sha256": "70678f0506fc7b2e373ee08db6acac3a143c4e4ef5ad1cad9033ca1b34858513",
+    "cpu_count": 4,
+    "feature_matrix_sha256": "8017afbc16a31549a9b86afeec26757d75ab6aa38659bc7502299fe826c78ef0",
+    "git_commit": "f4fcab5def01e6c6709dee1bae0771dbdd78de79",
+    "numpy": "2.5.3",
+    "python": "3.13.18",
+    "scikit_learn": "1.9.1",
+    "seeds": {
+      "models": "7 + repeat",
+      "outer_split": "1000 + repeat"
+    }
+  },
+  "results": {
+    "formula": {
+      "features": 157,
+      "gradient_boosting": {
+        "auc_mean": 0.8125174802949403,
+        "auc_per_repeat": [
+          0.8259606216628529,
+          0.8082244787693872,
+          0.8033673404525807
+        ],
+        "auc_sd_across_repeats": 0.009710354800775305,
+        "average_precision_mean": 0.8132772137057062,
+        "brier_mean": 0.18113572234623884,
+        "top_decile_superconductor_share_mean": 0.9200336700336699
+      },
+      "neural_network_mlp": {
+        "auc_mean": 0.7579646580218663,
+        "auc_per_repeat": [
+          0.7731486778540555,
+          0.7322813374014746,
+          0.7684639588100687
+        ],
+        "auc_sd_across_repeats": 0.01826127718603219,
+        "average_precision_mean": 0.7526301329717429,
+        "brier_mean": 0.23524657967587012,
+        "top_decile_superconductor_share_mean": 0.8691919191919192
+      },
+      "random_forest": {
+        "auc_mean": 0.7929067081956097,
+        "auc_per_repeat": [
+          0.7991959064327485,
+          0.7875143020594966,
+          0.7920099160945844
+        ],
+        "auc_sd_across_repeats": 0.0048109699117496706,
+        "average_precision_mean": 0.7923001851627484,
+        "brier_mean": 0.18540922120004025,
+        "top_decile_superconductor_share_mean": 0.9064646464646465
+      }
+    },
+    "formula+mp": {
+      "features": 177,
+      "gradient_boosting": {
+        "auc_mean": 0.8165273540130519,
+        "auc_per_repeat": [
+          0.8281607551487413,
+          0.8163925438596491,
+          0.8050287630307653
+        ],
+        "auc_sd_across_repeats": 0.009444077338721216,
+        "average_precision_mean": 0.8216631255297671,
+        "brier_mean": 0.179138882348832,
+        "top_decile_superconductor_share_mean": 0.9442087542087542
+      },
+      "neural_network_mlp": {
+        "auc_mean": 0.7686467073480804,
+        "auc_per_repeat": [
+          0.7666364734299517,
+          0.7675955059750826,
+          0.7717081426392067
+        ],
+        "auc_sd_across_repeats": 0.002199882631258716,
+        "average_precision_mean": 0.7602775202291006,
+        "brier_mean": 0.22300602015953574,
+        "top_decile_superconductor_share_mean": 0.8858585858585858
+      },
+      "random_forest": {
+        "auc_mean": 0.8000177451478939,
+        "auc_per_repeat": [
+          0.8069742404017289,
+          0.7957193141367913,
+          0.7973596809051614
+        ],
+        "auc_sd_across_repeats": 0.004964361016026497,
+        "average_precision_mean": 0.7989661829195412,
+        "brier_mean": 0.1827565650499234,
+        "top_decile_superconductor_share_mean": 0.9155218855218855
+      }
+    },
+    "formula+mp+struct": {
+      "features": 237,
+      "gradient_boosting": {
+        "auc_mean": 0.8168536528519366,
+        "auc_per_repeat": [
+          0.830810608949911,
+          0.8141836702262903,
+          0.8055666793796085
+        ],
+        "auc_sd_across_repeats": 0.010477296103274553,
+        "average_precision_mean": 0.8170106832822109,
+        "brier_mean": 0.17799675069818685,
+        "top_decile_superconductor_share_mean": 0.929023569023569
+      },
+      "neural_network_mlp": {
+        "auc_mean": 0.7739572739215189,
+        "auc_per_repeat": [
+          0.7841445779303331,
+          0.772134820747521,
+          0.7655924230867023
+        ],
+        "auc_sd_across_repeats": 0.007682734496435259,
+        "average_precision_mean": 0.7566210948648552,
+        "brier_mean": 0.23174921869211662,
+        "top_decile_superconductor_share_mean": 0.8601010101010103
+      },
+      "random_forest": {
+        "auc_mean": 0.8060403688871939,
+        "auc_per_repeat": [
+          0.8116549866514111,
+          0.8035989543605391,
+          0.8028671656496315
+        ],
+        "auc_sd_across_repeats": 0.003981358910225733,
+        "average_precision_mean": 0.8059653514036887,
+        "brier_mean": 0.18077419557007757,
+        "top_decile_superconductor_share_mean": 0.9245117845117846
+      }
+    },
+    "formula+mp+struct+stiff": {
+      "features": 242,
+      "gradient_boosting": {
+        "auc_mean": 0.8165461585727604,
+        "auc_per_repeat": [
+          0.8255252034070684,
+          0.8176614543605389,
+          0.8064518179506737
+        ],
+        "auc_sd_across_repeats": 0.00782651142858808,
+        "average_precision_mean": 0.8157673581515118,
+        "brier_mean": 0.17782052005822782,
+        "top_decile_superconductor_share_mean": 0.9230303030303031
+      },
+      "neural_network_mlp": {
+        "auc_mean": 0.773249057123485,
+        "auc_per_repeat": [
+          0.7735531083142639,
+          0.7776434973302823,
+          0.768550565725909
+        ],
+        "auc_sd_across_repeats": 0.0037183945133541386,
+        "average_precision_mean": 0.7593370415327544,
+        "brier_mean": 0.22651731763665403,
+        "top_decile_superconductor_share_mean": 0.8690572390572392
+      },
+      "random_forest": {
+        "auc_mean": 0.8074191933638444,
+        "auc_per_repeat": [
+          0.8136743579964403,
+          0.8013745868293924,
+          0.8072086352657004
+        ],
+        "auc_sd_across_repeats": 0.005023567372890558,
+        "average_precision_mean": 0.8061678812279337,
+        "brier_mean": 0.18038284781384287,
+        "top_decile_superconductor_share_mean": 0.925993265993266
+      }
+    },
+    "mp+struct+stiff": {
+      "features": 85,
+      "gradient_boosting": {
+        "auc_mean": 0.7562127881600135,
+        "auc_per_repeat": [
+          0.7694809941520468,
+          0.7513769705059751,
+          0.7477803998220187
+        ],
+        "auc_sd_across_repeats": 0.009496237776314188,
+        "average_precision_mean": 0.7554681521093621,
+        "brier_mean": 0.20288369534921255,
+        "top_decile_superconductor_share_mean": 0.8915488215488215
+      },
+      "neural_network_mlp": {
+        "auc_mean": 0.7120039304178319,
+        "auc_per_repeat": [
+          0.7101099669463513,
+          0.7090102974828375,
+          0.7168915268243072
+        ],
+        "auc_sd_across_repeats": 0.003485088923465061,
+        "average_precision_mean": 0.6836955759088892,
+        "brier_mean": 0.24051685578070192,
+        "top_decile_superconductor_share_mean": 0.7590572390572391
+      },
+      "random_forest": {
+        "auc_mean": 0.7693571753962201,
+        "auc_per_repeat": [
+          0.7728642257818459,
+          0.7654470188151539,
+          0.7697602815916603
+        ],
+        "auc_sd_across_repeats": 0.003041448202231726,
+        "average_precision_mean": 0.7703574395103873,
+        "brier_mean": 0.19679537398962788,
+        "top_decile_superconductor_share_mean": 0.8869696969696971
+      }
+    }
+  },
+  "rows": 2244,
+  "split": "StratifiedGroupKFold by element system, 5 folds x 3 shuffles (same as the benchmark)"
+}

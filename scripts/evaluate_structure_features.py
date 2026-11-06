@@ -111,8 +111,10 @@ def evaluate_structure_features(
         return base_report
 
     X_composition, composition_names, _ = build_features(usable)
-    X_structure = SimpleImputer(strategy="median").fit_transform(np.asarray(structures, dtype=float))
+    # Structure values are imputed inside each fold (training rows only); see the loop below.
+    X_structure = np.asarray(structures, dtype=float)
     X_combined = np.hstack((X_composition, X_structure))
+    structure_columns = slice(X_composition.shape[1], X_combined.shape[1])
     y = np.asarray([record.tc_kelvin for record in usable], dtype=float)
     groups = np.asarray([record.chemical_family for record in usable])
     splits = min(n_splits, len(set(groups)))
@@ -120,15 +122,25 @@ def evaluate_structure_features(
         raise ValueError("structure comparison requires at least two family groups")
     scores: dict[str, list[np.ndarray]] = {"composition_only": [], "composition_plus_structure": []}
     actuals: list[np.ndarray] = []
+    fold_mean_predictions: list[np.ndarray] = []
     folds: list[dict[str, object]] = []
     for fold, (train_idx, test_idx) in enumerate(GroupKFold(n_splits=splits).split(X_composition, y, groups), start=1):
         fold_report: dict[str, object] = {"fold": fold, "held_out_families": sorted(set(groups[test_idx]))}
-        for name, matrix in (("composition_only", X_composition), ("composition_plus_structure", X_combined)):
+        combined_train = X_combined[train_idx].copy()
+        combined_test = X_combined[test_idx].copy()
+        imputer = SimpleImputer(strategy="median", keep_empty_features=True)
+        combined_train[:, structure_columns] = imputer.fit_transform(combined_train[:, structure_columns])
+        combined_test[:, structure_columns] = imputer.transform(combined_test[:, structure_columns])
+        for name, train_matrix, test_matrix in (
+            ("composition_only", X_composition[train_idx], X_composition[test_idx]),
+            ("composition_plus_structure", combined_train, combined_test),
+        ):
             model = RandomForestRegressor(n_estimators=200, random_state=random_state + fold, n_jobs=-1, min_samples_leaf=1)
-            model.fit(matrix[train_idx], y[train_idx])
-            scores[name].append(model.predict(matrix[test_idx]))
+            model.fit(train_matrix, y[train_idx])
+            scores[name].append(model.predict(test_matrix))
             fold_report[name] = _metrics(y[test_idx], scores[name][-1])
         fold_report["mean_predictor"] = _metrics(y[test_idx], np.full(len(test_idx), y[train_idx].mean()))
+        fold_mean_predictions.append(np.full(len(test_idx), y[train_idx].mean()))
         actuals.append(y[test_idx])
         folds.append(fold_report)
     actual = np.concatenate(actuals)
@@ -143,7 +155,9 @@ def evaluate_structure_features(
         "folds": folds,
         "composition_only": {"features": composition_names, "metrics": composition_metrics},
         "composition_plus_structure": {"features": composition_names + feature_names, "metrics": structure_metrics},
-        "mean_predictor": _metrics(actual, np.full(len(actual), float(actual.mean()))),
+        # Each fold's baseline predicts its own training mean; no test target is used.
+        "mean_predictor": _metrics(actual, np.concatenate(fold_mean_predictions)),
+        "preprocessing": "structure imputation fitted on training folds only",
         "comparison": {
             "structure_mae_delta_minus_composition": structure_metrics["mae_k"] - composition_metrics["mae_k"],
             "structure_beats_composition": structure_metrics["mae_k"] < composition_metrics["mae_k"],
