@@ -179,7 +179,7 @@ def build_characteristics(
         lam_value=None if generated else _float_or_none(source.get('lamb'))
         omega_value=None if generated else _float_or_none(source.get('wlog'))
         row: dict[str, Any] = {
-            "jid": source["jid"], "formula": formula, "source_dataset_doi": DATASET_DOI,
+            "jid": source["jid"], "formula": formula, "source_dataset_doi": source.get("source_dataset_doi", DATASET_DOI),
             "source_dataset_license": "CC BY 4.0", "source_stability": source.get("stability"),
             "lambda": lam_value, "omega_log_k": omega_value, "is_generated_candidate": generated,
             "source_linkage_role": "parent_prototype_reference" if generated else "computed_reference",
@@ -368,7 +368,29 @@ def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
-def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None) -> dict[str, Any]:
+def load_extra_records(path: Path | None) -> list[dict[str, Any]]:
+    """Load reviewed local EPW records written by scripts/promote_dft_results.py.
+
+    A missing file means no local results yet. Each record must carry a
+    ``hazel-`` ID, a structure and positive lambda and omega_log values.
+    """
+    if path is None or not path.is_file():
+        return []
+    records = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(records, list):
+        raise ValueError(f"{path} must contain a JSON list of records")
+    for record in records:
+        jid = str(record.get("jid", ""))
+        lam, wlog = _float_or_none(record.get("lamb")), _float_or_none(record.get("wlog"))
+        if not jid.startswith("hazel-") or "atoms" not in record:
+            raise ValueError(f"extra record {jid!r} needs a hazel- jid and atoms")
+        if lam is None or wlog is None or lam <= 0 or wlog <= 0:
+            raise ValueError(f"extra record {jid!r} needs positive lamb and wlog")
+    return records
+
+
+def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None,
+        extra_records: Path | None = None) -> dict[str, Any]:
     from json import load
 
     archive = data_dir / DATASET_FILE
@@ -382,6 +404,12 @@ def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None) -> di
         and float(row["lamb"]) > 0
         and float(row["wlog"]) > 0
     ]
+    local_records = load_extra_records(extra_records)
+    jarvis_jids = {str(row["jid"]) for row in usable_rows}
+    duplicate_jids = [r["jid"] for r in local_records if str(r["jid"]) in jarvis_jids]
+    if duplicate_jids:
+        raise ValueError(f"extra records reuse JARVIS IDs: {duplicate_jids}")
+    usable_rows = usable_rows + local_records
     table_path = output_dir / "jarvis-supercond-characteristics.csv"
     required_bonds = set(BOND_FEATURE_NAMES)
     cached_rows: list[dict[str, Any]] = []
@@ -416,8 +444,14 @@ def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None) -> di
             "name": "JARVIS-SuperconDB (3D, 1058-row file)", "doi": DATASET_DOI,
             "paper_doi": PAPER_DOI, "url": DATASET_URL, "license": "CC BY 4.0",
             "publisher_md5": file_md5, "sha256": file_sha256, "raw_rows": len(source_rows),
-            "rows_used": len(rows), "rows_excluded_invalid_electron_phonon_targets": len(source_rows) - len(rows),
+            "rows_used": len(rows), "rows_excluded_invalid_electron_phonon_targets": len(source_rows) - (len(rows) - len(local_records)),
             "mp_characteristics_status": mp_status, "mp_match_status_counts": mp_status_counts,
+        },
+        "local_dft_records": {
+            "path": str(extra_records) if extra_records else None,
+            "count": len(local_records),
+            "jids": [str(r["jid"]) for r in local_records],
+            "source": "reviewed Hazel QE/EPW results promoted by scripts/promote_dft_results.py",
         },
         "method": {
             "targets": ["lambda", "omega_log_k"], "mu_star": MU_STAR,
@@ -453,8 +487,11 @@ def main() -> int:
     parser.add_argument("--data-dir", type=Path, default=Path("data/raw/jarvis-supercond"))
     parser.add_argument("--output-dir", type=Path, default=Path("data/processed/physics-target"))
     parser.add_argument("--mp-cache", type=Path, default=Path("data/raw/jarvis-supercond/mp-characteristics.csv"))
+    parser.add_argument("--extra-records", type=Path, default=Path("data/training/hazel-epw-records.json"),
+                        help="reviewed local EPW records from promote_dft_results.py; skipped if absent")
     args = parser.parse_args()
-    report = run(data_dir=args.data_dir, output_dir=args.output_dir, mp_cache=args.mp_cache)
+    report = run(data_dir=args.data_dir, output_dir=args.output_dir, mp_cache=args.mp_cache,
+                 extra_records=args.extra_records)
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0
 
