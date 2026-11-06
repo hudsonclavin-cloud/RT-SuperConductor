@@ -35,7 +35,7 @@ Known compounds are matched by atomic fractions, not by spelling. "Exact" means 
 | Model | Trained on | Out-of-sample test | Result |
 | --- | --- | --- | --- |
 | λ/ωlog physics model (`score_pool_physics.py`) | 1,057 JARVIS DFT calculations | Separate 1,062 known superconductors from 988 tested non-superconductors, excluding training formulas | **AUC 0.53**, about chance; Spearman with measured Tc 0.16 |
-| Superconductor classifier (`train_mp_sc_classifier.py`) | 2,244 labelled MP materials: formula plus MP properties | 5-fold GroupKFold by element system | **AUC 0.80**; 90% of its top tenth are superconductors vs 51% overall |
+| Superconductor classifier (`train_mp_sc_classifier.py`) | 2,244 labelled MP materials: formula plus MP properties | 5-fold StratifiedGroupKFold by element system | **AUC 0.82 with gradient boosting** (0.80 with the first random forest); see `docs/sc-model-benchmark.md` |
 
 The physics model looked reasonable against other DFT values (Tc Spearman 0.51), but it does not carry over to measured outcomes. Use the classifier to choose what to check, and EPW to check it.
 

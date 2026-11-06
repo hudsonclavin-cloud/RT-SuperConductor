@@ -1,0 +1,146 @@
+{
+  "best_by_auc": "gradient_boosting",
+  "element_system_groups": 1360,
+  "features": 177,
+  "inner_validation": "gradient boosting and the MLP early-stop on a random 15% of the training fold; the outer test fold is never used for fitting, scaling, imputation or stopping",
+  "label_policy": "positives: reported Tc > 0 (SuperCon/3DSC); negatives: explicit Tc = 0 reports in 3DSC. Materials with no report are never used as negatives. One row per MP material.",
+  "models": {
+    "ensemble_rf_hgb_mlp": {
+      "auc_mean": 0.8118074095262311,
+      "auc_per_repeat": [
+        0.8204066552250191,
+        0.8080735125858124,
+        0.8069420607678617
+      ],
+      "auc_sd_across_repeats": 0.0060981043909934,
+      "average_precision_mean": 0.8128920127641456,
+      "brier_mean": 0.17830215921900272,
+      "fit_seconds_total": 48.6,
+      "paired_auc_gain_vs_random_forest": {
+        "max": 0.013432414823290162,
+        "mean": 0.011789664378337172,
+        "min": 0.009582379862700163,
+        "of": 3,
+        "wins": 3
+      },
+      "top_decile_superconductor_share_mean": 0.9320202020202022
+    },
+    "extra_trees": {
+      "auc_mean": 0.7999510022035766,
+      "auc_per_repeat": [
+        0.8090738621917112,
+        0.7945342295957285,
+        0.7962449148232902
+      ],
+      "auc_sd_across_repeats": 0.006488530483824478,
+      "average_precision_mean": 0.7962336928378401,
+      "brier_mean": 0.182695820287928,
+      "fit_seconds_total": 20.7,
+      "paired_auc_gain_vs_random_forest": {
+        "max": 0.0020996217899822422,
+        "mean": -6.674294431726253e-05,
+        "min": -0.0011850845410626976,
+        "of": 3,
+        "wins": 1
+      },
+      "top_decile_superconductor_share_mean": 0.908013468013468
+    },
+    "gradient_boosting": {
+      "auc_mean": 0.8165273540130519,
+      "auc_per_repeat": [
+        0.8281607551487413,
+        0.8163925438596491,
+        0.8050287630307653
+      ],
+      "auc_sd_across_repeats": 0.009444077338721216,
+      "average_precision_mean": 0.8216631255297671,
+      "brier_mean": 0.179138882348832,
+      "fit_seconds_total": 10.6,
+      "paired_auc_gain_vs_random_forest": {
+        "max": 0.021186514747012386,
+        "mean": 0.016509608865158027,
+        "min": 0.007669082125603799,
+        "of": 3,
+        "wins": 3
+      },
+      "top_decile_superconductor_share_mean": 0.9442087542087542
+    },
+    "logistic_regression": {
+      "auc_mean": 0.7392490889058395,
+      "auc_per_repeat": [
+        0.7527356661581489,
+        0.7303704233409611,
+        0.7346411772184084
+      ],
+      "auc_sd_across_repeats": 0.00969452282330304,
+      "average_precision_mean": 0.7127711466810412,
+      "brier_mean": 0.2125916497239545,
+      "fit_seconds_total": 1.2,
+      "paired_auc_gain_vs_random_forest": {
+        "max": -0.05423857424358003,
+        "mean": -0.06076865624205441,
+        "min": -0.06534889079583006,
+        "of": 3,
+        "wins": 0
+      },
+      "top_decile_superconductor_share_mean": 0.7981818181818184
+    },
+    "neural_network_mlp": {
+      "auc_mean": 0.7686467073480804,
+      "auc_per_repeat": [
+        0.7666364734299517,
+        0.7675955059750826,
+        0.7717081426392067
+      ],
+      "auc_sd_across_repeats": 0.002199882631258716,
+      "average_precision_mean": 0.7602775202291006,
+      "brier_mean": 0.22300602015953574,
+      "fit_seconds_total": 25.0,
+      "paired_auc_gain_vs_random_forest": {
+        "max": -0.025651538265954787,
+        "mean": -0.03137103779981354,
+        "min": -0.04033776697177727,
+        "of": 3,
+        "wins": 0
+      },
+      "top_decile_superconductor_share_mean": 0.8858585858585858
+    },
+    "random_forest": {
+      "auc_mean": 0.8000177451478939,
+      "auc_per_repeat": [
+        0.8069742404017289,
+        0.7957193141367912,
+        0.7973596809051615
+      ],
+      "auc_sd_across_repeats": 0.004964361016026509,
+      "average_precision_mean": 0.7989664303592118,
+      "brier_mean": 0.1827565650499234,
+      "fit_seconds_total": 12.8,
+      "paired_auc_gain_vs_random_forest": {
+        "max": 0.0,
+        "mean": 0.0,
+        "min": 0.0,
+        "of": 3,
+        "wins": 0
+      },
+      "top_decile_superconductor_share_mean": 0.9155218855218855
+    }
+  },
+  "positives": 1140,
+  "provenance": {
+    "candidates_sha256": "70678f0506fc7b2e373ee08db6acac3a143c4e4ef5ad1cad9033ca1b34858513",
+    "cpu_count": 4,
+    "feature_matrix_sha256": "309b8b0762e98df2d42a3f8612325027c9ab015a9135c3a0560c4f5dda42fc63",
+    "git_commit": "9957c258d5f0d39e6949f15cd8bfa40cec324901",
+    "numpy": "2.5.3",
+    "python": "3.13.18",
+    "scikit_learn": "1.9.1",
+    "seeds": {
+      "models": "7 + repeat",
+      "outer_split": "1000 + repeat"
+    }
+  },
+  "rows": 2244,
+  "split": "StratifiedGroupKFold by element system, 5 folds x 3 shuffles",
+  "task": "superconductor (reported Tc > 0) vs tested non-superconductor, Materials Project materials"
+}
