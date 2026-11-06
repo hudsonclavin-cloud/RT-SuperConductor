@@ -28,13 +28,19 @@ Protocol details, following the reproducibility checklist from the 2026-11-06 ex
 | Random forest (previous classifier) | 0.800 ± 0.005 | reference | 0.799 | 0.183 | 92% |
 | Extra trees | 0.800 ± 0.006 | 0.000 | 0.796 | 0.183 | 91% |
 | Neural network (MLP, 256-64, early stopping) | 0.769 ± 0.002 | −0.031 | 0.760 | 0.223 | 89% |
+| PyTorch network, multitask (adds a masked Tc head) | 0.762 ± 0.003 | −0.038 | 0.749 | 0.203 | 85% |
+| PyTorch network, tuned (8 settings, inner grouped validation) | 0.760 ± 0.007 | −0.040 | 0.751 | 0.206 | 86% |
+| PyTorch network (128 → LayerNorm → SiLU → Dropout → 64, AdamW) | 0.760 ± 0.004 | −0.040 | 0.746 | 0.204 | 85% |
 | Logistic regression | 0.739 ± 0.010 | −0.061 | 0.713 | 0.213 | 80% |
+| Blend: gradient boosting + random forest | 0.816 ± 0.007 | +0.016 | 0.818 | 0.175 | n/a |
+| Blend: gradient boosting + PyTorch network | 0.809 ± 0.008 | +0.009 | 0.804 | 0.179 | n/a |
 
 ## What this means
 
 - **Trees win at this size.** With about 2,200 labelled materials and about 180 tabular features, boosted trees beat the neural network by about 0.05 AUC. That is the usual pattern for small materials datasets **[Likely]**.
 - **The gain over the old forest is small but consistent:** +0.017 AUC, about two shuffle spreads.
 - **The repository's earlier deep-learning experiments agree.** Pretrained CHGNet embeddings (`docs/deep-chgnet-jarvis.json`) and a 5-epoch scratch ALIGNN (`docs/deep-scratch-alignn.json`) did not beat the random-forest baselines on their tasks.
+- **The PyTorch network was given a fair chance.** It used the configuration suggested by the external review, a multitask variant and an 8-setting search selected on grouped validation inside each training fold. All three land at 0.760 to 0.762, and blending one into gradient boosting lowers the score. On this data a neural network is not yet the right tool **[Certain within this protocol]**.
 - **When to try neural networks again:**
   - after more labels are added
   - with structure-aware models such as graph networks, once there are thousands more labelled structures
