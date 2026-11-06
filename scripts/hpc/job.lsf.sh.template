@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# UNCONFIRMED TEMPLATE: use only after the account owner confirms the site uses LSF.
+# Replace all placeholders and have the HPC support team review resource syntax.
+#BSUB -J qe-epw-<candidate>
+#BSUB -q <queue>
+#BSUB -n <cores>
+#BSUB -W <walltime>
+#BSUB -o <candidate>.%J.out
+#BSUB -e <candidate>.%J.err
+
+set -euo pipefail
+module load <quantum-espresso-module>
+mpirun -np <cores> pw.x -in relax.in > relax.out

@@ -47,7 +47,7 @@ OUTPUT_COLUMNS = (
     "rank_within_family", "mp_id", "formula", "predicted_tc_kelvin", "uncertainty_k",
     "conservative_score_tc_minus_sd_k", "chemical_family", "within_family_spearman",
     "energy_above_hull_ev_per_atom", "dos_ef_states_ev_per_atom", "dos_task_type",
-    "dos_functional_run_type", "dos_task_id",
+    "dos_functional_run_type", "dos_task_id", "dos_retrieval_method",
     "spacegroup_number", "num_sites", "nearest_known_superconductor_formula",
     "nearest_known_superconductor_tc_kelvin", "nearest_known_superconductor_record_id",
     "nearest_known_superconductor_family", "nearest_known_superconductor_distance",
@@ -642,6 +642,85 @@ def qualify_by_dos(
     return qualified, counts, rejected, diagnostics
 
 
+def qualify_by_material_level_dos(
+    docs: Iterable[Any],
+    electronic_structure_docs: Iterable[Any],
+    task_docs: Iterable[Any],
+    dos_loader: Any,
+) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
+    """Use MP's material-ID DOS endpoint after checking eligible task metadata.
+
+    The DOS curve is retrieved by material ID, not by a possibly stale or
+    missing task ID. We still require the material's DOS metadata to reference
+    at least one Static/Uniform calculation and record that the material-level
+    endpoint does not identify which eligible task supplied its curve.
+    """
+    es_by_id = {str(_get(doc, "material_id", "")): doc for doc in electronic_structure_docs}
+    task_by_id = {str(_get(task, "task_id", "")): task for task in task_docs}
+    qualified: list[tuple[Any, dict[str, Any]]] = []
+    rejected: dict[str, str] = {}
+    errors: Counter[str] = Counter()
+    samples: list[dict[str, str]] = []
+    counts = {
+        "dos_metadata_returned": len(es_by_id), "dos_task_references": 0,
+        "dos_static_or_uniform_tasks": 0, "dos_non_static_uniform_tasks_rejected": 0,
+        "dos_curves_retrieved": 0, "dos_missing_task_or_curve": 0,
+        "dos_below_or_equal_0p1_states_ev_atom": 0, "dos_qualified_gt_0p1_states_ev_atom": 0,
+        "dos_material_ids_queried": 0,
+    }
+    for doc in docs:
+        material_id = str(_get(doc, "material_id", ""))
+        refs = _electronic_structure_task_ids(es_by_id.get(material_id))
+        if not refs:
+            counts["dos_missing_task_or_curve"] += 1
+            rejected[material_id] = "no_static_or_uniform_dos_task_reference"
+            continue
+        counts["dos_task_references"] += 1
+        tasks = [task_by_id[task_id] for task_id in refs if task_id in task_by_id]
+        if not tasks:
+            counts["dos_missing_task_or_curve"] += 1
+            rejected[material_id] = "dos_task_record_missing"
+            continue
+        allowed = [task for task in tasks if _task_is_static_or_uniform(task)]
+        counts["dos_non_static_uniform_tasks_rejected"] += len(tasks) - len(allowed)
+        if not allowed:
+            rejected[material_id] = "dos_task_not_static_or_uniform"
+            continue
+        counts["dos_static_or_uniform_tasks"] += len(allowed)
+        counts["dos_material_ids_queried"] += 1
+        try:
+            dos = dos_loader(material_id)
+            if dos is None:
+                raise ValueError("Materials Project returned no material-level DOS curve")
+            value = dos_at_fermi_states_ev_per_atom(dos, nsites=_site_count(doc))
+            counts["dos_curves_retrieved"] += 1
+        except Exception as exc:
+            response = getattr(exc, "response", {})
+            code = response.get("Error", {}).get("Code") if isinstance(response, dict) else None
+            errors[f"{type(exc).__name__}:{code}" if code else type(exc).__name__] += 1
+            if len(samples) < 5:
+                samples.append({"material_id": material_id, "error_type": type(exc).__name__,
+                               "error_code": str(code or ""), "message": str(exc).replace("\n", " ")[:240]})
+            counts["dos_missing_task_or_curve"] += 1
+            rejected[material_id] = "material_level_dos_curve_missing_or_invalid"
+            continue
+        if dos_ef_rejection(value):
+            counts["dos_below_or_equal_0p1_states_ev_atom"] += 1
+            rejected[material_id] = "dos_ef_le_0.1_states_per_ev_per_atom"
+            continue
+        counts["dos_qualified_gt_0p1_states_ev_atom"] += 1
+        task_types = sorted({str(getattr(_get(task, "task_type") or _get(task, "calc_type") or "", "value", _get(task, "task_type") or _get(task, "calc_type") or "")) for task in allowed})
+        run_types = sorted({str(getattr(_get(task, "run_type") or "", "value", _get(task, "run_type") or "")) for task in allowed})
+        qualified.append((doc, {
+            "dos_ef_states_ev_per_atom": value,
+            "dos_task_id": "",
+            "dos_task_type": ";".join(task_types),
+            "dos_functional_run_type": ";".join(run_types),
+            "dos_retrieval_method": "get_dos_by_material_id; source task not identified",
+        }))
+    return qualified, counts, rejected, {"error_counts": dict(sorted(errors.items())), "error_samples": samples}
+
+
 def prefetch_static_dos_curves(
     electronic_structure_docs: Iterable[Any],
     task_docs: Iterable[Any],
@@ -945,6 +1024,7 @@ def score_family_candidates(
             "dos_task_type": dos_data["dos_task_type"],
             "dos_functional_run_type": dos_data["dos_functional_run_type"],
             "dos_task_id": dos_data["dos_task_id"],
+            "dos_retrieval_method": dos_data.get("dos_retrieval_method", "task_id"),
             "chemical_family": family,
             "within_family_spearman": eligible_metrics[family],
             "family_assignment_distance": family_distance,
@@ -1074,7 +1154,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
     lines = [
         "# Existing-but-untested Materials Project shortlist (v2)",
         "",
-        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a retrieved Materials Project DOS(Ef) above 0.1 states/eV/atom from a task whose task_type or calc_type is Static or Uniform; the functional-only run_type is not used to infer calculation type. Relaxation DOS and band gaps are not substitutes.",
+        "This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a material-level Materials Project DOS(Ef) above 0.1 states/eV/atom, plus at least one referenced task whose task_type or calc_type is Static or Uniform. The material-level endpoint does not identify which task supplied the curve; task IDs are therefore left blank. Relaxation DOS and band gaps are not substitutes.",
         "",
         f"Run status: **{report['status']}**. Shortlist size: **{report['shortlist_rows']}**; eligible families: **{len(report['eligible_family_metrics'])}**.",
         "",
@@ -1092,7 +1172,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
         "",
         "## DOS payload retrieval diagnostics",
         "",
-        f"Eligible static/uniform task IDs: {diagnostics.get('eligible_task_ids', 0)}; "
+        f"Material-level DOS retrievals attempted: {diagnostics.get('eligible_material_ids', 0)}; "
         f"curves returned: {diagnostics.get('curves_returned', 0)}; "
         f"fetch errors by type: `{json.dumps(diagnostics.get('error_counts', {}), sort_keys=True)}`.",
         f"Curve-validation errors by type: "
@@ -1117,7 +1197,7 @@ def _render_summary(path: Path, report: dict[str, Any]) -> None:
             )
     for sample in diagnostics.get("error_samples", []) + diagnostics.get("curve_validation_error_samples", []):
         lines.append(
-            f"- Example `{sample.get('task_id', '')}`: {sample.get('error_type', '')} "
+            f"- Example `{sample.get('material_id') or sample.get('task_id', '')}`: {sample.get('error_type', '')} "
             f"{sample.get('error_code', '')} — {sample.get('message', '')}"
         )
     lines += ["", "## Family gate and shortlist", "", "| Family | Main within-family Spearman | Assigned candidates | Scored | Top 30 |", "|---|---:|---:|---:|---:|"]
@@ -1273,27 +1353,29 @@ def _fetch_mp_with_client(
             f"{len(tasks)} task documents returned so far.",
             flush=True,
         )
-    dos_cache, dos_fetch_diagnostics = prefetch_static_dos_curves(
-        es_docs,
-        tasks,
-        lambda task_id: dos_curve_for_task(
-            mpr.materials.electronic_structure_dos, task_id
-        ),
-    )
-    dos_fetch_diagnostics["formula_task_reference_fallback"] = fallback_diagnostics
-    qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_dos(
+    qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_material_level_dos(
         ordered_unmatched,
         es_docs,
         tasks,
-        lambda task_id: dos_cache.get(task_id),
+        lambda material_id: mpr.get_dos_by_material_id(material_id),
     )
-    dos_fetch_diagnostics["curve_validation_error_counts"] = dos_validation_diagnostics["error_counts"]
-    dos_fetch_diagnostics["curve_validation_error_samples"] = dos_validation_diagnostics["error_samples"]
+    dos_fetch_diagnostics = {
+        "retrieval_method": "MPRester.get_dos_by_material_id(material_id)",
+        "eligible_material_ids": dos_counts["dos_material_ids_queried"],
+        "curves_returned": dos_counts["dos_curves_retrieved"],
+        "error_counts": dos_validation_diagnostics["error_counts"],
+        "error_samples": dos_validation_diagnostics["error_samples"],
+        "formula_task_reference_fallback": fallback_diagnostics,
+        "curve_validation_error_counts": dos_validation_diagnostics["error_counts"],
+        "curve_validation_error_samples": dos_validation_diagnostics["error_samples"],
+        "dos_curve_task_linkage": "material-level DOS endpoint does not expose the source task ID",
+    }
     counts.update(dos_counts)
     counts["dos_task_ids_queried"] = len(dos_task_ids)
     counts["task_documents_returned"] = len(tasks)
-    counts["dos_payload_fetch_failures"] = (
-        dos_fetch_diagnostics["eligible_task_ids"] - dos_fetch_diagnostics["curves_returned"]
+    counts["dos_material_ids_queried"] = dos_counts["dos_material_ids_queried"]
+    counts["dos_payload_fetch_failures"] = max(
+        0, dos_fetch_diagnostics["eligible_material_ids"] - dos_fetch_diagnostics["curves_returned"]
     )
     counts["dos_curve_validation_failures"] = sum(dos_validation_diagnostics["error_counts"].values())
     rejected.update(dos_rejected)

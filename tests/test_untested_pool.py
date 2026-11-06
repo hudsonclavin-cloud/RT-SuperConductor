@@ -23,6 +23,7 @@ from build_untested_pool import (  # noqa: E402
     prefetch_static_dos_curves,
     pool_run_status,
     qualify_by_dos,
+    qualify_by_material_level_dos,
     reduced_formula,
     score_family_candidates,
     select_top_per_family,
@@ -205,6 +206,34 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual([row[0].material_id for row in qualified], ["mp-static"])
         self.assertEqual(rejected["mp-relax"], "dos_task_not_static_or_uniform")
         self.assertEqual(counts["dos_non_static_uniform_tasks_rejected"], 1)
+        self.assertEqual(diagnostics["error_counts"], {})
+
+    def test_material_level_dos_retrieval_uses_material_id_after_task_metadata_gate(self):
+        docs = [_summary("mp-static", "Nb3Sn", sites=2), _summary("mp-relax", "AlCu", sites=2)]
+        es_docs = [
+            {"material_id": "mp-static", "dos": {"task_id": "static-task"}},
+            {"material_id": "mp-relax", "dos": {"task_id": "relax-task"}},
+        ]
+        tasks = [
+            {"task_id": "static-task", "task_type": "Static", "run_type": "GGA"},
+            {"task_id": "relax-task", "task_type": "Structure Optimization", "run_type": "GGA"},
+        ]
+        dos_calls = []
+
+        def get_by_material_id(material_id):
+            dos_calls.append(material_id)
+            return _Dos(1.0, nsites=2)
+
+        qualified, counts, rejected, diagnostics = qualify_by_material_level_dos(
+            docs, es_docs, tasks, get_by_material_id
+        )
+        self.assertEqual(dos_calls, ["mp-static"])
+        self.assertEqual([item[0].material_id for item in qualified], ["mp-static"])
+        self.assertEqual(qualified[0][1]["dos_retrieval_method"],
+                         "get_dos_by_material_id; source task not identified")
+        self.assertEqual(qualified[0][1]["dos_task_id"], "")
+        self.assertEqual(rejected["mp-relax"], "dos_task_not_static_or_uniform")
+        self.assertEqual(counts["dos_material_ids_queried"], 1)
         self.assertEqual(diagnostics["error_counts"], {})
 
     def test_dos_validation_errors_are_retained_for_run_diagnostics(self):

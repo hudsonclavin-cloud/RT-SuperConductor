@@ -11,19 +11,38 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
 
 ELEMENT_TOKEN = re.compile(r"([A-Z][a-z]?)(\d*(?:\.\d+)?)")
-ATOMIC_MASSES = {
-    "H": 1.008, "B": 10.81, "C": 12.011, "O": 15.999, "S": 32.06,
-    "Fe": 55.845, "Se": 78.971, "Cu": 63.546, "Ba": 137.327, "Ca": 40.078,
-    "Y": 88.906, "Hg": 200.592, "Bi": 208.980, "Sr": 87.62, "As": 74.922,
-    "K": 39.098, "Sm": 150.36, "La": 138.905, "Mg": 24.305, "Nb": 92.906,
-    "Sn": 118.710, "Si": 28.085,
-}
 DEFAULT_PSEUDOPOTENTIAL_CATALOG = Path("data/pseudopotentials/pslibrary-catalog.csv")
+DEFAULT_ECUTWFC_RY = 80.0
+DEFAULT_ECUTRHO_RY = 640.0
+DEFAULT_K_MESH = (8, 8, 8)
+DEFAULT_NSCF_K_MESH = (12, 12, 12)
+DEFAULT_SMEARING = "mv"
+DEFAULT_DEGAUSS_RY = 0.02
+DEFAULT_INPUT_DFT = "PBE"
+
+
+def _atomic_mass(symbol: str) -> float:
+    """Read the standard atomic mass from pymatgen's element table."""
+    try:
+        from pymatgen.core import Element
+    except ImportError as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError("pymatgen is required to obtain QE atomic masses") from exc
+    mass = float(Element(symbol).atomic_mass)
+    if not math.isfinite(mass) or mass <= 0:
+        raise ValueError(f"pymatgen returned an invalid atomic mass for {symbol}")
+    return mass
+
+
+def _mesh_text(mesh: tuple[int, int, int]) -> str:
+    if len(mesh) != 3 or any(int(value) <= 0 for value in mesh):
+        raise ValueError("k-point mesh must contain three positive integers")
+    return "  " + " ".join(str(int(value)) for value in mesh) + " 0 0 0"
 
 
 def atoms_from_formula(formula: str) -> list[tuple[str, float]]:
@@ -66,7 +85,7 @@ def _pseudo_filename(element: str, catalog: dict[str, str]) -> str:
 def _structure_blocks(structure: Any, catalog: dict[str, str]) -> tuple[list[str], list[str], list[str], list[str]]:
     unique_elements = [str(element) for element in structure.composition.elements]
     species = [
-        f" {element:<3} {ATOMIC_MASSES.get(element, 1.0):.5f} {_pseudo_filename(element, catalog)}"
+        f" {element:<3} {_atomic_mass(element):.5f} {_pseudo_filename(element, catalog)}"
         for element in unique_elements
     ]
     positions = [
@@ -87,7 +106,19 @@ def render_scf(
     structure: Any | None = None,
     pseudopotential_catalog: dict[str, str] | None = None,
     calculation: str = "scf",
+    ecutwfc: float = DEFAULT_ECUTWFC_RY,
+    ecutrho: float = DEFAULT_ECUTRHO_RY,
+    k_mesh: tuple[int, int, int] = DEFAULT_K_MESH,
+    occupations: str = "smearing",
+    smearing: str = DEFAULT_SMEARING,
+    degauss: float = DEFAULT_DEGAUSS_RY,
+    input_dft: str = DEFAULT_INPUT_DFT,
+    ion_dynamics: str = "bfgs",
 ) -> str:
+    if ecutwfc <= 0 or ecutrho < ecutwfc or degauss < 0:
+        raise ValueError("QE cutoffs must be positive, ecutrho >= ecutwfc, and degauss non-negative")
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", input_dft):
+        raise ValueError("input_dft must be a simple QE functional token")
     elements = atoms_from_formula(formula)
     pseudopotential_catalog = pseudopotential_catalog or {}
     if structure is None:
@@ -98,7 +129,7 @@ def render_scf(
             for index, element in enumerate(expanded)
         ]
         species = [
-            f" {element:<3} {ATOMIC_MASSES.get(element, 1.0):.5f} {_pseudo_filename(element, pseudopotential_catalog)}"
+            f" {element:<3} {_atomic_mass(element):.5f} {_pseudo_filename(element, pseudopotential_catalog)}"
             for element in unique_elements
         ]
         cell = [
@@ -123,20 +154,20 @@ def render_scf(
   tprnfor = .true.,
   forc_conv_thr = 1.0d-5,
   etot_conv_thr = 1.0d-6,
-  ion_dynamics = 'bfgs',
 /
 &SYSTEM
   ibrav = 0,
   nat = {len(positions)},
   ntyp = {len(unique_elements)},
-  ecutwfc = 80.0,
-  ecutrho = 640.0,
-  occupations = 'smearing',
-  smearing = 'mv',
-  degauss = 0.02,
+  ecutwfc = {ecutwfc:.6g},
+  ecutrho = {ecutrho:.6g},
+  input_dft = '{input_dft}',
+  occupations = '{occupations}',
+  smearing = '{smearing}',
+  degauss = {degauss:.6g},
 /
-&ELECTRONS
-  conv_thr = 1.0d-10,
+{f"&IONS\n  ion_dynamics = '{ion_dynamics}',\n/\n" if calculation in {'relax', 'vc-relax'} else ''}{f"&CELL\n  cell_dynamics = 'bfgs',\n  press = 0.0,\n  cell_dofree = 'all',\n/\n" if calculation == 'vc-relax' else ''}&ELECTRONS
+{f"  startingpot = 'file',\n" if calculation == 'nscf' else ''}  conv_thr = 1.0d-10,
   electron_maxstep = 200,
   mixing_beta = 0.7,
 /
@@ -147,12 +178,20 @@ CELL_PARAMETERS angstrom
 ATOMIC_POSITIONS {positions_label}
 {chr(10).join(positions)}
 K_POINTS automatic
-  8 8 8 0 0 0
+{_mesh_text(k_mesh)}
 """
 
 
-def render_relax(candidate_id: str, formula: str, *, structure: Any | None = None, pseudopotential_catalog: dict[str, str] | None = None) -> str:
-    return render_scf(candidate_id, formula, structure=structure, pseudopotential_catalog=pseudopotential_catalog, calculation="relax")
+def render_relax(candidate_id: str, formula: str, *, structure: Any | None = None, pseudopotential_catalog: dict[str, str] | None = None, **parameters: Any) -> str:
+    return render_scf(candidate_id, formula, structure=structure, pseudopotential_catalog=pseudopotential_catalog, calculation="relax", **parameters)
+
+
+def render_vc_relax(candidate_id: str, formula: str, *, structure: Any | None = None, pseudopotential_catalog: dict[str, str] | None = None, **parameters: Any) -> str:
+    return render_scf(candidate_id, formula, structure=structure, pseudopotential_catalog=pseudopotential_catalog, calculation="vc-relax", **parameters)
+
+
+def render_nscf(candidate_id: str, formula: str, *, structure: Any | None = None, pseudopotential_catalog: dict[str, str] | None = None, k_mesh: tuple[int, int, int] = DEFAULT_NSCF_K_MESH, **parameters: Any) -> str:
+    return render_scf(candidate_id, formula, structure=structure, pseudopotential_catalog=pseudopotential_catalog, calculation="nscf", k_mesh=k_mesh, **parameters)
 
 
 def render_ph(candidate_id: str) -> str:
@@ -163,6 +202,30 @@ def render_ph(candidate_id: str) -> str:
   ldisp = .true.,
   nq1 = 4, nq2 = 4, nq3 = 4,
   fildyn = '{candidate_id}.dyn',
+  fildvscf = '{candidate_id}.dvscf',
+/
+"""
+
+
+def render_q2r(candidate_id: str) -> str:
+    return f"""&INPUT
+  fildyn = '{candidate_id}.dyn',
+  flfrc = '{candidate_id}.fc',
+  zasr = 'crystal',
+/
+"""
+
+
+def render_matdyn(candidate_id: str, *, q_mesh: tuple[int, int, int] = (20, 20, 20)) -> str:
+    if len(q_mesh) != 3 or any(int(value) <= 0 for value in q_mesh):
+        raise ValueError("matdyn q-mesh must contain three positive integers")
+    return f"""&INPUT
+  asr = 'crystal',
+  flfrc = '{candidate_id}.fc',
+  flfrq = '{candidate_id}.freq',
+  dos = .true.,
+  fldos = '{candidate_id}.phdos',
+  nk1 = {int(q_mesh[0])}, nk2 = {int(q_mesh[1])}, nk3 = {int(q_mesh[2])},
 /
 """
 
@@ -214,6 +277,13 @@ def generate_inputs(
     pseudopotential_catalog: Path = DEFAULT_PSEUDOPOTENTIAL_CATALOG,
     allow_placeholder: bool = True,
     min_predicted_tc: float = 77.0,
+    ecutwfc: float = DEFAULT_ECUTWFC_RY,
+    ecutrho: float = DEFAULT_ECUTRHO_RY,
+    k_mesh: tuple[int, int, int] = DEFAULT_K_MESH,
+    nscf_k_mesh: tuple[int, int, int] = DEFAULT_NSCF_K_MESH,
+    smearing: str = DEFAULT_SMEARING,
+    degauss: float = DEFAULT_DEGAUSS_RY,
+    input_dft: str = DEFAULT_INPUT_DFT,
 ) -> dict[str, object]:
     with candidates_path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
@@ -257,11 +327,19 @@ def generate_inputs(
         if structure is None and not allow_placeholder:
             blocked.append({"candidate_id": candidate_id, "formula": row["formula"], "status": "blocked_missing_real_cif", "reason": "a real Materials Project CIF is required for ferrite DFT input generation"})
             continue
-        scf_text = render_scf(candidate_id, row["formula"], structure=structure, pseudopotential_catalog=catalog)
-        (candidate_dir / "relax.in").write_text(render_relax(candidate_id, row["formula"], structure=structure, pseudopotential_catalog=catalog), encoding="utf-8")
+        qe_parameters = {
+            "ecutwfc": ecutwfc, "ecutrho": ecutrho, "k_mesh": k_mesh,
+            "smearing": smearing, "degauss": degauss, "input_dft": input_dft,
+        }
+        scf_text = render_scf(candidate_id, row["formula"], structure=structure, pseudopotential_catalog=catalog, **qe_parameters)
+        (candidate_dir / "relax.in").write_text(render_relax(candidate_id, row["formula"], structure=structure, pseudopotential_catalog=catalog, **qe_parameters), encoding="utf-8")
+        (candidate_dir / "vc-relax.in").write_text(render_vc_relax(candidate_id, row["formula"], structure=structure, pseudopotential_catalog=catalog, **qe_parameters), encoding="utf-8")
         (candidate_dir / "scf.in").write_text(scf_text, encoding="utf-8")
         (candidate_dir / "scf_template.in").write_text(scf_text, encoding="utf-8")
+        (candidate_dir / "nscf.in").write_text(render_nscf(candidate_id, row["formula"], structure=structure, pseudopotential_catalog=catalog, ecutwfc=ecutwfc, ecutrho=ecutrho, k_mesh=nscf_k_mesh, smearing=smearing, degauss=degauss, input_dft=input_dft), encoding="utf-8")
         (candidate_dir / "ph.in").write_text(render_ph(candidate_id), encoding="utf-8")
+        (candidate_dir / "q2r.in").write_text(render_q2r(candidate_id), encoding="utf-8")
+        (candidate_dir / "matdyn.in").write_text(render_matdyn(candidate_id), encoding="utf-8")
         (candidate_dir / "epw.in").write_text(render_epw(candidate_id), encoding="utf-8")
         metadata = {
             "record_id": row.get("record_id") or row.get("candidate_id"),
@@ -273,7 +351,12 @@ def generate_inputs(
             "cif_path": str(cif_path) if cif_path is not None else None,
             "pseudopotential_status": "catalog_only_no_upf_files_verified",
             "job_status": "blocked_missing_pseudopotentials_and_hazel_access",
-            "files": ["relax.in", "scf.in", "scf_template.in", "ph.in", "epw.in"],
+            "qe_parameters": {
+                "ecutwfc_ry": ecutwfc, "ecutrho_ry": ecutrho,
+                "k_mesh": list(k_mesh), "nscf_k_mesh": list(nscf_k_mesh),
+                "smearing": smearing, "degauss_ry": degauss, "input_dft": input_dft,
+            },
+            "files": ["relax.in", "vc-relax.in", "scf.in", "scf_template.in", "nscf.in", "ph.in", "q2r.in", "matdyn.in", "epw.in"],
         }
         (candidate_dir / "candidate.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
         generated.append(metadata)
@@ -302,6 +385,13 @@ def main() -> int:
     parser.add_argument("--pseudopotential-catalog", type=Path, default=DEFAULT_PSEUDOPOTENTIAL_CATALOG)
     parser.add_argument("--require-real-cif", action="store_true")
     parser.add_argument("--min-predicted-tc", type=float, default=77.0)
+    parser.add_argument("--ecutwfc", type=float, default=DEFAULT_ECUTWFC_RY, help="wavefunction cutoff in Ry; converge for selected UPFs")
+    parser.add_argument("--ecutrho", type=float, default=DEFAULT_ECUTRHO_RY, help="charge-density cutoff in Ry; converge for selected UPFs")
+    parser.add_argument("--k-mesh", type=int, nargs=3, default=DEFAULT_K_MESH)
+    parser.add_argument("--nscf-k-mesh", type=int, nargs=3, default=DEFAULT_NSCF_K_MESH)
+    parser.add_argument("--smearing", default=DEFAULT_SMEARING)
+    parser.add_argument("--degauss", type=float, default=DEFAULT_DEGAUSS_RY, help="smearing width in Ry")
+    parser.add_argument("--input-dft", default=DEFAULT_INPUT_DFT, help="QE exchange-correlation functional label")
     args = parser.parse_args()
     print(json.dumps(generate_inputs(
         args.candidates,
@@ -311,6 +401,9 @@ def main() -> int:
         pseudopotential_catalog=args.pseudopotential_catalog,
         allow_placeholder=not args.require_real_cif,
         min_predicted_tc=args.min_predicted_tc,
+        ecutwfc=args.ecutwfc, ecutrho=args.ecutrho,
+        k_mesh=tuple(args.k_mesh), nscf_k_mesh=tuple(args.nscf_k_mesh),
+        smearing=args.smearing, degauss=args.degauss, input_dft=args.input_dft,
     ), indent=2))
     return 0
 
