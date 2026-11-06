@@ -49,19 +49,19 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 
 ## DOS payload retrieval diagnostics
 
-Material-level DOS retrievals attempted: 150; curves returned: 0; fetch errors by type: `{"KeyError": 128, "MPRestError": 22}`.
-Curve-validation errors by type: `{"KeyError": 128, "MPRestError": 22}`.
+Material-level DOS retrievals attempted: 150; curves returned: 0; fetch errors by type: `{"OSError": 150}`.
+Curve-validation errors by type: `{"OSError": 150}`.
 Formula-based task lookup recovered 1221 task references for 230 exact-structure matches from 23964 candidates missing DOS references; task documents returned: 5575; non-static/uniform tasks rejected: 4057; structure comparisons/matches: 2162/1221; lookup errors: `{}`.
-- Example `mp-1214889`: KeyError  — 'task_id'
-- Example `mp-2172`: KeyError  — 'task_id'
-- Example `mp-8881`: KeyError  — 'task_id'
-- Example `mp-643253`: KeyError  — 'task_id'
-- Example `mp-1018178`: KeyError  — 'task_id'
-- Example `mp-1214889`: KeyError  — 'task_id'
-- Example `mp-2172`: KeyError  — 'task_id'
-- Example `mp-8881`: KeyError  — 'task_id'
-- Example `mp-643253`: KeyError  — 'task_id'
-- Example `mp-1018178`: KeyError  — 'task_id'
+- Example `mp-1214889`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-2172`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiclfo.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-8881`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiebhz.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-3104`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaibdnk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-861940`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaidaff.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-1214889`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-2172`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiclfo.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-8881`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiebhz.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-3104`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaibdnk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-861940`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaidaff.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 
 ## Family gate and shortlist
 
