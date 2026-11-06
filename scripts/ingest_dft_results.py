@@ -30,6 +30,11 @@ _FREQUENCY = re.compile(
 # and "Estimated w_log =  61.4704 meV". These are read first.
 _EPW_LAMBDA = re.compile(rf"Electron-phonon coupling strength\s*=\s*({_FLOAT})", re.I)
 _EPW_WLOG = re.compile(rf"Estimated w_log\s*=\s*({_FLOAT})\s*(meV|eV|K)\b", re.I)
+# a2f-only runs (e.g. EPW's Pb example) print "lambda : X" and, under
+# "Estimated Allen-Dynes Tc", "logavg = Y" with Y in rydberg (checked by
+# reproducing the Tc values EPW prints next to it in test-suite/epw_metal).
+_EPW_LOGAVG_RY = re.compile(rf"\blogavg\s*=\s*({_FLOAT})", re.I)
+_RYDBERG_TO_K = 157887.512
 # Fallback for hand-written summaries: a line that starts with lower-case
 # "lambda". Mid-line matches such as EPW's "IR basis: Lambda = 1.00E+05"
 # (a numerical setting, not a coupling) are deliberately excluded.
@@ -62,6 +67,10 @@ def parse_epw_targets(text: str) -> tuple[float | None, float | None]:
     omega_match = epw_wlog or _OMEGA_LOG.search(text)
     lam = _float(lam_match.group(1)) if lam_match else None
     omega = None
+    if omega_match is None:
+        logavg = _EPW_LOGAVG_RY.search(text)
+        if logavg:
+            return lam, _float(logavg.group(1)) * _RYDBERG_TO_K
     if omega_match:
         omega = _float(omega_match.group(1))
         unit = re.sub(r"\s|\^", "", omega_match.group(2)).casefold()

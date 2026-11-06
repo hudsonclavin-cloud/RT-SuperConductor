@@ -1,0 +1,8 @@
+{
+  "role": "tools_check",
+  "formula": "Pb",
+  "converged": false,
+  "reviewer": "",
+  "mu_star": 0.1,
+  "notes": "Stage 0: official EPW Pb example run unchanged on Hazel. Set converged to true only after every step printed JOB DONE and the epw.out summary looks sane. Record the QE/EPW version and core counts from logs/."
+}

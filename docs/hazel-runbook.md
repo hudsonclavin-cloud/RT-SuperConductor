@@ -50,13 +50,27 @@ This follows Derek's advice to test the smallest possible task first.
 pw.x -h && command -v epw.x
 ```
 
-## 5. Stage 0: EPW tutorial 04 (Pb)
+## 5. Stage 0: the official EPW Pb example
 
-1. On the login node, download the Pb inputs and pseudopotential from [EPW tutorial 04](https://docs.epw-code.org/tutorials/tutorial_04/index.html) into `/share/.../rtsc/pb-tutorial/`.
-2. Check staging: `scripts/hpc/stage_inputs.sh /share/.../rtsc/pb-tutorial scf ph q2r matdyn nscf epw`
-3. Fill in the Slurm template once per step and chain the steps: `sbatch --dependency=afterok:<previous_job_id> ...`
-4. Copy outputs to `results/pb-tutorial/` in the repository.
-5. Run `python scripts/promote_dft_results.py --results-root results`. Stage 0 succeeds when the report shows a parsed λ and ωlog. If it shows `lambda_or_omega_log_not_parsed`, fix the parser patterns using the real `epw.out` before Stage 1.
+Everything Stage 0 needs is in the repository: `data/benchmarks/epw-pb-tutorial/`. It holds the Quantum ESPRESSO `EPW/examples/pb` inputs and pseudopotential, copied unchanged with checksums in `PROVENANCE.md`. Nothing has to be downloaded on Hazel.
+
+1. On the login node, activate the QE/EPW environment, then submit the whole chain:
+   ```bash
+   scripts/hpc/submit_stage0_pb.sh /share/<group>/<unity_id>/rtsc/pb-tutorial <partition> <qos> 8
+   ```
+   The script:
+   - copies the package into the work area
+   - runs `stage_inputs.sh` on both directories
+   - submits six dependent jobs: `phonons/scf` → `ph` → `pp.py` → `epw/scf` → `nscf` → `epw`
+
+   Add `DRY_RUN=1` in front to print the `sbatch` commands without submitting.
+2. Watch with `squeue -u $USER`. Logs go to `<run_dir>/logs/`.
+3. Copy `woSOC/epw/epw.out` and `pb-fcc.cif` to `results/pb-tutorial/` in the repository. Copy `review.template.json` to `results/pb-tutorial/review.json` and fill it in.
+4. Run `python scripts/promote_dft_results.py --results-root results`.
+
+**Stage 0 passes** when the report shows `tools_checks_passing: 1`. That means λ and ωlog were read from the real `epw.out`, and Tc recomputed from them matches the Tc EPW printed. The parser already handles the EPW Pb output format: it was tested on Quantum ESPRESSO's own Pb test (`test-suite/epw_metal`), where it reproduces EPW's Tc of 0.8067 K to within 0.03%.
+
+The example's settings are EPW's tutorial settings, not converged production settings. Stage 0 tests the tools, not the physics.
 
 ## 6. Stage 1: tantalum benchmark
 

@@ -121,3 +121,33 @@ def test_trainer_loads_and_validates_extra_records(tmp_path):
     (tmp_path / "bad.json").write_text(json.dumps(bad))
     with pytest.raises(ValueError):
         load_extra_records(tmp_path / "bad.json")
+
+
+A2F_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "epw_metal_pb_a2f_excerpt.out"
+
+
+def test_a2f_mode_output_is_parsed_and_tc_reproduced():
+    from promote_dft_results import epw_printed_mcmillan
+
+    text = A2F_FIXTURE.read_text()
+    lam, wlog, parser = parse_targets(text)
+    assert parser == "epw_summary"
+    assert lam == pytest.approx(0.5232564)
+    assert wlog == pytest.approx(0.0003531 * 157887.512)  # logavg is in rydberg
+    epw_tc, muc = epw_printed_mcmillan(text)
+    assert (epw_tc, muc) == (pytest.approx(0.806700595152), pytest.approx(0.10))
+    assert allen_dynes_tc_k(lam, wlog, muc) == pytest.approx(epw_tc, rel=1e-3)
+
+
+def test_stage0_tools_check_passes_on_real_pb_output(tmp_path):
+    package = ROOT / "data/benchmarks/epw-pb-tutorial"
+    run = tmp_path / "results" / "pb-tutorial"
+    run.mkdir(parents=True)
+    (run / "pb-fcc.cif").write_bytes((package / "pb-fcc.cif").read_bytes())
+    (run / "epw.out").write_text(A2F_FIXTURE.read_text())
+    review = json.loads((package / "review.template.json").read_text())
+    review.update({"converged": True, "reviewer": "test"})
+    (run / "review.json").write_text(json.dumps(review))
+    report = promote(tmp_path / "results", tmp_path / "records.json", tmp_path / "report.json")
+    assert report["tools_checks"] == 1 and report["tools_checks_passing"] == 1
+    assert report["training_records_written"] == 0 and report["benchmarks"] == 0
