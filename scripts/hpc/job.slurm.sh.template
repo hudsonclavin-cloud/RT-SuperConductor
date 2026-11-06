@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# UNCONFIRMED TEMPLATE: use only after the account owner confirms the site uses Slurm.
+# Replace all placeholders and have the HPC support team review resource syntax.
+#SBATCH --job-name=qe-epw-<candidate>
+#SBATCH --partition=<partition>
+#SBATCH --nodes=<nodes>
+#SBATCH --ntasks=<cores>
+#SBATCH --time=<walltime>
+#SBATCH --output=<candidate>.%j.out
+#SBATCH --error=<candidate>.%j.err
+
+set -euo pipefail
+module load <quantum-espresso-module>
+srun pw.x -in relax.in > relax.out

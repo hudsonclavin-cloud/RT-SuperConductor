@@ -1,6 +1,6 @@
 # Existing-but-untested Materials Project shortlist (v2)
 
-This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a retrieved Materials Project DOS(Ef) above 0.1 states/eV/atom from a task whose task_type or calc_type is Static or Uniform; the functional-only run_type is not used to infer calculation type. Relaxation DOS and band gaps are not substitutes.
+This is a computational screening list, not evidence that any entry superconducts or is globally untested. The source comparison covers 3DSC, UCI, Stanev, SuperCon2, and SuperMat. Metallic acceptance requires a Materials Project DOS(Ef) above 0.1 states/eV/atom from a Static or Uniform calculation. DOS curves are resolved from task IDs linked to the candidate material and checked against task metadata; the selected task ID is recorded for any qualified candidate. Missing parsed DOS objects remain blocked. Relaxation calculations and band gaps are not substitutes.
 
 Run status: **blocked_dos_curve_retrieval**. Shortlist size: **0**; eligible families: **4**.
 
@@ -39,28 +39,30 @@ Counts are cumulative at each stage unless the stage is explicitly a rejection c
 | `dos_missing_task_or_curve` | 23964 |
 | `dos_below_or_equal_0p1_states_ev_atom` | 0 |
 | `dos_qualified_gt_0p1_states_ev_atom` | 0 |
+| `dos_material_ids_queried` | 150 |
 | `dos_task_ids_queried` | 19973 |
 | `task_documents_returned` | 19973 |
-| `dos_payload_fetch_failures` | 190 |
-| `dos_curve_validation_failures` | 196 |
+| `dos_payload_fetch_failures` | 150 |
+| `dos_curve_validation_failures` | 150 |
 | `source_formula_unmatched` | 23964 |
 | `metallic_dos_qualified` | 0 |
 
 ## DOS payload retrieval diagnostics
 
-Eligible static/uniform task IDs: 190; curves returned: 0; fetch errors by type: `{"OSError": 190}`.
-Curve-validation errors by type: `{"ValueError": 196}`.
+Material-associated DOS retrievals attempted: 150; curves returned: 0; fetch errors by type: `{"OSError": 150}`.
+Retrieval path: `candidate material_id -> eligible static/uniform task_id -> parsed DOS`.
+Curve-validation errors by type: `{"OSError": 150}`.
 Formula-based task lookup recovered 1221 task references for 230 exact-structure matches from 23964 candidates missing DOS references; task documents returned: 5575; non-static/uniform tasks rejected: 4057; structure comparisons/matches: 2162/1221; lookup errors: `{}`.
-- Example `aaahoeub`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahoeub.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahmwlb`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahnnas`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahnnas.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahlabk`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlabk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahlath`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahlath.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
-- Example `aaahmwlb`: ValueError  — Materials Project returned no DOS curve
-- Example `aaaibxpa`: ValueError  — Materials Project returned no DOS curve
-- Example `aaaiclfo`: ValueError  — Materials Project returned no DOS curve
-- Example `aaaiebhz`: ValueError  — Materials Project returned no DOS curve
-- Example `aaaicggf`: ValueError  — Materials Project returned no DOS curve
+- Example `mp-1214889`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-2172`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiclfo.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-8881`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiebhz.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-3104`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaibdnk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-861940`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaidaff.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-1214889`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaahmwlb.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-2172`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiclfo.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-8881`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaiebhz.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-3104`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaibdnk.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+- Example `mp-861940`: OSError  — unable to access bucket: 'materialsproject-parsed' key: 'dos/aaaidaff.json.gz' version: None error: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 
 ## Family gate and shortlist
 

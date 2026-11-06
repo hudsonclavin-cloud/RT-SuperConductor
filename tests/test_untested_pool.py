@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,14 +16,17 @@ from build_untested_pool import (  # noqa: E402
     _electronic_structure_task_ids,
     _search_electronic_structure_raw,
     _task_is_static_or_uniform,
+    _render_summary,
     _summary_filter_without_structures,
     composition_structure_distance,
     dos_at_fermi_states_ev_per_atom,
     eligible_family_metrics,
     family_definer_rejection,
+    material_level_dos_lookup,
     prefetch_static_dos_curves,
     pool_run_status,
     qualify_by_dos,
+    qualify_by_material_level_dos,
     reduced_formula,
     score_family_candidates,
     select_top_per_family,
@@ -207,6 +211,56 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(counts["dos_non_static_uniform_tasks_rejected"], 1)
         self.assertEqual(diagnostics["error_counts"], {})
 
+    def test_material_level_dos_retrieval_uses_material_id_after_task_metadata_gate(self):
+        docs = [_summary("mp-static", "Nb3Sn", sites=2), _summary("mp-relax", "AlCu", sites=2)]
+        es_docs = [
+            {"material_id": "mp-static", "dos": {"task_id": "static-task"}},
+            {"material_id": "mp-relax", "dos": {"task_id": "relax-task"}},
+        ]
+        tasks = [
+            {"task_id": "static-task", "task_type": "Static", "run_type": "GGA"},
+            {"task_id": "relax-task", "task_type": "Structure Optimization", "run_type": "GGA"},
+        ]
+        dos_calls = []
+
+        def get_by_material_and_tasks(material_id, task_ids):
+            dos_calls.append(material_id)
+            self.assertEqual(task_ids, ["static-task"])
+            return _Dos(1.0, nsites=2), "static-task"
+
+        qualified, counts, rejected, diagnostics = qualify_by_material_level_dos(
+            docs,
+            es_docs,
+            tasks,
+            lambda material_id, _task_ids: get_by_material_and_tasks(material_id, ["static-task"]),
+        )
+        self.assertEqual(dos_calls, ["mp-static"])
+        self.assertEqual([item[0].material_id for item in qualified], ["mp-static"])
+        self.assertEqual(qualified[0][1]["dos_retrieval_method"],
+                         "material_id -> verified static/uniform task_id -> parsed DOS")
+        self.assertEqual(qualified[0][1]["dos_task_id"], "static-task")
+        self.assertEqual(rejected["mp-relax"], "dos_task_not_static_or_uniform")
+        self.assertEqual(counts["dos_material_ids_queried"], 1)
+        self.assertEqual(diagnostics["error_counts"], {})
+
+    def test_material_level_dos_lookup_uses_raw_route_and_restores_mode(self):
+        route = SimpleNamespace(use_document_model=True)
+
+        def get_from_task_id(task_id):
+            self.assertEqual(task_id, "task-raw")
+            self.assertFalse(route.use_document_model)
+            return "raw-dos-payload"
+
+        route.get_dos_from_task_id = get_from_task_id
+
+        mpr = SimpleNamespace(
+            materials=SimpleNamespace(electronic_structure_dos=route),
+        )
+        with material_level_dos_lookup(mpr) as loader:
+            self.assertFalse(route.use_document_model)
+            self.assertEqual(loader("mp-raw", ["task-raw"]), ("raw-dos-payload", "task-raw"))
+        self.assertTrue(route.use_document_model)
+
     def test_dos_validation_errors_are_retained_for_run_diagnostics(self):
         invalid_dos = SimpleNamespace(
             energies=np.asarray([0.0, 1.0]),
@@ -290,6 +344,35 @@ class UntestedPoolV2Tests(unittest.TestCase):
         ), "blocked_dos_task_reference_missing")
         self.assertEqual(pool_run_status(1, counts, {"Other": 0.7}), "ready")
         self.assertEqual(pool_run_status(0, {"dos_curves_retrieved": 0}, {"Other": 0.7}), "ready_empty_after_family_gate")
+
+    def test_summary_documents_verified_material_to_task_dos_resolution(self):
+        report = {
+            "status": "blocked_dos_curve_retrieval",
+            "shortlist_rows": 0,
+            "eligible_family_metrics": {"Other": 0.6},
+            "filter_counts": {},
+            "dos_fetch_diagnostics": {
+                "eligible_material_ids": 2,
+                "curves_returned": 0,
+                "error_counts": {"OSError": 2},
+                "curve_validation_error_counts": {},
+                "retrieval_method": "candidate material_id -> eligible task_id -> parsed DOS",
+                "formula_task_reference_fallback": {},
+            },
+            "families": {},
+            "scoring_counts": {},
+            "old_shortlist_rows": 0,
+            "old_shortlist_retained": 0,
+            "old_shortlist_removed": 0,
+            "old_shortlist_comparison": [],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "summary.md"
+            _render_summary(path, report)
+            summary = path.read_text(encoding="utf-8")
+        self.assertIn("selected task ID is recorded", summary)
+        self.assertIn("candidate material_id -> eligible task_id -> parsed DOS", summary)
+        self.assertNotIn("task IDs are therefore left blank", summary)
 
     def test_main_evaluator_embargoes_shared_mp_ids(self):
         rows = [

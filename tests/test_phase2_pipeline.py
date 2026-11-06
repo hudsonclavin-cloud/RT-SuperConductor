@@ -9,7 +9,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from enrich_materials_project import enrich_csv, select_lowest_energy_polymorph
-from generate_qe_inputs import generate_inputs
+from generate_qe_inputs import generate_inputs, render_scf, render_vc_relax
 from rt_superconductor.harmonized import bridge_reviewed_records, load_harmonized
 from train_pressure_aware import select_training_records, train_pressure_aware
 
@@ -99,12 +99,38 @@ def test_qe_generator_applies_screen_and_writes_epw_inputs(tmp_path):
     summary = generate_inputs(candidates, tmp_path / "qe")
     assert summary["selected_count"] == 1
     candidate = tmp_path / "qe" / "pass"
-    assert (candidate / "scf.in").is_file()
-    assert (candidate / "ph.in").is_file()
-    assert (candidate / "epw.in").is_file()
+    for filename in ("scf.in", "nscf.in", "relax.in", "vc-relax.in", "ph.in", "q2r.in", "matdyn.in", "epw.in"):
+        assert (candidate / filename).is_file()
     scf = (candidate / "scf.in").read_text(encoding="utf-8")
     assert "conv_thr = 1.0d-10" in scf
     assert "ATOMIC_POSITIONS crystal" in scf
+    assert "input_dft = 'PBE'" in scf
+    assert "ecutwfc = 80" in scf and "ecutrho = 640" in scf
+    assert scf.count("&ELECTRONS") == 1
+    assert "fildvscf = 'pass.dvscf'" in (candidate / "ph.in").read_text(encoding="utf-8")
+    assert "flfrc = 'pass.fc'" in (candidate / "q2r.in").read_text(encoding="utf-8")
+    assert "dos = .true." in (candidate / "matdyn.in").read_text(encoding="utf-8")
+    assert "startingpot = 'file'" in (candidate / "nscf.in").read_text(encoding="utf-8")
+    relax = (candidate / "relax.in").read_text(encoding="utf-8")
+    assert "&IONS" in relax and "ion_dynamics = 'bfgs'" in relax
+    control = relax.split("&CONTROL", 1)[1].split("/", 1)[0]
+    assert "ion_dynamics" not in control
+    vc_relax = (candidate / "vc-relax.in").read_text(encoding="utf-8")
+    assert "calculation = 'vc-relax'" in vc_relax and "&CELL" in vc_relax
+
+
+def test_qe_parameters_are_configurable_and_pymatgen_masses_are_used():
+    text = render_scf(
+        "test", "Ta", ecutwfc=55, ecutrho=440, k_mesh=(6, 7, 8),
+        smearing="gaussian", degauss=0.015, input_dft="PBEsol",
+    )
+    assert "55" in text and "440" in text
+    assert "6 7 8 0 0 0" in text
+    assert "smearing = 'gaussian'" in text
+    assert "degauss = 0.015" in text
+    assert "input_dft = 'PBEsol'" in text
+    # Pymatgen's standard mass for Ta is 180.94788 u.
+    assert "Ta   180.94788" in text
 
 
 def test_qe_generator_can_use_real_cif_and_blocks_job_prerequisites(tmp_path):
