@@ -29,8 +29,8 @@ Benchmarks and candidates go to different places on purpose. A benchmark like ta
 | 3. Screen untested pool | `scripts/build_untested_pool.py` | Working, known artifacts | 120 rows; top cuprate hits trace to a suspected CuCrO2 label error and to insulating RBa2Cu3O6 parents |
 | 4. EPW-eligible list | Pending (`codex/pool-label-quarantine`) | In progress | Needs the magnetism filter and an oxygen-variant check |
 | 5. QE/EPW inputs | `scripts/generate_qe_inputs.py`, `scripts/prepare_*_benchmark.py` | QE fixed; EPW input blocked | EPW input still lacks nbndsub, projections, windows, fine meshes, μ* |
-| 6. Run on Hazel | `scripts/hpc/stage_inputs.sh`, `scripts/hpc/job.slurm.sh.template` | Waiting on access | Slurm confirmed; partition and QoS names pending |
-| 7. Ingest outputs | `scripts/ingest_dft_results.py` | Working on real EPW output | Parser now reads EPW's summary lines; tested on the QE test-suite MgB2 benchmark (λ = 0.8715, ωlog = 61.47 meV). It previously found nothing there, or a bogus λ = 100,000 from an "IR basis: Lambda" line |
+| 6. Run on Hazel | `scripts/hpc/submit_stage0_pb.sh`, `scripts/hpc/stage_inputs.sh`, `scripts/hpc/job.slurm.sh.template` | Ready, waiting on access | Stage 0 is one command; only partition and QoS names are unknown |
+| 7. Ingest outputs | `scripts/ingest_dft_results.py` | Working on real EPW output | Reads both EPW output styles: the Eliashberg summary (QE test-suite MgB2; λ = 0.8715, ωlog = 61.47 meV) and the a2f block (QE test-suite Pb; `logavg` in rydberg). It previously found nothing in either, or a bogus λ = 100,000 from an "IR basis: Lambda" line |
 | 8. Review and promote | `scripts/promote_dft_results.py` + `results/<id>/review.json` | Working | Benchmarks go to a comparison report; accepted candidates become training records; recomputed Tc must match EPW's printed McMillan Tc within 1% |
 | 9. Retrain with results | `train_physics_targets.py --extra-records data/training/hazel-epw-records.json` | New | Records reuse the JARVIS format, so features build the same way |
 | 10. Physics models score the pool | `scripts/score_pool_physics.py` → `docs/epw-next-candidates.csv`; `.github/workflows/epw-loop.yml` reruns it | Working | Refits on JARVIS plus reviewed Hazel records and ranks EPW-eligible candidates by agreement between the two models. A test proves a new Hazel record changes the predictions |
@@ -39,7 +39,7 @@ Benchmarks and candidates go to different places on purpose. A benchmark like ta
 
 | Stage | Material | Role | Compared against | Passes when |
 | --- | --- | --- | --- | --- |
-| 0 | Pb (EPW tutorial 04) | Tools check | The tutorial's own output | Every program runs, and `promote_dft_results.py` parses λ and ωlog from the real `epw.out` |
+| 0 | Pb (official EPW example, in `data/benchmarks/epw-pb-tutorial/`) | Tools check (`role: tools_check`) | EPW's own printed Tc | Every job runs; `promote_dft_results.py` reads λ and ωlog and reproduces EPW's Tc. Submit with `scripts/hpc/submit_stage0_pb.sh` |
 | 1 | Ta (JARVIS JVASP-1014) | Benchmark | λ = 0.7572, ωlog = 164.99 K | Both within the suggested 25% tolerance |
 | 2 | Nb3Sn | Benchmark | Measured Tc ≈ 18 K (Matthias et al. 1954) | Allen-Dynes Tc lands near the measured value, with μ* stated |
 | 3 | Nb12InSn3 (mp-1221007) | First candidate | Predicted 16.1 ± 5.1 K; nearest measured In0.2Nb3Sn0.8 at 17.8 K | Converged result reviewed, then promoted into training |

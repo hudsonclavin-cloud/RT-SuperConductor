@@ -5,6 +5,8 @@ This is the step that sends physics results back into the model. It reads one
 directory per calculation under ``--results-root`` and sorts each into one of
 three outcomes:
 
+* ``tools_check`` -> Stage 0 only: lambda and omega_log must be read and the
+  recomputed Tc must match the Tc EPW printed. Never compared, never trained.
 * ``benchmark``  -> compared with its published reference value and written to
   the benchmark report. Benchmarks validate the method; they never become
   training rows, because the reference values are already in JARVIS.
@@ -19,7 +21,7 @@ Each results directory must contain ``epw.out``, exactly one ``*.cif`` and a
 ``review.json`` written by a person after checking the calculation::
 
     {
-      "role": "candidate",              # or "benchmark"
+      "role": "candidate",              # or "benchmark" or "tools_check"
       "formula": "Nb3Sn",
       "converged": true,
       "accept_for_training": true,      # candidates only
@@ -58,7 +60,10 @@ _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eEdD][-+]?\d+)?"
 _EPW_MCMILLAN_TC = re.compile(
     rf"Estimated Tc using McMillan expression\s*=\s*({_FLOAT})\s*K(?:\s*for muc\s*=\s*({_FLOAT}))?", re.I)
 _EPW_MUC_USED = re.compile(rf"muc\s*=\s*({_FLOAT})\s*is used", re.I)
-_EPW_SUMMARY = re.compile(r"Electron-phonon coupling strength\s*=", re.I)
+_EPW_SUMMARY = re.compile(r"Electron-phonon coupling strength\s*=|Eliashberg Spectral Function", re.I)
+# a2f-only runs print one line per mu after "Estimated Allen-Dynes Tc":
+# "mu =   0.10 Tc =         0.806700595152 K"
+_EPW_A2F_TC = re.compile(rf"\bmu\s*=\s*({_FLOAT})\s+Tc\s*=\s*({_FLOAT})\s*K", re.I)
 
 
 def allen_dynes_tc_k(lam: float, omega_log_k: float, mu_star: float = 0.1) -> float | None:
@@ -77,6 +82,11 @@ def parse_targets(text: str) -> tuple[float | None, float | None, str]:
 
 def epw_printed_mcmillan(text: str) -> tuple[float | None, float | None]:
     """EPW's own printed McMillan Tc (K) and the muc it says it used, if present."""
+    a2f = _EPW_A2F_TC.findall(text)
+    if a2f and not _EPW_MCMILLAN_TC.search(text):
+        # Prefer the mu = 0.10 line, the project's default mu*.
+        chosen = next((pair for pair in a2f if abs(float(pair[0]) - 0.10) < 1e-9), a2f[0])
+        return float(chosen[1]), float(chosen[0])
     tc = _EPW_MCMILLAN_TC.search(text)
     # Prefer "muc = X is used": in the epw_super benchmark the McMillan line's
     # own "for muc" label can disagree with it, and the printed Tc follows the
@@ -119,8 +129,8 @@ def evaluate_directory(directory: Path, tolerance: float = DEFAULT_TOLERANCE) ->
         return {**outcome, "outcome": "rejected", "reason": "missing_review_json"}
     review = json.loads(review_path.read_text(encoding="utf-8"))
     role = review.get("role")
-    if role not in {"benchmark", "candidate"}:
-        return {**outcome, "outcome": "rejected", "reason": "review_role_must_be_benchmark_or_candidate"}
+    if role not in {"benchmark", "candidate", "tools_check"}:
+        return {**outcome, "outcome": "rejected", "reason": "review_role_must_be_benchmark_candidate_or_tools_check"}
     if not epw_path.is_file():
         return {**outcome, "outcome": "rejected", "reason": "missing_epw_out"}
     if len(cifs) != 1:
@@ -153,6 +163,11 @@ def evaluate_directory(directory: Path, tolerance: float = DEFAULT_TOLERANCE) ->
     }
     if check.get("matches_epw_printed_tc") is False:
         return {**outcome, **evidence, "outcome": "rejected", "reason": "recomputed_tc_disagrees_with_epw_output"}
+    if role == "tools_check":
+        # Stage 0: proves QE/EPW run end to end on Hazel and that we read their
+        # output correctly. Never compared with a reference, never trained on.
+        return {**outcome, **evidence, "outcome": "tools_check",
+                "passes_tools_check": check.get("matches_epw_printed_tc") is True}
     if role == "benchmark":
         reference = review.get("reference") or {}
         ref_lam, ref_wlog = reference.get("lambda"), reference.get("omega_log_k")
@@ -185,6 +200,8 @@ def promote(results_root: Path, records_out: Path, report_out: Path,
         "directories_checked": len(outcomes),
         "benchmarks": len(benchmarks),
         "benchmarks_passing_suggested_tolerance": sum(o["passes_suggested_tolerance"] for o in benchmarks),
+        "tools_checks": sum(o["outcome"] == "tools_check" for o in outcomes),
+        "tools_checks_passing": sum(bool(o.get("passes_tools_check")) for o in outcomes),
         "training_records_written": len(records),
         "rejected": sum(o["outcome"] == "rejected" for o in outcomes),
         "suggested_tolerance": tolerance,

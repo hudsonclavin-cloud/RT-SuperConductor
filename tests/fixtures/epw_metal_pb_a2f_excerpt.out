@@ -1,0 +1,15 @@
+# Excerpt from Quantum ESPRESSO test-suite/epw_metal/benchmark.out.git.inp=epw2_dn.in.args=3
+# (Pb a2f-mode EPW benchmark, https://github.com/QEF/q-e @ 61569eb, GPL-2.0). Lines kept verbatim; others removed.
+     ===================================================================
+     Eliashberg Spectral Function in the Migdal Approximation
+     ===================================================================
+
+     lambda :    0.5232564
+     lambda_tr :    0.4692309
+ 
+     Estimated Allen-Dynes Tc
+ 
+     logavg =    0.0003531 l_a2f =    0.5232946
+     mu =   0.10 Tc =         0.806700595152 K
+     mu =   0.12 Tc =         0.600811672744 K
+     mu =   0.14 Tc =         0.427265958595 K
