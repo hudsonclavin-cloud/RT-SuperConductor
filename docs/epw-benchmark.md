@@ -61,6 +61,27 @@ of Wannier projections/windows, interpolation meshes, and the Coulomb
 pseudopotential used to derive Tc. Do not compare an unconverged or
 underspecified EPW result with the 18 K experimental reference as a reproduction.
 
+## EPW template status: BLOCKED
+
+The generated `epw.in` remains a **BLOCKED template**. Before the Nb3Sn
+benchmark can be treated as a project-specific EPW calculation, a domain
+expert must set and review at least:
+
+- `nbndsub`, the number of Wannier-interpolated bands;
+- Wannier projections, based on the reviewed Nb/Sn electronic structure;
+- disentanglement windows (`dis_win_min`, `dis_win_max`, `dis_froz_min`, and
+  `dis_froz_max`, where applicable);
+- fine interpolation meshes `nkf` and `nqf`;
+- Coulomb pseudopotential `muc`;
+- Fermi-surface smearing thickness `fsthick`.
+
+Do not fill these with guessed defaults for the benchmark. Stage 0 should
+follow the complete input files and documented sequence in EPW's own
+[Tutorial 04: superconductivity in Pb and MgB2](https://docs.epw-code.org/tutorials/tutorial_04/index.html),
+using its fcc Pb exercise as the worked starting example. That official Pb
+tutorial is a workflow exercise, not a validated source of Nb3Sn parameters;
+adaptation to Nb3Sn remains blocked pending expert review and convergence.
+
 Expected input chain:
 
 ```text

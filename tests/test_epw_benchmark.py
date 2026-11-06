@@ -80,6 +80,10 @@ class EPWBenchmarkTests(unittest.TestCase):
             self.assertIn("ATOMIC_POSITIONS angstrom", relax)
             self.assertIn("Nb3Sn", relax)
             self.assertIn("../pseudos", relax)
+            epw = (output / "epw.in").read_text(encoding="utf-8")
+            self.assertIn("! BLOCKED benchmark template", epw)
+            for parameter in ("nbndsub", "dis_win", "nkf/nqf", "muc", "fsthick"):
+                self.assertIn(parameter, epw)
             self.assertIn("Hazel compute access/allocation has not been confirmed", report["blocked_reasons"])
             manifest = json.loads((output / "benchmark-manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["materials_project_id"], "mp-nb3sn-test")
