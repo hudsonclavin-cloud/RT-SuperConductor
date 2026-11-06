@@ -221,18 +221,22 @@ class UntestedPoolV2Tests(unittest.TestCase):
         ]
         dos_calls = []
 
-        def get_by_material_id(material_id):
+        def get_by_material_and_tasks(material_id, task_ids):
             dos_calls.append(material_id)
-            return _Dos(1.0, nsites=2)
+            self.assertEqual(task_ids, ["static-task"])
+            return _Dos(1.0, nsites=2), "static-task"
 
         qualified, counts, rejected, diagnostics = qualify_by_material_level_dos(
-            docs, es_docs, tasks, get_by_material_id
+            docs,
+            es_docs,
+            tasks,
+            lambda material_id, _task_ids: get_by_material_and_tasks(material_id, ["static-task"]),
         )
         self.assertEqual(dos_calls, ["mp-static"])
         self.assertEqual([item[0].material_id for item in qualified], ["mp-static"])
         self.assertEqual(qualified[0][1]["dos_retrieval_method"],
-                         "get_dos_by_material_id; source task not identified")
-        self.assertEqual(qualified[0][1]["dos_task_id"], "")
+                         "material_id -> verified static/uniform task_id -> parsed DOS")
+        self.assertEqual(qualified[0][1]["dos_task_id"], "static-task")
         self.assertEqual(rejected["mp-relax"], "dos_task_not_static_or_uniform")
         self.assertEqual(counts["dos_material_ids_queried"], 1)
         self.assertEqual(diagnostics["error_counts"], {})
@@ -240,18 +244,19 @@ class UntestedPoolV2Tests(unittest.TestCase):
     def test_material_level_dos_lookup_uses_raw_route_and_restores_mode(self):
         route = SimpleNamespace(use_document_model=True)
 
-        def get_by_material_id(material_id):
-            self.assertEqual(material_id, "mp-raw")
+        def get_from_task_id(task_id):
+            self.assertEqual(task_id, "task-raw")
             self.assertFalse(route.use_document_model)
             return "raw-dos-payload"
 
+        route.get_dos_from_task_id = get_from_task_id
+
         mpr = SimpleNamespace(
             materials=SimpleNamespace(electronic_structure_dos=route),
-            get_dos_by_material_id=get_by_material_id,
         )
         with material_level_dos_lookup(mpr) as loader:
             self.assertFalse(route.use_document_model)
-            self.assertEqual(loader("mp-raw"), "raw-dos-payload")
+            self.assertEqual(loader("mp-raw", ["task-raw"]), ("raw-dos-payload", "task-raw"))
         self.assertTrue(route.use_document_model)
 
     def test_dos_validation_errors_are_retained_for_run_diagnostics(self):

@@ -384,18 +384,35 @@ def _search_tasks_raw(route: Any, **kwargs: Any) -> list[Any]:
 
 @contextmanager
 def material_level_dos_lookup(mpr: Any):
-    """Call the material-ID DOS endpoint in raw-response mode.
+    """Fetch DOS by material identity through its eligible task references.
 
-    MP DOS documents can omit optional nested task IDs. The typed document
-    model rejects those otherwise usable DOS payloads, so turn off that route's
-    model conversion for the duration of the material-level lookup.
+    MP's ``get_dos_by_material_id`` assumes a nested ``total.1.task_id`` that
+    current responses may omit. The deep-enrichment path instead resolves a
+    material to its exact calculation task and retrieves that parsed curve.
+    Keep raw mode enabled and return both the curve and the task ID used.
     """
     route = mpr.materials.electronic_structure_dos
     previous = getattr(route, "use_document_model", None)
     if previous is not None:
         route.use_document_model = False
+
+    def load_for_material(material_id: str, eligible_task_ids: list[str]):
+        from enrich_deep_mp import dos_curve_for_task
+
+        failures = []
+        for task_id in eligible_task_ids:
+            try:
+                dos = dos_curve_for_task(route, str(task_id))
+                if dos is not None:
+                    return dos, str(task_id)
+            except Exception as exc:
+                failures.append(exc)
+        if failures:
+            raise failures[-1]
+        raise ValueError(f"No eligible calculation task has DOS for {material_id}")
+
     try:
-        yield mpr.get_dos_by_material_id
+        yield load_for_material
     finally:
         if previous is not None:
             route.use_document_model = previous
@@ -712,16 +729,20 @@ def qualify_by_material_level_dos(
         counts["dos_static_or_uniform_tasks"] += len(allowed)
         eligible_docs.append((doc, material_id, allowed))
 
-    # Query the material endpoint concurrently, matching the bounded strategy
-    # used by the former task-payload fetch while keeping material IDs explicit.
-    dos_by_material: dict[str, Any] = {}
+    # Resolve each material to its eligible calculation task(s), then fetch
+    # the parsed DOS curve through the exact task route used by deep enrichment.
+    dos_by_material: dict[str, tuple[Any, str]] = {}
     error_by_material: dict[str, Exception] = {}
     workers = max(1, min(int(max_workers), len(eligible_docs))) if eligible_docs else 0
     if eligible_docs:
         with ThreadPoolExecutor(max_workers=workers) as executor:
             futures = {
-                executor.submit(dos_loader, material_id): material_id
-                for _doc, material_id, _allowed in eligible_docs
+                executor.submit(
+                    dos_loader,
+                    material_id,
+                    [str(_get(task, "task_id")) for task in allowed if _get(task, "task_id")],
+                ): material_id
+                for _doc, material_id, allowed in eligible_docs
             }
             for index, future in enumerate(as_completed(futures), start=1):
                 material_id = futures[future]
@@ -737,9 +758,9 @@ def qualify_by_material_level_dos(
         try:
             if material_id in error_by_material:
                 raise error_by_material[material_id]
-            dos = dos_by_material.get(material_id)
+            dos, selected_task_id = dos_by_material.get(material_id, (None, ""))
             if dos is None:
-                raise ValueError("Materials Project returned no material-level DOS curve")
+                raise ValueError("No parsed DOS curve returned for the material's eligible tasks")
             value = dos_at_fermi_states_ev_per_atom(dos, nsites=_site_count(doc))
             counts["dos_curves_retrieved"] += 1
         except Exception as exc:
@@ -761,14 +782,14 @@ def qualify_by_material_level_dos(
         run_types = sorted({str(getattr(_get(task, "run_type") or "", "value", _get(task, "run_type") or "")) for task in allowed})
         qualified.append((doc, {
             "dos_ef_states_ev_per_atom": value,
-            "dos_task_id": "",
+            "dos_task_id": selected_task_id,
             "dos_task_type": ";".join(task_types),
             "dos_functional_run_type": ";".join(run_types),
-            "dos_retrieval_method": "get_dos_by_material_id; source task not identified",
+            "dos_retrieval_method": "material_id -> verified static/uniform task_id -> parsed DOS",
         }))
     return qualified, counts, rejected, {
         "error_counts": dict(sorted(errors.items())), "error_samples": samples,
-        "retrieval_method": "material_id", "workers": workers,
+        "retrieval_method": "material_id_to_verified_task_id", "workers": workers,
     }
 
 
@@ -1404,18 +1425,18 @@ def _fetch_mp_with_client(
             f"{len(tasks)} task documents returned so far.",
             flush=True,
         )
-    # MP's typed response model currently rejects valid material-level DOS
-    # documents when nested task IDs are absent. Keep this endpoint in raw
-    # mode for the complete concurrent fetch, then restore the client's mode.
-    with material_level_dos_lookup(mpr) as get_dos_by_material_id:
+    # Map each material to its exact eligible task. MP's convenience
+    # get_dos_by_material_id currently assumes a nested task_id that can be
+    # absent, so use the proven deep-enrichment task resolver and record the ID.
+    with material_level_dos_lookup(mpr) as load_material_dos:
         qualified, dos_counts, dos_rejected, dos_validation_diagnostics = qualify_by_material_level_dos(
             ordered_unmatched,
             es_docs,
             tasks,
-            get_dos_by_material_id,
+            load_material_dos,
         )
     dos_fetch_diagnostics = {
-        "retrieval_method": "MPRester.get_dos_by_material_id(material_id)",
+        "retrieval_method": "candidate material_id -> eligible static/uniform task_id -> parsed DOS",
         "eligible_material_ids": dos_counts["dos_material_ids_queried"],
         "curves_returned": dos_counts["dos_curves_retrieved"],
         "error_counts": dos_validation_diagnostics["error_counts"],
@@ -1423,7 +1444,7 @@ def _fetch_mp_with_client(
         "formula_task_reference_fallback": fallback_diagnostics,
         "curve_validation_error_counts": dos_validation_diagnostics["error_counts"],
         "curve_validation_error_samples": dos_validation_diagnostics["error_samples"],
-        "dos_curve_task_linkage": "material-level DOS endpoint does not expose the source task ID",
+        "dos_curve_task_linkage": "exact candidate material-to-task reference; selected DOS task ID recorded",
         "material_level_request_workers": dos_validation_diagnostics["workers"],
     }
     counts.update(dos_counts)
