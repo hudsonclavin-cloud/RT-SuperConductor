@@ -27,6 +27,7 @@ Benchmarks and candidates go to different places on purpose. A benchmark like ta
 | 2a. Tc models | `scripts/train_pressure_aware.py` | Working, tested strictly | Within-family Spearman 0.52 to 0.64 after the shared-ID embargo |
 | 2b. λ and ωlog models | `scripts/train_physics_targets.py` | Working | Now accepts reviewed local records via `--extra-records` |
 | 3. Screen untested pool | `scripts/build_untested_pool.py` | Working, known artifacts | 120 rows; top cuprate hits trace to a suspected CuCrO2 label error and to insulating RBa2Cu3O6 parents |
+| 3b. Full MP snapshot and classifier | `scripts/fetch_mp_snapshot.py`, `build_mp_candidates.py`, `train_mp_sc_classifier.py` | Working | All 30,358 stable MP materials saved; classifier AUC 0.80 on held-out element systems; see `docs/materials-project-snapshot.md` |
 | 4. EPW-eligible list | Pending (`codex/pool-label-quarantine`) | In progress | Needs the magnetism filter and an oxygen-variant check |
 | 5. QE/EPW inputs | `scripts/generate_qe_inputs.py`, `scripts/prepare_*_benchmark.py` | QE fixed; EPW input blocked | EPW input still lacks nbndsub, projections, windows, fine meshes, μ* |
 | 6. Run on Hazel | `scripts/hpc/submit_stage0_pb.sh`, `scripts/hpc/stage_inputs.sh`, `scripts/hpc/job.slurm.sh.template` | Ready, waiting on access | Stage 0 is one command; only partition and QoS names are unknown |
@@ -76,7 +77,7 @@ Held-out quality of the physics model, from 5-fold GroupKFold by elemental syste
 | ωlog | 92 K | 115 K | 0.57 |
 | Tc (μ* = 0.1) | 2.7 K | 3.0 K | 0.51 |
 
-That is a weak but real signal. Treat the ranking as a way to order EPW checks, not as a prediction of what will superconduct. On the current 120-row shortlist, the top EPW-eligible candidates are A15-type compounds: Al(V4Si)3 (related to V3Si), Nb12IrAu3, V6GaGe and Al(V4Ge)3.
+That is a weak signal on DFT values, and on real outcomes it is about chance: it cannot separate 1,062 known superconductors from 988 tested non-superconductors (AUC 0.53, `docs/mp-physics-ranking.json`). The superconductor classifier trained on labelled MP materials does much better (AUC 0.80) and should choose what EPW checks; see `docs/materials-project-snapshot.md`. On the current 120-row shortlist, the top EPW-eligible candidates are A15-type compounds: Al(V4Si)3 (related to V3Si), Nb12IrAu3, V6GaGe and Al(V4Ge)3.
 
 ## A note on the Tc formula
 
