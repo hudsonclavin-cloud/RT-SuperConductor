@@ -520,3 +520,11 @@ Previous rows: 150; retained in this top-30 output: 0; removed: 150.
 ## Limits
 
 Materials Project formation energies, ordering, and DOS are DFT outputs. The random-forest Tc values are family-specific screening predictions with tree-spread uncertainty, not calibrated probabilities or discoveries. The term ‘untested’ only means absent by reduced formula from the five indexed exports; a literature review is still required. Candidate ranking is pending independent DFT and experimental validation.
+
+## Snapshot replay follow-up (2026-11-06)
+
+GitHub Actions run [42250629328](https://github.com/hudsonclavin-cloud/RT-SuperConductor/actions/runs/42250629328) replayed the saved Materials Project snapshot and completed successfully in **7m25s**. The corrected queue has **3 active suspected label-error rows** for `mp-510625`; six synthetic H3S/LaH10 fixtures remain in the queue as `not_applicable` with `excluded_from_training=false`. The pinned empirical 3DSC scan found **0** other `Tc > 77 K` records without Cu, and **0** old shortlist nearest-neighbor references depend on the quarantined rows. The empirical training table contains 5,775 rows, so the replay leaves the previously reported per-family before/after metrics unchanged.
+
+The published EPW list has **3,370** entries, all `Other` family, explicitly non-magnetic, and at most 20 sites. It is sorted by predicted Tc minus tree-spread SD; every row has a nearest measured-compound formula and Tc. This only defines a screening queue: DFT relaxation, phonons, and EPW calculations remain pending.
+
+`FeCuO2` was not rejected as an oxygen-only variant: the oxygen-insensitive key `FeCu` has no matching source formula. The old shortlist row used MP ID `mp-505110`, which the refreshed stable-material query did not return. The formula is present in the current shortlist under a different returned ID, `mp-bctfi` (Cuprates rank 11). That current row is marked magnetic (`FM`, total magnetization 9.9977027), so it is excluded from the EPW list both because it is magnetic and because the EPW list is `Other`-only. Its nearest measured reference is YBa2Cu4O8 at 80 K; its predicted Tc is 30.1712 K with 29.2550 K tree spread. These are predictions, not experimental evidence for FeCuO2.
