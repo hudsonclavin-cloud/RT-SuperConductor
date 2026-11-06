@@ -1,14 +1,57 @@
 #!/usr/bin/env bash
-# UNCONFIRMED TEMPLATE: use only after the account owner confirms the site uses Slurm.
-# Replace all placeholders and have the HPC support team review resource syntax.
-#SBATCH --job-name=qe-epw-<candidate>
+# Hazel uses Slurm (confirmed with NC State HPC staff, 2026-11-06).
+# UNCONFIRMED RESOURCES: partition, QoS, core count and the QE/EPW install are
+# placeholders until access is granted. Check names with the HPC docs or chatbot.
+#
+# Rules from the HPC consult:
+#   * Compute nodes have no internet. Stage every input on the login node first
+#     (scripts/hpc/stage_inputs.sh). This job must not download anything.
+#   * Put both --partition and --qos; some QoS values fail without a partition.
+#   * Keep --time under 2 hours unless restarts are set up; QE's max_seconds and
+#     restart_mode let a stopped run continue instead of starting over.
+#   * Run in the work area (/share/...), never $HOME (15 GB, file-count limit).
+#     The work area is wiped after ~30 days untouched and is not backed up, so
+#     copy results/ back to the repository as soon as the job finishes.
+#
+#SBATCH --job-name=rtsc-<structure_id>-<step>
 #SBATCH --partition=<partition>
-#SBATCH --nodes=<nodes>
+#SBATCH --qos=<qos>
+#SBATCH --nodes=1
 #SBATCH --ntasks=<cores>
-#SBATCH --time=<walltime>
-#SBATCH --output=<candidate>.%j.out
-#SBATCH --error=<candidate>.%j.err
+#SBATCH --time=01:50:00
+#SBATCH --output=logs/%x.%j.out
+#SBATCH --error=logs/%x.%j.err
 
 set -euo pipefail
-module load <quantum-espresso-module>
-srun pw.x -in relax.in > relax.out
+
+RUN_DIR="<work_area>/rtsc/<structure_id>"   # e.g. /share/<group>/<unity_id>/rtsc/pb-tutorial
+cd "$RUN_DIR"
+mkdir -p logs
+
+# Load the self-installed environment (conda env in user app space, not $HOME).
+# source <app_space>/miniforge3/etc/profile.d/conda.sh
+# conda activate rtsc-qe
+command -v pw.x >/dev/null || { echo "pw.x not on PATH" >&2; exit 2; }
+
+# Record what ran, for scripts/promote_dft_results.py and the review.
+{
+  echo "job_id=$SLURM_JOB_ID"
+  echo "host=$(hostname)"
+  echo "start=$(date -Is)"
+  echo "ntasks=$SLURM_NTASKS"
+  echo "pw_x=$(command -v pw.x)"
+  sha256sum ./*.in ./*.UPF 2>/dev/null || true
+} > "logs/run-manifest.$SLURM_JOB_ID.txt"
+
+# One step per job; chain steps with: sbatch --dependency=afterok:<previous_job_id>
+case "<step>" in
+  scf)    srun pw.x  -in scf.in    > scf.out ;;
+  ph)     srun ph.x  -in ph.in     > ph.out ;;
+  q2r)    srun q2r.x -in q2r.in    > q2r.out ;;
+  matdyn) srun matdyn.x -in matdyn.in > matdyn.out ;;
+  nscf)   srun pw.x  -in nscf.in   > nscf.out ;;
+  epw)    srun epw.x -in epw.in    > epw.out ;;
+  *) echo "unknown step <step>" >&2; exit 2 ;;
+esac
+
+echo "end=$(date -Is)" >> "logs/run-manifest.$SLURM_JOB_ID.txt"

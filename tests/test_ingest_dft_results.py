@@ -52,5 +52,14 @@ class DFTResultIngestionTests(unittest.TestCase):
         self.assertEqual(rows["epw"]["epw_omega_log_k"], "100.0")
 
 
+
+class RealEpwOutputTests(unittest.TestCase):
+    def test_epw_summary_lines_are_read_and_ir_basis_lambda_is_ignored(self):
+        text = (Path(__file__).resolve().parent / "fixtures" / "epw_super_mgb2_excerpt.out").read_text()
+        lam, omega = parse_epw_targets(text)
+        self.assertAlmostEqual(lam, 0.8714948)
+        self.assertAlmostEqual(omega, 61.4704 * 11.60451812155, places=6)
+
+
 if __name__ == "__main__":
     unittest.main()

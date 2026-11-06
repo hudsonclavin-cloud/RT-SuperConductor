@@ -25,7 +25,15 @@ _FREQUENCY = re.compile(
     rf"\b(?:freq|omega)\s*\(\s*\d+\s*\)\s*=\s*({_FLOAT})\s*\[\s*(THz|cm\s*(?:\^\s*-?1|-1))\s*\]",
     re.I,
 )
-_LAMBDA = re.compile(rf"\blambda\s*(?:=|:)\s*({_FLOAT})", re.I)
+# EPW's own summary lines, as printed in the QE test-suite benchmarks
+# (test-suite/epw_super): "Electron-phonon coupling strength =    0.8714948"
+# and "Estimated w_log =  61.4704 meV". These are read first.
+_EPW_LAMBDA = re.compile(rf"Electron-phonon coupling strength\s*=\s*({_FLOAT})", re.I)
+_EPW_WLOG = re.compile(rf"Estimated w_log\s*=\s*({_FLOAT})\s*(meV|eV|K)\b", re.I)
+# Fallback for hand-written summaries: a line that starts with lower-case
+# "lambda". Mid-line matches such as EPW's "IR basis: Lambda = 1.00E+05"
+# (a numerical setting, not a coupling) are deliberately excluded.
+_LAMBDA = re.compile(rf"^[ \t]*lambda\s*(?:=|:)\s*({_FLOAT})", re.M)
 _OMEGA_LOG = re.compile(
     rf"\b(?:omega[_ ]?log|wlog)\s*(?:=|:)\s*({_FLOAT})\s*(?:\[\s*)?(K|kelvin|meV|eV|THz|cm\s*(?:\^\s*-?1|-1))\b\s*\]?",
     re.I,
@@ -47,9 +55,11 @@ def parse_matdyn_frequencies(text: str) -> list[float]:
 
 
 def parse_epw_targets(text: str) -> tuple[float | None, float | None]:
-    """Extract the first explicit EPW lambda and omega_log (in K)."""
-    lam_match = _LAMBDA.search(text)
-    omega_match = _OMEGA_LOG.search(text)
+    """Extract lambda and omega_log (in K), preferring EPW's summary lines."""
+    epw_lam = _EPW_LAMBDA.search(text)
+    epw_wlog = _EPW_WLOG.search(text)
+    lam_match = epw_lam or _LAMBDA.search(text)
+    omega_match = epw_wlog or _OMEGA_LOG.search(text)
     lam = _float(lam_match.group(1)) if lam_match else None
     omega = None
     if omega_match:
