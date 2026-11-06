@@ -285,6 +285,12 @@ class ActiveLearningTests(unittest.TestCase):
             self.assertEqual(len(report["folds"]), 3)
             self.assertEqual(report["structure_record_count"], 3)
             self.assertTrue(report_path.is_file())
+            # Fold-local preprocessing: the imputer never sees all rows at once,
+            # and the aggregate baseline uses training-fold means only.
+            self.assertEqual(report["preprocessing"], "structure imputation fitted on training folds only")
+            fold_maes = [fold["mean_predictor"]["mae_k"] for fold in report["folds"]]
+            self.assertIsNotNone(report["mean_predictor"]["mae_k"])
+            self.assertGreaterEqual(max(fold_maes) + 1e-9, report["mean_predictor"]["mae_k"])
 
 
     def test_promotion_gate_includes_curated_database_at_one_atmosphere(self) -> None:
