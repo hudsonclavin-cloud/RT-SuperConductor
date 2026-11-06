@@ -1,5 +1,6 @@
 import csv
 import math
+import re
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -130,7 +131,7 @@ def test_qe_parameters_are_configurable_and_pymatgen_masses_are_used():
     assert "degauss = 0.015" in text
     assert "input_dft = 'PBEsol'" in text
     # Pymatgen's standard mass for Ta is 180.94788 u.
-    assert "Ta   180.94788" in text
+    assert re.search(r"(?m)^\s*Ta\s+180\.94788\s+Ta\.UPF$", text)
 
 
 def test_qe_generator_can_use_real_cif_and_blocks_job_prerequisites(tmp_path):

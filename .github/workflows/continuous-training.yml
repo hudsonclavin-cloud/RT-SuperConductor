@@ -36,11 +36,18 @@ on:
         default: ""
         type: string
       build_untested_pool:
-        description: "Build the existing-but-untested Materials Project pool"
+        description: "Query Materials Project and save a raw query snapshot artifact; optionally replay a prior snapshot offline"
         required: false
         default: false
         type: boolean
+      mp_snapshot_run_id:
+        description: "Optional prior continuous-training run ID containing an untested-pool MP snapshot for offline replay"
+        required: false
+        default: ""
+        type: string
   push:
+    branches:
+      - main
     paths:
       - "scripts/train_baseline.py"
       - "scripts/train_pressure_aware.py"
@@ -52,7 +59,6 @@ on:
       - "scripts/build_untested_pool.py"
       - "scripts/untested_pool_policy.py"
       - "scripts/chemistry_policy.py"
-      - "tests/test_untested_pool.py"
       - "scripts/download_training_data.py"
       - "scripts/ingest_3dsc.py"
       - "scripts/rank_candidates.py"
@@ -70,23 +76,20 @@ on:
       - "pyproject.toml"
       - "data/training/**"
       - "data/results/**"
-      - "docs/continuous-training.md"
-      - "docs/faculty_research_summary.md"
 
 permissions:
   contents: read
   actions: read
 
 concurrency:
-  group: continuous-training-${{ (inputs.deep_ablation || inputs.deep_mp_enrichment || inputs.deep_mp_reference_run) && 'physical-study' || 'regular' }}
-  cancel-in-progress: false
+  group: continuous-training-${{ github.ref }}-${{ (inputs.deep_ablation || inputs.deep_mp_enrichment || inputs.deep_mp_reference_run) && 'physical-study' || 'regular' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   train:
     if: >-
       ${{ !inputs.deep_ablation && !inputs.deep_mp_enrichment && !inputs.deep_mp_reference_run &&
-          !((github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
-            (github.event_name == 'push' && github.ref == 'refs/heads/codex/untested-pool-v2')) }}
+          !inputs.build_untested_pool && inputs.mp_snapshot_run_id == '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -95,6 +98,13 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Cache pinned raw datasets
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install machine-learning dependencies
         run: python -m pip install --upgrade pip '.[ml,mp]'
       - name: Validate reviewed records
@@ -113,27 +123,35 @@ jobs:
             --report data/processed/continuous-training/harmonized-report.json
       - name: Refresh SuperCon2 and SuperMat literature review queues
         run: |
-          mkdir -p /tmp/supermat data/processed/continuous-training/evidence-intake
-          curl --fail --location --retry 3 --retry-delay 2 \
-            --output /tmp/supercon2.csv \
-            "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
-          echo "ed55ea8f43a0984d77b5c29576164e06  /tmp/supercon2.csv" | md5sum --check
-          git clone --depth 1 https://github.com/lfoppiano/SuperMat.git /tmp/supermat/repo
-          cp /tmp/supermat/repo/data/csv/SuperMat-2.0.csv /tmp/supermat/SuperMat-2.0.csv
-          git -C /tmp/supermat/repo rev-parse HEAD > data/processed/continuous-training/evidence-intake/supermat-source-revision.txt
+          mkdir -p data/raw/supercon2 data/raw/supermat data/processed/continuous-training/evidence-intake
+          if [ ! -f data/raw/supercon2/supercon2_v22.12.03.csv ]; then
+            curl --fail --location --retry 3 --retry-delay 2 \
+              --output data/raw/supercon2/supercon2_v22.12.03.csv \
+              "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
+          fi
+          echo "ed55ea8f43a0984d77b5c29576164e06  data/raw/supercon2/supercon2_v22.12.03.csv" | md5sum --check
+          if [ ! -f data/raw/supermat/SuperMat-2.0.csv ]; then
+            curl --fail --location --retry 3 --retry-delay 2 \
+              --output data/raw/supermat/SuperMat-2.0.csv \
+              "https://raw.githubusercontent.com/lfoppiano/SuperMat/master/data/csv/SuperMat-2.0.csv"
+          fi
+          echo "80e84ab67649a562a838c5a58fa8bb8025fe1e3225ad2eb664d9bcf3be8ed3ce  data/raw/supermat/SuperMat-2.0.csv" \
+            | sha256sum --check
+          echo "source_file_sha256=80e84ab67649a562a838c5a58fa8bb8025fe1e3225ad2eb664d9bcf3be8ed3ce" \
+            > data/processed/continuous-training/evidence-intake/supermat-source-revision.txt
           python scripts/build_supercon2_review_queue.py \
-            --input /tmp/supercon2.csv \
+            --input data/raw/supercon2/supercon2_v22.12.03.csv \
             --output data/processed/continuous-training/evidence-intake/supercon2-review-queue.csv \
             --limit 1000
           python scripts/build_supermat_review_queue.py \
-            --input /tmp/supermat/SuperMat-2.0.csv \
+            --input data/raw/supermat/SuperMat-2.0.csv \
             --output data/processed/continuous-training/evidence-intake/supermat-review-queue.csv \
             --manifest data/processed/continuous-training/evidence-intake/supermat-intake-manifest.json
           python scripts/build_review_campaign.py \
             --input data/processed/continuous-training/evidence-intake/supercon2-review-queue.csv \
             --output data/processed/continuous-training/evidence-intake/paper-review-campaign.json \
             --batch-size 10
-          sha256sum /tmp/supercon2.csv /tmp/supermat/SuperMat-2.0.csv \
+          sha256sum data/raw/supercon2/supercon2_v22.12.03.csv data/raw/supermat/SuperMat-2.0.csv \
             > data/processed/continuous-training/evidence-intake/source-checksums.txt
       - name: Run one reproducible active-learning cycle
         env:
@@ -165,8 +183,8 @@ jobs:
             --data-root data/raw \
             --output-root "data/processed/continuous-training/family-${family_slug}" \
             --candidates "data/processed/continuous-training/family-${family_slug}/${family_slug}_top25.csv" \
-            --supercon2 /tmp/supercon2.csv \
-            --supermat /tmp/supermat/SuperMat-2.0.csv \
+            --supercon2 data/raw/supercon2/supercon2_v22.12.03.csv \
+            --supermat data/raw/supermat/SuperMat-2.0.csv \
             --skip-download
       - name: Upload requested family shortlist
         if: ${{ inputs.family != '' }}
@@ -224,6 +242,19 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Cache pinned raw datasets
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
+      - name: Cache CIF feature calculations
+        if: ${{ inputs.deep_ablation }}
+        uses: actions/cache@v4
+        with:
+          path: data/processed/cif-feature-cache
+          key: rt-supercon-features-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py', 'scripts/ingest_3dsc.py', 'scripts/deep_physics_features.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install ablation and MP dependencies
         run: python -m pip install '.[ml,mp]'
       - name: Download pinned sources and requested CIF coverage
@@ -323,11 +354,11 @@ jobs:
             data/processed/deep-ablation/*.csv
   untested-pool-v2:
     if: >-
-      ${{ (github.event_name == 'workflow_dispatch' && inputs.build_untested_pool) ||
-          (github.event_name == 'push' && github.ref == 'refs/heads/codex/untested-pool-v2') }}
+      ${{ github.event_name == 'workflow_dispatch' && (inputs.build_untested_pool || inputs.mp_snapshot_run_id != '') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: read
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -337,26 +368,48 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Cache pinned raw datasets
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install modeling and Materials Project dependencies
         run: python -m pip install --upgrade pip '.[ml,mp]'
       - name: Download pinned source data and prior shortlist
         run: |
-          mkdir -p data/processed/continuous-training /tmp/supermat
+          mkdir -p data/processed/continuous-training data/raw/supercon2 data/raw/supermat
           python scripts/download_training_data.py \
             --data-root data/raw \
             --cif-limit 0 \
             --report data/processed/continuous-training/source-download-report.json
-          curl --fail --location --retry 3 --retry-delay 2 \
-            --output data/raw/3dsc/Supercon_data_by_2018_Stanev.csv \
-            "https://raw.githubusercontent.com/aimat-lab/3DSC/8d69ca9c94b83d387378549225d3b7c3af85ca42/superconductors_3D/data/source/SuperCon/raw/Supercon_data_by_2018_Stanev.csv"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            --output /tmp/supercon2.csv \
-            "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
-          echo "ed55ea8f43a0984d77b5c29576164e06  /tmp/supercon2.csv" | md5sum --check
-          git clone --depth 1 https://github.com/lfoppiano/SuperMat.git /tmp/supermat/repo
-          cp /tmp/supermat/repo/data/csv/SuperMat-2.0.csv /tmp/supermat/SuperMat-2.0.csv
-          git fetch --no-tags origin codex/untested-pool-shortlist
-          git show FETCH_HEAD:docs/untested-pool-shortlist.csv > /tmp/untested-pool-v1.csv
+          if [ ! -f data/raw/supercon2/supercon2_v22.12.03.csv ]; then
+            curl --fail --location --retry 3 --retry-delay 2 \
+              --output data/raw/supercon2/supercon2_v22.12.03.csv \
+              "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
+          fi
+          echo "ed55ea8f43a0984d77b5c29576164e06  data/raw/supercon2/supercon2_v22.12.03.csv" | md5sum --check
+          if [ ! -f data/raw/supermat/SuperMat-2.0.csv ]; then
+            curl --fail --location --retry 3 --retry-delay 2 \
+              --output data/raw/supermat/SuperMat-2.0.csv \
+              "https://raw.githubusercontent.com/lfoppiano/SuperMat/master/data/csv/SuperMat-2.0.csv"
+          fi
+          echo "80e84ab67649a562a838c5a58fa8bb8025fe1e3225ad2eb664d9bcf3be8ed3ce  data/raw/supermat/SuperMat-2.0.csv" \
+            | sha256sum --check
+          if [ -f docs/untested-pool-shortlist.csv ]; then
+            cp docs/untested-pool-shortlist.csv /tmp/untested-pool-v1.csv
+          else
+            printf 'rank_within_family,mp_id,formula\n' > /tmp/untested-pool-v1.csv
+          fi
+      - name: Restore prior raw Materials Project query snapshot
+        if: ${{ inputs.mp_snapshot_run_id != '' }}
+        uses: actions/download-artifact@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.mp_snapshot_run_id }}
+          name: untested-pool-v2-${{ inputs.mp_snapshot_run_id }}
+          path: data/processed/continuous-training
       - name: Prepare training table and main within-family report
         run: |
           python scripts/ingest_3dsc.py \
@@ -382,11 +435,12 @@ jobs:
             --report data/processed/continuous-training/untested-pool-report.json \
             --summary data/processed/continuous-training/untested-pool-summary.md \
             --old-shortlist /tmp/untested-pool-v1.csv \
+            --mp-cache data/processed/continuous-training/mp-query-cache.json.gz \
             --3dsc data/raw/3dsc/MP/3DSC_MP.csv \
             --uci data/raw/uci/extracted/unique_m.csv \
             --stanev data/raw/3dsc/Supercon_data_by_2018_Stanev.csv \
-            --supercon2 /tmp/supercon2.csv \
-            --supermat /tmp/supermat/SuperMat-2.0.csv \
+            --supercon2 data/raw/supercon2/supercon2_v22.12.03.csv \
+            --supermat data/raw/supermat/SuperMat-2.0.csv \
             --top-per-family 30
       - name: Publish screening counts
         run: |
@@ -394,6 +448,7 @@ jobs:
           import json, os
           from pathlib import Path
           report = json.loads(Path("data/processed/continuous-training/untested-pool-report.json").read_text())
+          snapshot = report.get("dos_fetch_diagnostics", {}).get("mp_query_cache", {})
           rows = [
               "### Existing-but-untested Materials Project pool v2",
               f"- DOS-qualified pool: {report['pool_size_after_all_materials_project_and_database_filters']}",
@@ -401,6 +456,7 @@ jobs:
               f"- Scored: {report['pool_size_scored_after_family_gate']}",
               f"- Top-30 shortlist rows: {report['shortlist_rows']}",
               f"- Prior shortlist retained/removed: {report['old_shortlist_retained']}/{report['old_shortlist_removed']}",
+              f"- Raw Materials Project query snapshot: `{snapshot.get('mode', 'missing')}`; SHA-256 `{snapshot.get('sha256', 'missing')}`; included in the run artifact.",
               "- Filter counts: `" + json.dumps(report["filter_counts"], sort_keys=True) + "`",
           ]
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:

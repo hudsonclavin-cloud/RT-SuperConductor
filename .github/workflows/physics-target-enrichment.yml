@@ -3,6 +3,8 @@ name: Physics-target model, graph benchmark, and Materials Project enrichment
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - "scripts/train_physics_targets.py"
       - "scripts/enrich_physics_mp.py"
@@ -17,8 +19,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: physics-target-enrichment
-  cancel-in-progress: false
+  group: physics-target-enrichment-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   enrich-and-evaluate:
@@ -32,6 +34,12 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Cache pinned raw datasets
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install CPU PyTorch and project dependencies
         run: |
           python -m pip install --upgrade pip

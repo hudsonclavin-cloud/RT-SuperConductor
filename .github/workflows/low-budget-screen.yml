@@ -15,6 +15,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: low-budget-screen-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   screen:
     runs-on: ubuntu-latest
@@ -27,14 +31,23 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Cache pinned raw datasets
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
       - name: Install project and Materials Project client
         run: python -m pip install --upgrade pip mp-api .
       - name: Download SuperCon2 source export
         run: |
           mkdir -p data/raw/supercon2
-          curl --fail --location --retry 3 --retry-delay 2 \
-            --output data/raw/supercon2/supercon2_v22.12.03.csv \
-            "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
+          if [ ! -f data/raw/supercon2/supercon2_v22.12.03.csv ]; then
+            curl --fail --location --retry 3 --retry-delay 2 \
+              --output data/raw/supercon2/supercon2_v22.12.03.csv \
+              "https://mdr.nims.go.jp/filesets/b737b44a-b07a-4853-9378-8ba63f644e79/download"
+          fi
           echo "ed55ea8f43a0984d77b5c29576164e06  data/raw/supercon2/supercon2_v22.12.03.csv" \
             | md5sum --check
       - name: Run pressure-aware screen
