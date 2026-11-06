@@ -1,0 +1,50 @@
+{
+  "api_url": "https://api.materialsproject.org/materials/summary/",
+  "api_version": "0.88.1",
+  "counts": {
+    "has_icsd_experimental_entry": 16774,
+    "is_magnetic_true": 4472,
+    "is_metal_true": 19726,
+    "metallic_and_non_magnetic": 16798,
+    "theoretical_only": 13992
+  },
+  "csv_gz": "data/candidates/mp-stable-summary.csv.gz",
+  "csv_sha256_uncompressed": "552ff36a8d69b84e579a4f4d36a31bb2c5ab0365b9eb44b2e1414a38b8c78939",
+  "license": "CC BY 4.0 (Materials Project); cite Jain et al., APL Materials 1, 011002 (2013)",
+  "materials": 30358,
+  "query": {
+    "deprecated": false,
+    "energy_above_hull_ev_per_atom": [
+      0,
+      0.025
+    ],
+    "fields": [
+      "material_id",
+      "formula_pretty",
+      "elements",
+      "nelements",
+      "nsites",
+      "energy_above_hull",
+      "formation_energy_per_atom",
+      "is_stable",
+      "theoretical",
+      "symmetry",
+      "volume",
+      "density",
+      "is_metal",
+      "band_gap",
+      "is_magnetic",
+      "ordering",
+      "total_magnetization",
+      "total_magnetization_normalized_formula_units",
+      "num_magnetic_sites",
+      "database_IDs"
+    ],
+    "nsites": [
+      1,
+      20
+    ]
+  },
+  "retrieved_utc": "2026-11-06T18:23:46.643129+00:00",
+  "source": "Materials Project summary API"
+}

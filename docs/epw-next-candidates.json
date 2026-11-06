@@ -3,6 +3,13 @@
   "candidates_scored": 120,
   "candidates_sha256": "a94c6b67e33c7b332449effc875ee06717abccb890bc1ea5ee8582529dd01672",
   "epw_eligible": 28,
+  "external_check": null,
+  "ineligible_reason_counts": {
+    "family_Cuprates_not_phonon_mediated_route": 30,
+    "family_Ferrites_not_phonon_mediated_route": 30,
+    "family_Oxides_not_phonon_mediated_route": 30,
+    "magnetic_magnetic_element_heuristic": 63
+  },
   "limits": [
     "Formula-only features cannot tell polymorphs apart; structure features need MP structures.",
     "Random forests stay inside the JARVIS training range of lambda and omega_log.",
@@ -37,6 +44,7 @@
     "training_table_sha256": "dca87fda03aeeb5d6ba951a01b795179fbe463dc099b8c48b63120211fee0114"
   },
   "ranking": "EPW-eligible rows by consensus_tc_k = min(physics-model Tc, measured-Tc random forest Tc)",
+  "rows_written": 120,
   "top_eligible": [
     {
       "consensus_tc_k": 11.82948866666668,
@@ -147,6 +155,116 @@
       "physics_tc_k": 7.120552514799384,
       "physics_tc_tree_sd_k": 10.388631655592254,
       "rf_family_tc_k": "16.084401999999994"
+    },
+    {
+      "consensus_tc_k": 6.599192965282403,
+      "epw_rank": 11,
+      "formula": "Y4C5",
+      "mp_id": "mp-9459",
+      "physics_lambda": 0.5660988334798861,
+      "physics_omega_log_k": 346.62666805000634,
+      "physics_tc_k": 6.599192965282403,
+      "physics_tc_tree_sd_k": 13.567698577746711,
+      "rf_family_tc_k": "7.304810666666663"
+    },
+    {
+      "consensus_tc_k": 6.202315333333334,
+      "epw_rank": 12,
+      "formula": "Nb6PdPt",
+      "mp_id": "mp-1220391",
+      "physics_lambda": 2.506218366293224,
+      "physics_omega_log_k": 73.08134833344056,
+      "physics_tc_k": 12.051621739050727,
+      "physics_tc_tree_sd_k": 15.190345562693883,
+      "rf_family_tc_k": "6.202315333333334"
+    },
+    {
+      "consensus_tc_k": 5.715133333333331,
+      "epw_rank": 13,
+      "formula": "V6GaSb",
+      "mp_id": "mp-1216450",
+      "physics_lambda": 1.2507497004221793,
+      "physics_omega_log_k": 90.90434980810711,
+      "physics_tc_k": 8.553762544665759,
+      "physics_tc_tree_sd_k": 12.754434891979624,
+      "rf_family_tc_k": "5.715133333333331"
+    },
+    {
+      "consensus_tc_k": 5.71204425304442,
+      "epw_rank": 14,
+      "formula": "HfZrN2",
+      "mp_id": "mp-1224247",
+      "physics_lambda": 0.6219055460752426,
+      "physics_omega_log_k": 224.68294185811487,
+      "physics_tc_k": 5.71204425304442,
+      "physics_tc_tree_sd_k": 10.576247570840088,
+      "rf_family_tc_k": "6.410627666666675"
+    },
+    {
+      "consensus_tc_k": 5.6698756000000055,
+      "epw_rank": 15,
+      "formula": "ZrNb3C4",
+      "mp_id": "mp-1215233",
+      "physics_lambda": 0.5859976030696494,
+      "physics_omega_log_k": 353.17959647125844,
+      "physics_tc_k": 7.5120910304761495,
+      "physics_tc_tree_sd_k": 18.07892238660315,
+      "rf_family_tc_k": "5.6698756000000055"
+    },
+    {
+      "consensus_tc_k": 5.176420800000002,
+      "epw_rank": 16,
+      "formula": "YWC2",
+      "mp_id": "mp-1189574",
+      "physics_lambda": 0.6180845481266403,
+      "physics_omega_log_k": 237.68841674420267,
+      "physics_tc_k": 5.936143032214237,
+      "physics_tc_tree_sd_k": 15.185978860046829,
+      "rf_family_tc_k": "5.176420800000002"
+    },
+    {
+      "consensus_tc_k": 4.998573066666665,
+      "epw_rank": 17,
+      "formula": "HgPb4",
+      "mp_id": "mp-1224108",
+      "physics_lambda": 1.3456267853073294,
+      "physics_omega_log_k": 68.8617009979006,
+      "physics_tc_k": 7.034171874979589,
+      "physics_tc_tree_sd_k": 9.89717588519602,
+      "rf_family_tc_k": "4.998573066666665"
+    },
+    {
+      "consensus_tc_k": 4.784910133333334,
+      "epw_rank": 18,
+      "formula": "Nb4AgS8",
+      "mp_id": "mp-1220596",
+      "physics_lambda": 0.7304048094767549,
+      "physics_omega_log_k": 132.1629035448369,
+      "physics_tc_k": 5.083845124869455,
+      "physics_tc_tree_sd_k": 13.223610253487669,
+      "rf_family_tc_k": "4.784910133333334"
+    },
+    {
+      "consensus_tc_k": 4.648583066666661,
+      "epw_rank": 19,
+      "formula": "In4Pb",
+      "mp_id": "mp-1223890",
+      "physics_lambda": 1.0399221343273792,
+      "physics_omega_log_k": 70.18242127081487,
+      "physics_tc_k": 5.183191733928228,
+      "physics_tc_tree_sd_k": 10.056015550879911,
+      "rf_family_tc_k": "4.648583066666661"
+    },
+    {
+      "consensus_tc_k": 4.518774733333338,
+      "epw_rank": 20,
+      "formula": "ZrNbC2",
+      "mp_id": "mp-1215222",
+      "physics_lambda": 0.5277270641851776,
+      "physics_omega_log_k": 370.3206908639929,
+      "physics_tc_k": 5.527629917633933,
+      "physics_tc_tree_sd_k": 17.67000014314738,
+      "rf_family_tc_k": "4.518774733333338"
     }
   ]
 }
