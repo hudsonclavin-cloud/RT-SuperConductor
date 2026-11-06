@@ -467,10 +467,16 @@ jobs:
       - name: Publish requested docs outputs
         run: |
           cp data/processed/continuous-training/untested-pool-shortlist.csv docs/untested-pool-shortlist.csv
-          cp data/processed/continuous-training/untested-pool-summary.md docs/untested-pool-summary.md
+          cp data/processed/continuous-training/untested-pool-summary.md /tmp/untested-pool-summary-current.md
+          {
+            cat /tmp/untested-pool-summary-current.md
+            printf '\n\n## Archived report before the provisional summary-metallicity gate\n\n'
+            printf 'The following report is retained unchanged for historical comparison. Its empty result reflected the former mandatory DOS-curve gate; the current run above supersedes that screening logic.\n\n'
+            cat docs/untested-pool-summary-history.md
+          } > docs/untested-pool-summary.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/untested-pool-shortlist.csv docs/untested-pool-summary.md
+          git add docs/untested-pool-shortlist.csv docs/untested-pool-summary.md docs/untested-pool-summary-history.md
           if ! git diff --cached --quiet; then
             git commit -m "data: publish v2 untested materials shortlist"
             git push origin "HEAD:${GITHUB_REF_NAME}"
