@@ -33,7 +33,6 @@ for _path in (ROOT / "src", ROOT / "scripts"):
 
 from rt_superconductor.harmonized import HarmonizedRecord, load_harmonized
 from train_pressure_aware import build_features, select_training_records, _model
-from enrich_deep_mp import dos_curve_for_task
 from untested_pool_policy import dos_ef_rejection, untested_pool_composition_rejection
 
 
@@ -647,6 +646,9 @@ def qualify_by_material_level_dos(
     electronic_structure_docs: Iterable[Any],
     task_docs: Iterable[Any],
     dos_loader: Any,
+    *,
+    max_workers: int = 8,
+    progress_every: int = 250,
 ) -> tuple[list[tuple[Any, dict[str, Any]]], dict[str, int], dict[str, str], dict[str, Any]]:
     """Use MP's material-ID DOS endpoint after checking eligible task metadata.
 
@@ -668,6 +670,7 @@ def qualify_by_material_level_dos(
         "dos_below_or_equal_0p1_states_ev_atom": 0, "dos_qualified_gt_0p1_states_ev_atom": 0,
         "dos_material_ids_queried": 0,
     }
+    eligible_docs: list[tuple[Any, str, list[Any]]] = []
     for doc in docs:
         material_id = str(_get(doc, "material_id", ""))
         refs = _electronic_structure_task_ids(es_by_id.get(material_id))
@@ -687,9 +690,34 @@ def qualify_by_material_level_dos(
             rejected[material_id] = "dos_task_not_static_or_uniform"
             continue
         counts["dos_static_or_uniform_tasks"] += len(allowed)
-        counts["dos_material_ids_queried"] += 1
+        eligible_docs.append((doc, material_id, allowed))
+
+    # Query the material endpoint concurrently, matching the bounded strategy
+    # used by the former task-payload fetch while keeping material IDs explicit.
+    dos_by_material: dict[str, Any] = {}
+    error_by_material: dict[str, Exception] = {}
+    workers = max(1, min(int(max_workers), len(eligible_docs))) if eligible_docs else 0
+    if eligible_docs:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = {
+                executor.submit(dos_loader, material_id): material_id
+                for _doc, material_id, _allowed in eligible_docs
+            }
+            for index, future in enumerate(as_completed(futures), start=1):
+                material_id = futures[future]
+                try:
+                    dos_by_material[material_id] = future.result()
+                except Exception as exc:
+                    error_by_material[material_id] = exc
+                if progress_every > 0 and (index % progress_every == 0 or index == len(futures)):
+                    print(f"Fetched material-level DOS curves for {index}/{len(futures)} eligible candidates...", flush=True)
+    counts["dos_material_ids_queried"] = len(eligible_docs)
+
+    for doc, material_id, allowed in eligible_docs:
         try:
-            dos = dos_loader(material_id)
+            if material_id in error_by_material:
+                raise error_by_material[material_id]
+            dos = dos_by_material.get(material_id)
             if dos is None:
                 raise ValueError("Materials Project returned no material-level DOS curve")
             value = dos_at_fermi_states_ev_per_atom(dos, nsites=_site_count(doc))
@@ -718,7 +746,10 @@ def qualify_by_material_level_dos(
             "dos_functional_run_type": ";".join(run_types),
             "dos_retrieval_method": "get_dos_by_material_id; source task not identified",
         }))
-    return qualified, counts, rejected, {"error_counts": dict(sorted(errors.items())), "error_samples": samples}
+    return qualified, counts, rejected, {
+        "error_counts": dict(sorted(errors.items())), "error_samples": samples,
+        "retrieval_method": "material_id", "workers": workers,
+    }
 
 
 def prefetch_static_dos_curves(
@@ -1369,6 +1400,7 @@ def _fetch_mp_with_client(
         "curve_validation_error_counts": dos_validation_diagnostics["error_counts"],
         "curve_validation_error_samples": dos_validation_diagnostics["error_samples"],
         "dos_curve_task_linkage": "material-level DOS endpoint does not expose the source task ID",
+        "material_level_request_workers": dos_validation_diagnostics["workers"],
     }
     counts.update(dos_counts)
     counts["dos_task_ids_queried"] = len(dos_task_ids)
