@@ -1,6 +1,6 @@
 # Model roadmap: from random forest toward neural networks
 
-> **Update 2026-11-07.** Negatives are now graded by evidence and only tiers A–C train the classifier (`docs/negative-labels.md`). On that basis gradient boosting scores 0.820 and the forest 0.818; removing suspect insulator negatives raised AUC on metallic test rows by about 0.02. The next-step list below stands, with one addition ahead of all of them: verified null results near the top candidates, recorded in `data/training/negative_evidence.csv`.
+> **Update 2026-11-07.** Negatives are now graded by evidence and only tiers A–C train the classifier (`docs/negative-labels.md`). On that basis, with suspect positives quarantined too, gradient boosting scores 0.824 and the forest 0.818; removing suspect insulator negatives raised AUC on metallic test rows by 0.012 to 0.018 for both. The next-step list below stands, with one addition ahead of all of them: verified null results near the top candidates, recorded in `data/training/negative_evidence.csv`.
 
 **Main idea:** the progression random forest → boosted trees → direct neural network has been run on identical folds. Boosted trees win (AUC 0.817). Neural networks trail by about 0.05, even when tuned and when given more labels. The next neural steps should change the inputs (composition-attention or pretrained crystal encoders), not just the network on top of them.
 

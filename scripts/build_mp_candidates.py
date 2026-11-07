@@ -29,6 +29,11 @@ Reference tables and their lineages (independent chains of evidence):
   supermat   SuperCon-MTG ``SM-`` rows
   audit      data/training/negative_evidence.csv, filled in by a person from
              the original paper (see docs/negative-labels.md)
+
+Labels held out by the project's quarantine rules (data/training/
+label_audit_queue.csv, rt_superconductor.label_quarantine) are removed from
+every source before matching, so a suspected label error such as CuCrO2 at
+132 K cannot reach the classifier through the SuperCon export either.
 """
 from __future__ import annotations
 
@@ -37,15 +42,20 @@ import csv
 import gzip
 import io
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
 THREEDSC = ROOT / "data/raw/3dsc/repo/superconductors_3D/data/final/MP/3DSC_MP.csv"
 STANEV = ROOT / "data/raw/3dsc/repo/superconductors_3D/data/source/SuperCon/raw/Supercon_data_by_2018_Stanev.csv"
 MTG = ROOT / "data/training/external/supercon-mtg/SuperCon_MTG.csv"
 AUDIT = ROOT / "data/training/negative_evidence.csv"
+QUARANTINE_QUEUE = ROOT / "data/training/label_audit_queue.csv"
 PNICTOGEN_CHALCOGEN = {"As", "P", "S", "Se", "Te"}
 # Same elements and every atomic fraction within 0.02 counts as the same
 # compound (e.g. MgB2 vs the reported B2Mg0.98 at 38.4 K).
@@ -101,14 +111,73 @@ def _lineage(source: str) -> str:
     return LINEAGE.get(source.split(":", 1)[0], source.split(":", 1)[0])
 
 
-def known_index(threedsc: Path, stanev: Path, mtg: Path | None = None, audit: Path | None = None
+def quarantined_labels(threedsc: Path, queue: Path | None) -> list[tuple[dict[str, float], float, str]]:
+    """3DSC labels held out of training by the project's quarantine rules.
+
+    The rules live in rt_superconductor.label_quarantine (suspected label
+    errors such as the CuCrO2 / mp-510625 family at 98-132 K, and Tc > 77 K
+    without copper). A reviewer decision of retain/validated in the audit
+    queue releases a label. Returns (atomic fractions, Tc, reason).
+    """
+    from rt_superconductor.label_quarantine import suspected_label_reason
+
+    if not threedsc.is_file():
+        return []
+    released: set[tuple[str | None, float]] = set()
+    if queue is not None and queue.is_file():
+        with queue.open(newline="", encoding="utf-8-sig") as handle:
+            for row in csv.DictReader(handle):
+                status = (row.get("audit_status") or "").strip().casefold()
+                decision = (row.get("review_decision") or "").strip().casefold()
+                if status in {"reviewed", "complete"} and decision in {"retain", "validated"}:
+                    try:
+                        released.add((reduced(row.get("formula", "")), round(float(row["tc_kelvin"]), 6)))
+                    except (KeyError, TypeError, ValueError):
+                        continue
+    lines = threedsc.read_text(encoding="utf-8").splitlines()
+    if lines and lines[0].startswith("#"):
+        lines = lines[1:]
+    found: list[tuple[dict[str, float], float, str]] = []
+    for row in csv.DictReader(lines):
+        try:
+            tc = float(row.get("tc", ""))
+        except ValueError:
+            continue
+        record = SimpleNamespace(source_db="3dsc", mp_id=row.get("material_id_2", ""), is_synthetic=0,
+                                 provenance="curated", tc_kelvin=tc, formula=row.get("formula_sc", ""))
+        reason = suspected_label_reason(record)
+        frac = fractions(record.formula)
+        if reason and frac and (reduced(record.formula), round(tc, 6)) not in released:
+            found.append((frac, tc, reason))
+    return found
+
+
+def known_index(threedsc: Path, stanev: Path, mtg: Path | None = None, audit: Path | None = None,
+                quarantine_queue: Path | None = None, quarantined_out: list | None = None
                 ) -> dict[frozenset[str], list[Report]]:
-    """Reported (fractions, Tc, source) grouped by element set."""
+    """Reported (fractions, Tc, source) grouped by element set, minus quarantined labels.
+
+    A quarantined 3DSC label is dropped from every source: the raw SuperCon
+    export carries the same composition and Tc, so excluding only 3DSC's copy
+    would leave the suspect value in place.
+    """
     index: dict[frozenset[str], list[Report]] = defaultdict(list)
+    held = quarantined_labels(threedsc, quarantine_queue)
+
+    def is_quarantined(frac: dict[str, float], tc: float) -> bool:
+        for q_frac, q_tc, _ in held:
+            if (abs(tc - q_tc) < 1e-6 and set(frac) == set(q_frac)
+                    and max(abs(frac[el] - q_frac[el]) for el in frac) <= 0.0015):
+                return True
+        return False
 
     def add(formula: str, tc: str | float | None, source: str) -> None:
         frac = fractions(formula)
         if frac and tc not in (None, ""):
+            if is_quarantined(frac, float(tc)):
+                if quarantined_out is not None:
+                    quarantined_out.append({"formula": formula, "tc_k": float(tc), "source": source})
+                return
             index[frozenset(frac)].append((frac, float(tc), source))
 
     if stanev.is_file():
@@ -202,9 +271,11 @@ def _gap(row: dict[str, str]) -> float | None:
 
 
 def build(snapshot: Path, out: Path, *, threedsc: Path = THREEDSC, stanev: Path = STANEV,
-          mtg: Path | None = MTG, audit: Path | None = AUDIT) -> dict[str, Any]:
+          mtg: Path | None = MTG, audit: Path | None = AUDIT,
+          quarantine_queue: Path | None = QUARANTINE_QUEUE) -> dict[str, Any]:
     rows = read_snapshot(snapshot)
-    index = known_index(threedsc, stanev, mtg, audit)
+    quarantined: list[dict[str, Any]] = []
+    index = known_index(threedsc, stanev, mtg, audit, quarantine_queue, quarantined)
     counts: dict[str, int] = defaultdict(int)
     for row in rows:
         elements = set(row["elements"].split())
@@ -250,6 +321,8 @@ def build(snapshot: Path, out: Path, *, threedsc: Path = THREEDSC, stanev: Path 
     return {"materials": len(rows), "counts": dict(sorted(counts.items())),
             "reference_reports_indexed": sum(len(v) for v in index.values()),
             "near_fraction_tolerance": NEAR_FRACTION_TOLERANCE,
+            "quarantined_reports": len(quarantined),
+            "quarantined_examples": quarantined[:6],
             "negative_tiers": NEGATIVE_TIERS, "negative_training_tiers": sorted(TRAINING_TIERS),
             "reference_tables": {"supercon_stanev2018": stanev.is_file(), "3dsc_mp": threedsc.is_file(),
                                  "supercon_mtg": bool(mtg and mtg.is_file()),
