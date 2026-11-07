@@ -68,22 +68,26 @@ Search phrases that work: `"no superconductivity was observed" "down to"`, `"no 
 
 `python scripts/eval_negative_tiers.py` trains with four negative sets and scores every one on the same frozen test rows (results in `docs/sc-negative-tiers.json`).
 
-Negatives per condition in the stable snapshot: current 1,056; audited 951; audited plus new 961; plus Hosono 1,070. Positives are the same 1,194 throughout. Test rows: 2,250 (all) and 2,145 (audited subset, tier D rows removed from testing too).
+Negatives per condition in the stable snapshot: current 1,056; audited 951; audited plus new 961; plus Hosono 1,070. Positives are the same 1,192 throughout. Test rows: 2,248 (all) and 2,143 (audited subset, tier D rows removed from testing too).
 
-| Training negatives | Gradient boosting, all test rows | Gradient boosting, audited test rows | Random forest, all | Random forest, audited |
+| Training negatives | Boosting, all test rows | Boosting, metallic test rows | Random forest, all | Random forest, audited |
 | --- | --- | --- | --- | --- |
-| current (every legacy zero) | 0.802 | 0.804 | 0.800 | 0.803 |
-| audited (tier D removed) | 0.789 (−0.014, 0 of 3) | **0.822 (+0.018, 3 of 3)** | 0.806 (+0.005, 3 of 3) | 0.819 (+0.016, 3 of 3) |
-| audited plus new (tiers A–C) | 0.793 (−0.009, 0 of 3) | **0.826 (+0.022, 3 of 3)** | 0.807 (+0.006, 3 of 3) | 0.820 (+0.017, 3 of 3) |
-| plus Hosono (tier H) | 0.782 (−0.021, 0 of 3) | 0.820 (+0.016, 3 of 3) | 0.803 (+0.003, 2 of 3) | 0.816 (+0.013, 3 of 3) |
+| current (every legacy zero) | 0.799 | 0.804 | 0.792 | 0.799 |
+| audited (tier D removed) | 0.785 (−0.014, 0 of 3) | 0.816 (+0.012, 3 of 3) | 0.801 (+0.009, 3 of 3) | 0.817 (+0.017, 3 of 3) |
+| audited plus new (tiers A–C) | 0.788 (−0.011, 0 of 3) | **0.819 (+0.016, 3 of 3)** | 0.801 (+0.009, 3 of 3) | **0.818 (+0.018, 3 of 3)** |
+| plus Hosono (tier H) | 0.787 (−0.012, 1 of 3) | 0.820 (+0.017, 3 of 3) | 0.798 (+0.005, 2 of 3) | 0.812 (+0.013, 3 of 3) |
 
-Paired differences are against "current" on the same shuffles.
+Paired differences are against "current" on the same shuffles. "Audited" test rows are the ones without tier D labels: the metals and plausible compounds the classifier is actually asked about.
 
 **What this means**
 
-- **The suspect negatives were inflating the score.** With wide-gap insulators in both training and testing, the model collects easy wins by learning "insulators are not superconductors". Take them out of training and the model loses those wins on the insulator test rows, but on the rows that matter (metals, which is what the classifier is actually asked about) it improves by about 0.02 AUC on every shuffle. The old 0.817 headline was partly that easy trick.
-- **Hosono's list should stay out until it is audited.** Its rows cost the model on every measure. That matches the caveat that the list mixes measured nulls with compositions that were never made.
+- **The suspect negatives were flattering the score.** The wide-gap insulators are easy to classify, so they inflate any score computed on them. On the rows that matter, both models improve by 0.012 to 0.018 AUC on every shuffle once the suspect negatives are out of training. On all rows, the forest improves (+0.009) and boosting drops slightly (−0.011 to −0.014), which fits boosting having exploited the "insulators are not superconductors" shortcut harder than the forest.
+- **Hosono's list shows no clear effect either way.** Boosting is unchanged (+0.001 on the audited rows) and the forest is slightly worse (−0.006). It stays excluded for a reason that doesn't depend on this test: the source mixes measured non-superconductors with compositions that could not be synthesized.
 - **SuperCon-MTG mostly corroborates what we had.** It adds about 10 usable negatives to the stable snapshot; nearly all of its genuinely new zeros are Hosono's.
-- **The production classifier now trains on tiers A–C only** (`negative_training_use = use`) and reports its held-out quality on the same basis.
+- **The production classifier trains on tiers A–C only** (`negative_training_use = use`) and reports its held-out quality on the same basis.
+
+## Quarantined positives
+
+Negatives were not the only labels in question. The 3DSC rows on structure `mp-510625` (CuCrO₂ at 132 K and two iron-doped versions at 117.5 K and 98 K) are quarantined by `rt_superconductor.label_quarantine` pending a paper check, and a Tc above 77 K without copper triggers the same rule. The raw SuperCon export carries the same three values, so `build_mp_candidates.py` now drops a quarantined label from every source, not just 3DSC's copy (9 reports in the stable build). Before this, CuCrO₂ was a positive training example for the classifier through the SuperCon route even though Codex's pipeline had excluded it. A reviewer decision of `retain` in `data/training/label_audit_queue.csv` releases a label. Removing the three rows moved the classifier's held-out AUC from 0.818 to 0.829.
 
 The biggest remaining lever is the one no download provides: verified nulls near the top candidates, recorded in `data/training/negative_evidence.csv` from the papers themselves.

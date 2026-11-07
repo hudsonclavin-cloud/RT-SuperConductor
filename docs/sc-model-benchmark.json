@@ -1,184 +1,184 @@
 {
   "best_by_auc": "blend_gradient_boosting+random_forest",
-  "element_system_groups": 1339,
+  "element_system_groups": 1338,
   "features": 177,
   "inner_validation": "gradient boosting and the MLP early-stop on a random 15% of the training fold; the outer test fold is never used for fitting, scaling, imputation or stopping",
   "label_policy": "positives: reported Tc > 0 (SuperCon/3DSC); negatives: explicit Tc = 0 reports in 3DSC. Materials with no report are never used as negatives. One row per MP material.",
   "models": {
     "blend_gradient_boosting+random_forest": {
-      "auc_mean": 0.826671221757998,
+      "auc_mean": 0.8290514052522657,
       "auc_per_repeat": [
-        0.8274802733752007,
-        0.8296834502028004,
-        0.8228499416959929
+        0.8313383011264832,
+        0.832552605297893,
+        0.8232633093324208
       ],
-      "auc_sd_across_repeats": 0.002847821742739109,
-      "average_precision_mean": 0.8462959665107079,
-      "brier_mean": 0.1677951401025782,
+      "auc_sd_across_repeats": 0.004122715483607833,
+      "average_precision_mean": 0.8449491610181662,
+      "brier_mean": 0.16657149247587577,
       "fit_seconds_total": 0.0,
       "note": "average of the two models' out-of-fold probabilities on identical folds",
       "paired_auc_gain_vs_random_forest": {
-        "max": 0.010516073255629643,
-        "mean": 0.008786707267404196,
-        "min": 0.0055279867948831996,
+        "max": 0.012807373471425909,
+        "mean": 0.010981843344577228,
+        "min": 0.009759391433699527,
         "of": 3,
         "wins": 3
       },
       "top_decile_superconductor_share_mean": NaN
     },
     "blend_gradient_boosting+torch_mlp": {
-      "auc_mean": 0.8146560063585357,
+      "auc_mean": 0.8122464016090621,
       "auc_per_repeat": [
-        0.8142821286453078,
-        0.8187154991049594,
-        0.8109703913253399
+        0.8146086640733576,
+        0.8140560727430179,
+        0.808074468010811
       ],
-      "auc_sd_across_repeats": 0.0031729599259805005,
-      "average_precision_mean": 0.8325723784553154,
-      "brier_mean": 0.17407308736305285,
+      "auc_sd_across_repeats": 0.0029586158650912763,
+      "average_precision_mean": 0.8240966071500787,
+      "brier_mean": 0.17476269042432588,
       "fit_seconds_total": 0.0,
       "note": "average of the two models' out-of-fold probabilities on identical folds",
       "paired_auc_gain_vs_random_forest": {
-        "max": -0.00045187784221134564,
-        "mean": -0.0032285081320581055,
-        "min": -0.006351563575769825,
+        "max": -0.005429449887910276,
+        "mean": -0.005823160298626247,
+        "min": -0.00635087192451933,
         "of": 3,
         "wins": 0
       },
       "top_decile_superconductor_share_mean": NaN
     },
     "blend_gradient_boosting+torch_mlp_multitask_tc": {
-      "auc_mean": 0.8142129888661715,
+      "auc_mean": 0.8129104423756947,
       "auc_per_repeat": [
-        0.8155423318465376,
-        0.8154002757457074,
-        0.8116963590062697
+        0.8122551313299206,
+        0.8165492810201902,
+        0.8099269147769731
       ],
-      "auc_sd_across_repeats": 0.0017804707940613212,
-      "average_precision_mean": 0.8335514127593641,
-      "brier_mean": 0.1738550464252986,
+      "auc_sd_across_repeats": 0.0027429920512535787,
+      "average_precision_mean": 0.8236256914024799,
+      "brier_mean": 0.17473826245167542,
       "fit_seconds_total": 0.0,
       "note": "average of the two models' out-of-fold probabilities on identical folds",
       "paired_auc_gain_vs_random_forest": {
-        "max": -0.0016218797769633753,
-        "mean": -0.0036715256244222636,
-        "min": -0.005625595894840019,
+        "max": -0.0031959508062768816,
+        "mean": -0.0051591195319938095,
+        "min": -0.008704404667956411,
         "of": 3,
         "wins": 0
       },
       "top_decile_superconductor_share_mean": NaN
     },
     "ensemble_rf_hgb_mlp": {
-      "auc_mean": 0.8217869902175927,
+      "auc_mean": 0.8238313231696104,
       "auc_per_repeat": [
-        0.8227471035371098,
-        0.8253912643341579,
-        0.8172226027815108
+        0.8308572935071828,
+        0.8215025246352723,
+        0.8191341513663759
       ],
-      "auc_sd_across_repeats": 0.003403245615600787,
-      "average_precision_mean": 0.8426317649690819,
-      "brier_mean": 0.17101267345946547,
-      "fit_seconds_total": 48.1,
+      "auc_sd_across_repeats": 0.00506132343519902,
+      "average_precision_mean": 0.8420201528673202,
+      "brier_mean": 0.1702725598905207,
+      "fit_seconds_total": 52.4,
       "paired_auc_gain_vs_random_forest": {
-        "max": 0.0062238873869870925,
-        "mean": 0.0039024757269990142,
-        "min": -9.935211959888335e-05,
+        "max": 0.009897757509305882,
+        "mean": 0.005761761261921923,
+        "min": 0.0017572928088052109,
         "of": 3,
-        "wins": 2
+        "wins": 3
       },
-      "top_decile_superconductor_share_mean": 0.9534883720930232
+      "top_decile_superconductor_share_mean": 0.9471391657438168
     },
     "extra_trees": {
-      "auc_mean": 0.8133060376457383,
+      "auc_mean": 0.8152523354913205,
       "auc_per_repeat": [
-        0.8133600712546429,
-        0.8189159463637996,
-        0.8076420953187721
+        0.8171673452569681,
+        0.8167090349118997,
+        0.8118806263050933
       ],
-      "auc_sd_across_repeats": 0.004602689001698578,
-      "average_precision_mean": 0.8314872083424217,
-      "brier_mean": 0.1742751178373045,
-      "fit_seconds_total": 22.6,
+      "auc_sd_across_repeats": 0.0023914889672148163,
+      "average_precision_mean": 0.8340020174100568,
+      "brier_mean": 0.1736890168614688,
+      "fit_seconds_total": 23.6,
       "paired_auc_gain_vs_random_forest": {
-        "max": -0.0002514305833711816,
-        "mean": -0.00457847684485561,
-        "min": -0.009679859582337635,
+        "max": -0.0016232915936279513,
+        "mean": -0.002817226416368057,
+        "min": -0.003792190740908863,
         "of": 3,
         "wins": 0
       },
-      "top_decile_superconductor_share_mean": 0.9193798449612403
+      "top_decile_superconductor_share_mean": 0.9254706533776301
     },
     "gradient_boosting": {
-      "auc_mean": 0.8204509656619322,
+      "auc_mean": 0.8243891523324649,
       "auc_per_repeat": [
-        0.8229885117575391,
-        0.8243341229212312,
-        0.8140302623070259
+        0.8237949493327003,
+        0.8295172813554113,
+        0.8198552263092835
       ],
-      "auc_sd_across_repeats": 0.00457323671154545,
-      "average_precision_mean": 0.8389733725753051,
-      "brier_mean": 0.1739293816334683,
-      "fit_seconds_total": 10.7,
+      "auc_sd_across_repeats": 0.003966832055288585,
+      "average_precision_mean": 0.8388069040284707,
+      "brier_mean": 0.17220262956720842,
+      "fit_seconds_total": 11.8,
       "paired_auc_gain_vs_random_forest": {
-        "max": 0.005824300134038118,
-        "mean": 0.0025664511713382465,
-        "min": -0.003291692594083795,
+        "max": 0.009772049528944171,
+        "mean": 0.006319590424776589,
+        "min": 0.002835413334823289,
         "of": 3,
-        "wins": 2
+        "wins": 3
       },
-      "top_decile_superconductor_share_mean": 0.945736434108527
+      "top_decile_superconductor_share_mean": 0.9315983757844222
     },
     "logistic_regression": {
-      "auc_mean": 0.7611624430395706,
+      "auc_mean": 0.7635048781680157,
       "auc_per_repeat": [
-        0.7574684034114381,
-        0.7605997381984498,
-        0.7654191875088241
+        0.7719718344286222,
+        0.7606127216476126,
+        0.7579300784278122
       ],
-      "auc_sd_across_repeats": 0.0032701905647303663,
-      "average_precision_mean": 0.7829002347165392,
-      "brier_mean": 0.20049299444758248,
+      "auc_sd_across_repeats": 0.006086386716843461,
+      "average_precision_mean": 0.7853698148539712,
+      "brier_mean": 0.19897798807103806,
       "fit_seconds_total": 1.0,
       "paired_auc_gain_vs_random_forest": {
-        "max": -0.05190276739228561,
-        "mean": -0.05672207145102315,
-        "min": -0.059695808212062884,
+        "max": -0.048987701569254805,
+        "mean": -0.05456468373967275,
+        "min": -0.05913251017885446,
         "of": 3,
         "wins": 0
       },
-      "top_decile_superconductor_share_mean": 0.869767441860465
+      "top_decile_superconductor_share_mean": 0.8819121447028422
     },
     "neural_network_mlp": {
-      "auc_mean": 0.7805361063613825,
+      "auc_mean": 0.782421310296182,
       "auc_per_repeat": [
-        0.7812858953107542,
-        0.7841496765827055,
-        0.7761727471906881
+        0.7959715830126617,
+        0.7730560657592412,
+        0.7782362821166431
       ],
-      "auc_sd_across_repeats": 0.0032994432088619408,
-      "average_precision_mean": 0.8023576210880324,
-      "brier_mean": 0.2203657978972443,
-      "fit_seconds_total": 25.1,
+      "auc_sd_across_repeats": 0.009812104035173552,
+      "average_precision_mean": 0.8084121260299572,
+      "brier_mean": 0.2185393609482781,
+      "fit_seconds_total": 23.5,
       "paired_auc_gain_vs_random_forest": {
-        "max": -0.035017700364465276,
-        "mean": -0.03734840812921122,
-        "min": -0.04114920771042163,
+        "max": -0.024987952985215278,
+        "mean": -0.03564825161150642,
+        "min": -0.04668916606722584,
         "of": 3,
         "wins": 0
       },
-      "top_decile_superconductor_share_mean": 0.9209302325581394
+      "top_decile_superconductor_share_mean": 0.9346991509782206
     },
     "random_forest": {
-      "auc_mean": 0.8178845144905939,
+      "auc_mean": 0.8180695619076884,
       "auc_per_repeat": [
-        0.817164211623501,
-        0.8191673769471708,
-        0.8173219549011097
+        0.820959535997877,
+        0.8197452318264671,
+        0.8135039178987212
       ],
-      "auc_sd_across_repeats": 0.0009094037597161205,
-      "average_precision_mean": 0.838402573996142,
-      "brier_mean": 0.17385183409532753,
-      "fit_seconds_total": 13.6,
+      "auc_sd_across_repeats": 0.003266237648798119,
+      "average_precision_mean": 0.8358879261813831,
+      "brier_mean": 0.17370773996331443,
+      "fit_seconds_total": 13.8,
       "paired_auc_gain_vs_random_forest": {
         "max": 0.0,
         "mean": 0.0,
@@ -186,55 +186,55 @@
         "of": 3,
         "wins": 0
       },
-      "top_decile_superconductor_share_mean": 0.9395348837209301
+      "top_decile_superconductor_share_mean": 0.9254706533776301
     },
     "torch_mlp": {
-      "auc_mean": 0.7688506121775487,
+      "auc_mean": 0.7555817835168903,
       "auc_per_repeat": [
-        0.768454656215521,
-        0.7639480789309014,
-        0.7741491013862235
+        0.7472160920182417,
+        0.7570763117278562,
+        0.7624529468045731
       ],
-      "auc_sd_across_repeats": 0.00417395101603546,
-      "average_precision_mean": 0.7920686162313646,
-      "brier_mean": 0.19777297393828722,
-      "fit_seconds_total": 14.0,
+      "auc_sd_across_repeats": 0.006309550796211893,
+      "average_precision_mean": 0.7773661432505728,
+      "brier_mean": 0.20292042913772068,
+      "fit_seconds_total": 8.1,
       "paired_auc_gain_vs_random_forest": {
-        "max": -0.0431728535148862,
-        "mean": -0.04903390231304516,
-        "min": -0.05521929801626935,
+        "max": -0.051050971094148134,
+        "mean": -0.06248777839079811,
+        "min": -0.07374344397963528,
         "of": 3,
         "wins": 0
       },
-      "top_decile_superconductor_share_mean": 0.9085271317829456
+      "top_decile_superconductor_share_mean": 0.8820228866740494
     },
     "torch_mlp_multitask_tc": {
-      "auc_mean": 0.7664025410902355,
+      "auc_mean": 0.7639867587594019,
       "auc_per_repeat": [
-        0.7693488252919121,
-        0.7561820549155768,
-        0.7736767430632177
+        0.7602818652270775,
+        0.7622373226993694,
+        0.7694410883517588
       ],
-      "auc_sd_across_repeats": 0.0074398239806054665,
-      "average_precision_mean": 0.7884625287858557,
-      "brier_mean": 0.1973254439725853,
-      "fit_seconds_total": 9.3,
+      "auc_sd_across_repeats": 0.003938547698330002,
+      "average_precision_mean": 0.7818756200129306,
+      "brier_mean": 0.20217648448508782,
+      "fit_seconds_total": 9.9,
       "paired_auc_gain_vs_random_forest": {
-        "max": -0.04364521183789205,
-        "mean": -0.051481973400358316,
-        "min": -0.06298532203159402,
+        "max": -0.04406282954696239,
+        "mean": -0.05408280314828651,
+        "min": -0.06067767077079944,
         "of": 3,
         "wins": 0
       },
-      "top_decile_superconductor_share_mean": 0.8992248062015503
+      "top_decile_superconductor_share_mean": 0.8911406423034329
     }
   },
-  "positives": 1194,
+  "positives": 1192,
   "provenance": {
-    "candidates_sha256": "8f91abd4bea794dfda986e2bb8e72fa694729e64eaab83667878017339d3ca18",
+    "candidates_sha256": "994a4fbcdf49fa5d630c6b19e65910ad7572b8a4c06aa1d7d56d24e8bd6f8714",
     "cpu_count": 4,
-    "feature_matrix_sha256": "347091af824c06342c5c1702dfc069d5f7b788d143c230119c91ce256c44afe2",
-    "git_commit": "8fc0ea3a3fe3e83f757b42ef127c9f31f71ab7bc",
+    "feature_matrix_sha256": "720fd6e50e8d164c4ca9e4590e6d2b054a01038c3aacae604aecdcfe10fdce6b",
+    "git_commit": "251c7b6f56233dda56be21a2d58edcf08b01d418",
     "numpy": "2.5.3",
     "python": "3.13.18",
     "scikit_learn": "1.9.1",
@@ -244,7 +244,7 @@
     },
     "torch": "2.15.0+cpu"
   },
-  "rows": 2155,
+  "rows": 2153,
   "split": "StratifiedGroupKFold by element system, 5 folds x 3 shuffles",
   "task": "superconductor (reported Tc > 0) vs tested non-superconductor, Materials Project materials"
 }

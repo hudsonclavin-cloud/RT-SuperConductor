@@ -99,3 +99,49 @@ def test_vendored_mtg_table_matches_provenance():
         rows = list(csv.DictReader(handle))
     assert len(rows) == 13731
     assert sum(r["Material-ID"].startswith("H-") for r in rows) == 493
+
+
+def _quarantine_fixture(tmp_path):
+    """3DSC and SuperCon rows for the suspect mp-510625 family plus one ordinary superconductor."""
+    threedsc = tmp_path / "3dsc.csv"
+    threedsc.write_text(
+        '# header comment\n'
+        'formula_sc,tc,material_id_2\n'
+        'Cr1Cu1O2,132.0,mp-510625\n'
+        'Nb3Sn,17.8,mp-1\n')
+    stanev = tmp_path / "stanev.csv"
+    stanev.write_text("name,Tc\nCu1Cr1O2,132\nNb3Sn,17.8\n")
+    return threedsc, stanev
+
+
+def test_quarantined_label_is_removed_from_every_source(tmp_path):
+    from build_mp_candidates import match_known
+
+    threedsc, stanev = _quarantine_fixture(tmp_path)
+    held: list = []
+    index = known_index(threedsc, stanev, None, None, quarantine_queue=tmp_path / "queue.csv", quarantined_out=held)
+    assert match_known("CrCuO2", index) == ("", [])          # neither the 3DSC nor the SuperCon copy survives
+    assert match_known("Nb3Sn", index)[0] == "exact"
+    assert {h["source"] for h in held} == {"3dsc_mp", "supercon_stanev2018"}
+
+
+def test_reviewer_retain_decision_releases_a_quarantined_label(tmp_path):
+    from build_mp_candidates import match_known
+
+    threedsc, stanev = _quarantine_fixture(tmp_path)
+    queue = tmp_path / "queue.csv"
+    queue.write_text("record_id,formula,tc_kelvin,audit_status,review_decision\n"
+                     "abc,CrCuO2,132,reviewed,retain\n")
+    index = known_index(threedsc, stanev, None, None, quarantine_queue=queue)
+    assert match_known("CrCuO2", index)[0] == "exact"
+
+
+def test_build_reports_quarantined_labels(tmp_path):
+    threedsc, stanev = _quarantine_fixture(tmp_path)
+    snap = tmp_path / "snap.csv.gz"
+    write_snapshot([flatten(_doc(1, "CuCrO2", ["Cr", "Cu", "O"], 0.0, True))], {}, snap, tmp_path / "m.json")
+    report = build(snap, tmp_path / "out.csv.gz", threedsc=threedsc, stanev=stanev, mtg=None, audit=None,
+                   quarantine_queue=tmp_path / "queue.csv")
+    row = next(csv.DictReader(gzip.open(tmp_path / "out.csv.gz", "rt")))
+    assert row["known_status"] == "untested_by_formula"
+    assert report["quarantined_reports"] == 2
