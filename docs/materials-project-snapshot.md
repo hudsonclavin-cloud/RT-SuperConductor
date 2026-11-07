@@ -1,6 +1,6 @@
 # Materials Project: all 30,358 stable materials, saved and scored
 
-> **Update 2026-11-07.** SuperCon-MTG is now a second reference source and every Tc = 0 label carries an evidence tier (`docs/negative-labels.md`). Current counts: 1,194 known superconductors, 1,193 reported non-superconductors of which 961 pass the tiers and train the classifier, 27,971 unmatched, 13,131 EPW-eligible. The classifier's held-out AUC on this basis is 0.818 with 93% superconductors in its top tenth. Counts in the tables below are from the first build.
+> **Update 2026-11-07.** SuperCon-MTG is now a second reference source and every Tc = 0 label carries an evidence tier (`docs/negative-labels.md`). Suspect labels held out by the project's quarantine (CuCrO₂ at 132 K and its relatives) are also removed. Current counts: 1,192 known superconductors, 1,193 reported non-superconductors of which 961 pass the tiers and train the classifier, 27,973 unmatched, 13,131 EPW-eligible. The classifier's held-out AUC on this basis is 0.829 with 96% superconductors in its top tenth. Counts in the tables below are from the first build.
 
 **Main idea:** every stable Materials Project material with at most 20 atoms per cell is now saved in the repository and scored. Of the two scoring models, the one trained on real superconductor labels works. The physics model does not yet beat chance on real outcomes.
 
@@ -30,7 +30,7 @@ Materials Project data is CC BY 4.0. Cite Jain et al., *APL Materials* 1, 011002
 | 28,114 | No match in SuperCon or 3DSC |
 | 13,203 | EPW-eligible: untested, Other family, metallic, non-magnetic, not radioactive, ≤ 20 sites |
 
-Known compounds are matched by atomic fractions, not by spelling. "Exact" means every fraction is within 0.0015. "Near" means the same elements with every fraction within 0.02. That is how MgB2 matches the reported B2Mg0.98 (38.4 K): SuperCon has no exact "MgB2" row. Materials Project has also renamed its IDs (`mp-1229062`-style to `mp-aaaaabza`-style), so these files use the new IDs.
+Known compounds are matched by atomic fractions, not by spelling. "Exact" means every fraction is within 0.0015. "Near" means the same elements with every fraction within 0.02. That is how MgB2 matches the reported B2Mg0.98 (38.4 K): SuperCon has no exact "MgB2" row. Materials Project has also renamed its IDs (`mp-1229062`-style to `mp-aaaaabza`-style), so these files use the new IDs. Files written by the untested-pool builder (`docs/epw-eligible-shortlist.csv`, `docs/untested-pool-shortlist.csv`) show the same IDs with the leading `a` padding stripped (`mp-bctfi` is `mp-aaabctfi`). To join them to this snapshot, left-pad the part after `mp-` with `a` to 8 characters; all 3,370 rows of the EPW list join this way.
 
 ## The two models, tested on real outcomes
 
