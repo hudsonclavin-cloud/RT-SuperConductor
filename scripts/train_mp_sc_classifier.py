@@ -112,7 +112,7 @@ def run(candidates: Path, scores_out: Path, ranking_out: Path, summary_out: Path
     from sklearn.inspection import permutation_importance
 
     from benchmark_sc_models import _fit
-    from build_mp_candidates import reduced
+    from build_mp_candidates import reduced, training_label
 
     with gzip.open(candidates, "rt", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
@@ -123,8 +123,10 @@ def run(candidates: Path, scores_out: Path, ranking_out: Path, summary_out: Path
 
         X_extra, extra_names = load_feature_table(extra_features, [r["mp_id"] for r in rows])
         X, names = np.hstack([X, X_extra]), names + extra_names
-    labelled = np.asarray([r["known_status"] in ("superconductor", "tested_non_superconductor") for r in rows])
-    y = np.asarray([r["known_status"] == "superconductor" for r in rows], dtype=int)[labelled]
+    # Negatives are used only when their evidence tier allows it (build_mp_candidates.training_label).
+    labels = [training_label(r) for r in rows]
+    labelled = np.asarray([label is not None for label in labels])
+    y = np.asarray([label for label in labels if label is not None], dtype=int)
     groups = np.asarray(["-".join(sorted(r["elements"].split())) for r in rows])[labelled]
     report: dict[str, Any] = {"materials": len(rows), "labelled": int(labelled.sum()),
                               "labelled_superconductors": int(y.sum()),
@@ -140,8 +142,7 @@ def run(candidates: Path, scores_out: Path, ranking_out: Path, summary_out: Path
         with gzip.open(extra_labels, "rt", encoding="utf-8") as handle:
             known_ids = {r["mp_id"] for r in rows}
             extra_rows = [r for r in csv.DictReader(handle)
-                          if r["mp_id"] not in known_ids and r["known_status"] in ("superconductor",
-                                                                                 "tested_non_superconductor")]
+                          if r["mp_id"] not in known_ids and training_label(r) is not None]
         if extra_rows:
             X_extra_rows, _ = feature_matrix(extra_rows, systems)
             X_train = np.vstack([X_train, X_extra_rows])

@@ -1,5 +1,7 @@
 # More labels: the wider Materials Project window
 
+> **Update 2026-11-07.** Measured before negatives were graded by evidence (`docs/negative-labels.md`). The production fit now uses the wide window's labels only where the negative passes the evidence tiers: 3,429 training rows instead of 3,664.
+
 **Main idea:** 1,420 extra labelled materials, including 707 compositions not in the stable snapshot, slightly improve the tree models when each composition's polymorphs share one unit of weight. Without that weighting they hurt the neural network. The production classifier now trains on all 3,664 labels with this weighting.
 
 ## Where the extra labels come from

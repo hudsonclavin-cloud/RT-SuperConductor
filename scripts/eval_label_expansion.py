@@ -41,8 +41,10 @@ CONDITIONS = ["core_only", "core_plus_extra", "core_plus_extra_w"]
 
 
 def _labelled(path: Path) -> list[dict[str, str]]:
+    from build_mp_candidates import training_label
+
     with gzip.open(path, "rt", encoding="utf-8") as handle:
-        return [r for r in csv.DictReader(handle) if r["known_status"] in LABELS]
+        return [r for r in csv.DictReader(handle) if training_label(r) is not None]
 
 
 def run(core_path: Path, wide_path: Path, out_json: Path, *, models: list[str], repeats: int = 3) -> dict[str, Any]:

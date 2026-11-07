@@ -1,5 +1,7 @@
 # Do structure features help? Feature sets × models on identical folds
 
+> **Update 2026-11-07.** Measured before negatives were graded by evidence (`docs/negative-labels.md`). The comparisons are relative, on identical folds, and the conclusion (composition dominates; structure adds at most 0.006) is not expected to change, but absolute AUCs now differ from the current benchmark.
+
 **Main idea:** chemistry carries most of the signal. Structure features give the random forest and the neural network a small, consistent gain, but the best model (gradient boosting) gets the same answer from formula and MP features alone. The production classifier therefore stays on formula + MP features. The structure table is committed for the ensemble and the neural-network work.
 
 ## What was added

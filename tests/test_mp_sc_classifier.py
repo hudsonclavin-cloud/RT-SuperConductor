@@ -22,7 +22,8 @@ def test_classifier_runs_end_to_end_on_a_real_slice(tmp_path):
     with gzip.open(CANDIDATES, "rt", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     pick = ([r for r in rows if r["known_status"] == "superconductor"][:40]
-            + [r for r in rows if r["known_status"] == "tested_non_superconductor"][:40]
+            + [r for r in rows if r["known_status"] == "tested_non_superconductor"
+               and r.get("negative_training_use", "use") == "use"][:40]
             + [r for r in rows if r["known_status"] == "untested_by_formula"][:40])
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=list(rows[0]))
