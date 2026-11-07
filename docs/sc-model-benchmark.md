@@ -1,5 +1,7 @@
 # Which model best spots superconductors? A controlled benchmark
 
+> **Update 2026-11-07.** The numbers below were measured before negatives were graded by evidence (`docs/negative-labels.md`). Rerun on the 2,155 labelled materials whose negatives pass the evidence tiers (1,194 superconductors, 961 negatives), the ranking is unchanged but the gaps narrow: gradient boosting 0.820 ± 0.005, random forest 0.818, extra trees 0.813, ensemble 0.822, blend of boosting and forest 0.827, scikit-learn MLP 0.781, PyTorch network 0.769, logistic regression 0.761 (`docs/sc-model-benchmark.json`). The forest's earlier deficit came partly from the suspect insulator negatives that boosting exploited more easily.
+
 **Main idea:** on the 2,244 labelled Materials Project materials, gradient boosting is the best model (AUC 0.817). A small neural network comes fifth (0.769). The production classifier now uses gradient boosting. Neural networks should be retried once there are more labels or richer structure inputs. Use this benchmark to decide when one genuinely wins.
 
 ## Setup

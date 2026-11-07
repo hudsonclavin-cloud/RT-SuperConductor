@@ -1,5 +1,7 @@
 # Materials Project: all 30,358 stable materials, saved and scored
 
+> **Update 2026-11-07.** SuperCon-MTG is now a second reference source and every Tc = 0 label carries an evidence tier (`docs/negative-labels.md`). Current counts: 1,194 known superconductors, 1,193 reported non-superconductors of which 961 pass the tiers and train the classifier, 27,971 unmatched, 13,131 EPW-eligible. The classifier's held-out AUC on this basis is 0.818 with 93% superconductors in its top tenth. Counts in the tables below are from the first build.
+
 **Main idea:** every stable Materials Project material with at most 20 atoms per cell is now saved in the repository and scored. Of the two scoring models, the one trained on real superconductor labels works. The physics model does not yet beat chance on real outcomes.
 
 ## What is saved

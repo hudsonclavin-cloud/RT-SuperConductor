@@ -34,7 +34,8 @@ def test_benchmark_runs_on_a_real_slice(tmp_path):
     with gzip.open(CANDIDATES, "rt", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     pick = ([r for r in rows if r["known_status"] == "superconductor"][:60]
-            + [r for r in rows if r["known_status"] == "tested_non_superconductor"][:60])
+            + [r for r in rows if r["known_status"] == "tested_non_superconductor"
+               and r.get("negative_training_use", "use") == "use"][:60])
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=list(rows[0]))
     writer.writeheader()

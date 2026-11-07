@@ -38,8 +38,11 @@ LABELS = {"superconductor": 1, "tested_non_superconductor": 0}
 
 
 def labelled_rows(candidates: Path) -> list[dict[str, str]]:
+    """Positives plus negatives whose evidence tier permits training (see build_mp_candidates)."""
+    from build_mp_candidates import training_label
+
     with gzip.open(candidates, "rt", encoding="utf-8") as handle:
-        return [r for r in csv.DictReader(handle) if r["known_status"] in LABELS]
+        return [r for r in csv.DictReader(handle) if training_label(r) is not None]
 
 
 def model_factories(seed: int) -> dict[str, Callable[[], Any]]:

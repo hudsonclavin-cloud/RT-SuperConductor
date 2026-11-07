@@ -1,84 +1,84 @@
 {
-  "epw_eligible": 13203,
+  "epw_eligible": 13131,
   "extra_features": null,
   "extra_labels": {
     "path": "data/candidates/mp-wide-labelled.csv.gz",
-    "rows": 1420
+    "rows": 1274
   },
   "feature_count": 177,
   "held_out_quality": {
-    "auc": 0.8274575705568269,
+    "auc": 0.8179703582079666,
     "model": "gradient_boosting",
     "split": "5-fold StratifiedGroupKFold by element system",
-    "superconductor_share_in_top_decile": 0.9642857142857143,
-    "superconductor_share_overall": 0.5080213903743316
+    "superconductor_share_in_top_decile": 0.9348837209302325,
+    "superconductor_share_overall": 0.5540603248259861
   },
   "importances_top15": [
     {
       "feature": "magpie__MagpieData mean NfUnfilled",
-      "importance": 0.03120497499788118
-    },
-    {
-      "feature": "formation_energy_ev_per_atom",
-      "importance": 0.003937568861767955
-    },
-    {
-      "feature": "shell__descriptor_shell_4_fill_pct",
-      "importance": 0.003055078820239032
-    },
-    {
-      "feature": "magpie__MagpieData mean MendeleevNumber",
-      "importance": 0.0022297970166963443
+      "importance": 0.04097171021020233
     },
     {
       "feature": "band_gap_ev",
-      "importance": 0.002185566573438602
+      "importance": 0.008725556328294267
+    },
+    {
+      "feature": "formation_energy_ev_per_atom",
+      "importance": 0.006451496701916286
+    },
+    {
+      "feature": "shell__descriptor_shell_4_fill_pct",
+      "importance": 0.0030290776346758217
+    },
+    {
+      "feature": "magpie__MagpieData avg_dev Column",
+      "importance": 0.002496294630744115
     },
     {
       "feature": "magpie__MagpieData avg_dev Electronegativity",
-      "importance": 0.0020549940672939617
+      "importance": 0.0023655681575875573
     },
     {
-      "feature": "total_magnetization_mub_per_formula_unit",
-      "importance": 0.0017543859649122862
+      "feature": "magpie__MagpieData mean MeltingT",
+      "importance": 0.0022095678996206423
     },
     {
-      "feature": "magpie__MagpieData minimum MendeleevNumber",
-      "importance": 0.0014641071277227875
-    },
-    {
-      "feature": "lewis_dot_proxy_avg_outer_electrons",
-      "importance": 0.0011505212306128405
-    },
-    {
-      "feature": "magpie__MagpieData mean SpaceGroupNumber",
-      "importance": 0.0010064412238326808
+      "feature": "magpie__MagpieData range NUnfilled",
+      "importance": 0.00212822698298983
     },
     {
       "feature": "magpie__MagpieData range Electronegativity",
-      "importance": 0.0009637998982966097
+      "importance": 0.0019489864631284288
     },
     {
-      "feature": "magpie__MagpieData mean NValence",
-      "importance": 0.0009410225442834838
+      "feature": "total_magnetization_mub_per_formula_unit",
+      "importance": 0.0019341707961706422
     },
     {
-      "feature": "density_g_cm3",
-      "importance": 0.0009362551911179517
+      "feature": "volume_per_site_a3",
+      "importance": 0.0016904385495520129
     },
     {
-      "feature": "magpie__MagpieData mean GSvolume_pa",
-      "importance": 0.0008795766590389645
+      "feature": "lewis_dot_proxy_avg_outer_electrons",
+      "importance": 0.0016192652475000384
     },
     {
-      "feature": "shell__descriptor_avg_d_electrons",
-      "importance": 0.0008774578354098598
+      "feature": "magpie__MagpieData mean NdUnfilled",
+      "importance": 0.0015841143513845024
+    },
+    {
+      "feature": "volume_a3",
+      "importance": 0.001459197943701603
+    },
+    {
+      "feature": "shell__descriptor_total_atoms",
+      "importance": 0.0013398010982185182
     }
   ],
   "importances_top15_note": "in-sample permutation importance (drop in AUC when a feature is shuffled)",
-  "labelled": 2244,
-  "labelled_non_superconductors": 1104,
-  "labelled_superconductors": 1140,
+  "labelled": 2155,
+  "labelled_non_superconductors": 961,
+  "labelled_superconductors": 1194,
   "limits": [
     "p_superconductor ranks likelihood of any reported superconductivity, not Tc.",
     "Negative labels are reported non-superconductors, a biased sample of what people chose to test.",
@@ -89,408 +89,408 @@
   "model": "gradient_boosting",
   "top_eligible": [
     {
-      "formula": "SrCaPb6",
-      "mp_id": "mp-aaacrivb",
-      "p_superconductor": 0.9936103809795174,
-      "physics_tc_k": 2.3350387196447726,
+      "formula": "Ba2Cd3Bi4",
+      "mp_id": "mp-aaabgjiu",
+      "p_superconductor": 0.9912515480296515,
+      "physics_tc_k": 2.306984269888734,
       "rank": 1,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Bi2PdPt",
-      "mp_id": "mp-aaacrvos",
-      "p_superconductor": 0.9928676149878485,
-      "physics_tc_k": 5.6587810939424665,
-      "rank": 2,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Ba(RhPb2)3",
-      "mp_id": "mp-aaaabtam",
-      "p_superconductor": 0.9927389448368721,
-      "physics_tc_k": 4.250031567882111,
-      "rank": 3,
       "theoretical_only": "False"
     },
     {
       "formula": "NiBi6Rh",
       "mp_id": "mp-aaacrkyd",
-      "p_superconductor": 0.9926975432333851,
+      "p_superconductor": 0.9909311272989728,
       "physics_tc_k": 3.6391764410458456,
-      "rank": 4,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Bi8Pt5I3",
-      "mp_id": "mp-aaackwon",
-      "p_superconductor": 0.9925312458682771,
-      "physics_tc_k": 6.560064709304106,
-      "rank": 5,
-      "theoretical_only": "False"
-    },
-    {
-      "formula": "MgPb3",
-      "mp_id": "mp-aaacdpai",
-      "p_superconductor": 0.992362974325145,
-      "physics_tc_k": 4.087571333343475,
-      "rank": 6,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Bi3Sb",
-      "mp_id": "mp-aaacrvop",
-      "p_superconductor": 0.9919414420430183,
-      "physics_tc_k": 6.061897928975664,
-      "rank": 7,
+      "rank": 2,
       "theoretical_only": "True"
     },
     {
       "formula": "Rh4Pb5",
       "mp_id": "mp-aaabgkss",
-      "p_superconductor": 0.9918727159349499,
+      "p_superconductor": 0.9904751600057059,
       "physics_tc_k": 5.960211015128988,
-      "rank": 8,
+      "rank": 3,
       "theoretical_only": "False"
-    },
-    {
-      "formula": "Sr2Pb3",
-      "mp_id": "mp-aaabmczx",
-      "p_superconductor": 0.9916795306379309,
-      "physics_tc_k": 2.599300213029613,
-      "rank": 9,
-      "theoretical_only": "False"
-    },
-    {
-      "formula": "SrTl3",
-      "mp_id": "mp-aaacpnpg",
-      "p_superconductor": 0.9910650046306467,
-      "physics_tc_k": 1.7826918854262543,
-      "rank": 10,
-      "theoretical_only": "True"
     },
     {
       "formula": "LiPb3",
       "mp_id": "mp-aaacpljn",
-      "p_superconductor": 0.9908615215971589,
+      "p_superconductor": 0.9903836429795644,
       "physics_tc_k": 2.83009458435802,
-      "rank": 11,
+      "rank": 4,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "SrCaPb6",
+      "mp_id": "mp-aaacrivb",
+      "p_superconductor": 0.9893309973262384,
+      "physics_tc_k": 2.3350387196447726,
+      "rank": 5,
       "theoretical_only": "True"
     },
     {
       "formula": "BaPb3",
       "mp_id": "mp-aaaabfsw",
-      "p_superconductor": 0.9900943551216954,
+      "p_superconductor": 0.9892552216556876,
       "physics_tc_k": 2.2817302610944465,
-      "rank": 12,
+      "rank": 6,
       "theoretical_only": "False"
     },
     {
-      "formula": "Ba2Cd3Bi4",
-      "mp_id": "mp-aaabgjiu",
-      "p_superconductor": 0.9900923490190789,
-      "physics_tc_k": 2.306984269888734,
-      "rank": 13,
+      "formula": "Ba(RhPb2)3",
+      "mp_id": "mp-aaaabtam",
+      "p_superconductor": 0.9887814658493023,
+      "physics_tc_k": 4.250031567882111,
+      "rank": 7,
       "theoretical_only": "False"
-    },
-    {
-      "formula": "BaSrBi3",
-      "mp_id": "mp-aaacrcjc",
-      "p_superconductor": 0.9896498251484623,
-      "physics_tc_k": 3.2141090407439967,
-      "rank": 14,
-      "theoretical_only": "True"
     },
     {
       "formula": "YPb2",
       "mp_id": "mp-aaabkfte",
-      "p_superconductor": 0.9896110680275035,
+      "p_superconductor": 0.9885084184984515,
       "physics_tc_k": 3.376942012280447,
+      "rank": 8,
+      "theoretical_only": "False"
+    },
+    {
+      "formula": "RbTl2Bi",
+      "mp_id": "mp-aaabxjsl",
+      "p_superconductor": 0.9878146873694518,
+      "physics_tc_k": 3.434500137455187,
+      "rank": 9,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "Bi2PdPt",
+      "mp_id": "mp-aaacrvos",
+      "p_superconductor": 0.9878019311613556,
+      "physics_tc_k": 5.6587810939424665,
+      "rank": 10,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "Ba3Pb5",
+      "mp_id": "mp-aaabjxih",
+      "p_superconductor": 0.98771053153703,
+      "physics_tc_k": 2.432358024547782,
+      "rank": 11,
+      "theoretical_only": "False"
+    },
+    {
+      "formula": "BaTl3Au",
+      "mp_id": "mp-aaacrvpp",
+      "p_superconductor": 0.9876715293760515,
+      "physics_tc_k": 1.7595659783513502,
+      "rank": 12,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "BaSrBi3",
+      "mp_id": "mp-aaacrcjc",
+      "p_superconductor": 0.9876135429794667,
+      "physics_tc_k": 3.2141090407439967,
+      "rank": 13,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "MgPb3",
+      "mp_id": "mp-aaacdpai",
+      "p_superconductor": 0.9867520527596954,
+      "physics_tc_k": 4.087571333343475,
+      "rank": 14,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "Bi3Sb",
+      "mp_id": "mp-aaacrvop",
+      "p_superconductor": 0.9866473251662005,
+      "physics_tc_k": 6.061897928975664,
       "rank": 15,
-      "theoretical_only": "False"
+      "theoretical_only": "True"
     },
     {
-      "formula": "SrZnBi2",
-      "mp_id": "mp-aaaabrvj",
-      "p_superconductor": 0.9888535586756759,
-      "physics_tc_k": 2.3231466657178284,
+      "formula": "Nb6TlSe8",
+      "mp_id": "mp-aaacrljv",
+      "p_superconductor": 0.9866469188593202,
+      "physics_tc_k": 6.856310799702613,
       "rank": 16,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "K(SnAu2)2",
+      "mp_id": "mp-aaaabszi",
+      "p_superconductor": 0.9866061240157816,
+      "physics_tc_k": 3.5483859301655123,
+      "rank": 17,
       "theoretical_only": "False"
     },
     {
-      "formula": "MgPb2",
-      "mp_id": "mp-aaacpmjr",
-      "p_superconductor": 0.9887689164755934,
-      "physics_tc_k": 3.3172473696453197,
-      "rank": 17,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "BaTl3",
-      "mp_id": "mp-aaaceasb",
-      "p_superconductor": 0.9886669186455603,
-      "physics_tc_k": 1.7445112176463506,
+      "formula": "Ca(Mo3S4)2",
+      "mp_id": "mp-aaaaamqc",
+      "p_superconductor": 0.9859171561583038,
+      "physics_tc_k": 7.291157075840388,
       "rank": 18,
-      "theoretical_only": "True"
+      "theoretical_only": "False"
     },
     {
-      "formula": "BaZnBi2",
-      "mp_id": "mp-aaaabtah",
-      "p_superconductor": 0.9881612464980487,
-      "physics_tc_k": 2.033342087026564,
+      "formula": "Bi8Pt5I3",
+      "mp_id": "mp-aaackwon",
+      "p_superconductor": 0.9856216728539623,
+      "physics_tc_k": 6.560064709304106,
       "rank": 19,
+      "theoretical_only": "False"
+    },
+    {
+      "formula": "La2Ir7",
+      "mp_id": "mp-aaacpssi",
+      "p_superconductor": 0.9854702279533518,
+      "physics_tc_k": 0.4042298842491436,
+      "rank": 20,
       "theoretical_only": "False"
     },
     {
       "formula": "BaCdBi2",
       "mp_id": "mp-aaaabtag",
-      "p_superconductor": 0.9878973171671126,
+      "p_superconductor": 0.9853796955663635,
       "physics_tc_k": 2.4182472494436786,
-      "rank": 20,
-      "theoretical_only": "False"
-    },
-    {
-      "formula": "Bi4Se3",
-      "mp_id": "mp-aaaabovv",
-      "p_superconductor": 0.9877205427357673,
-      "physics_tc_k": 6.836948773027864,
       "rank": 21,
       "theoretical_only": "False"
     },
     {
       "formula": "La3Ni3Bi4",
       "mp_id": "mp-aaacqyap",
-      "p_superconductor": 0.9874858377456548,
+      "p_superconductor": 0.9852968206019289,
       "physics_tc_k": 2.7411332919127993,
       "rank": 22,
       "theoretical_only": "True"
     },
     {
-      "formula": "Bi3SbPt2",
-      "mp_id": "mp-aaacrvsk",
-      "p_superconductor": 0.9863847570014237,
-      "physics_tc_k": 5.556932518784018,
+      "formula": "NaTl2Pb",
+      "mp_id": "mp-aaacdpne",
+      "p_superconductor": 0.9850150910138427,
+      "physics_tc_k": 4.749230173735483,
       "rank": 23,
       "theoretical_only": "True"
     },
     {
-      "formula": "Al3SiMo12",
-      "mp_id": "mp-aaacrycd",
-      "p_superconductor": 0.985605703630351,
-      "physics_tc_k": 9.359943675167168,
+      "formula": "NaYbPb2",
+      "mp_id": "mp-aaacpmtd",
+      "p_superconductor": 0.9849706305304228,
+      "physics_tc_k": 3.1034090201718207,
       "rank": 24,
       "theoretical_only": "True"
     },
     {
-      "formula": "La2ZnBi4",
-      "mp_id": "mp-aaacrpgm",
-      "p_superconductor": 0.9852837344660811,
-      "physics_tc_k": 3.1551749915584058,
+      "formula": "Sr4Sn9Au7",
+      "mp_id": "mp-aaacripq",
+      "p_superconductor": 0.9842983231108551,
+      "physics_tc_k": 3.143886378162186,
       "rank": 25,
       "theoretical_only": "True"
     }
   ],
   "top_eligible_physics_tc_ge_10k": [
     {
-      "formula": "Nb6PdRh",
-      "mp_id": "mp-aaacrljd",
-      "p_superconductor": 0.9714088000686669,
-      "physics_tc_k": 13.014351534739736,
-      "rank": 68,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "IrRu",
-      "mp_id": "mp-aaacdllt",
-      "p_superconductor": 0.9676900185933175,
-      "physics_tc_k": 12.214253792289682,
-      "rank": 77,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "TaNbMo",
-      "mp_id": "mp-aaacrhqk",
-      "p_superconductor": 0.9570502558986158,
-      "physics_tc_k": 11.584564705452138,
-      "rank": 115,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "V6GaGe",
-      "mp_id": "mp-aaacrfma",
-      "p_superconductor": 0.954299876626706,
-      "physics_tc_k": 10.509093229161635,
-      "rank": 121,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Nb2MoOs",
-      "mp_id": "mp-aaacpmth",
-      "p_superconductor": 0.9507985403275095,
-      "physics_tc_k": 12.996954680384981,
-      "rank": 152,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Nb3SnH",
-      "mp_id": "mp-aaacrlpu",
-      "p_superconductor": 0.9501481899613401,
-      "physics_tc_k": 10.220212895942469,
-      "rank": 158,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Nb2RuW",
-      "mp_id": "mp-aaacdxtd",
-      "p_superconductor": 0.9498147297206725,
-      "physics_tc_k": 11.58710752911062,
-      "rank": 162,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "OsRu",
-      "mp_id": "mp-aaacrktz",
-      "p_superconductor": 0.949528181411379,
-      "physics_tc_k": 10.891658102001402,
-      "rank": 165,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Nb2MoRu",
-      "mp_id": "mp-aaacpmti",
-      "p_superconductor": 0.9492569852863907,
-      "physics_tc_k": 12.361873658956238,
-      "rank": 168,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "IrRu3",
-      "mp_id": "mp-aaabxcbs",
-      "p_superconductor": 0.9460490693336301,
-      "physics_tc_k": 11.855502460580105,
-      "rank": 191,
+      "formula": "Cs(Nb3S4)2",
+      "mp_id": "mp-aaacryjs",
+      "p_superconductor": 0.9735100960923863,
+      "physics_tc_k": 10.763769658334686,
+      "rank": 88,
       "theoretical_only": "True"
     },
     {
       "formula": "Al(V4Sn)3",
       "mp_id": "mp-aaacryfq",
-      "p_superconductor": 0.9416320864340703,
+      "p_superconductor": 0.9704206533341985,
       "physics_tc_k": 10.336402759579043,
-      "rank": 227,
+      "rank": 108,
       "theoretical_only": "True"
     },
     {
-      "formula": "Zn2ReN3",
-      "mp_id": "mp-aaacgoov",
-      "p_superconductor": 0.9342899702866299,
-      "physics_tc_k": 18.087630920084937,
-      "rank": 285,
+      "formula": "Nb6PdRh",
+      "mp_id": "mp-aaacrljd",
+      "p_superconductor": 0.965832431707545,
+      "physics_tc_k": 13.014351534739736,
+      "rank": 134,
       "theoretical_only": "True"
     },
     {
-      "formula": "Zr4BN3",
-      "mp_id": "mp-aaacsyov",
-      "p_superconductor": 0.9277166922136153,
-      "physics_tc_k": 14.160304936498987,
+      "formula": "Nb2MoRu",
+      "mp_id": "mp-aaacpmti",
+      "p_superconductor": 0.9520360053363158,
+      "physics_tc_k": 12.361873658956238,
+      "rank": 221,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "Nb4H3S8",
+      "mp_id": "mp-aaacrlop",
+      "p_superconductor": 0.9491124415687289,
+      "physics_tc_k": 11.366458910182489,
+      "rank": 249,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "AlV6Sn",
+      "mp_id": "mp-aaacrxuk",
+      "p_superconductor": 0.9475078613587142,
+      "physics_tc_k": 11.635261565118755,
+      "rank": 269,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "Zr4Sc5N10",
+      "mp_id": "mp-aaacrdxe",
+      "p_superconductor": 0.9446127457691235,
+      "physics_tc_k": 12.091057784843898,
+      "rank": 295,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "V6GaGe",
+      "mp_id": "mp-aaacrfma",
+      "p_superconductor": 0.9400703892507143,
+      "physics_tc_k": 10.509093229161635,
       "rank": 339,
       "theoretical_only": "True"
     },
     {
-      "formula": "Nb2N3",
-      "mp_id": "mp-aaacpqrt",
-      "p_superconductor": 0.926012560118367,
-      "physics_tc_k": 15.927952480123208,
-      "rank": 357,
+      "formula": "V3Si2Mo3",
+      "mp_id": "mp-aaacrfng",
+      "p_superconductor": 0.9387901159796046,
+      "physics_tc_k": 10.142426634909587,
+      "rank": 345,
       "theoretical_only": "True"
     },
     {
       "formula": "Zr10HN8",
       "mp_id": "mp-aaabmjsq",
-      "p_superconductor": 0.9255516851730773,
+      "p_superconductor": 0.9387384484310093,
       "physics_tc_k": 12.430887791512317,
-      "rank": 365,
+      "rank": 346,
       "theoretical_only": "True"
     },
     {
-      "formula": "Nb6PdPt",
-      "mp_id": "mp-aaacrlid",
-      "p_superconductor": 0.9248594043951881,
-      "physics_tc_k": 12.051621739050727,
+      "formula": "TaNbMo",
+      "mp_id": "mp-aaacrhqk",
+      "p_superconductor": 0.938329722441367,
+      "physics_tc_k": 11.584564705452138,
+      "rank": 353,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "La3(CrN3)2",
+      "mp_id": "mp-aaabgkoj",
+      "p_superconductor": 0.9378840859026474,
+      "physics_tc_k": 12.044758365159826,
+      "rank": 357,
+      "theoretical_only": "False"
+    },
+    {
+      "formula": "Ta3Ru2",
+      "mp_id": "mp-aaacrhvw",
+      "p_superconductor": 0.9369849968244598,
+      "physics_tc_k": 11.982488285326026,
       "rank": 371,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "AlV6Sb",
+      "mp_id": "mp-aaacrxut",
+      "p_superconductor": 0.9360014348204498,
+      "physics_tc_k": 12.241934837963099,
+      "rank": 385,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "Sc(TiN)9",
+      "mp_id": "mp-aaaacdye",
+      "p_superconductor": 0.9329818582819933,
+      "physics_tc_k": 11.656912887459695,
+      "rank": 404,
       "theoretical_only": "True"
     },
     {
       "formula": "TaMo",
       "mp_id": "mp-aaacrhqd",
-      "p_superconductor": 0.9235386057528837,
+      "p_superconductor": 0.9316821310333558,
       "physics_tc_k": 10.067934954295072,
-      "rank": 390,
+      "rank": 417,
       "theoretical_only": "True"
     },
     {
-      "formula": "Ta3Ru2",
-      "mp_id": "mp-aaacrhvw",
-      "p_superconductor": 0.9228286713675163,
-      "physics_tc_k": 11.982488285326026,
-      "rank": 400,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "B2Mo2Ru",
-      "mp_id": "mp-aaacpsta",
-      "p_superconductor": 0.9195674942650248,
-      "physics_tc_k": 15.496730312355806,
-      "rank": 425,
-      "theoretical_only": "False"
-    },
-    {
-      "formula": "Nb6PtAu",
-      "mp_id": "mp-aaacrlgu",
-      "p_superconductor": 0.9185789690011315,
-      "physics_tc_k": 11.053001169651276,
-      "rank": 432,
-      "theoretical_only": "True"
-    },
-    {
-      "formula": "Nb12IrAu3",
-      "mp_id": "mp-aaacrlwg",
-      "p_superconductor": 0.9179265192327208,
-      "physics_tc_k": 11.655023284779519,
+      "formula": "Nb10(SiB)3",
+      "mp_id": "mp-aaacrlwa",
+      "p_superconductor": 0.9298265618179032,
+      "physics_tc_k": 11.655205287022897,
       "rank": 439,
       "theoretical_only": "True"
     },
     {
-      "formula": "NbMoW",
-      "mp_id": "mp-aaacrlfz",
-      "p_superconductor": 0.9162482139655808,
-      "physics_tc_k": 13.32878764233174,
-      "rank": 459,
+      "formula": "V10(SiGe)3",
+      "mp_id": "mp-aaacrfzb",
+      "p_superconductor": 0.9260609333034238,
+      "physics_tc_k": 10.229384017427071,
+      "rank": 487,
       "theoretical_only": "True"
     },
     {
-      "formula": "YReN3",
-      "mp_id": "mp-aaacehzj",
-      "p_superconductor": 0.9149385250671961,
-      "physics_tc_k": 11.190349671497765,
-      "rank": 476,
+      "formula": "Ta3Co2Mo",
+      "mp_id": "mp-aaacrhtr",
+      "p_superconductor": 0.9243525107393383,
+      "physics_tc_k": 11.005626464294249,
+      "rank": 506,
       "theoretical_only": "True"
     },
     {
-      "formula": "Ta2TiRe",
-      "mp_id": "mp-aaacpofi",
-      "p_superconductor": 0.9129426176419493,
-      "physics_tc_k": 14.148313959473587,
-      "rank": 498,
+      "formula": "OsRu3",
+      "mp_id": "mp-aaacdlic",
+      "p_superconductor": 0.9206868490606622,
+      "physics_tc_k": 12.623756146475415,
+      "rank": 556,
       "theoretical_only": "True"
     },
     {
-      "formula": "Mo2CN",
-      "mp_id": "mp-aaacrmzn",
-      "p_superconductor": 0.9113158170794483,
-      "physics_tc_k": 19.826167664506016,
-      "rank": 523,
+      "formula": "Nb2ReRu",
+      "mp_id": "mp-aaacpmtj",
+      "p_superconductor": 0.9173847126982518,
+      "physics_tc_k": 16.94081923861225,
+      "rank": 581,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "IrRu3",
+      "mp_id": "mp-aaabxcbs",
+      "p_superconductor": 0.9141769778541511,
+      "physics_tc_k": 11.855502460580105,
+      "rank": 609,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "Nb7Ni6",
+      "mp_id": "mp-aaackvmr",
+      "p_superconductor": 0.9117898031978747,
+      "physics_tc_k": 11.202350218845364,
+      "rank": 627,
+      "theoretical_only": "False"
+    },
+    {
+      "formula": "Nb3SnH",
+      "mp_id": "mp-aaacrlpu",
+      "p_superconductor": 0.9114416913771609,
+      "physics_tc_k": 10.220212895942469,
+      "rank": 634,
+      "theoretical_only": "True"
+    },
+    {
+      "formula": "IrRu",
+      "mp_id": "mp-aaacdllt",
+      "p_superconductor": 0.910413106140573,
+      "physics_tc_k": 12.214253792289682,
+      "rank": 646,
       "theoretical_only": "True"
     }
   ],
-  "training_rows": 3664,
+  "training_rows": 3429,
   "training_weighting": "1 / (polymorphs of the same composition in the training set)"
 }

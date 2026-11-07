@@ -19,7 +19,8 @@ def _slice(path, n_each, tmp, name, skip=0):
     with gzip.open(path, "rt", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     pick = ([r for r in rows if r["known_status"] == "superconductor"][skip:skip + n_each]
-            + [r for r in rows if r["known_status"] == "tested_non_superconductor"][skip:skip + n_each])
+            + [r for r in rows if r["known_status"] == "tested_non_superconductor"
+               and r.get("negative_training_use", "use") == "use"][skip:skip + n_each])
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=list(rows[0]))
     writer.writeheader()
