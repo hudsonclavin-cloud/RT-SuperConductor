@@ -1,0 +1,10 @@
+record_id,source_db,mp_id,formula,tc_kelvin,reason,audit_status,review_decision,reviewer,review_date,notes,excluded_from_training
+000000000000000000000009,3dsc,mp-demo-h3s,H3S,155,not_applicable_synthetic_demo_not_source_measurement,not_applicable,synthetic_demo_not_empirical_label,,,"Retained for queue history; this is a synthetic demo fixture, not a 3DSC source measurement.",false
+000000000000000000000010,3dsc,mp-demo-h3s,H3S,190,not_applicable_synthetic_demo_not_source_measurement,not_applicable,synthetic_demo_not_empirical_label,,,"Retained for queue history; this is a synthetic demo fixture, not a 3DSC source measurement.",false
+000000000000000000000011,3dsc,mp-demo-h3s,H3S,203,not_applicable_synthetic_demo_not_source_measurement,not_applicable,synthetic_demo_not_empirical_label,,,"Retained for queue history; this is a synthetic demo fixture, not a 3DSC source measurement.",false
+000000000000000000000012,3dsc,mp-demo-lah10,LaH10,250,not_applicable_synthetic_demo_not_source_measurement,not_applicable,synthetic_demo_not_empirical_label,,,"Retained for queue history; this is a synthetic demo fixture, not a 3DSC source measurement.",false
+000000000000000000000013,3dsc,mp-demo-lah10,LaH10,265,not_applicable_synthetic_demo_not_source_measurement,not_applicable,synthetic_demo_not_empirical_label,,,"Retained for queue history; this is a synthetic demo fixture, not a 3DSC source measurement.",false
+000000000000000000000014,3dsc,mp-demo-lah10,LaH10,280,not_applicable_synthetic_demo_not_source_measurement,not_applicable,synthetic_demo_not_empirical_label,,,"Retained for queue history; this is a synthetic demo fixture, not a 3DSC source measurement.",false
+753f61ce67dbeaa5b0ba55b3,3dsc,mp-510625,Cr0.95CuFe0.05O2,117.5,suspected_label_error_shared_mp_structure_mp-510625,pending,,,,,true
+63bba0713820ff3c7ccba6b7,3dsc,mp-510625,Cr0.9CuFe0.1O2,98,suspected_label_error_shared_mp_structure_mp-510625,pending,,,,,true
+fa15366311cbef338d8a63b2,3dsc,mp-510625,CrCuO2,132,suspected_label_error_shared_mp_structure_mp-510625,pending,,,,,true

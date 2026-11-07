@@ -109,3 +109,18 @@ Required review decisions:
 ## Measurement pressure remains unknown when the source omits it
 
 New 3DSC imports leave `applied_pressure_gpa` blank because the source table does not specify measurement pressure. The former 1-atm screening target is retained only in ingestion-report metadata, not stored as an observation. The harmonized schema round-trips blank measurement pressure as `None`; promotion checks exclude unknown pressure from both ambient and high-pressure benchmark subsets. Existing reviewed rows and their observed pressures are preserved. `synthesis_pressure_gpa` describes preparation and never fills missing measurement pressure. The physics-feature comparisons drop measurement pressure from their matrices and therefore remain pressure-agnostic Tc benchmarks, not validations of ambient-pressure performance.
+# Label-audit quarantine
+
+`label_audit_queue.csv` is a human-review queue for suspect experimental labels. It never edits or removes the harmonized source observation. The queue builder scans 3DSC records for the known shared-structure group `mp-510625` and for any future record with reported Tc above 77 K whose formula has no Cu. Active pending rows are excluded from all model fitting by `select_training_records`; training reports preserve their IDs, formulas, Tc values, reasons, and before/after within-family metrics.
+
+Synthetic demo fixtures are never considered source labels. If a prior queue generation included a synthetic fixture, it remains in the file as `audit_status=not_applicable` with `excluded_from_training=false` so that the correction is traceable; it is not an active review item. Prior queue rows also remain if their source record is absent from a particular input snapshot.
+
+To refresh the queue after ingesting an updated source table, run:
+
+```bash
+python scripts/build_label_audit_queue.py \
+  --input data/training/harmonized_supercon.csv \
+  --output data/training/label_audit_queue.csv
+```
+
+Reviewers should fill `reviewer`, `review_date`, `notes`, set `audit_status=reviewed`, and set `review_decision=retain` only when the cited experimental evidence supports the row as reported. Otherwise leave it excluded until the source transcription or scientific interpretation has been resolved. The queue refresh preserves these review fields. The 3DSC row remains present in the harmonized table throughout.

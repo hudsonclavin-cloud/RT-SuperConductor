@@ -51,6 +51,7 @@ on:
     paths:
       - "scripts/train_baseline.py"
       - "scripts/train_pressure_aware.py"
+      - "scripts/build_label_audit_queue.py"
       - "scripts/build_supercon2_review_queue.py"
       - "scripts/build_supermat_review_queue.py"
       - "scripts/build_review_campaign.py"
@@ -418,6 +419,9 @@ jobs:
             --structure-root data/raw/3dsc/MP/cifs \
             --report data/processed/continuous-training/3dsc-ingestion-report.json \
             --structure-index data/processed/continuous-training/3dsc-structure-index.csv
+          python scripts/build_label_audit_queue.py \
+            --input data/training/harmonized_supercon.csv \
+            --output data/training/label_audit_queue.csv
           python scripts/validate_harmonized.py \
             --input data/training/harmonized_supercon.csv \
             --report data/processed/continuous-training/harmonized-report.json
@@ -434,6 +438,8 @@ jobs:
             --output data/processed/continuous-training/untested-pool-shortlist.csv \
             --report data/processed/continuous-training/untested-pool-report.json \
             --summary data/processed/continuous-training/untested-pool-summary.md \
+            --epw-shortlist data/processed/continuous-training/epw-eligible-shortlist.csv \
+            --epw-audit data/processed/continuous-training/epw-eligibility-audit.csv \
             --old-shortlist /tmp/untested-pool-v1.csv \
             --mp-cache data/processed/continuous-training/mp-query-cache.json.gz \
             --3dsc data/raw/3dsc/MP/3DSC_MP.csv \
@@ -457,6 +463,10 @@ jobs:
               f"- Family-assigned: {report['pool_size_assigned_to_families']}",
               f"- Scored: {report['pool_size_scored_after_family_gate']}",
               f"- Top-30 shortlist rows: {report['shortlist_rows']}",
+              f"- EPW-eligible Other-family non-magnetic rows: {report.get('epw_eligible_rows', 0)}",
+              f"- EPW exclusions by reason: `{json.dumps(report.get('epw_eligibility_counts', {}), sort_keys=True)}`",
+              f"- Active label-audit training exclusions: {report.get('label_quarantine', {}).get('excluded_training_rows', 0)}",
+              f"- FeCuO2 prior-shortlist outcome: {report.get('fecu_o2_old_shortlist_outcome', {}).get('disposition', 'not reported')} / {report.get('fecu_o2_old_shortlist_outcome', {}).get('reason', 'no reason')}",
               f"- Prior shortlist retained/removed: {report['old_shortlist_retained']}/{report['old_shortlist_removed']}",
               f"- Raw Materials Project query snapshot: `{snapshot.get('mode', 'missing')}`; SHA-256 `{snapshot.get('sha256', 'missing')}`; included in the run artifact.",
               "- Filter counts: `" + json.dumps(report["filter_counts"], sort_keys=True) + "`",
@@ -467,6 +477,7 @@ jobs:
       - name: Publish requested docs outputs
         run: |
           cp data/processed/continuous-training/untested-pool-shortlist.csv docs/untested-pool-shortlist.csv
+          cp data/processed/continuous-training/epw-eligible-shortlist.csv docs/epw-eligible-shortlist.csv
           cp data/processed/continuous-training/untested-pool-summary.md /tmp/untested-pool-summary-current.md
           {
             cat /tmp/untested-pool-summary-current.md
@@ -476,7 +487,7 @@ jobs:
           } > docs/untested-pool-summary.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/untested-pool-shortlist.csv docs/untested-pool-summary.md docs/untested-pool-summary-history.md
+          git add docs/untested-pool-shortlist.csv docs/epw-eligible-shortlist.csv docs/untested-pool-summary.md docs/untested-pool-summary-history.md data/training/label_audit_queue.csv
           if ! git diff --cached --quiet; then
             git commit -m "data: publish v2 untested materials shortlist"
             git push origin "HEAD:${GITHUB_REF_NAME}"

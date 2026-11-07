@@ -34,6 +34,7 @@ if str(ROOT / "src") not in sys.path:
 from rt_superconductor.formula import ELEMENTS
 from rt_superconductor.descriptors import descriptor_names, formula_descriptor_vector
 from rt_superconductor.harmonized import HarmonizedRecord, load_harmonized
+from rt_superconductor.label_quarantine import load_quarantine_decisions, quarantine_reason
 
 
 def _fraction_features(records: list[HarmonizedRecord]) -> tuple[np.ndarray, list[str], str]:
@@ -334,7 +335,15 @@ def _write_mixed_predictions(path: Path, rows: Iterable[tuple[HarmonizedRecord, 
 TRAINABLE_REVIEW_STATUSES = {"confirmed", "curated_database"}
 
 
-def select_training_records(records: list[HarmonizedRecord]) -> list[HarmonizedRecord]:
+DEFAULT_LABEL_AUDIT_QUEUE = Path("data/training/label_audit_queue.csv")
+
+
+def select_training_records(
+    records: list[HarmonizedRecord],
+    *,
+    apply_label_quarantine: bool = True,
+    label_audit_queue_path: Path | None = DEFAULT_LABEL_AUDIT_QUEUE,
+) -> list[HarmonizedRecord]:
     """Return only empirical database records eligible for model fitting.
 
     Automatic SuperCon2 extraction is never a training source, even if a row
@@ -343,12 +352,59 @@ def select_training_records(records: list[HarmonizedRecord]) -> list[HarmonizedR
     curated database rows enter through the explicit ``curated_database`` tier.
     """
 
+    decisions = load_quarantine_decisions(label_audit_queue_path) if apply_label_quarantine else {}
     return [
         record for record in records
         if record.review_status in TRAINABLE_REVIEW_STATUSES
         and record.is_synthetic == 0
         and not (record.source_db == "supercon2" and record.provenance != "literature")
+        and (not apply_label_quarantine or quarantine_reason(record, decisions) is None)
     ]
+
+
+def _label_quarantine_rows(
+    records: list[HarmonizedRecord],
+    queue_path: Path | None,
+) -> list[dict[str, str]]:
+    decisions = load_quarantine_decisions(queue_path)
+    result = []
+    for record in records:
+        reason = quarantine_reason(record, decisions)
+        if reason:
+            result.append({
+                "record_id": record.record_id,
+                "source_db": record.source_db,
+                "mp_id": record.mp_id,
+                "formula": record.formula,
+                "tc_kelvin": f"{record.tc_kelvin:g}",
+                "reason": reason,
+            })
+    return result
+
+
+def _label_quarantine_metric_comparison(
+    before: dict[str, object], after: dict[str, object],
+) -> dict[str, object]:
+    """Keep only directly comparable, interpretable within-family metrics."""
+    before_families = before.get("families", {})
+    after_families = after.get("families", {})
+    result: dict[str, object] = {}
+    for family in sorted(set(before_families) | set(after_families)):
+        metrics: dict[str, object] = {}
+        for label, source in (("before", before_families), ("after", after_families)):
+            value = source.get(family)
+            if value is None:
+                metrics[label] = {"status": "not_evaluated"}
+            else:
+                metrics[label] = {
+                    "status": value.get("status", "unknown"),
+                    "row_count": value.get("row_count"),
+                    "mae_k": value.get("mae_k"),
+                    "mean_predictor_mae_k": value.get("mean_predictor_mae_k"),
+                    "spearman_rho": value.get("spearman_rho"),
+                }
+        result[family] = metrics
+    return result
 
 
 def _blocked_report(
@@ -404,10 +460,13 @@ def train_pressure_aware(
     random_state: int = 42,
     n_splits: int = 5,
     allow_insufficient_data: bool = False,
+    label_audit_queue_path: Path | None = DEFAULT_LABEL_AUDIT_QUEUE,
 ) -> dict[str, object]:
     records = load_harmonized(input_path)
     confirmed = [record for record in records if record.review_status in TRAINABLE_REVIEW_STATUSES]
-    training_records = select_training_records(records)
+    training_records_before_quarantine = select_training_records(records, apply_label_quarantine=False)
+    training_records = select_training_records(records, label_audit_queue_path=label_audit_queue_path)
+    quarantined_records = _label_quarantine_rows(records, label_audit_queue_path)
     if len(training_records) < 2:
         reason = "at least two eligible empirical records are required for training"
         if allow_insufficient_data:
@@ -485,6 +544,21 @@ def train_pressure_aware(
         random_state=random_state,
         prediction_sink=within_family_predictions,
     )
+    if quarantined_records:
+        before_positions = np.asarray([
+            positions[record.record_id] for record in training_records_before_quarantine
+        ], dtype=int)
+        before_X = all_X[before_positions]
+        before_y = np.asarray([record.tc_kelvin for record in training_records_before_quarantine], dtype=float)
+        before_within_family_report = evaluate_within_family(
+            training_records_before_quarantine,
+            before_X,
+            before_y,
+            n_splits=n_splits,
+            random_state=random_state,
+        )
+    else:
+        before_within_family_report = within_family_report
 
     model = _model(random_state)
     model.fit(X, y)
@@ -552,6 +626,15 @@ def train_pressure_aware(
         "supercon2_automatic_excluded_count": sum(record.source_db == "supercon2" and record.provenance != "literature" for record in records),
         "empirical_training_record_count": len(training_records),
         "empirical_training_record_ids": [record.record_id for record in training_records],
+        "label_quarantine": {
+            "queue_path": str(label_audit_queue_path) if label_audit_queue_path else None,
+            "excluded_record_count": len(quarantined_records),
+            "excluded_records": quarantined_records,
+            "source_rows_preserved": True,
+            "within_family_metrics_before_after": _label_quarantine_metric_comparison(
+                before_within_family_report, within_family_report
+            ),
+        },
         "chemical_family_count": len(unique_groups),
         "group_column": "chemical_family",
         "cv": "GroupKFold",
@@ -571,7 +654,7 @@ def train_pressure_aware(
         "output_candidate_predictions": str(prediction_path),
         "output_promotion_predictions": str(promotion_path),
         "random_state": random_state,
-        "training_filter": "review_status in {'confirmed', 'curated_database'} and is_synthetic == 0 and not (source_db == 'supercon2' and provenance != 'literature')",
+        "training_filter": "review_status in {'confirmed', 'curated_database'} and is_synthetic == 0 and not (source_db == 'supercon2' and provenance != 'literature') and no active label-audit quarantine",
         "training_status": "ready",
         "promotion_status": "not_promoted",
         "interpretation": (
@@ -592,6 +675,7 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, default=Path("data/processed/pressure-aware"))
     parser.add_argument("--random-state", type=int, default=42)
     parser.add_argument("--n-splits", type=int, default=5)
+    parser.add_argument("--label-audit-queue", type=Path, default=DEFAULT_LABEL_AUDIT_QUEUE)
     parser.add_argument(
         "--allow-insufficient-data",
         action="store_true",
@@ -606,6 +690,7 @@ def main() -> int:
         random_state=args.random_state,
         n_splits=args.n_splits,
         allow_insufficient_data=args.allow_insufficient_data,
+        label_audit_queue_path=args.label_audit_queue,
     )
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0

@@ -24,9 +24,12 @@ from build_untested_pool import (  # noqa: E402
     _write_mp_snapshot,
     composition_structure_distance,
     dos_at_fermi_states_ev_per_atom,
+    epw_eligibility_reason,
     eligible_family_metrics,
     filter_by_summary_metallicity,
     family_definer_rejection,
+    magnetism_classification,
+    oxygen_agnostic_formula_key,
     material_level_dos_lookup,
     prefetch_static_dos_curves,
     pool_run_status,
@@ -47,7 +50,7 @@ from train_pressure_aware import purge_shared_mp_ids  # noqa: E402
 
 
 def _summary(mp_id, formula, *, hull=0.01, sites=2, sg=225, structure=None,
-             is_metal=True, band_gap=None):
+             is_metal=True, band_gap=None, is_magnetic=None, ordering=None, total_magnetization=None):
     values = dict(
         material_id=mp_id,
         formula_pretty=formula,
@@ -57,6 +60,9 @@ def _summary(mp_id, formula, *, hull=0.01, sites=2, sg=225, structure=None,
         symmetry=SimpleNamespace(number=sg),
         is_metal=is_metal,
         band_gap=band_gap,
+        is_magnetic=is_magnetic,
+        ordering=ordering,
+        total_magnetization=total_magnetization,
     )
     if structure is not None:
         values["structure"] = structure
@@ -79,6 +85,34 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(reduced_formula("Fe2Se2"), "FeSe")
         self.assertEqual(reduced_formula("Nb3Sn"), "Nb3Sn")
         self.assertIsNone(reduced_formula("not a formula"))
+
+    def test_oxygen_variants_of_known_source_formulas_are_rejected(self):
+        self.assertEqual(oxygen_agnostic_formula_key("YBa2Cu3O6"), "Ba2YCu3")
+        kept, counts, rejected = _summary_filter_without_structures(
+            [_summary("mp-ybco-oxygen-variant", "YBa2Cu3O7")],
+            known_formulas={"YBa2Cu3O6"},
+        )
+        self.assertEqual(kept, [])
+        self.assertEqual(counts["oxygen_variant_of_known"], 1)
+        self.assertEqual(rejected["mp-ybco-oxygen-variant"], "oxygen_variant_of_known")
+
+    def test_mp_magnetism_is_copied_and_unknown_is_not_assumed_non_magnetic(self):
+        self.assertEqual(magnetism_classification(_summary("m", "FeSe", is_magnetic=True)), "magnetic")
+        self.assertEqual(magnetism_classification(_summary("m", "FeSe", ordering="AFM")), "magnetic")
+        self.assertEqual(magnetism_classification(_summary("m", "Nb3Sn", ordering="NM")), "non_magnetic")
+        self.assertEqual(magnetism_classification(_summary("m", "Nb3Sn", is_magnetic=False)), "non_magnetic")
+        self.assertEqual(magnetism_classification(_summary("m", "Nb3Sn")), "unknown")
+
+    def test_epw_list_requires_other_family_small_site_count_and_explicit_nonmagnetism(self):
+        base = {
+            "chemical_family": "Other", "num_sites": 20,
+            "magnetism_classification": "non_magnetic",
+        }
+        self.assertEqual(epw_eligibility_reason(base), "eligible_non_magnetic_other_max_20_sites")
+        self.assertEqual(epw_eligibility_reason({**base, "magnetism_classification": "magnetic"}), "magnetic_excluded_from_epw")
+        self.assertEqual(epw_eligibility_reason({**base, "magnetism_classification": "unknown"}), "magnetism_unknown_excluded_from_epw")
+        self.assertEqual(epw_eligibility_reason({**base, "num_sites": 21}), "site_count_gt_20")
+        self.assertEqual(epw_eligibility_reason({**base, "chemical_family": "Cuprates"}), "family_not_other")
 
     def test_mp_summary_gate_does_not_use_band_gap_as_metallicity(self):
         docs = [
@@ -524,7 +558,9 @@ class UntestedPoolV2Tests(unittest.TestCase):
         records = [
             HarmonizedRecord("a" * 24, "3dsc", "FeSe", 20.0, 0.0, "unknown", "unknown", "10.0000/a", "confirmed", "literature", 0, chemical_family="Ferrites", mp_id="mp-train", energy_above_hull=0.01, spacegroup_number=129),
         ]
-        candidate_doc = _summary("mp-new", "FeSe", sg=129)
+        candidate_doc = _summary(
+            "mp-new", "FeSe", sg=129, is_magnetic=True, ordering="FM", total_magnetization=2.5
+        )
         dos_record = {
             "dos_ef_states_ev_per_atom": 0.5,
             "dos_task_id": "task",
@@ -536,6 +572,10 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(len(scored), 1)
         self.assertEqual(scored[0]["dft_verification"], "pending")
         self.assertEqual(scored[0]["metallicity_source"], "mp_summary_provisional")
+        self.assertTrue(scored[0]["is_magnetic"])
+        self.assertEqual(scored[0]["ordering"], "FM")
+        self.assertEqual(scored[0]["total_magnetization"], 2.5)
+        self.assertEqual(scored[0]["magnetism_classification"], "magnetic")
         self.assertEqual(counts["family_assigned_within_distance_and_definers"], 1)
 
         non_fe = _summary("mp-no-fe", "CoSe", sg=129)
