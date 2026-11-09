@@ -79,6 +79,36 @@ def test_eligibility_and_ranking(tmp_path):
     assert ranked[0]["consensus_tc_k"] >= ranked[1]["consensus_tc_k"]
 
 
+def test_empty_candidate_pool_writes_valid_empty_outputs_without_fitting(tmp_path):
+    candidates = tmp_path / "empty.csv"
+    candidates.write_text(
+        "mp_id,formula,chemical_family,num_sites,predicted_tc_kelvin\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "rescored.csv"
+    summary = tmp_path / "rescored.json"
+
+    report = run(
+        candidates,
+        output,
+        summary,
+        model_path=None,
+        table=tmp_path / "missing-training-table.csv",
+        hazel_records=tmp_path / "missing-hazel-records.json",
+    )
+
+    assert report["status"] == "empty_candidate_pool"
+    assert report["candidates_scored"] == 0
+    assert report["epw_eligible"] == 0
+    assert report["rows_written"] == 0
+    assert report["model"]["feature_mode"] == "not_run_empty_candidate_pool"
+    with output.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        assert "epw_eligible" in reader.fieldnames
+        assert list(reader) == []
+    assert json.loads(summary.read_text(encoding="utf-8"))["status"] == "empty_candidate_pool"
+
+
 def test_a_reviewed_hazel_record_changes_the_model(tmp_path):
     """The loop is closed only if a new Hazel result moves the predictions."""
     from pymatgen.core import Lattice, Structure

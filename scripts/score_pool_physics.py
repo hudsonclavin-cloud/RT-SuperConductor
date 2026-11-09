@@ -52,6 +52,14 @@ POOL_SHORTLIST = ROOT / "docs/untested-pool-shortlist.csv"
 CONVENTIONAL_FAMILIES = {"Other"}
 MAGNETIC_ELEMENTS = {"Fe", "Co", "Ni", "Mn", "Cr"}
 LEWIS_FEATURES = ["lewis_dot_proxy_avg_outer_electrons", "lewis_dot_proxy_total_electrons_per_reduced_formula"]
+SCORED_OUTPUT_COLUMNS = (
+    "epw_rank", "mp_id", "formula", "chemical_family", "num_sites", "physics_lambda",
+    "physics_lambda_tree_sd", "physics_omega_log_k", "physics_omega_log_tree_sd_k",
+    "physics_tc_k", "physics_tc_tree_sd_k", "physics_conservative_tc_k", "rf_family_tc_k",
+    "consensus_tc_k", "nearest_known_superconductor", "nearest_known_tc_k", "epw_eligible",
+    "epw_ineligible_reasons", "magnetism_source", "mu_star", "known_status", "known_tc_max_k",
+    "theoretical_only", "dft_verification",
+)
 
 
 def formula_feature_names(header: list[str]) -> list[str]:
@@ -344,18 +352,24 @@ def score(candidates: list[dict[str, str]], models: dict[str, Any]) -> list[dict
 
 def run(candidates_path: Path, output: Path, summary: Path, *, model_path: Path | None,
         table: Path, hazel_records: Path | None, top: int | None = None) -> dict[str, Any]:
-    if model_path is not None:
-        import joblib
-
-        models = joblib.load(model_path)
-        meta = {"feature_mode": "trainer_joblib", "model_path": _display(model_path)}
-    else:
-        models, meta = fit_formula_model(table, hazel_records)
     with _open_text(candidates_path) as handle:
         candidates = [r for r in csv.DictReader(handle) if r.get("formula")]
-    rows = score(candidates, models)
+    if candidates:
+        if model_path is not None:
+            import joblib
+
+            models = joblib.load(model_path)
+            meta = {"feature_mode": "trainer_joblib", "model_path": _display(model_path)}
+        else:
+            models, meta = fit_formula_model(table, hazel_records)
+        rows = score(candidates, models)
+    else:
+        # An empty strict-gate shortlist is a valid result. Do not fit a model
+        # or call sklearn with a zero-row feature matrix just to publish it.
+        rows = []
+        meta = {"feature_mode": "not_run_empty_candidate_pool"}
     output.parent.mkdir(parents=True, exist_ok=True)
-    fields = ["epw_rank"] + [k for k in rows[0] if k != "epw_rank"] if rows else ["epw_rank"]
+    fields = ["epw_rank"] + [k for k in rows[0] if k != "epw_rank"] if rows else list(SCORED_OUTPUT_COLUMNS)
     written = rows[:top] if top else rows
     if output.suffix == ".gz":
         buffer = io.StringIO()
@@ -375,6 +389,7 @@ def run(candidates_path: Path, output: Path, summary: Path, *, model_path: Path 
         for reason in filter(None, r["epw_ineligible_reasons"].split(";")):
             reasons[reason] = reasons.get(reason, 0) + 1
     report = {
+        "status": "ready" if candidates else "empty_candidate_pool",
         "candidates_path": _display(candidates_path),
         "candidates_sha256": hashlib.sha256(candidates_path.read_bytes()).hexdigest(),
         "candidates_scored": len(rows), "epw_eligible": len(eligible), "rows_written": len(written),
