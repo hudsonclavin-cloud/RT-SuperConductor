@@ -476,11 +476,26 @@ jobs:
           PY
       - name: Publish requested docs outputs
         run: |
+          # Keep an exact copy of the provisional outputs before publishing
+          # the stricter DOS-qualified results. The comparison table in the
+          # new summary explains removals; these snapshots preserve every
+          # prior CSV row as well.
+          if [ -f docs/untested-pool-shortlist.csv ] && [ ! -f docs/untested-pool-shortlist-provisional-20261109.csv ]; then
+            cp docs/untested-pool-shortlist.csv docs/untested-pool-shortlist-provisional-20261109.csv
+          fi
+          if [ -f docs/epw-eligible-shortlist.csv ] && [ ! -f docs/epw-eligible-shortlist-provisional-20261109.csv ]; then
+            cp docs/epw-eligible-shortlist.csv docs/epw-eligible-shortlist-provisional-20261109.csv
+          fi
+          if [ -f docs/untested-pool-summary.md ] && [ ! -f docs/untested-pool-summary-provisional-20261109.md ]; then
+            cp docs/untested-pool-summary.md docs/untested-pool-summary-provisional-20261109.md
+          fi
           cp data/processed/continuous-training/untested-pool-shortlist.csv docs/untested-pool-shortlist.csv
           cp data/processed/continuous-training/epw-eligible-shortlist.csv docs/epw-eligible-shortlist.csv
           cp data/processed/continuous-training/untested-pool-summary.md /tmp/untested-pool-summary-current.md
           {
             cat /tmp/untested-pool-summary-current.md
+            printf '\n\n## Preserved provisional screen outputs\n\n'
+            printf 'The previous summary-metallicity screen and its CSV rows are archived in `docs/untested-pool-summary-provisional-20261109.md`, `docs/untested-pool-shortlist-provisional-20261109.csv`, and `docs/epw-eligible-shortlist-provisional-20261109.csv`. Those entries are historical and do not pass the current required-DOS gate.\n\n'
             printf '\n\n## Archived report from the prior provisional summary-metallicity screen\n\n'
             printf 'The following report is retained unchanged for historical comparison. The current run above supersedes that provisional gate and requires retrieved Static/Uniform DOS(E_F) above 0.1 states/eV/atom.\n\n'
             cat docs/untested-pool-summary-history.md
