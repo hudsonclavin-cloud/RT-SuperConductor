@@ -428,7 +428,7 @@ jobs:
           python scripts/train_pressure_aware.py \
             --input data/training/harmonized_supercon.csv \
             --output-dir data/processed/continuous-training/pressure-aware
-      - name: Build v2 pool using provisional summary metallicity and optional DOS
+      - name: Build v2 pool using required static/uniform DOS(E_F) gate
         env:
           MP_API_KEY: ${{ secrets.Materials_Project_API }}
         run: |
@@ -457,9 +457,9 @@ jobs:
           snapshot = report.get("dos_fetch_diagnostics", {}).get("mp_query_cache", {})
           rows = [
               "### Existing-but-untested Materials Project pool v2",
-              f"- Summary-metallicity-qualified pool: {report['pool_size_after_summary_metallicity']}",
-              f"- MP summary is_metal=true / band_gap=0 counts: {report['filter_counts'].get('mp_summary_is_metal_true', 0)} / {report['filter_counts'].get('mp_summary_band_gap_zero', 0)}; accepted union: {report['filter_counts'].get('mp_summary_metallicity_accepted', 0)}",
-              f"- Optional DOS(E_F) curves: {report['filter_counts'].get('dos_curves_retrieved', 0)} retrieved; {report['filter_counts'].get('dos_ef_gt_0p1_optional_enrichment', 0)} above 0.1 states/eV/atom",
+              f"- Required static/uniform DOS(E_F)>0.1 pool: {report['pool_size_after_required_dos_gate']}",
+              f"- DOS curves: {report['filter_counts'].get('dos_curves_retrieved', 0)} retrieved; {report['filter_counts'].get('dos_ef_gt_0p1_required_gate', 0)} passed; {report['filter_counts'].get('dos_missing_task_or_curve', 0)} missing; {report['filter_counts'].get('dos_below_or_equal_0p1_states_ev_atom', 0)} at/below threshold",
+              f"- Non-static/non-uniform calculation tasks rejected: {report['filter_counts'].get('dos_non_static_uniform_tasks_rejected', 0)}",
               f"- Family-assigned: {report['pool_size_assigned_to_families']}",
               f"- Scored: {report['pool_size_scored_after_family_gate']}",
               f"- Top-30 shortlist rows: {report['shortlist_rows']}",
@@ -481,8 +481,8 @@ jobs:
           cp data/processed/continuous-training/untested-pool-summary.md /tmp/untested-pool-summary-current.md
           {
             cat /tmp/untested-pool-summary-current.md
-            printf '\n\n## Archived report before the provisional summary-metallicity gate\n\n'
-            printf 'The following report is retained unchanged for historical comparison. Its empty result reflected the former mandatory DOS-curve gate; the current run above supersedes that screening logic.\n\n'
+            printf '\n\n## Archived report from the prior provisional summary-metallicity screen\n\n'
+            printf 'The following report is retained unchanged for historical comparison. The current run above supersedes that provisional gate and requires retrieved Static/Uniform DOS(E_F) above 0.1 states/eV/atom.\n\n'
             cat docs/untested-pool-summary-history.md
           } > docs/untested-pool-summary.md
           git config user.name "github-actions[bot]"

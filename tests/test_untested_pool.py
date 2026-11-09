@@ -26,7 +26,6 @@ from build_untested_pool import (  # noqa: E402
     dos_at_fermi_states_ev_per_atom,
     epw_eligibility_reason,
     eligible_family_metrics,
-    filter_by_summary_metallicity,
     family_definer_rejection,
     magnetism_classification,
     oxygen_agnostic_formula_key,
@@ -132,7 +131,7 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(counts["composition_policy_rejected"], 1)
         self.assertEqual(rejected["mp-radioactive"], "radioactive_element:Th")
 
-    def test_summary_metallicity_gate_accepts_either_mp_metal_flag_or_exact_zero_gap(self):
+    def test_summary_metallicity_labels_are_diagnostic_not_pool_qualification(self):
         docs = [
             _summary("mp-is-metal", "Nb3Sn", is_metal=True, band_gap=0.4),
             _summary("mp-zero-gap", "Nb3Sn", is_metal=False, band_gap=0.0),
@@ -140,13 +139,8 @@ class UntestedPoolV2Tests(unittest.TestCase):
             _summary("mp-insulator", "Nb3Sn", is_metal=False, band_gap=0.2),
             _summary("mp-no-summary", "Nb3Sn", is_metal=None, band_gap=None),
         ]
-        accepted, counts, rejected = filter_by_summary_metallicity(docs)
-        self.assertEqual([doc.material_id for doc in accepted], ["mp-is-metal", "mp-zero-gap", "mp-both"])
-        self.assertEqual(counts["mp_summary_is_metal_true"], 2)
-        self.assertEqual(counts["mp_summary_band_gap_zero"], 2)
-        self.assertEqual(counts["mp_summary_metallicity_accepted"], 3)
-        self.assertEqual(counts["mp_summary_metallicity_rejected"], 2)
-        self.assertEqual(rejected["mp-insulator"], "mp_summary_not_metallic")
+        # These labels are exposed for diagnostics only. Production qualification
+        # is exercised below via material-level DOS and static/uniform tasks.
         self.assertEqual(summary_metallicity_evidence(docs[2]), "is_metal_true;band_gap_zero")
 
     def test_required_composition_rejections(self):
@@ -303,7 +297,7 @@ class UntestedPoolV2Tests(unittest.TestCase):
         self.assertEqual(counts["dos_material_ids_queried"], 1)
         self.assertEqual(diagnostics["error_counts"], {})
 
-    def test_low_dos_is_optional_enrichment_not_a_rejection(self):
+    def test_low_dos_is_rejected_by_the_required_gate(self):
         doc = _summary("mp-low-dos", "Nb3Sn", sites=2)
         task = {"task_id": "static-task", "task_type": "Static", "run_type": "GGA"}
         enriched, counts, rejected, _ = qualify_by_material_level_dos(
@@ -312,11 +306,9 @@ class UntestedPoolV2Tests(unittest.TestCase):
             [task],
             lambda _mid, _task_ids: (_Dos(0.1, nsites=2), "static-task"),
         )
-        self.assertEqual(len(enriched), 1)
-        self.assertFalse(enriched[0][1]["dos_ef_gt_0p1_states_ev_atom"])
-        self.assertEqual(enriched[0][1]["dos_optional_enrichment_status"], "retrieved_le_0.1")
+        self.assertEqual(enriched, [])
         self.assertEqual(counts["dos_below_or_equal_0p1_states_ev_atom"], 1)
-        self.assertEqual(rejected, {})
+        self.assertEqual(rejected["mp-low-dos"], "dos_ef_le_0.1_states_per_ev_per_atom")
 
     def test_material_level_dos_lookup_uses_raw_route_and_restores_mode(self):
         route = SimpleNamespace(use_document_model=True)
@@ -411,21 +403,25 @@ class UntestedPoolV2Tests(unittest.TestCase):
         }}}
         self.assertEqual(eligible_family_metrics(report), {"Pass": 0.51})
 
-    def test_pool_status_never_blocks_on_optional_dos(self):
-        counts = {"dos_static_or_uniform_tasks": 12, "dos_curves_retrieved": 0}
-        self.assertEqual(pool_run_status(0, counts, {"Other": 0.7}), "ready_empty_after_family_gate")
+    def test_pool_status_reports_required_dos_gate(self):
+        counts = {
+            "ordered_and_source_unmatched": 12,
+            "dos_static_or_uniform_tasks": 12,
+            "dos_curves_retrieved": 0,
+        }
+        self.assertEqual(pool_run_status(0, counts, {"Other": 0.7}), "ready_empty_after_required_dos_gate")
         self.assertEqual(pool_run_status(
             0, {"ordered_structures": 100, "dos_metadata_returned": 100, "dos_task_references": 0}, {"Other": 0.7}
         ), "ready_empty_after_family_gate")
         self.assertEqual(pool_run_status(1, counts, {"Other": 0.7}), "ready")
         self.assertEqual(pool_run_status(0, {"dos_curves_retrieved": 0}, {"Other": 0.7}), "ready_empty_after_family_gate")
         self.assertEqual(pool_run_status(
-            0, {"ordered_and_source_unmatched": 100, "mp_summary_metallicity_accepted": 0}, {}
-        ), "ready_empty_after_summary_metallicity")
+            0, {"ordered_and_source_unmatched": 100, "dos_ef_gt_0p1_required_gate": 0}, {}
+        ), "ready_empty_after_required_dos_gate")
 
     def test_summary_documents_verified_material_to_task_dos_resolution(self):
         report = {
-            "status": "ready_empty_after_family_gate",
+            "status": "ready_empty_after_required_dos_gate",
             "shortlist_rows": 0,
             "eligible_family_metrics": {"Other": 0.6},
             "filter_counts": {},
@@ -448,8 +444,8 @@ class UntestedPoolV2Tests(unittest.TestCase):
             path = Path(tmp) / "summary.md"
             _render_summary(path, report)
             summary = path.read_text(encoding="utf-8")
-        self.assertIn("DOS(Ef) above 0.1 states/eV/atom", summary)
-        self.assertIn("Missing curves and DOS at or below the threshold never block pool inclusion", summary)
+        self.assertIn("DOS(E_F) strictly above 0.1 states/eV/atom", summary)
+        self.assertIn("Missing curves, low DOS, and relaxation/optimization tasks are rejected", summary)
         self.assertIn("candidate material_id -> eligible task_id -> parsed DOS", summary)
         self.assertNotIn("task IDs are therefore left blank", summary)
     def test_mp_snapshot_replays_offline_and_checks_source_fingerprint(self):
@@ -484,7 +480,7 @@ class UntestedPoolV2Tests(unittest.TestCase):
                     "dos_curves": {"task-static": _Dos(1.68, nsites=4)},
                 },
                 qualified=[(doc, {"dos_ef_states_ev_per_atom": 0.42})],
-                counts={"summary_metallicity_qualified": 1},
+                counts={"dos_ef_gt_0p1_required_gate": 1},
                 rejected={"mp-rejected": "radioactive_element:Th"},
                 diagnostics={"api_errors": 0},
             )
@@ -493,7 +489,7 @@ class UntestedPoolV2Tests(unittest.TestCase):
             )
             self.assertEqual(qualified[0][0]["material_id"], "mp-123")
             self.assertAlmostEqual(qualified[0][1]["dos_ef_states_ev_per_atom"], 0.42)
-            self.assertEqual(counts["summary_metallicity_qualified"], 1)
+            self.assertEqual(counts["dos_ef_gt_0p1_required_gate"], 1)
             self.assertEqual(rejected["mp-rejected"], "radioactive_element:Th")
             self.assertEqual(diagnostics["mp_query_cache"]["mode"], "replayed_offline")
             self.assertEqual(diagnostics["mp_query_cache"]["raw_result_counts"]["summary_query"], 2)
@@ -507,7 +503,7 @@ class UntestedPoolV2Tests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "fingerprint differs"):
                 _fetch_mp("", changed_sources, mp_cache_path=cache_path)
 
-    def test_mp_summary_metal_is_included_when_optional_dos_curve_is_missing(self):
+    def test_mp_summary_metal_and_gap_do_not_qualify_without_static_uniform_dos(self):
         from pymatgen.core import Lattice, Structure
 
         source_index = FormulaSourceIndex(
@@ -519,7 +515,7 @@ class UntestedPoolV2Tests(unittest.TestCase):
             Lattice.cubic(6.0), ["Nb", "Nb", "Nb", "Sn"],
             [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]],
         )
-        doc = _summary("mp-no-dos", "Nb3Sn", sites=4, sg=221, structure=structure)
+        doc = _summary("mp-no-dos", "Nb3Sn", sites=4, sg=221, structure=structure, is_metal=True, band_gap=0.0)
         with tempfile.TemporaryDirectory() as directory:
             cache_path = Path(directory) / "mp-query-cache.json.gz"
             _write_mp_snapshot(
@@ -535,13 +531,12 @@ class UntestedPoolV2Tests(unittest.TestCase):
                 },
                 qualified=[], counts={}, rejected={}, diagnostics={},
             )
-            qualified, counts, _rejected, _diagnostics = _fetch_mp(
+            qualified, counts, rejected, _diagnostics = _fetch_mp(
                 "", source_index, mp_cache_path=cache_path
             )
-        self.assertEqual([item[0]["material_id"] for item in qualified], ["mp-no-dos"])
-        self.assertEqual(qualified[0][1]["metallicity_source"], "mp_summary_provisional")
-        self.assertEqual(qualified[0][1]["dos_optional_enrichment_status"], "missing")
-        self.assertEqual(counts["summary_metallicity_qualified"], 1)
+        self.assertEqual(qualified, [])
+        self.assertEqual(rejected["mp-no-dos"], "no_static_or_uniform_dos_task_reference")
+        self.assertEqual(counts["dos_ef_gt_0p1_required_gate"], 0)
         self.assertEqual(counts["dos_curves_retrieved"], 0)
 
     def test_main_evaluator_embargoes_shared_mp_ids(self):
@@ -571,7 +566,7 @@ class UntestedPoolV2Tests(unittest.TestCase):
         scored, counts, rejected = score_family_candidates(qualified, records, {"Ferrites": 0.7})
         self.assertEqual(len(scored), 1)
         self.assertEqual(scored[0]["dft_verification"], "pending")
-        self.assertEqual(scored[0]["metallicity_source"], "mp_summary_provisional")
+        self.assertEqual(scored[0]["metallicity_source"], "mp_static_or_uniform_dos_ef")
         self.assertTrue(scored[0]["is_magnetic"])
         self.assertEqual(scored[0]["ordering"], "FM")
         self.assertEqual(scored[0]["total_magnetization"], 2.5)
