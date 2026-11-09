@@ -502,7 +502,7 @@ jobs:
           } > docs/untested-pool-summary.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/untested-pool-shortlist.csv docs/epw-eligible-shortlist.csv docs/untested-pool-summary.md docs/untested-pool-summary-history.md data/training/label_audit_queue.csv
+          git add docs/untested-pool-shortlist.csv docs/epw-eligible-shortlist.csv docs/untested-pool-summary.md docs/untested-pool-summary-history.md docs/untested-pool-shortlist-provisional-20261109.csv docs/epw-eligible-shortlist-provisional-20261109.csv docs/untested-pool-summary-provisional-20261109.md data/training/label_audit_queue.csv
           if ! git diff --cached --quiet; then
             git commit -m "data: publish v2 untested materials shortlist"
             git push origin "HEAD:${GITHUB_REF_NAME}"
