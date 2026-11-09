@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Hazel uses Slurm (confirmed with NC State HPC staff, 2026-11-06).
-# UNCONFIRMED RESOURCES: partition, QoS, core count and the QE/EPW install are
-# placeholders until access is granted. Check names with the HPC docs or chatbot.
+# UNCONFIRMED RESOURCES: the core count and the QE/EPW install. Partition and
+# QOS defaults below (compute / normal) come from
+# hpc.ncsu.edu/RunningJobs/Resources.php, checked 2026-11-09; confirm yours
+# with the `sa` and `sqos` commands on the login node.
 #
 # Rules from the HPC consult:
 #   * Compute nodes have no internet. Stage every input on the login node first
@@ -14,8 +16,8 @@
 #     copy results/ back to the repository as soon as the job finishes.
 #
 #SBATCH --job-name=rtsc-<structure_id>-<step>
-#SBATCH --partition=<partition>
-#SBATCH --qos=<qos>
+#SBATCH --partition=compute
+#SBATCH --qos=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=<cores>
 #SBATCH --time=01:50:00
