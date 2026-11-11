@@ -1,0 +1,41 @@
+{
+  "note": "Corrections to the parent structure 3DSC matched to a cuprate family. Rules use the formula only, never the Tc label. Structures are from the Materials Project (CC BY 4.0), fetched 2026-11-11.",
+  "rules": [
+    {
+      "mp_parent_id": "mp-1077929",
+      "matched_structure": "La2CuO4, I4/mmm, T' structure (Nd2CuO4 type): no apical oxygen, Cu-O 2.00 A",
+      "replacement_id": "mp-aaaabdfb",
+      "replacement_cif": "La2CuO4-T-phase-mp-aaaabdfb.cif",
+      "replacement_structure": "La2CuO4, I4/mmm, T structure (K2NiF4 type): two apical oxygens at 2.46 A, Cu-O 1.91 A",
+      "applies_unless_formula_contains": [
+        "Ce",
+        "Pr",
+        "Nd",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Th"
+      ],
+      "reason": "3DSC matched the whole La2CuO4 family to Materials Project's lowest-energy entry, which is the T' polymorph. Hole-doped La2-x(Sr,Ba,Ca,Na,K)xCuO4 and oxygen-doped La2CuO4+d crystallise in the T structure, which has apical oxygens. Lanthanide-substituted, electron-doped members (La2-xCexCuO4) really are T' and keep the matched structure."
+    },
+    {
+      "mp_parent_id": "mp-5787",
+      "matched_structure": "SrCuO2, Cmcm: double Cu-O chains, no CuO2 plane",
+      "replacement_id": "mp-aaaacdmw",
+      "replacement_cif": "SrCuO2-infinite-layer-mp-aaaacdmw.cif",
+      "replacement_structure": "SrCuO2, P4/mmm, infinite-layer structure: CuO2 planes separated only by Sr",
+      "applies_if_formula_contains": [
+        "Y",
+        "La",
+        "Pr",
+        "Nd",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Ca",
+        "Ba"
+      ],
+      "reason": "3DSC matched Sr1-xLnxCuO2 to the ambient-pressure chain polymorph of SrCuO2. The lanthanide-doped superconductors are the high-pressure infinite-layer phase. Rows without a substituent keep the matched structure because the formula alone does not say which phase was made."
+    }
+  ]
+}

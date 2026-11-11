@@ -8,6 +8,8 @@
 > 2. **λ is now fitted in log space** in `train_physics_targets.py`, as ωlog already was. On held-out element systems the Tc error falls from 5.95 K to 2.71 K (guessing the median: 2.99 K). The direct fit stays in the report as a comparison column.
 > 3. **The classifier has a workflow.** `.github/workflows/sc-classifier.yml` rebuilds labels and retrains when a label file changes. Before this it ran in no workflow, and its label build looked for the raw tables in a folder layout that CI does not have.
 > 4. **Quantum ESPRESSO 7.6 from conda-forge includes `epw.x` and Wannier90, and Stage 0 has been rehearsed with it** (`docs/hazel-runbook.md`, sections 4 to 6).
+>
+> **Cuprate track (added 2026-11-11).** EPW cannot check cuprates, whose mechanism is unsolved. `docs/cuprate-track.md` describes a separate track that builds the empirical rules for cuprates (doping dome, CuO₂ layer count, apical-oxygen distance, disorder) into 20 features and tests them on unseen cuprate families. The features give a small, consistent gain; nothing from that track changes the ranking yet.
 
 ```mermaid
 flowchart LR

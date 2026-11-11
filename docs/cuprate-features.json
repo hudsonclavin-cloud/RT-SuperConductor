@@ -1,0 +1,92 @@
+{
+  "coverage": {
+    "apical_o_distance_min_a": 0.7975,
+    "cuo2_layer_count": 0.9874,
+    "hole_doping_p": 0.9966
+  },
+  "features": [
+    "cu_valence_formula",
+    "hole_doping_p",
+    "abs_doping",
+    "doping_distance_from_optimum",
+    "presland_dome",
+    "electron_doped",
+    "valence_ambiguous",
+    "cuo2_layer_count",
+    "infinite_layer",
+    "planar_cu_fraction",
+    "in_plane_cu_o_mean_a",
+    "plane_buckling_rms_a",
+    "apical_o_count_mean",
+    "apical_o_distance_min_a",
+    "apical_o_distance_mean_a",
+    "has_apical_oxygen",
+    "in_plane_cu_cu_mean_a",
+    "fractional_species_count",
+    "largest_minor_fraction",
+    "dopant_fraction_total"
+  ],
+  "limits": [
+    "Geometry is the Materials Project parent structure; 3DSC adds the doping artificially.",
+    "3DSC can match a family to the wrong polymorph. Two large cases are corrected by data/training/cuprate-parent-overrides/rules.json; smaller ones may remain.",
+    "Doping is a formula-level average over all copper atoms, with nominal valences and nominal oxygen.",
+    "These are empirical correlations from the literature, not a mechanism."
+  ],
+  "parent_structure_rules": [
+    {
+      "applies_unless_formula_contains": [
+        "Ce",
+        "Pr",
+        "Nd",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Th"
+      ],
+      "matched_structure": "La2CuO4, I4/mmm, T' structure (Nd2CuO4 type): no apical oxygen, Cu-O 2.00 A",
+      "mp_parent_id": "mp-1077929",
+      "reason": "3DSC matched the whole La2CuO4 family to Materials Project's lowest-energy entry, which is the T' polymorph. Hole-doped La2-x(Sr,Ba,Ca,Na,K)xCuO4 and oxygen-doped La2CuO4+d crystallise in the T structure, which has apical oxygens. Lanthanide-substituted, electron-doped members (La2-xCexCuO4) really are T' and keep the matched structure.",
+      "replacement_cif": "La2CuO4-T-phase-mp-aaaabdfb.cif",
+      "replacement_id": "mp-aaaabdfb",
+      "replacement_structure": "La2CuO4, I4/mmm, T structure (K2NiF4 type): two apical oxygens at 2.46 A, Cu-O 1.91 A"
+    },
+    {
+      "applies_if_formula_contains": [
+        "Y",
+        "La",
+        "Pr",
+        "Nd",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Ca",
+        "Ba"
+      ],
+      "matched_structure": "SrCuO2, Cmcm: double Cu-O chains, no CuO2 plane",
+      "mp_parent_id": "mp-5787",
+      "reason": "3DSC matched Sr1-xLnxCuO2 to the ambient-pressure chain polymorph of SrCuO2. The lanthanide-doped superconductors are the high-pressure infinite-layer phase. Rows without a substituent keep the matched structure because the formula alone does not say which phase was made.",
+      "replacement_cif": "SrCuO2-infinite-layer-mp-aaaacdmw.cif",
+      "replacement_id": "mp-aaaacdmw",
+      "replacement_structure": "SrCuO2, P4/mmm, infinite-layer structure: CuO2 planes separated only by Sr"
+    }
+  ],
+  "parent_structures": 163,
+  "rows": 874,
+  "rows_by_cuo2_layer_count": {
+    "0": 36,
+    "1": 391,
+    "2": 399,
+    "3": 6,
+    "infinite": 31,
+    "unknown": 11
+  },
+  "rows_with_ambiguous_valence": 405,
+  "rows_with_corrected_parent_structure": {
+    "mp-1077929": 172,
+    "mp-5787": 17
+  },
+  "rows_without_cif": 0,
+  "source_table_sha256": "353b86f9c60505d11a3e25df8312da02ff88fd8e27af05b632dec4739d52eb24",
+  "superconducting_rows": 576,
+  "unreadable_cifs": 0
+}
