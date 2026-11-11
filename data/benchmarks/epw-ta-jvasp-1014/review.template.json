@@ -4,6 +4,10 @@
   "converged": false,
   "reviewer": "",
   "mu_star": 0.1,
-  "reference": {"lambda": 0.7572, "omega_log_k": 164.99, "source": "JARVIS-SuperconDB JVASP-1014"},
-  "notes": "Stage 1: tantalum benchmark. Copy the contents of CHAIN_MODE.txt from the run directory here. Only a CHAIN_MODE=full run counts as the benchmark; smoke mode is a setup check. Set converged to true only after every step printed JOB DONE, epw.out shows a positive DOS at Ef and a plain number for lambda, and the Wannier spreads in ta.wout are a few square angstroms. Record the QE/EPW version and core counts from logs/."
+  "reference": {
+    "lambda": 0.7572,
+    "omega_log_k": 164.99,
+    "source": "JARVIS-SuperconDB JVASP-1014"
+  },
+  "notes": "As of 2026-11-11 the full settings in this package fail the benchmark (lambda 1.447 against 0.7572); see docs/hazel-runbook.md, section 7, before using them. Stage 1: tantalum benchmark. Copy the contents of CHAIN_MODE.txt from the run directory here. Only a CHAIN_MODE=full run counts as the benchmark; smoke mode is a setup check. Set converged to true only after every step printed JOB DONE, epw.out shows a positive DOS at Ef and a plain number for lambda, and the Wannier spreads in ta.wout are a few square angstroms. Record the QE/EPW version and core counts from logs/."
 }

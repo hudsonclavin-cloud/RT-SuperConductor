@@ -9,6 +9,8 @@ added to training.
 Unlike the lead package, these inputs were written for this project. The
 settings and the checks behind them are below.
 
+> **Status, 2026-11-11: not validated.** With these settings the full run gives λ = 1.447 and ωlog = 108.6 K against the reference 0.7572 and 164.99 K. The phonon calculation is not converged with respect to k-points (the H-point frequency moves 13% between the 8×8×8 and 16×16×16 k-meshes). The settings below are a starting point for the convergence tests listed in `docs/hazel-runbook.md`, section 7, not a finished benchmark.
+
 ## Pseudopotential
 
 | Item | Value |
