@@ -1,0 +1,14 @@
+# Smoke-mode edits for the EPW Pb example: file, text to find, replacement (tab-separated).
+# Phonon k-mesh 8x8x8 instead of 14x14x14; q-mesh 3x3x3 instead of 6x6x6; EPW fine q-mesh 8x8x8
+# instead of 20x20x20. The fine k-mesh stays at 20x20x20: at 8x8x8 EPW finds no states at the
+# Fermi level with this smearing and lambda divides by zero.
+woSOC/phonons/scf.in	14 14 14 1 1 1	8 8 8 1 1 1
+woSOC/phonons/ph.in	nq1=6,	nq1=3,
+woSOC/epw/epw.in	nq1         = 6	nq1         = 3
+woSOC/epw/epw.in	nqf1         = 20	nqf1         = 8
+woSOC/phonons/ph.in	nq2=6,	nq2=3,
+woSOC/epw/epw.in	nq2         = 6	nq2         = 3
+woSOC/epw/epw.in	nqf2         = 20	nqf2         = 8
+woSOC/phonons/ph.in	nq3=6,	nq3=3,
+woSOC/epw/epw.in	nq3         = 6	nq3         = 3
+woSOC/epw/epw.in	nqf3         = 20	nqf3         = 8

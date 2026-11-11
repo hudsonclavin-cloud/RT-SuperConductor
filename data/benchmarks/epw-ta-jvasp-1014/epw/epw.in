@@ -1,0 +1,54 @@
+--
+&inputepw
+  prefix      = 'ta'
+  amass(1)    = 180.94788
+  outdir      = './'
+
+  elph        = .true.
+  epbwrite    = .true.
+  epbread     = .false.
+
+  epwwrite    = .true.
+  epwread     = .false.
+
+  nbndsub     = 6
+  bands_skipped = 'exclude_bands = 1-4'
+
+  wannierize  = .true.
+  num_iter    = 500
+  dis_win_min = 9.0
+  dis_win_max = 28.0
+  dis_froz_min= 9.0
+  dis_froz_max= 26.0
+  proj(1)     = 'Ta:d'
+  proj(2)     = 'Ta:s'
+
+  iverbosity  = 0
+
+  elecselfen  = .false.
+  phonselfen  = .true.
+
+  fsthick     = 0.4 ! eV
+  temps       = 0.075 ! K
+  degaussw    = 0.1 ! eV
+
+  a2f         = .true.
+
+  dvscf_dir   = '../phonons/save'
+
+  nkf1         = 24
+  nkf2         = 24
+  nkf3         = 24
+
+  nqf1         = 12
+  nqf2         = 12
+  nqf3         = 12
+
+  nk1         = 8
+  nk2         = 8
+  nk3         = 8
+
+  nq1         = 4
+  nq2         = 4
+  nq3         = 4
+ /
