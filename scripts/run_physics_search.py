@@ -24,7 +24,7 @@ if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 from train_physics_targets import (
     DATASET_FILE, _formula_and_structure, _make_matrix, _write_csv,
-    allen_dynes_tc_k, build_characteristics, fit_physics_models,
+    allen_dynes_tc_k, build_characteristics, fit_physics_models, lambda_tree_predictions,
 )
 
 
@@ -210,7 +210,7 @@ def rank_candidates(
     characteristics, _, _ = build_characteristics(candidates)
     X = _make_matrix(characteristics, feature_names)
     X = models["imputer"].transform(X)
-    lam_by_tree = np.asarray([tree.predict(X) for tree in models["lambda"].estimators_])
+    lam_by_tree = lambda_tree_predictions(models, X)
     wlog_by_tree = np.exp(np.asarray([tree.predict(X) for tree in models["log_omega_log_k"].estimators_]))
     tc_by_tree = np.empty_like(lam_by_tree)
     for tree_index in range(len(lam_by_tree)):

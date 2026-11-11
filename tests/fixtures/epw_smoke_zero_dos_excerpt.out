@@ -1,0 +1,76 @@
+     Size of k point mesh for interpolation:        512
+     Max number of k points per pool:              128
+
+     Fermi energy coarse grid =  11.717604 eV
+
+     Skipping    5 occupied bands:
+
+     The Fermi level will be determined with   4.00000 electrons
+
+     Fermi energy is calculated from the fine k-mesh: Ef =  11.564636 eV
+
+     Smearing type for the static self-energy: Gaussian
+     smearing value for the static self-energy: T_high =   0.010000 Ry.
+     Gaussian Broadening:   0.050000 eV, ngauss=   1
+     DOS =  0.000000 states/spin/eV/Unit Cell at Ef= 11.564636 eV
+
+     ismear =     1 iq =       1 coord.:   0.00000  0.00000  0.00000 wt:   0.00195 Temp:    0.075K
+     -------------------------------------------------------------------
+     lambda___(   1 )=       0.000000   gamma___=       0.000000 meV  omega=     -0.0000 meV   on_shell_Omega=      0.0000 meV  off_shell_Omega=      0.0000 meV
+     lambda_tr(   1 )=       0.000000   gamma_tr=       0.000000 meV  omega=     -0.0000 meV   on_shell_Omega=      0.0000 meV  off_shell_Omega=      0.0000 meV
+     lambda___(   2 )=       0.000000   gamma___=       0.000000 meV  omega=     -0.0000 meV   on_shell_Omega=      0.0000 meV  off_shell_Omega=      0.0000 meV
+     lambda_tr(   2 )=       0.000000   gamma_tr=       0.000000 meV  omega=     -0.0000 meV   on_shell_Omega=      0.0000 meV  off_shell_Omega=      0.0000 meV
+     lambda___(   3 )=       0.000000   gamma___=       0.000000 meV  omega=      0.0000 meV   on_shell_Omega=      0.0000 meV  off_shell_Omega=      0.0000 meV
+     lambda_tr(   3 )=       0.000000   gamma_tr=       0.000000 meV  omega=      0.0000 meV   on_shell_Omega=      0.0000 meV  off_shell_Omega=      0.0000 meV
+     lambda___( tot )=       0.000000
+     lambda_tr( tot )=       0.000000
+     -------------------------------------------------------------------
+
+
+     Number of (k,k+q) pairs on the Fermi surface:      511 out of      512
+     [... 510 further q-points omitted from this excerpt ...]
+     Number of (k,k+q) pairs on the Fermi surface:      510 out of      512
+
+
+     ismear =     1 iq =     512 coord.:   0.87500  0.87500  0.87500 wt:   0.00195 Temp:    0.075K
+     -------------------------------------------------------------------
+     lambda___(   1 )=       0.000000   gamma___=       0.000000 meV  omega=      1.5987 meV   on_shell_Omega=      1.3195 meV  off_shell_Omega=      1.2989 meV
+     lambda_tr(   1 )=       0.000000   gamma_tr=       0.000000 meV  omega=      1.5987 meV   on_shell_Omega=      1.3195 meV  off_shell_Omega=      1.2989 meV
+     lambda___(   2 )=       0.000000   gamma___=       0.000000 meV  omega=      1.5987 meV   on_shell_Omega=      1.3195 meV  off_shell_Omega=      1.2989 meV
+     lambda_tr(   2 )=       0.000000   gamma_tr=       0.000000 meV  omega=      1.5987 meV   on_shell_Omega=      1.3195 meV  off_shell_Omega=      1.2989 meV
+     lambda___(   3 )=       0.000000   gamma___=       0.000000 meV  omega=      3.7728 meV   on_shell_Omega=      3.6374 meV  off_shell_Omega=      3.6374 meV
+     lambda_tr(   3 )=       0.000000   gamma_tr=       0.000000 meV  omega=      3.7728 meV   on_shell_Omega=      3.6374 meV  off_shell_Omega=      3.6374 meV
+     lambda___( tot )=       0.000000
+     lambda_tr( tot )=       0.000000
+     -------------------------------------------------------------------
+
+
+     Number of (k,k+q) pairs on the Fermi surface:      510 out of      512
+
+     ===================================================================
+     Memory usage:  VmHWM =        86Mb
+                   VmPeak =       590Mb
+     ===================================================================
+
+
+     Finish writing phdos files pb.phdos and pb.phdos_proj
+
+
+     ===================================================================
+     Eliashberg Spectral Function in the Migdal Approximation
+     ===================================================================
+
+     lambda : ************
+     lambda_tr : ************
+
+     Estimated Allen-Dynes Tc
+
+     logavg =    0.0003694 l_a2f = ************
+     mu =   0.10 Tc =        16.036081307095 K
+     mu =   0.12 Tc =        15.799649617809 K
+     mu =   0.14 Tc =        15.560425779656 K
+     mu =   0.16 Tc =        15.318388385872 K
+     mu =   0.18 Tc =        15.073517787068 K
+     mu =   0.20 Tc =        14.825796310093 K
+     a2F          :      0.10s CPU      0.10s WALL (       1 calls)
+

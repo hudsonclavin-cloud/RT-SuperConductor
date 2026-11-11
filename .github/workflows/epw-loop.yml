@@ -15,6 +15,7 @@ on:
       - "data/training/physics-target-characteristics.csv"
       - "docs/epw-eligible-shortlist.csv"
       - "docs/untested-pool-shortlist.csv"
+      - "docs/mp-sc-classifier-top200.csv"
       - "scripts/score_pool_physics.py"
       - "scripts/train_physics_targets.py"
       - ".github/workflows/epw-loop.yml"
@@ -57,19 +58,26 @@ jobs:
           quality = report["model"].get("held_out_quality", {}).get("tc_k", {})
           lines = [
               "### EPW loop rescoring",
-              f"- Candidates file: `{report['candidates_path']}`",
+              f"- Candidates file: `{report['candidates_path']}` ({report.get('candidates_source_reason', '')})",
+              f"- Ranking: {report.get('ranking', '')}",
               f"- Scored: {report['candidates_scored']}; EPW-eligible: {report['epw_eligible']}",
               f"- Reviewed Hazel records in training: {len(report['model'].get('hazel_records_used', []))}",
               f"- Held-out Tc MAE {quality.get('mae', float('nan')):.2f} K vs median guess "
               f"{quality.get('median_guess_mae', float('nan')):.2f} K; Spearman {quality.get('spearman', float('nan')):.2f}",
               "",
-              "| Rank | MP ID | Formula | Consensus Tc (K) | Physics Tc (K) | Measured-Tc RF (K) |",
-              "| --- | --- | --- | --- | --- | --- |",
+              "| Rank | MP ID | Formula | Classifier probability | Consensus Tc (K) | Physics Tc (K) | Measured-Tc RF (K) |",
+              "| --- | --- | --- | --- | --- | --- | --- |",
           ]
+
+          def number(value, digits):
+              # Blank, not zero, when a model gave no value for this row.
+              return f"{float(value):.{digits}f}" if value not in ("", None) else "n/a"
+
           for row in report["top_eligible"]:
               lines.append(
                   f"| {row['epw_rank']} | {row['mp_id']} | {row['formula']} | "
-                  f"{(row['consensus_tc_k'] or 0):.1f} | {row['physics_tc_k']:.1f} | {row['rf_family_tc_k']} |"
+                  f"{number(row.get('p_superconductor'), 3)} | {number(row['consensus_tc_k'], 1)} | "
+                  f"{number(row['physics_tc_k'], 1)} | {number(row['rf_family_tc_k'], 1)} |"
               )
           lines.append("")
           lines.append("Screening hypotheses only; DFT verification pending for every row.")

@@ -151,3 +151,26 @@ def test_stage0_tools_check_passes_on_real_pb_output(tmp_path):
     report = promote(tmp_path / "results", tmp_path / "records.json", tmp_path / "report.json")
     assert report["tools_checks"] == 1 and report["tools_checks_passing"] == 1
     assert report["training_records_written"] == 0 and report["benchmarks"] == 0
+
+
+def test_run_with_no_states_at_the_fermi_level_is_rejected_with_the_cause(tmp_path):
+    """Real QE 7.6 output: EPW ended normally and printed a Tc, but lambda is a division by zero."""
+    from promote_dft_results import epw_output_problems
+
+    text = (ROOT / "tests/fixtures/epw_smoke_zero_dos_excerpt.out").read_text(encoding="utf-8")
+    problems = epw_output_problems(text)
+    assert [p.split(":")[0] for p in problems] == ["zero_dos_at_fermi_level", "lambda_overflow"]
+    # The per-q "lambda___( tot )= 0.000000" lines must not be mistaken for the result.
+    assert parse_targets(text)[0] is None
+    _write_run(tmp_path / "pb-smoke", role="tools_check", formula="Pb", element="Pb", epw_text=text)
+    outcome = evaluate_directory(tmp_path / "pb-smoke")
+    assert outcome["outcome"] == "rejected"
+    assert outcome["reason"] == "epw_output_has_a_known_failure"
+    assert len(outcome["epw_output_problems"]) == 2
+
+
+def test_healthy_epw_outputs_report_no_known_failure():
+    from promote_dft_results import epw_output_problems
+
+    for name in ("epw_super_mgb2_excerpt.out", "epw_metal_pb_a2f_excerpt.out"):
+        assert epw_output_problems((ROOT / "tests/fixtures" / name).read_text(encoding="utf-8")) == [], name

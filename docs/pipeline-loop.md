@@ -2,6 +2,13 @@
 
 **Main idea:** the project is one loop. Machine learning ranks materials, Quantum ESPRESSO and EPW on Hazel check the best ones, and reviewed results go back into training so the next ranking is better. As of 2026-11-06, every step exists in code. The only missing piece is the Hazel runs themselves, which wait on cluster access.
 
+> **Update 2026-11-11.** Four things changed; the table and gap list below are annotated where they apply.
+>
+> 1. **The strict candidate lists are empty, for a data reason.** Since 2026-11-09 the pool builder requires a density-of-states curve for every candidate, and Materials Project's public bucket returned none of the 149 requested (details in `docs/actions-parameters.md`). No candidate was compared with the threshold. So that the loop still names a next candidate, `score_pool_physics.py` now scores the first list that has rows: the strict EPW list, the pool shortlist, then the classifier's ranking `docs/mp-sc-classifier-top200.csv`. Classifier rows keep the classifier's order. The earlier 120-row output is kept as `docs/epw-next-candidates-provisional-20261109.csv`.
+> 2. **λ is now fitted in log space** in `train_physics_targets.py`, as ωlog already was. On held-out element systems the Tc error falls from 5.95 K to 2.71 K (guessing the median: 2.99 K). The direct fit stays in the report as a comparison column.
+> 3. **The classifier has a workflow.** `.github/workflows/sc-classifier.yml` rebuilds labels and retrains when a label file changes. Before this it ran in no workflow, and its label build looked for the raw tables in a folder layout that CI does not have.
+> 4. **Quantum ESPRESSO 7.6 from conda-forge includes `epw.x` and Wannier90, and Stage 0 has been rehearsed with it** (`docs/hazel-runbook.md`, sections 4 to 6).
+
 ```mermaid
 flowchart LR
   A[Known data<br/>3DSC 5,773 Tc<br/>JARVIS 1,058 λ, ωlog] --> B[Train models<br/>Tc random forests<br/>λ and ωlog forests]
@@ -101,5 +108,7 @@ python scripts/train_physics_targets.py --extra-records data/training/hazel-epw-
 1. **Hazel access.** Requested through Research Facilitation; Lib Students project.
 2. **The EPW input.** Start from EPW tutorial 04's Pb inputs instead of the generated template.
 3. **The parser.** Confirmed on real EPW output from the QE test suite (MgB2). Stage 0 rechecks it on Pb with the EPW version installed on Hazel.
-4. **Physics-model quality.** Pool scoring uses formula features only. Its held-out Tc error (2.7 K) only modestly beats guessing the median (3.0 K), with Spearman 0.51. Adding structure features from MP CIFs is the next improvement. `train_physics_targets.py` should also fit log λ, because fitting λ directly doubles its held-out Tc error (5.9 K).
+4. **Physics-model quality.** Pool scoring uses formula features only. Its held-out Tc error (2.7 K) only modestly beats guessing the median (3.0 K), with Spearman 0.51. Adding structure features from MP CIFs is the next improvement. `train_physics_targets.py` should also fit log λ, because fitting λ directly doubles its held-out Tc error (5.9 K). *Done 2026-11-11: the trainer fits log λ (2.71 K against 5.95 K on the same folds). The model still does not beat chance on real outcomes, so it stays a second opinion.*
 5. **Automation.** Globus Compute could let GitHub Actions submit Hazel jobs. Set it up only after manual runs work (see `docs/hazel-runbook.md`).
+6. **The DOS gate decision** (added 2026-11-11). Either keep DOS(E_F) as a required gate, which yields no candidates until the curves can be retrieved, or make it an optional column again. This is a project decision, not a bug fix; `docs/actions-parameters.md` has the evidence.
+7. **Stage 1 inputs** (added 2026-11-11). The tantalum EPW input must be written from the Pb example's pattern (Wannier projections, energy windows, band count) and rehearsed the same way Stage 0 was.

@@ -1,0 +1,181 @@
+name: Superconductor classifier - rebuild labels and retrain
+
+# The classifier is the model that picks what EPW checks (held-out AUC 0.83 on
+# real outcomes). This workflow rebuilds its labels and retrains it whenever a
+# label file or one of its scripts changes, so a reviewed negative in
+# data/training/negative_evidence.csv or a decision in
+# data/training/label_audit_queue.csv reaches the ranking without anyone
+# running it by hand. It needs no secret unless the snapshot is refreshed.
+# One limit: the extra labels from the wider Materials Project window
+# (data/candidates/mp-wide-labelled.csv.gz) are used as committed. Their raw
+# download is not in CI, so a label decision reaches them only when
+# scripts/eval_label_expansion.py is rerun where that download exists.
+# Results are uploaded as an artifact and shown in the run summary; nothing is
+# committed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Model to fit (gradient_boosting won the benchmark)"
+        type: choice
+        default: gradient_boosting
+        options:
+          - gradient_boosting
+          - random_forest
+          - extra_trees
+          - logistic_regression
+          - neural_network_mlp
+          - ensemble_rf_hgb_mlp
+      run_benchmark:
+        description: "Also rerun the grouped 5-fold x 3 benchmark of every model (slower)"
+        type: boolean
+        default: false
+      refresh_mp_snapshot:
+        description: "Re-download the Materials Project snapshot with the repository secret (off: use the committed snapshot)"
+        type: boolean
+        default: false
+  push:
+    branches:
+      - main
+    paths:
+      - "data/training/negative_evidence.csv"
+      - "data/training/label_audit_queue.csv"
+      - "data/training/external/supercon-mtg/**"
+      - "data/candidates/mp-stable-summary.csv.gz"
+      - "data/candidates/mp-wide-labelled.csv.gz"
+      - "scripts/build_mp_candidates.py"
+      - "scripts/train_mp_sc_classifier.py"
+      - "scripts/benchmark_sc_models.py"
+      - "src/rt_superconductor/label_quarantine.py"
+      - ".github/workflows/sc-classifier.yml"
+  pull_request:
+    paths:
+      - "data/training/negative_evidence.csv"
+      - "data/training/label_audit_queue.csv"
+      - "data/training/external/supercon-mtg/**"
+      - "data/candidates/mp-stable-summary.csv.gz"
+      - "data/candidates/mp-wide-labelled.csv.gz"
+      - "scripts/build_mp_candidates.py"
+      - "scripts/train_mp_sc_classifier.py"
+      - "scripts/benchmark_sc_models.py"
+      - "src/rt_superconductor/label_quarantine.py"
+      - ".github/workflows/sc-classifier.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sc-classifier-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      OUT: data/processed/sc-classifier
+      MODEL: ${{ inputs.model || 'gradient_boosting' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Cache pinned raw datasets
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: rt-supercon-raw-v2-${{ hashFiles('data/manifest.json', 'data/training/physics-target-source.json', 'scripts/download_training_data.py') }}-supercon2-ed55ea8f43a0984d77b5c29576164e06
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip '.[ml]'
+      - name: Download the pinned 3DSC and SuperCon tables
+        run: |
+          mkdir -p "$OUT"
+          python scripts/download_training_data.py \
+            --data-root data/raw \
+            --cif-limit 0 \
+            --report "$OUT/source-download-report.json"
+      - name: Refresh the Materials Project snapshot
+        if: ${{ inputs.refresh_mp_snapshot }}
+        env:
+          MP_API_KEY: ${{ secrets.Materials_Project_API }}
+        run: python scripts/fetch_mp_snapshot.py
+      - name: Rebuild labels from every source
+        run: |
+          python scripts/build_mp_candidates.py \
+            --output "$OUT/mp-candidates.csv.gz" | tee "$OUT/label-build-report.json"
+      - name: Retrain and rank
+        run: |
+          python scripts/train_mp_sc_classifier.py \
+            --candidates "$OUT/mp-candidates.csv.gz" \
+            --scores "$OUT/mp-sc-classifier-scores.csv.gz" \
+            --ranking "$OUT/mp-sc-classifier-top200.csv" \
+            --summary "$OUT/mp-sc-classifier.json" \
+            --model "$MODEL"
+      - name: Rerun the model benchmark
+        if: ${{ inputs.run_benchmark }}
+        run: |
+          python scripts/benchmark_sc_models.py \
+            --candidates "$OUT/mp-candidates.csv.gz" \
+            --output "$OUT/sc-model-benchmark.json" \
+            --oof "$OUT/sc-benchmark-oof.csv.gz"
+      - name: Publish run summary
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          import os
+          from pathlib import Path
+
+          out = Path(os.environ["OUT"])
+          new = json.loads((out / "mp-sc-classifier.json").read_text())
+          old = json.loads(Path("docs/mp-sc-classifier.json").read_text())
+          labels = json.loads((out / "label-build-report.json").read_text())
+
+          def quality(report, key):
+              value = report.get("held_out_quality", {}).get(key)
+              return f"{value:.3f}" if isinstance(value, float) else "n/a"
+
+          with Path("docs/mp-sc-classifier-top200.csv").open(newline="", encoding="utf-8") as handle:
+              committed = [row["mp_id"] for row in csv.DictReader(handle)]
+          with (out / "mp-sc-classifier-top200.csv").open(newline="", encoding="utf-8") as handle:
+              ranked = list(csv.DictReader(handle))
+          kept = len(set(committed[:50]) & {row["mp_id"] for row in ranked[:50]})
+          lines = [
+              "### Superconductor classifier",
+              f"- Model: `{new['model']}`; training rows: {new['training_rows']} "
+              f"({new['labelled_superconductors']} superconductors, "
+              f"{new['labelled_non_superconductors']} graded non-superconductors in the core set)",
+              f"- Held-out AUC: **{quality(new, 'auc')}** (committed ranking: {quality(old, 'auc')}); "
+              f"split: {new.get('held_out_quality', {}).get('split', 'n/a')}",
+              f"- Superconductors in the top tenth of held-out scores: "
+              f"{quality(new, 'superconductor_share_in_top_decile')} "
+              f"(committed: {quality(old, 'superconductor_share_in_top_decile')})",
+              f"- Labels held out by the quarantine: {labels.get('quarantined_reports', 'n/a')}",
+              f"- EPW-eligible materials: {new['epw_eligible']}",
+              f"- Top 50 shared with the committed ranking: {kept} of 50",
+              "",
+              "| Rank | MP ID | Formula | Classifier probability | Physics Tc (K) |",
+              "| --- | --- | --- | --- | --- |",
+          ]
+          for row in ranked[:15]:
+              lines.append(
+                  f"| {row['rank']} | {row['mp_id']} | {row['formula']} | "
+                  f"{float(row['p_superconductor']):.3f} | {float(row['physics_tc_k']):.1f} |"
+              )
+          lines += ["", "Screening hypotheses only. To adopt this ranking, download the artifact and "
+                    "commit its files over the ones in `docs/` and `data/candidates/`."]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
+      - name: Upload labels, scores, ranking and reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: sc-classifier-${{ github.run_id }}
+          path: data/processed/sc-classifier/
+          if-no-files-found: error

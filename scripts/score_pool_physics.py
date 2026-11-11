@@ -4,7 +4,16 @@
 This is the step that lets a new Hazel result change what gets calculated
 next. It predicts the electron-phonon coupling lambda and omega_log for each
 candidate, turns them into a Tc with the same McMillan/Allen-Dynes form EPW
-prints, and ranks candidates for the EPW route by Tc minus tree spread.
+prints, and ranks candidates for the EPW route.
+
+Which candidate file is scored: the strict EPW-eligible list when it has rows,
+then the untested-pool shortlist, then the superconductor classifier's ranked
+list (``docs/mp-sc-classifier-top200.csv``). The first two can be empty while
+the pool builder's required DOS gate cannot retrieve any curves; the loop must
+still name a next candidate, so it falls back instead of publishing nothing.
+Rows that carry a classifier probability keep the classifier's order, because
+the classifier is the model that separates real superconductors from tested
+non-superconductors; the physics columns are attached as a second opinion.
 
 Models come from one of two places:
 
@@ -40,7 +49,7 @@ for extra in (ROOT / "scripts", ROOT / "src"):
         sys.path.insert(0, str(extra))
 
 from train_physics_targets import (  # noqa: E402
-    _make_matrix, allen_dynes_tc_k, build_characteristics, load_extra_records,
+    _make_matrix, allen_dynes_tc_k, build_characteristics, lambda_tree_predictions, load_extra_records,
 )
 from rt_superconductor.descriptors import descriptor_names, formula_descriptor_record  # noqa: E402
 from chemistry_policy import radioactive_elements  # noqa: E402
@@ -49,6 +58,14 @@ DEFAULT_TABLE = ROOT / "data/training/physics-target-characteristics.csv"
 DEFAULT_HAZEL = ROOT / "data/training/hazel-epw-records.json"
 ELIGIBLE_LIST = ROOT / "docs/epw-eligible-shortlist.csv"
 POOL_SHORTLIST = ROOT / "docs/untested-pool-shortlist.csv"
+CLASSIFIER_LIST = ROOT / "docs/mp-sc-classifier-top200.csv"
+# Tried in order; the first list with rows is scored (see the module docstring).
+CANDIDATE_SOURCES = (
+    (ELIGIBLE_LIST, "strict EPW-eligible list has rows"),
+    (POOL_SHORTLIST, "strict EPW-eligible list is empty; using the untested-pool shortlist"),
+    (CLASSIFIER_LIST, "strict EPW-eligible list and pool shortlist are empty; "
+                      "using the superconductor classifier's ranked list"),
+)
 CONVENTIONAL_FAMILIES = {"Other"}
 MAGNETIC_ELEMENTS = {"Fe", "Co", "Ni", "Mn", "Cr"}
 LEWIS_FEATURES = ["lewis_dot_proxy_avg_outer_electrons", "lewis_dot_proxy_total_electrons_per_reduced_formula"]
@@ -56,7 +73,7 @@ SCORED_OUTPUT_COLUMNS = (
     "epw_rank", "mp_id", "formula", "chemical_family", "num_sites", "physics_lambda",
     "physics_lambda_tree_sd", "physics_omega_log_k", "physics_omega_log_tree_sd_k",
     "physics_tc_k", "physics_tc_tree_sd_k", "physics_conservative_tc_k", "rf_family_tc_k",
-    "consensus_tc_k", "nearest_known_superconductor", "nearest_known_tc_k", "epw_eligible",
+    "consensus_tc_k", "p_superconductor", "nearest_known_superconductor", "nearest_known_tc_k", "epw_eligible",
     "epw_ineligible_reasons", "magnetism_source", "mu_star", "known_status", "known_tc_max_k",
     "theoretical_only", "dft_verification",
 )
@@ -277,14 +294,47 @@ def _consensus(physics_tc: float | None, rf_tc: str | float | None) -> float | N
     return min(physics_tc or 0.0, rf)
 
 
+def _probability(value: Any) -> float | str:
+    """A classifier probability as a float, or '' when the row has none."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return ""
+    return number if 0.0 <= number <= 1.0 else ""
+
+
+def ranked_by_classifier(rows: list[dict[str, Any]]) -> bool:
+    """True when the eligible rows carry classifier probabilities to rank by."""
+    eligible = [r for r in rows if r["epw_eligible"]]
+    return bool(eligible) and all(r.get("p_superconductor", "") != "" for r in eligible)
+
+
+RANKING_CONSENSUS = "EPW-eligible rows by consensus_tc_k = min(physics-model Tc, measured-Tc random forest Tc)"
+RANKING_CLASSIFIER = ("EPW-eligible rows by p_superconductor (superconductor classifier); "
+                      "physics-model lambda, omega_log and Tc attached, not used for the order")
+
+
+def has_rows(path: Path) -> bool:
+    """True when a candidate CSV exists and has at least one row with a formula."""
+    if not path.is_file():
+        return False
+    with _open_text(path) as handle:
+        return any(row.get("formula") for row in csv.DictReader(handle))
+
+
+def default_candidates() -> tuple[Path, str]:
+    """The first candidate list that has rows, and why it was chosen."""
+    for path, why in CANDIDATE_SOURCES:
+        if has_rows(path):
+            return path, why
+    return ELIGIBLE_LIST, "no candidate list has rows; reporting the empty strict list"
+
+
 def score(candidates: list[dict[str, str]], models: dict[str, Any]) -> list[dict[str, Any]]:
     formulas = [c["formula"] for c in candidates]
     features = formula_feature_rows(formulas)
     X = models["imputer"].transform(_make_matrix(features, models["feature_names"]))
-    if "log_lambda" in models:
-        lam_trees = np.exp(np.asarray([t.predict(X) for t in models["log_lambda"].estimators_]))
-    else:  # trainer joblib fits lambda directly
-        lam_trees = np.asarray([t.predict(X) for t in models["lambda"].estimators_])
+    lam_trees = lambda_tree_predictions(models, X)
     wlog_trees = np.exp(np.asarray([t.predict(X) for t in models["log_omega_log_k"].estimators_]))
     mu_star = float(models.get("mu_star", 0.1))
     output = []
@@ -324,18 +374,25 @@ def score(candidates: list[dict[str, str]], models: dict[str, Any]) -> list[dict
             "physics_conservative_tc_k": tc - tc_sd,
             "rf_family_tc_k": cand.get("predicted_tc_kelvin", ""),
             "consensus_tc_k": _consensus(tc, cand.get("predicted_tc_kelvin", "")),
+            "p_superconductor": _probability(cand.get("p_superconductor", "")),
             "nearest_known_superconductor": cand.get("nearest_known_superconductor_formula", ""),
             "nearest_known_tc_k": cand.get("nearest_known_superconductor_tc_kelvin", ""),
             "epw_eligible": not reasons, "epw_ineligible_reasons": ";".join(reasons),
             "magnetism_source": magnetic_source, "mu_star": mu_star,
             "known_status": cand.get("known_status", ""), "known_tc_max_k": cand.get("known_tc_max_k", ""),
-            "theoretical_only": cand.get("theoretical", ""),
+            "theoretical_only": cand.get("theoretical", cand.get("theoretical_only", "")),
             "dft_verification": "pending",
         })
-    # Rank by agreement: the lower of the physics-model Tc and the measured-Tc
-    # random forest's Tc. Tc minus tree spread is kept as a column, but with
-    # spreads about as large as the predictions it mostly rewards near-zero Tc.
+    # Rows from the classifier's list keep the classifier's order: it is the
+    # model checked against real outcomes. Otherwise rank by agreement: the
+    # lower of the physics-model Tc and the measured-Tc random forest's Tc.
+    # Tc minus tree spread is kept as a column, but with spreads about as large
+    # as the predictions it mostly rewards near-zero Tc.
+    by_classifier = ranked_by_classifier(output)
+
     def key(r: dict[str, Any]) -> tuple[float, float]:
+        if by_classifier:
+            return (-(r["p_superconductor"] if r["p_superconductor"] != "" else -1.0), -(r["physics_tc_k"] or 0.0))
         # Without a second model's Tc (e.g. the full MP snapshot), rank by the
         # physics model alone.
         consensus = r["consensus_tc_k"] if r["consensus_tc_k"] is not None else r["physics_tc_k"]
@@ -351,7 +408,8 @@ def score(candidates: list[dict[str, str]], models: dict[str, Any]) -> list[dict
 
 
 def run(candidates_path: Path, output: Path, summary: Path, *, model_path: Path | None,
-        table: Path, hazel_records: Path | None, top: int | None = None) -> dict[str, Any]:
+        table: Path, hazel_records: Path | None, top: int | None = None,
+        source_reason: str = "given with --candidates") -> dict[str, Any]:
     with _open_text(candidates_path) as handle:
         candidates = [r for r in csv.DictReader(handle) if r.get("formula")]
     if candidates:
@@ -391,12 +449,14 @@ def run(candidates_path: Path, output: Path, summary: Path, *, model_path: Path 
     report = {
         "status": "ready" if candidates else "empty_candidate_pool",
         "candidates_path": _display(candidates_path),
+        "candidates_source_reason": source_reason,
         "candidates_sha256": hashlib.sha256(candidates_path.read_bytes()).hexdigest(),
         "candidates_scored": len(rows), "epw_eligible": len(eligible), "rows_written": len(written),
         "ineligible_reason_counts": dict(sorted(reasons.items())),
         "external_check": external_check(rows, table if model_path is None else None),
-        "ranking": "EPW-eligible rows by consensus_tc_k = min(physics-model Tc, measured-Tc random forest Tc)",
-        "top_eligible": [{k: r[k] for k in ("epw_rank", "mp_id", "formula", "consensus_tc_k", "physics_lambda",
+        "ranking": RANKING_CLASSIFIER if ranked_by_classifier(rows) else RANKING_CONSENSUS,
+        "top_eligible": [{k: r[k] for k in ("epw_rank", "mp_id", "formula", "p_superconductor",
+                                              "consensus_tc_k", "physics_lambda",
                                               "physics_omega_log_k", "physics_tc_k",
                                               "physics_tc_tree_sd_k", "rf_family_tc_k")}
                          for r in eligible[:20]],
@@ -415,8 +475,9 @@ def run(candidates_path: Path, output: Path, summary: Path, *, model_path: Path 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    default_candidates = ELIGIBLE_LIST if ELIGIBLE_LIST.is_file() else POOL_SHORTLIST
-    parser.add_argument("--candidates", type=Path, default=default_candidates)
+    parser.add_argument("--candidates", type=Path, default=None,
+                        help="candidate CSV; omit to use the first list that has rows (strict EPW list, "
+                             "pool shortlist, then the classifier's ranked list)")
     parser.add_argument("--output", type=Path, default=ROOT / "docs/epw-next-candidates.csv")
     parser.add_argument("--summary", type=Path, default=ROOT / "docs/epw-next-candidates.json")
     parser.add_argument("--model", type=Path, default=None, help="trainer joblib; omit to fit a formula-only model")
@@ -424,9 +485,15 @@ def main() -> int:
     parser.add_argument("--hazel-records", type=Path, default=DEFAULT_HAZEL)
     parser.add_argument("--top", type=int, default=None, help="write only the first N rows (eligible first)")
     args = parser.parse_args()
-    report = run(args.candidates, args.output, args.summary, model_path=args.model,
-                 table=args.table, hazel_records=args.hazel_records, top=args.top)
-    print(json.dumps({k: report[k] for k in ("candidates_scored", "epw_eligible", "top_eligible")}, indent=2, default=str))
+    if args.candidates is None:
+        candidates, reason = default_candidates()
+    else:
+        candidates, reason = args.candidates, "given with --candidates"
+    report = run(candidates, args.output, args.summary, model_path=args.model,
+                 table=args.table, hazel_records=args.hazel_records, top=args.top, source_reason=reason)
+    print(json.dumps({k: report[k] for k in ("candidates_path", "candidates_source_reason", "ranking",
+                                              "candidates_scored", "epw_eligible", "top_eligible")},
+                     indent=2, default=str))
     return 0
 
 

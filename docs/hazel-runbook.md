@@ -63,6 +63,27 @@ Partitions on the official page: `compute` (default QOS `normal`, up to 4 days; 
    If `epw.x` is missing, ask HPC support how existing QE users build EPW.
 4. Create the work directory: `mkdir -p /share/<group>/<unity_id>/rtsc`.
 
+**Checked on 2026-11-11: the conda package has everything.** The conda-forge package `qe` version 7.6 for Linux was downloaded and its file list read. It contains `pw.x`, `ph.x`, `q2r.x`, `matdyn.x`, `epw.x`, `wannier90.x` and `pw2wannier90.x`, so EPW does not have to be built separately. The same package was then installed and ran the Stage 0 chain end to end (section 6). Steps 2 and 3 above are now one command:
+
+```bash
+scripts/hpc/setup_qe_env.sh /usr/local/usrapps/<group>/<unity_id>
+```
+
+The script:
+
+- refuses to install under `$HOME`
+- uses `conda`, `mamba` or `micromamba` if one is already available, and otherwise downloads micromamba, a single file, into the application space. On Hazel, try `module avail conda` first (*confirm* the module name with the HPC pages)
+- creates `<app_space>/envs/rtsc-qe` with QE pinned to 7.6 and keeps the package cache in application space
+- lists the seven programs and stops if one is missing
+
+It only installs; it runs no calculation, so it is fine on a login node. The environment and its package cache take about 1.4 GB. Add `DRY_RUN=1` in front to print what it would do. If Derek's team provides its own QE install instead, use theirs and skip this script; the job scripts only need the programs on `PATH`.
+
+To use the environment in a shell or job:
+
+```bash
+export PATH=/usr/local/usrapps/<group>/<unity_id>/envs/rtsc-qe/bin:$PATH
+```
+
 ## 5. First job: a hello world (5 minutes, 1 core)
 
 This follows Derek's advice to test the smallest possible task first. Quantum ESPRESSO is not installed yet, so the first job only proves that submitting and collecting output works. Save this as `hello.sbatch` in your work area. The account defaults to your group, so add `#SBATCH --account=<name>` only if `sa` shows you must name one:
@@ -92,11 +113,29 @@ squeue -u $USER
 
 When the job finishes, `hello.<jobid>.out` holds the compute node's name. That is the whole test. After QE is installed, repeat with `pw.x -h && command -v epw.x` in place of the two commands above.
 
+### Second job: check how MPI programs start (2 tasks, 5 minutes)
+
+This is the most likely place for the first real problem. A conda-installed MPI does not always work with a cluster's `srun`. When it does not, `srun` starts several separate one-process copies of the program instead of one parallel run. Nothing crashes; the job is just several times slower and the copies overwrite each other's output. Check before Stage 0, with the environment on `PATH`:
+
+```bash
+sbatch scripts/hpc/check_qe_mpi.sbatch
+```
+
+Read `check_qe_mpi.<jobid>.out`. It has one line for `srun` and one for `mpirun`:
+
+| The line reads | Meaning | For Stage 0 |
+| --- | --- | --- |
+| `1 x Number of MPI processes: 2` | One parallel run on 2 processes: correct | Use this launcher |
+| `2 x Number of MPI processes: 1` | Two separate copies: wrong | Do not use this launcher |
+| `no MPI line printed` | The launcher failed | Do not use this launcher |
+
+If `srun` is correct, run Stage 0 as written. If only `mpirun` is correct, put `LAUNCHER="mpirun -np 8"` in front of the Stage 0 command. If neither is, send the output file to help@ncsu.edu and ask how QE users start MPI jobs. The check was tried without a cluster on 2026-11-11: `mpirun` gave the correct line, and a deliberately broken `srun` gave the "two separate copies" line.
+
 ## 6. Stage 0: the official EPW Pb example
 
 Everything Stage 0 needs is in the repository: `data/benchmarks/epw-pb-tutorial/`. It holds the Quantum ESPRESSO `EPW/examples/pb` inputs and pseudopotential, copied unchanged with checksums in `PROVENANCE.md`. Nothing has to be downloaded on Hazel.
 
-1. On the login node, activate the QE/EPW environment, then submit the whole chain:
+1. On the login node, put the QE/EPW environment on `PATH` (section 4), then submit the whole chain:
    ```bash
    scripts/hpc/submit_stage0_pb.sh /share/<group>/<unity_id>/rtsc/pb-tutorial compute normal 8
    ```
@@ -106,6 +145,25 @@ Everything Stage 0 needs is in the repository: `data/benchmarks/epw-pb-tutorial/
    - submits six dependent jobs: `phonons/scf` → `ph` → `pp.py` → `epw/scf` → `nscf` → `epw`
 
    Add `DRY_RUN=1` in front to print the `sbatch` commands without submitting.
+
+   The script has two sizes, chosen with `STAGE0_MODE`:
+
+   | Mode | What changes | Cost |
+   | --- | --- | --- |
+   | `smoke` (default) | The copies in the run directory get three coarser meshes: phonon k-mesh 8×8×8 instead of 14×14×14, q-mesh 3×3×3 instead of 6×6×6, and EPW's fine q-mesh 8×8×8 instead of 20×20×20. The changes are listed in `<run_dir>/STAGE0_MODE.txt` | About 20 minutes on 4 cores in the rehearsal below |
+   | `full` | Nothing: the official example as shipped | Heavy. Its phonon step covers 16 q-points on a 14×14×14 k-mesh and its EPW step 64 million k-q pairs. See the rehearsal note below |
+
+   Stage 0 checks the tools, not the physics, so `smoke` is enough to pass it. The vendored files in the repository are never edited.
+
+   Other switches, all put in front of the command:
+
+   | Switch | Use |
+   | --- | --- |
+   | `STAGE0_MODE=full` | Run the official example unchanged. Give it many cores, for example 32 as the last argument. The phonon job then gets a 24-hour limit, which `compute` with QOS `normal` allows |
+   | `LAUNCHER="mpirun -np 8"` | Start the programs with `mpirun` instead of `srun`, if the MPI check in section 5 says so |
+   | `START_AT=<step>` | Resume an existing run directory at `ph-scf`, `ph`, `pp`, `epw-scf`, `nscf` or `epw`, without recopying inputs. A failed late step then does not cost the phonons again |
+   | `PH_TIME=04:00:00` | Change the phonon job's time limit |
+   | `LOCAL=1` | Run the six steps one after another with `mpirun`, with no scheduler. For a personal machine only, never a Hazel login node |
 2. Watch with `squeue -u $USER`. Logs go to `<run_dir>/logs/`.
 3. Copy `woSOC/epw/epw.out` and `pb-fcc.cif` to `results/pb-tutorial/` in the repository. Copy `review.template.json` to `results/pb-tutorial/review.json` and fill it in.
 4. Run `python scripts/promote_dft_results.py --results-root results`.
@@ -113,6 +171,33 @@ Everything Stage 0 needs is in the repository: `data/benchmarks/epw-pb-tutorial/
 **Stage 0 passes** when the report shows `tools_checks_passing: 1`. That means λ and ωlog were read from the real `epw.out`, and Tc recomputed from them matches the Tc EPW printed. The parser already handles the EPW Pb output format: it was tested on Quantum ESPRESSO's own Pb test (`test-suite/epw_metal`), where it reproduces EPW's Tc of 0.8067 K to within 0.03%.
 
 The example's settings are EPW's tutorial settings, not converged production settings. Stage 0 tests the tools, not the physics.
+
+### Rehearsal on 2026-11-11: what it found
+
+Stage 0 was run for real before any Hazel job, on a 4-core cloud machine with no scheduler (`LOCAL=1`), using the conda-forge QE 7.6 environment that `setup_qe_env.sh` creates (EPW 6.1). The machine was doing other work during the phonon step, so read the times as upper bounds.
+
+| Step | Wall time, 4 cores, smoke mode |
+| --- | --- |
+| Phonon ground state (`pw.x`) | 7 s |
+| Phonons (`ph.x`, 4 q-points) | 1,010 s |
+| Gather phonon files (`pp.py`) | 1 s |
+| EPW ground state and band step (`pw.x` twice) | 23 s |
+| EPW (`epw.x`, including Wannier90) | 130 s |
+
+These times are from the final run: one command, from an empty directory, 19.5 minutes in total, exit status 0. (An earlier attempt had stopped at `pp.py` and was resumed; the problems it exposed are in the table below.)
+
+The result passed the check: `promote_dft_results.py` read λ = 2.345 and ωlog = 63.2 K from the real `epw.out`, recomputed Tc = 10.049 K, and EPW had printed 10.050 K. The report showed `tools_checks_passing: 1`. Those values are not lead's real ones (measured Tc is 7.2 K, and λ is about 1.55); the coarse meshes overestimate the coupling, which is expected and is why smoke mode is a tools check only.
+
+The rehearsal found four problems that would otherwise have surfaced on Hazel. All are fixed in the scripts.
+
+| Problem | What would have happened on Hazel | Fix |
+| --- | --- | --- |
+| The official example is much heavier than "tutorial" suggests. Its second q-point alone needs 4,060 k-points; on 4 cores the phonon step was heading for roughly a day | The phonon job would have been killed at the old 1 h 50 min limit and the chain would have stopped | `smoke` mode is the default; `full` gets a 24-hour phonon limit |
+| `pp.py` imports `numpy`, which the QE environment did not include | The third job would have failed after the phonons had been paid for | `setup_qe_env.sh` installs and checks `numpy`; the submit script checks it before submitting anything |
+| With EPW's fine k-mesh coarsened to 8×8×8, EPW found zero electronic states at the Fermi level. Every λ became a division by zero, yet the job ended normally and printed "Tc = 16 K" | A meaningless number that looks like a result | Smoke mode leaves the fine k-mesh at 20×20×20. `promote_dft_results.py` now rejects such output by name (`zero_dos_at_fermi_level`, `lambda_overflow`); the real output is a test fixture |
+| A failed late step meant starting over | Phonons recomputed for nothing | `START_AT` resumes at any step |
+
+Two things the rehearsal could not test, because it had no Slurm: whether `srun` starts the conda-installed MPI correctly (section 5 checks that), and real queue behaviour. A rough guide for `full` mode, extrapolated from one q-point and so uncertain by a factor of two or more: on the order of 100 core-hours for the phonons.
 
 ## 7. Stage 1: tantalum benchmark
 

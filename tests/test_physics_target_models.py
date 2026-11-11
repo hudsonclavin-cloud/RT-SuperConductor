@@ -64,6 +64,45 @@ class PhysicsTargetModelTests(unittest.TestCase):
         models, _ = fit_physics_models(rows, base_names + BOND_FEATURE_NAMES)
         self.assertEqual(models["feature_names"][-len(BOND_FEATURE_NAMES):], BOND_FEATURE_NAMES)
 
+    def test_lambda_is_fitted_in_log_space_and_read_back_in_plain_units(self):
+        import numpy as np
+        from train_physics_targets import lambda_tree_predictions
+
+        rows, base_names, _ = build_characteristics([
+            _record("JVASP-Nb3Sn", ["Nb", "Nb", "Nb", "Sn"]),
+            _record("JVASP-V3Si", ["V", "V", "V", "Si"]),
+        ])
+        models, meta = fit_physics_models(rows, base_names)
+        self.assertIn("log_lambda", models)
+        self.assertNotIn("lambda", models)
+        self.assertIn("log(lambda)", meta["targets"])
+        X = models["imputer"].transform(_make_matrix(rows, base_names))
+        trees = lambda_tree_predictions(models, X)
+        self.assertEqual(trees.shape, (len(models["log_lambda"].estimators_), len(rows)))
+        # Every training lambda is 1.0, so each tree must return 1.0, not log(1.0) = 0.
+        self.assertTrue(np.allclose(trees, 1.0))
+
+    def test_lambda_reader_still_accepts_a_direct_fit_model_file(self):
+        import numpy as np
+        from sklearn.ensemble import RandomForestRegressor
+        from train_physics_targets import lambda_tree_predictions
+
+        X = np.asarray([[0.0], [1.0], [2.0], [3.0]])
+        direct = RandomForestRegressor(n_estimators=5, random_state=0).fit(X, [2.0, 2.0, 2.0, 2.0])
+        self.assertTrue(np.allclose(lambda_tree_predictions({"lambda": direct}, X), 2.0))
+
+    def test_evaluation_reports_the_log_fit_and_the_direct_fit_side_by_side(self):
+        from train_physics_targets import evaluate_ablation
+
+        with (ROOT / "data/training/physics-target-characteristics.csv").open(newline="", encoding="utf-8-sig") as handle:
+            rows = [row for _, row in zip(range(150), csv.DictReader(handle))]
+        names = [key for key in rows[0] if key.startswith("magpie__")][:12]
+        metrics = evaluate_ablation(rows, names, n_splits=3)["feature_sets"]["magpie_plus_lewis_shell"]["metrics"]
+        for key in ("physics_tc", "physics_tc_linear_lambda", "lambda", "lambda_linear_fit"):
+            self.assertGreater(metrics[key]["mae"], 0.0)
+        self.assertEqual(metrics["lambda_linear_fit"]["unit"], "dimensionless")
+        self.assertEqual(metrics["physics_tc_linear_lambda"]["unit"], "K")
+
     def test_search_substitutions_keep_parent_stability_as_a_proxy(self):
         rows = [
             _record("JVASP-KCl", ["K", "Cl"]),
