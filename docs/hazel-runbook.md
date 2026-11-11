@@ -133,7 +133,7 @@ If `srun` is correct, run Stage 0 as written. If only `mpirun` is correct, put `
 
 ## 6. Stage 0: the official EPW Pb example
 
-Everything Stage 0 needs is in the repository: `data/benchmarks/epw-pb-tutorial/`. It holds the Quantum ESPRESSO `EPW/examples/pb` inputs and pseudopotential, copied unchanged with checksums in `PROVENANCE.md`. Nothing has to be downloaded on Hazel.
+Everything Stage 0 needs is in the repository: `data/benchmarks/epw-pb-tutorial/`. (Since 2026-11-11 `submit_stage0_pb.sh` is a thin wrapper around `scripts/hpc/submit_epw_chain.sh`, which Stage 1 shares; its commands and switches are unchanged.) It holds the Quantum ESPRESSO `EPW/examples/pb` inputs and pseudopotential, copied unchanged with checksums in `PROVENANCE.md`. Nothing has to be downloaded on Hazel.
 
 1. On the login node, put the QE/EPW environment on `PATH` (section 4), then submit the whole chain:
    ```bash
@@ -216,6 +216,47 @@ Prepare inputs with `scripts/prepare_tantalum_epw_benchmark.py`, adapting the EP
 ```
 
 Set `converged` to `true` only after the convergence checks in `docs/epw-benchmark.md`. The promotion report then compares the result with JARVIS. A miss bigger than about 2 times means stop and fix the setup before Nb3Sn.
+
+### Update 2026-11-11: the inputs exist and have been rehearsed
+
+The first sentence of this section is superseded. Stage 1 no longer starts from the generated template: a complete, tested set of inputs is in `data/benchmarks/epw-ta-jvasp-1014/`, with the pseudopotential, the Wannier settings the old template lacked, and the reasons for each choice in its `PROVENANCE.md`. A filled-in `review.template.json` is in the same folder.
+
+Run it in two passes, after Stage 0 has passed:
+
+```bash
+scripts/hpc/submit_stage1_ta.sh /share/<group>/<unity_id>/rtsc/ta-smoke compute normal 8
+```
+
+```bash
+CHAIN_MODE=full scripts/hpc/submit_stage1_ta.sh /share/<group>/<unity_id>/rtsc/ta-jvasp-1014 compute normal 16
+```
+
+The first is the smoke pass, a setup check with coarse meshes. The second uses the benchmark settings, and only its result is compared with the reference. Every switch from section 6 (`LAUNCHER`, `START_AT`, `PH_TIME`, `EPW_TIME`, `DRY_RUN`) works the same way, because both stages now run through one shared script, `scripts/hpc/submit_epw_chain.sh`. A new material needs only a new package folder.
+
+Then copy `epw/epw.out` and `ta-bcc.cif` into `results/ta-jvasp-1014/`, write `review.json` from the template, and run `python scripts/promote_dft_results.py --results-root results`.
+
+**Smoke rehearsal, 4 cores, no scheduler, QE 7.6:**
+
+| Step | Wall time |
+| --- | --- |
+| Phonon ground state | 4 s |
+| Phonons (3 q-points) | 47 s |
+| EPW ground state and band step | 35 s |
+| EPW, including Wannier90 | 208 s |
+
+| Quantity | Smoke result | Reference (JARVIS JVASP-1014) | Difference |
+| --- | --- | --- | --- |
+| λ | 0.778 | 0.7572 | +2.8% |
+| ωlog | 159.4 K | 164.99 K | −3.4% |
+| Tc at μ* = 0.1 | 7.05 K | 6.9 K from the reference λ and ωlog | |
+
+`promote_dft_results.py` sorted this as a benchmark, recomputed EPW's printed Tc to 0.01%, and reported it inside the suggested 25% tolerance. Treat the close agreement with care: these are the coarse smoke meshes (2×2×2 phonon grid), so part of it is luck, and it does not replace the full-settings run. Tantalum's measured Tc is 4.47 K; the 7 K here comes from using μ* = 0.1, the same convention as the reference.
+
+The six Wannier functions came out compact (spreads 1.7 to 3.4 Å² for the five d-like ones and 7.2 Å² for the s-like one) and EPW found 0.67 states/eV per spin at the Fermi level.
+
+**One failure found and fixed.** The first attempt died in `epw.x` with `free(): invalid pointer` and no other message. The cause was one line in the band-step input, `nosym = .true.`, which the lead example does not have. A second pseudopotential, without a core correction, crashed the same way, which ruled the pseudopotential out. Removing the line fixed it, and the chain script now refuses a band step that contains it.
+
+The benchmark settings were started on the same 4-core machine on 2026-11-11. Their phonon step is much heavier (8 q-points, up to a few thousand k-points each, about 10 minutes per q-point there). The result will be recorded here when it finishes; on Hazel with 16 cores expect well under an hour for the phonons.
 
 ## 8. Candidates: closing the loop
 

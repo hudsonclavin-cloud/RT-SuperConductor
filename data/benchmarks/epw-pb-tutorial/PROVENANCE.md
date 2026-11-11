@@ -26,8 +26,10 @@ Files added by this project, not part of the original example:
 
 - `pb-fcc.cif`: fcc Pb with a = 4.88035 Å, the same lattice as `celldm(1) = 9.2225583816` bohr in the inputs. `promote_dft_results.py` uses it to confirm the formula.
 - `review.template.json`: copy to `results/pb-tutorial/review.json` after the run and fill it in.
+- `chain.conf` and `smoke-edits.tsv`: read by `scripts/hpc/submit_epw_chain.sh`. The first names the folders and the QE prefix; the second lists the mesh changes smoke mode makes to the copies in the run directory.
 
 The calculation order, as the example's directory names imply: `phonons/scf` →
 `phonons/ph` → `phonons/pp.py` (collects dynamical matrices and dvscf files
 into `phonons/save`) → `epw/scf` → `epw/nscf` → `epw/epw`.
 `scripts/hpc/submit_stage0_pb.sh` submits that chain on Hazel.
+Since 2026-11-11 it does so through the shared `scripts/hpc/submit_epw_chain.sh`.
