@@ -97,3 +97,18 @@ def test_build_labels_known_and_untested(tmp_path):
     assert out["mp-0"]["known_status"] == "superconductor" and out["mp-0"]["known_tc_max_k"] == "17.8"
     assert out["mp-x"]["known_status"] == "untested_by_formula"
     assert report["counts"]["family_Other"] == 2
+
+
+def test_reference_tables_are_found_where_the_downloader_writes_them(tmp_path):
+    """CI has the downloader's layout, not a clone of the 3DSC repository."""
+    from build_mp_candidates import _first_existing
+
+    downloaded = tmp_path / "3dsc/MP/3DSC_MP.csv"
+    cloned = tmp_path / "3dsc/repo/superconductors_3D/data/final/MP/3DSC_MP.csv"
+    assert _first_existing(downloaded, cloned) == downloaded   # neither exists: name the downloader's path
+    cloned.parent.mkdir(parents=True)
+    cloned.write_text("x\n")
+    assert _first_existing(downloaded, cloned) == cloned
+    downloaded.parent.mkdir(parents=True)
+    downloaded.write_text("x\n")
+    assert _first_existing(downloaded, cloned) == downloaded

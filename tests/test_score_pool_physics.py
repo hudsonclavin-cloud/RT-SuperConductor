@@ -12,8 +12,10 @@ sys.path.insert(0, str(ROOT / "src"))
 pytest.importorskip("matminer")
 pytest.importorskip("sklearn")
 
+import score_pool_physics  # noqa: E402
 from score_pool_physics import (  # noqa: E402
-    _consensus, fit_formula_model, formula_feature_rows, run, score,
+    RANKING_CLASSIFIER, RANKING_CONSENSUS, _consensus, default_candidates, fit_formula_model,
+    formula_feature_rows, run, score,
 )
 from train_physics_targets import build_characteristics  # noqa: E402
 
@@ -107,6 +109,62 @@ def test_empty_candidate_pool_writes_valid_empty_outputs_without_fitting(tmp_pat
         assert "epw_eligible" in reader.fieldnames
         assert list(reader) == []
     assert json.loads(summary.read_text(encoding="utf-8"))["status"] == "empty_candidate_pool"
+
+
+def test_default_candidates_skip_empty_lists(tmp_path, monkeypatch):
+    """A header-only strict list must not leave the loop with nothing to score."""
+    strict, pool, classifier = tmp_path / "strict.csv", tmp_path / "pool.csv", tmp_path / "classifier.csv"
+    header = "mp_id,formula,chemical_family,num_sites\n"
+    strict.write_text(header, encoding="utf-8")
+    pool.write_text(header, encoding="utf-8")
+    classifier.write_text(header + "x,Nb3Sn,Other,8\n", encoding="utf-8")
+    sources = ((strict, "strict"), (pool, "pool"), (classifier, "classifier"))
+    monkeypatch.setattr(score_pool_physics, "CANDIDATE_SOURCES", sources)
+    assert default_candidates() == (classifier, "classifier")
+    pool.write_text(header + "y,V3Si,Other,8\n", encoding="utf-8")
+    assert default_candidates() == (pool, "pool")
+    strict.write_text(header + "z,Nb3Ge,Other,8\n", encoding="utf-8")
+    assert default_candidates() == (strict, "strict")
+
+
+def test_default_candidates_report_the_empty_strict_list_when_nothing_has_rows(tmp_path, monkeypatch):
+    missing = tmp_path / "missing.csv"
+    monkeypatch.setattr(score_pool_physics, "CANDIDATE_SOURCES", ((missing, "strict"),))
+    monkeypatch.setattr(score_pool_physics, "ELIGIBLE_LIST", missing)
+    path, reason = default_candidates()
+    assert path == missing and "no candidate list has rows" in reason
+
+
+def test_classifier_rows_keep_the_classifier_order(tmp_path):
+    """The physics model is a second opinion there; it must not reorder the list."""
+    table = _small_table(tmp_path)
+    candidates = tmp_path / "classifier.csv"
+    candidates.write_text(
+        "mp_id,formula,chemical_family,num_sites,p_superconductor,is_metal,is_magnetic\n"
+        "low,Nb3Sn,Other,8,0.40,True,False\n"
+        "high,NaCl,Other,2,0.95,True,False\n"
+        "mid,V3Si,Other,8,0.70,True,False\n",
+        encoding="utf-8",
+    )
+    report = run(candidates, tmp_path / "out.csv", tmp_path / "out.json", model_path=None,
+                 table=table, hazel_records=tmp_path / "absent.json", source_reason="test")
+    assert report["ranking"] == RANKING_CLASSIFIER
+    assert report["candidates_source_reason"] == "test"
+    assert [row["mp_id"] for row in report["top_eligible"]] == ["high", "mid", "low"]
+    with (tmp_path / "out.csv").open(newline="", encoding="utf-8") as handle:
+        written = list(csv.DictReader(handle))
+    assert [row["p_superconductor"] for row in written] == ["0.95", "0.7", "0.4"]
+    assert all(row["physics_tc_k"] for row in written)
+
+
+def test_rows_without_a_classifier_probability_rank_by_consensus(tmp_path):
+    table = _small_table(tmp_path)
+    candidates = tmp_path / "pool.csv"
+    candidates.write_text("mp_id,formula,chemical_family,num_sites,predicted_tc_kelvin\n"
+                          "a,Nb3Sn,Other,8,15\nb,V3Si,Other,8,1\n", encoding="utf-8")
+    report = run(candidates, tmp_path / "out.csv", tmp_path / "out.json", model_path=None,
+                 table=table, hazel_records=tmp_path / "absent.json")
+    assert report["ranking"] == RANKING_CONSENSUS
 
 
 def test_a_reviewed_hazel_record_changes_the_model(tmp_path):

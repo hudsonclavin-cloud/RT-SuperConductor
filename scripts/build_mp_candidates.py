@@ -51,8 +51,23 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
-THREEDSC = ROOT / "data/raw/3dsc/repo/superconductors_3D/data/final/MP/3DSC_MP.csv"
-STANEV = ROOT / "data/raw/3dsc/repo/superconductors_3D/data/source/SuperCon/raw/Supercon_data_by_2018_Stanev.csv"
+
+
+def _first_existing(*paths: Path) -> Path:
+    """The first path that exists, or the first one named when none does."""
+    return next((path for path in paths if path.is_file()), paths[0])
+
+
+# scripts/download_training_data.py writes the first location of each pair (this
+# is what CI has). The second is a full clone of the 3DSC repository.
+THREEDSC = _first_existing(
+    ROOT / "data/raw/3dsc/MP/3DSC_MP.csv",
+    ROOT / "data/raw/3dsc/repo/superconductors_3D/data/final/MP/3DSC_MP.csv",
+)
+STANEV = _first_existing(
+    ROOT / "data/raw/3dsc/Supercon_data_by_2018_Stanev.csv",
+    ROOT / "data/raw/3dsc/repo/superconductors_3D/data/source/SuperCon/raw/Supercon_data_by_2018_Stanev.csv",
+)
 MTG = ROOT / "data/training/external/supercon-mtg/SuperCon_MTG.csv"
 AUDIT = ROOT / "data/training/negative_evidence.csv"
 QUARANTINE_QUEUE = ROOT / "data/training/label_audit_queue.csv"
@@ -333,10 +348,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--snapshot", type=Path, default=ROOT / "data/candidates/mp-stable-summary.csv.gz")
     parser.add_argument("--output", type=Path, default=ROOT / "data/candidates/mp-candidates.csv.gz")
+    parser.add_argument("--3dsc", dest="threedsc", type=Path, default=THREEDSC, help="3DSC_MP.csv")
+    parser.add_argument("--stanev", type=Path, default=STANEV, help="Supercon_data_by_2018_Stanev.csv")
     args = parser.parse_args()
-    if not (THREEDSC.is_file() and STANEV.is_file()):
-        raise SystemExit("reference tables missing: run scripts/download_training_data.py first")
-    print(json.dumps(build(args.snapshot, args.output), indent=2))
+    missing = [str(path) for path in (args.threedsc, args.stanev) if not path.is_file()]
+    if missing:
+        raise SystemExit("reference tables missing: " + ", ".join(missing)
+                         + "\nrun: python scripts/download_training_data.py --cif-limit 0")
+    print(json.dumps(build(args.snapshot, args.output, threedsc=args.threedsc, stanev=args.stanev), indent=2))
     return 0
 
 

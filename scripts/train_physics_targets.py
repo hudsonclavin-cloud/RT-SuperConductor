@@ -242,6 +242,17 @@ def _make_matrix(rows: list[dict[str, Any]], feature_names: list[str]) -> np.nda
                         for name in feature_names] for row in rows], dtype=float)
 
 
+def lambda_tree_predictions(models: dict[str, Any], X: np.ndarray) -> np.ndarray:
+    """Per-tree lambda predictions, shape (trees, rows), from either model format.
+
+    Models are fitted to log(lambda) and saved under ``log_lambda``. Files
+    written before that change hold a direct fit under ``lambda``.
+    """
+    if "log_lambda" in models:
+        return np.exp(np.asarray([tree.predict(X) for tree in models["log_lambda"].estimators_]))
+    return np.asarray([tree.predict(X) for tree in models["lambda"].estimators_])
+
+
 def assert_reference_targets(rows):
     for row in rows:
         if row.get('is_generated_candidate') in (True,1,'True','true','1') or str(row.get('jid','')).startswith('candidate-') or _float_or_none(row.get('lambda')) is None or _float_or_none(row.get('omega_log_k')) is None or float(row.get('lambda') or 0)<=0 or float(row.get('omega_log_k') or 0)<=0:
@@ -279,27 +290,39 @@ def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str],
     results: dict[str, Any] = {}
     for label, feature_names in feature_sets.items():
         X = _make_matrix(rows, feature_names)
-        fold_predictions: dict[str, list[float]] = {"direct_tc": [], "physics_tc": [], "lambda": [], "omega_log": []}
-        fold_truth: dict[str, list[float]] = {"direct_tc": [], "physics_tc": [], "lambda": [], "omega_log": []}
+        keys = ("direct_tc", "physics_tc", "lambda", "omega_log", "physics_tc_linear_lambda", "lambda_linear_fit")
+        fold_predictions: dict[str, list[float]] = {key: [] for key in keys}
+        fold_truth: dict[str, list[float]] = {key: [] for key in keys}
         for fold, (train, test) in enumerate(splitter.split(X, labels_tc, groups), 1):
             imputer = SimpleImputer(strategy="median", add_indicator=True)
             x_train = imputer.fit_transform(X[train])
             x_test = imputer.transform(X[test])
             direct = RandomForestRegressor(n_estimators=180, min_samples_leaf=2, random_state=2026 + fold, n_jobs=-1)
             model_lam = RandomForestRegressor(n_estimators=180, min_samples_leaf=2, random_state=3026 + fold, n_jobs=-1)
+            model_lam_linear = RandomForestRegressor(n_estimators=180, min_samples_leaf=2, random_state=3026 + fold, n_jobs=-1)
             model_wlog = RandomForestRegressor(n_estimators=180, min_samples_leaf=2, random_state=4026 + fold, n_jobs=-1)
             direct.fit(x_train, labels_tc[train])
-            model_lam.fit(x_train, labels_lam[train])
+            # lambda is fitted in log space, like omega_log. JARVIS lambda runs
+            # up to 18, and a direct fit lets those few rows pull predictions up
+            # everywhere; Tc depends on lambda exponentially, so that roughly
+            # doubles the held-out Tc error. The direct fit is kept as a
+            # comparison column so the reason for the choice stays measured.
+            model_lam.fit(x_train, np.log(labels_lam[train]))
+            model_lam_linear.fit(x_train, labels_lam[train])
             model_wlog.fit(x_train, np.log(labels_wlog[train]))
             p_direct = direct.predict(x_test)
-            p_lam = model_lam.predict(x_test)
+            p_lam = np.exp(model_lam.predict(x_test))
+            p_lam_linear = model_lam_linear.predict(x_test)
             p_wlog = np.exp(model_wlog.predict(x_test))
             p_physics = np.asarray([allen_dynes_tc_k(lam, wlog) for lam, wlog in zip(p_lam, p_wlog)])
+            p_physics_linear = np.asarray([allen_dynes_tc_k(lam, wlog) for lam, wlog in zip(p_lam_linear, p_wlog)])
             for key, pred, actual in [
                 ("direct_tc", p_direct, labels_tc[test]),
                 ("physics_tc", p_physics, labels_tc[test]),
                 ("lambda", p_lam, labels_lam[test]),
                 ("omega_log", p_wlog, labels_wlog[test]),
+                ("physics_tc_linear_lambda", p_physics_linear, labels_tc[test]),
+                ("lambda_linear_fit", p_lam_linear, labels_lam[test]),
             ]:
                 fold_predictions[key].extend(float(x) for x in pred)
                 fold_truth[key].extend(float(x) for x in actual)
@@ -310,7 +333,7 @@ def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str],
             metrics[key] = {
                 "mae": float(mean_absolute_error(truth, pred)),
                 "rmse": float(np.sqrt(mean_squared_error(truth, pred))),
-                "unit": "K" if key in {"direct_tc", "physics_tc", "omega_log"} else "dimensionless",
+                "unit": "dimensionless" if key in {"lambda", "lambda_linear_fit"} else "K",
             }
         results[label] = {"feature_count": len(feature_names), "metrics": metrics}
     baseline_mae = results["magpie_plus_lewis_shell"]["metrics"]["physics_tc"]["mae"]
@@ -334,6 +357,8 @@ def evaluate_ablation(rows: list[dict[str, Any]], base_feature_names: list[str],
         "split": "5-fold GroupKFold by full elemental-system signature",
         "rows": len(rows), "groups": len(set(groups)), "mp_complete_rows": mp_coverage,
         "mu_star": MU_STAR, "feature_sets": results,
+        "lambda_target": "log(lambda); physics_tc and lambda use it. physics_tc_linear_lambda and "
+                         "lambda_linear_fit are the earlier direct fit, kept for comparison only",
     }
 
 
@@ -344,12 +369,13 @@ def fit_physics_models(rows: list[dict[str, Any]], feature_names: list[str]) -> 
     X_fit = imputer.fit_transform(X)
     lam = RandomForestRegressor(n_estimators=300, min_samples_leaf=2, random_state=42, n_jobs=-1)
     wlog = RandomForestRegressor(n_estimators=300, min_samples_leaf=2, random_state=43, n_jobs=-1)
-    lam.fit(X_fit, [float(row["lambda"]) for row in rows])
+    lam.fit(X_fit, np.log([float(row["lambda"]) for row in rows]))
     wlog.fit(X_fit, np.log([float(row["omega_log_k"]) for row in rows]))
-    models = {"lambda": lam, "log_omega_log_k": wlog, "imputer": imputer,
+    models = {"log_lambda": lam, "log_omega_log_k": wlog, "imputer": imputer,
               "feature_names": feature_names, "mu_star": MU_STAR}
     model_meta = {
         "training_rows": len(rows), "feature_count": len(feature_names),
+        "targets": "log(lambda) and log(omega_log_k); read lambda with lambda_tree_predictions()",
         "lambda_training_range": [min(float(r["lambda"]) for r in rows), max(float(r["lambda"]) for r in rows)],
         "omega_log_training_range_k": [min(float(r["omega_log_k"]) for r in rows), max(float(r["omega_log_k"]) for r in rows)],
         "training_tc_max_k": max(float(r["source_tc_k"]) for r in rows if r["source_tc_k"] is not None),
@@ -454,7 +480,7 @@ def run(*, data_dir: Path, output_dir: Path, mp_cache: Path | None = None,
             "source": "reviewed Hazel QE/EPW results promoted by scripts/promote_dft_results.py",
         },
         "method": {
-            "targets": ["lambda", "omega_log_k"], "mu_star": MU_STAR,
+            "targets": ["lambda", "omega_log_k"], "target_scale": "both fitted as natural logs", "mu_star": MU_STAR,
             "bond_features": BOND_FEATURE_NAMES,
             "bond_feature_method": "periodic per-site nearest-neighbor statistics, CrystalNN heterometal/nonmetal neighbor distance, and mean CrystalNN coordination",
             "tc_equation": "omega_log/1.2 * exp[-1.04*(1+lambda)/(lambda-mu_star*(1+0.62*lambda))]; omega_log in kelvin; f1/f2 strong-coupling corrections omitted",

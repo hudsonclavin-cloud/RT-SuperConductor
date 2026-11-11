@@ -80,6 +80,27 @@ def parse_targets(text: str) -> tuple[float | None, float | None, str]:
     return lam, wlog, "epw_summary" if _EPW_SUMMARY.search(text) else "generic_lambda_line"
 
 
+_EPW_DOS_AT_EF = re.compile(r"DOS\s*=\s*([-+0-9.Ee]+)\s*states/spin/eV/Unit Cell at Ef")
+_EPW_LAMBDA_OVERFLOW = re.compile(r"^\s*lambda(?:___\(\s*tot\s*\))?\s*[:=]\s*\*+", re.MULTILINE)
+
+
+def epw_output_problems(text: str) -> list[str]:
+    """Known signs that an EPW run finished but its numbers are meaningless.
+
+    Both were seen on a real run (QE 7.6, Pb, fine k-mesh 8x8x8 with 0.05 eV
+    smearing): EPW found no states at the Fermi level, every lambda divided by
+    zero, and the job still ended normally with a Tc printed.
+    """
+    problems = []
+    dos = [float(value) for value in _EPW_DOS_AT_EF.findall(text)]
+    if dos and min(dos) <= 0.0:
+        problems.append("zero_dos_at_fermi_level: EPW found no electronic states at the Fermi level on its "
+                        "fine k-mesh, so lambda is a division by zero; use a finer nkf mesh or a larger degaussw")
+    if _EPW_LAMBDA_OVERFLOW.search(text):
+        problems.append("lambda_overflow: EPW printed asterisks for lambda, a number too large to print")
+    return problems
+
+
 def epw_printed_mcmillan(text: str) -> tuple[float | None, float | None]:
     """EPW's own printed McMillan Tc (K) and the muc it says it used, if present."""
     a2f = _EPW_A2F_TC.findall(text)
@@ -138,6 +159,10 @@ def evaluate_directory(directory: Path, tolerance: float = DEFAULT_TOLERANCE) ->
     if review.get("converged") is not True:
         return {**outcome, "outcome": "rejected", "reason": "review_does_not_confirm_convergence"}
     epw_text = epw_path.read_text(encoding="utf-8", errors="replace")
+    problems = epw_output_problems(epw_text)
+    if problems:
+        return {**outcome, "outcome": "rejected", "reason": "epw_output_has_a_known_failure",
+                "epw_output_problems": problems}
     lam, wlog, parser = parse_targets(epw_text)
     if lam is None or wlog is None:
         return {**outcome, "outcome": "rejected", "reason": "lambda_or_omega_log_not_parsed",
