@@ -178,11 +178,13 @@ Stage 0 was run for real before any Hazel job, on a 4-core cloud machine with no
 
 | Step | Wall time, 4 cores, smoke mode |
 | --- | --- |
-| Phonon ground state (`pw.x`) | 9 s |
-| Phonons (`ph.x`, 4 q-points) | 1,066 s |
+| Phonon ground state (`pw.x`) | 7 s |
+| Phonons (`ph.x`, 4 q-points) | 1,010 s |
 | Gather phonon files (`pp.py`) | 1 s |
-| EPW ground state and band step (`pw.x` twice) | 22 s |
+| EPW ground state and band step (`pw.x` twice) | 23 s |
 | EPW (`epw.x`, including Wannier90) | 130 s |
+
+These times are from the final run: one command, from an empty directory, 19.5 minutes in total, exit status 0. (An earlier attempt had stopped at `pp.py` and was resumed; the problems it exposed are in the table below.)
 
 The result passed the check: `promote_dft_results.py` read λ = 2.345 and ωlog = 63.2 K from the real `epw.out`, recomputed Tc = 10.049 K, and EPW had printed 10.050 K. The report showed `tools_checks_passing: 1`. Those values are not lead's real ones (measured Tc is 7.2 K, and λ is about 1.55); the coarse meshes overestimate the coupling, which is expected and is why smoke mode is a tools check only.
 
