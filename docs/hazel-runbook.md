@@ -258,6 +258,38 @@ The six Wannier functions came out compact (spreads 1.7 to 3.4 Å² for the five
 
 The benchmark settings were started on the same 4-core machine on 2026-11-11. Their phonon step is much heavier (8 q-points, up to a few thousand k-points each, about 10 minutes per q-point there). The result will be recorded here when it finishes; on Hazel with 16 cores expect well under an hour for the phonons.
 
+### Full-settings result, 2026-11-11: the benchmark does not pass yet
+
+The full-settings run finished (exit status 0; phonons 55 minutes, EPW 25 minutes on 4 cores) and **missed the reference badly**. The smoke-mode agreement above was luck.
+
+| Quantity | Full settings | Smoke | Reference (JARVIS JVASP-1014) | Full vs reference |
+| --- | --- | --- | --- | --- |
+| λ | 1.447 | 0.778 | 0.7572 | +91% |
+| ωlog | 108.6 K | 159.4 K | 164.99 K | −34% |
+| Tc at μ* = 0.1 | 11.9 K | 7.05 K | 6.9 K | |
+
+`promote_dft_results.py` reports `benchmarks_passing_suggested_tolerance: 0`. That is the stage gate working: **Stage 1 has not passed, and no candidate should be run until it does.** Measured values for tantalum are λ of about 0.7 to 0.8 and Tc = 4.47 K, so the full-settings number is the wrong one, not the reference.
+
+What is known about the cause:
+
+| Check | Finding |
+| --- | --- |
+| Did the run itself go wrong? | No. Every step ended normally, the Wannier functions are compact (1.7 to 3.3 Å², 7.5 Å² for the s-like one), and EPW found 0.70 states/eV per spin at the Fermi level |
+| Is it EPW's fine sampling or smearing? | Unlikely. EPW's last step was rerun with half the smearing (0.05 eV) and the double-delta approximation. It was cut off by a machine restart after 784 of 1,728 q-points; on those same points the average coupling changed by only +6% (1.32 to 1.41). The 244 negative, unphysical linewidths in the first run did disappear |
+| Is the coupling strength itself off? | Probably not. λ × ωlog², which is roughly independent of how soft the phonons are, is 17,100 K² here, 19,700 K² in smoke mode and 20,600 K² for the reference: within 20% of each other |
+| Where the two runs differ | The phonons. At the same q-points the full run's frequencies are 17% lower than the smoke run's, and λ goes as 1/ω². About 21% of the full run's λ comes from modes below 8 meV, where small errors are amplified most |
+
+So the open problem is the phonon side: the frequencies and how much weight the low-frequency modes get. The directly calculated frequency at the H point is 158.6 cm⁻¹ with the 16×16×16 k-mesh and 181.2 cm⁻¹ with 8×8×8, a 13% change from the k-mesh alone, so the phonon calculation is not converged with respect to k-points and smearing. Which of the two is closer to tantalum's measured value has not been checked against a source in this work.
+
+What to do next, in order. These are convergence tests and need more cores than the rehearsal machine, so they are the first real use of Hazel after Stage 0:
+
+1. Compare the calculated phonon frequencies at H and N with published neutron measurements for tantalum. This says whether the full run's phonons are too soft or the reference's are too stiff.
+2. Repeat the phonon ground state and the H-point phonon with denser k-meshes (20×20×20, 24×24×24) and a second smearing width, until the frequency stops moving.
+3. Increase the phonon q-mesh from 4×4×4 to 6×6×6. Interpolating phonons and coupling from 8 q-points may be too coarse for a metal with sharp features in its phonon spectrum.
+4. Only then rerun `CHAIN_MODE=full` and compare again.
+
+Until then, treat `CHAIN_MODE=full` for tantalum as a known-failing configuration, useful for these tests but not as a benchmark.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
