@@ -274,7 +274,7 @@ What is known about the cause:
 
 | Check | Finding |
 | --- | --- |
-| Did the run itself go wrong? | No. Every step ended normally, the Wannier functions are compact (1.7 to 3.3 Å², 7.5 Å² for the s-like one), and EPW found 0.70 states/eV per spin at the Fermi level |
+| Did the run itself go wrong? | No. Every step ended normally, the Wannier functions are compact (1.7 to 3.3 Å², 7.5 Å² for the s-like one), and EPW found 0.63 states/eV per spin at the Fermi level |
 | Is it EPW's fine sampling or smearing? | Unlikely. EPW's last step was rerun with half the smearing (0.05 eV) and the double-delta approximation. It was cut off by a machine restart after 784 of 1,728 q-points; on those same points the average coupling changed by only +6% (1.32 to 1.41). The 244 negative, unphysical linewidths in the first run did disappear |
 | Is the coupling strength itself off? | Probably not. λ × ωlog², which is roughly independent of how soft the phonons are, is 17,100 K² here, 19,700 K² in smoke mode and 20,600 K² for the reference: within 20% of each other |
 | Where the two runs differ | The phonons. At the same q-points the full run's frequencies are 17% lower than the smoke run's, and λ goes as 1/ω². About 21% of the full run's λ comes from modes below 8 meV, where small errors are amplified most |
