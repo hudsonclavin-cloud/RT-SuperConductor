@@ -317,6 +317,26 @@ Revised order of tests:
 2. Increase the coarse grids, q to 6×6×6 and k to 12×12×12. This needs new phonons and is a Hazel job.
 3. The phonon k-mesh and smearing convergence (step 2 of the earlier list), for the 6% frequency error.
 
+### `use_ws` test, 2026-11-12: no improvement
+
+Test 1 above was run on the 4-core rehearsal machine: EPW's last step only, from the saved coupling files, with `use_ws = .true.` and every other setting unchanged. It finished normally in about 25 minutes, and EPW no longer printed its "Results may improve" advice.
+
+| Quantity | Without `use_ws` | With `use_ws` | Reference |
+| --- | --- | --- | --- |
+| λ | 1.447 | 1.487 | 0.757 |
+| ωlog | 108.6 K | 105.3 K | 164.99 K |
+| Tc at μ* = 0.1 | 11.9 K | 11.9 K | 6.9 K |
+| Coupling-weighted log-average frequency | 109 K | 105 K | |
+| Share of λ from modes near Γ (within 0.2 of the zone centre) | 11.7% | 17.6% | |
+
+**The interpolation setting is not the cause.** If anything, more coupling moved to modes near Γ. The phonon frequencies are unchanged, as expected (147 K log-average in both).
+
+What remains, in order of how likely it now looks:
+
+1. **The coarse grids are too coarse [Likely].** The coupling is computed directly only on an 8×8×8 k-grid and a 4×4×4 q-grid and interpolated everywhere else. The lead smoke run, also on deliberately coarse grids, overestimated λ too (2.35). The test is test 2 above: q 6×6×6, k 12×12×12. On the rehearsal machine that is roughly 3 hours of computing (most of it new phonons); on Hazel with 16 cores, well under an hour.
+2. **The electronic interpolation [Speculative].** One of the six Wannier functions is fairly spread out (7.5 Å²). Comparing Wannier-interpolated bands with directly calculated bands near the Fermi level is a 10-minute check.
+3. **The pseudopotential [Speculative].** It reproduces the lattice constant and gives phonons 6% soft, which is ordinary, so it is the least likely cause.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
