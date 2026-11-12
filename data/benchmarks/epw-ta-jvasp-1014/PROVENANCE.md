@@ -9,6 +9,8 @@ added to training.
 Unlike the lead package, these inputs were written for this project. The
 settings and the checks behind them are below.
 
+> **Status, 2026-11-11: not validated.** With these settings the full run gives λ = 1.447 and ωlog = 108.6 K against the reference 0.7572 and 164.99 K. The phonon calculation is not converged with respect to k-points (the H-point frequency moves 13% between the 8×8×8 and 16×16×16 k-meshes). The settings below are a starting point for the convergence tests listed in `docs/hazel-runbook.md`, section 7, not a finished benchmark.
+
 ## Pseudopotential
 
 | Item | Value |
@@ -29,6 +31,7 @@ build environment could not reach). It was therefore tested before use:
 | Total energy against cutoff, 40 to 100 Ry | Converged to 0.1 mRy by 60 Ry; pressure steady to 0.1 kbar from 60 Ry. The inputs use 70 Ry |
 | Lattice constant at zero pressure, 16×16×16 k-points | 6.2736 bohr = 3.320 Å (measured 3.30 Å; this functional usually gives about 3.32 Å) |
 | Phonons at the zone boundary (smoke mesh) | 98 to 151 cm⁻¹ at N and 181 cm⁻¹ at H. Neutron measurements put tantalum's zone-boundary modes at roughly 90 to 170 cm⁻¹, so these are within about 10% |
+| Phonons against measurement (checked 2026-11-12) | Measured: H 5.03 THz, N 2.63 / 4.35 / 4.35 THz (Landolt-Börnstein III/13a, via Savrasov and Savrasov, arXiv:cond-mat/9604124, Table I). Smoke run +8% at H, full run −5.5%; average miss about 6.5% for both. See `docs/hazel-runbook.md`, section 7 |
 
 ## Settings
 
