@@ -290,6 +290,33 @@ What to do next, in order. These are convergence tests and need more cores than 
 
 Until then, treat `CHAIN_MODE=full` for tantalum as a known-failing configuration, useful for these tests but not as a benchmark.
 
+### Phonons compared with measurement, 2026-11-12
+
+Step 1 of the list above is done. Source: S. Y. Savrasov and D. Y. Savrasov, "Electron-phonon interactions and related physical properties of metals from linear-response theory" ([arXiv:cond-mat/9604124](https://arxiv.org/abs/cond-mat/9604124), 1996), Table I, whose measured values are the neutron data compiled in Landolt-Börnstein, New Series III/13a (1981). Frequencies in THz; for the N point the two upper modes are both 4.35 THz in the measurement, so our modes are matched by size.
+
+| Point and mode | Measured | Full run | Smoke run | Savrasov's calculation |
+| --- | --- | --- | --- | --- |
+| H | 5.03 | 4.75 (−5.5%) | 5.43 (+8.0%) | 5.13 (+2.0%) |
+| N, T1 | 2.63 | 2.49 (−5.3%) | 2.94 (+11.8%) | 2.65 (+0.8%) |
+| N, L and T2 (lower) | 4.35 | 3.79 (−12.9%) | 4.24 (−2.6%) | 4.18 (−3.9%) |
+| N, L and T2 (upper) | 4.35 | 4.25 (−2.3%) | 4.52 (+4.0%) | 4.54 (+4.4%) |
+| Average size of the miss | | 6.5% | 6.6% | 2.8% |
+
+The same paper gives the electron-phonon numbers to compare with: λ = 0.78 from tunnelling experiments, λ = 0.86 and ωlog = 160 K from its own calculation, and measured Tc = 4.47 K (Tables II and III). The JARVIS reference (λ = 0.757, ωlog = 165 K) agrees with these, so **the reference is sound; the error is ours.**
+
+What this changes in the diagnosis above:
+
+1. **The full run's phonons are too soft, but only by about 6%.** The smoke run's are too stiff by about the same amount, so the true k-mesh answer lies between 8×8×8 and 16×16×16 and the convergence tests in step 2 are still needed. About a third of the softness is expected from the functional: the PBE lattice here is 3.320 Å against about 3.301 Å measured, a 1.7% larger volume, and phonons soften as a crystal expands **[Likely]**.
+2. **6% softer phonons cannot explain λ being 91% too high.** Since λ goes as 1/ω², a uniform 6.5% softening raises λ by about 14%.
+3. **The main problem is where the coupling sits, not the frequencies.** The plain log-average of the full run's 5,184 phonon frequencies is 147 K, close to the 160 K that a correct calculation gives for ωlog. Weighted by coupling, as ωlog is, it drops to 109 K: the run gives far too much coupling to low-frequency modes. Near Γ, 3% of the modes carry 12% of λ. The earlier statement that "the open problem is the phonon side" was only partly right.
+4. **Most likely cause [Likely]: the interpolation from the coarse grids.** EPW computes the coupling on an 8×8×8 k-grid and a 4×4×4 q-grid and interpolates from there. EPW's own output advises `use_ws = .true.` ("Results may improve by using use_ws == .TRUE."), and the 244 negative linewidths point the same way.
+
+Revised order of tests:
+
+1. Rerun only EPW with `use_ws = .true.`, reusing the saved coupling files (`epbread = .true.`, `epbwrite = .false.`). About 25 minutes on 4 cores; no new phonons needed.
+2. Increase the coarse grids, q to 6×6×6 and k to 12×12×12. This needs new phonons and is a Hazel job.
+3. The phonon k-mesh and smearing convergence (step 2 of the earlier list), for the 6% frequency error.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
