@@ -106,10 +106,15 @@ def run_replay(args: argparse.Namespace) -> dict[str, Any]:
         labelled = data.load(args.candidates, labelled_only=True)
         kwargs = dict(seeds=args.seeds, rounds=args.rounds, batch=args.batch, initial=args.initial)
         high = (np.nan_to_num(labelled.tc, nan=0.0) >= args.high_tc).astype(int)
-        return {"any_superconductor": agent.compare_policies(labelled, labelled.label.astype(int), **kwargs),
-                f"tc_at_least_{args.high_tc:g}_k": agent.compare_policies(labelled, high, **kwargs),
-                "caveat": ("Replay over materials whose outcome is already known. It ranks policies on this "
-                           "labelled set; it does not measure the hit rate to expect on untested materials.")}
+        targets = {"any_superconductor": labelled.label.astype(int), f"tc_at_least_{args.high_tc:g}_k": high}
+        report: dict[str, Any] = {name: agent.compare_policies(labelled, y, **kwargs) for name, y in targets.items()}
+        # Strict replay: one query per unseen element system. "diverse" equals "greedy" there.
+        strict = tuple(p for p in agent.POLICIES if p != "diverse")
+        report["strict"] = {name: agent.compare_policies(labelled, y, policies=strict, strict=True, **kwargs)
+                            for name, y in targets.items()}
+        report["caveat"] = ("Replay over materials whose outcome is already known. It ranks policies on this "
+                            "labelled set; it does not measure the hit rate to expect on untested materials.")
+        return report
 
     return stage("agent-replay", settings, args.candidates, compute, args.reports, args.force)
 

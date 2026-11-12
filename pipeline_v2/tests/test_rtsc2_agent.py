@@ -58,3 +58,45 @@ def test_propose_only_returns_untested_eligible_rows(toy):
     rows = [int(i.split("-")[1]) for i in table["mp_id"]]
     assert len(table) == 10 and all(r < 100 and r % 2 == 0 for r in rows)
     assert table["rank"].tolist() == list(range(1, 11))
+
+
+def test_hard_cap_applies_to_every_policy():
+    rng = np.random.default_rng(0)
+    mean = np.linspace(1, 0, 12)
+    members = np.vstack([mean, mean[::-1]])
+    groups = np.asarray(["a"] * 6 + ["b"] * 3 + ["c"] * 3)
+    for policy in agent.POLICIES:
+        picks = agent.choose(policy, mean, members, groups, 5, rng, max_per_system=1)
+        # three systems, one pick each: the batch comes back short rather than repeating a system
+        assert len(picks) == 3 and len(set(groups[picks])) == 3
+
+
+def test_strict_seed_set_never_splits_an_element_system(toy):
+    target = toy.label.astype(int)
+    known = agent._seed_set(target, toy.groups, 40, True, np.random.default_rng(0))
+    assert known.sum() >= 40 and not set(toy.groups[known]) & set(toy.groups[~known])
+
+
+def test_strict_replay_queries_each_element_system_once(toy, monkeypatch):
+    target = toy.label.astype(int)
+    seen: list[np.ndarray] = []
+    original = agent.choose
+
+    def spy(policy, mean, members, groups, batch, rng, **kwargs):
+        picks = original(policy, mean, members, groups, batch, rng, **kwargs)
+        seen.append(groups[picks])
+        return picks
+
+    monkeypatch.setattr(agent, "choose", spy)
+    run = agent.replay(toy, target, "greedy", seed=0, initial=40, batch=8, rounds=4, strict=True)
+    queried = np.concatenate(seen)
+    assert len(queried) == len(set(queried)) == run["queries"] == 32
+    seed_systems = set(toy.groups[agent._seed_set(target, toy.groups, 40, True, np.random.default_rng(0))])
+    assert not seed_systems & set(queried)
+    # with no system queried twice and none seeded, every hit is a first hit in its system
+    assert run["new_system_hits"] == run["hits"]
+
+
+def test_strict_replay_stops_when_systems_run_out(toy):
+    run = agent.replay(toy, toy.label.astype(int), "random", seed=0, initial=40, batch=30, rounds=10, strict=True)
+    assert run["queries"] <= 60  # the toy set has 60 element systems in total
