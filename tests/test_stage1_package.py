@@ -83,7 +83,10 @@ def test_chain_refuses_a_band_step_with_symmetry_switched_off(tmp_path):
     package = tmp_path / "package"
     shutil.copytree(PACKAGE, package)
     nscf = package / "epw/nscf.in"
-    nscf.write_text(nscf.read_text().replace("    nbnd        = 14\n", "    nbnd        = 14\n    nosym       = .true.\n"))
+    text = nscf.read_text()
+    planted = re.sub(r"(\n\s*nbnd\s*=\s*\d+\n)", r"\1    nosym       = .true.\n", text, count=1)
+    assert planted != text                     # the bad line really went in
+    nscf.write_text(planted)
     result = _run(tmp_path, str(package), str(tmp_path / "run"), "compute", "normal", script=CHAIN)
     assert result.returncode == 6 and "nosym" in result.stderr
 
