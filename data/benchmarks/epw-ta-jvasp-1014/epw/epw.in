@@ -11,17 +11,18 @@
   epwwrite    = .true.
   epwread     = .false.
 
-  nbndsub     = 6
+  nbndsub     = 9
   bands_skipped = 'exclude_bands = 1-4'
 
   wannierize  = .true.
   num_iter    = 500
   dis_win_min = 9.0
-  dis_win_max = 28.0
+  dis_win_max = 45.0
   dis_froz_min= 9.0
   dis_froz_max= 26.0
   proj(1)     = 'Ta:d'
   proj(2)     = 'Ta:s'
+  proj(3)     = 'Ta:p'
 
   iverbosity  = 0
 

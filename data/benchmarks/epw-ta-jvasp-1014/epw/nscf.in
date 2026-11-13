@@ -10,7 +10,7 @@
     nat         = 1
     ntyp        = 1
     ecutwfc     = 70
-    nbnd        = 14
+    nbnd        = 18
     occupations = 'smearing'
     smearing    = 'mv'
     degauss     = 0.02

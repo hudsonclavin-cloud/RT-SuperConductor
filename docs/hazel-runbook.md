@@ -337,6 +337,37 @@ What remains, in order of how likely it now looks:
 2. **The electronic interpolation [Speculative].** One of the six Wannier functions is fairly spread out (7.5 Å²). Comparing Wannier-interpolated bands with directly calculated bands near the Fermi level is a 10-minute check.
 3. **The pseudopotential [Speculative].** It reproduces the lattice constant and gives phonons 6% soft, which is ordinary, so it is the least likely cause.
 
+### Band check, 2026-11-13: the electronic interpolation was a real cause
+
+EPW computes everything on a coarse grid and fills in the rest by interpolating through Wannier functions, so the interpolated bands must match the true bands, especially near the Fermi level where the coupling is decided. They were checked against bands calculated directly with Quantum ESPRESSO at 308 k-points (a path through Γ, H, N and P plus 120 random points), none of them on the coarse grid.
+
+| Wannier setup | Mean error within 0.4 eV of E_F | 95th percentile | Worst | DOS at E_F against direct calculation |
+| --- | --- | --- | --- | --- |
+| 6 functions (d, s), 8×8×8 grid: the failed run | 137 meV | 371 meV | 1,094 meV | +4% (0.1 eV smearing), +11% (0.05 eV) |
+| 6 functions, 12×12×12 grid | 93 meV | 268 meV | 931 meV | +7%, +10% |
+| **9 functions (d, s, p), 8×8×8 grid** | **36 meV** | **104 meV** | **149 meV** | **−1%, −1%** |
+
+On the grid points themselves all setups are exact, as they should be. The six-function setup was too poor between them: its errors were larger than EPW's 0.1 eV smearing, so the wrong states counted as being on the Fermi surface. A denser grid helped only partly, and its s-like function spread to 15 Å². Adding the three p-like functions made the d-like ones compact (1.2 to 1.3 Å² against 1.7 to 3.4 Å² before).
+
+EPW was then rerun with nine functions on the same phonons, everything else unchanged:
+
+| Quantity | 6 functions | 9 functions | Reference |
+| --- | --- | --- | --- |
+| λ | 1.447 | **1.122** | 0.757 |
+| ωlog | 108.6 K | **127.1 K** | 164.99 K |
+| Tc at μ* = 0.1 | 11.9 K | 10.4 K | 6.9 K |
+| Share of λ near Γ | 11.7% | 6.0% | |
+| Negative, unphysical linewidths | 522 | 224 | |
+
+**This is a real improvement but not a pass.** λ is still 48% too high and ωlog 23% too low. The package in `data/benchmarks/epw-ta-jvasp-1014/` now uses the nine-function setup (18 bands in the band step), exactly as tested here.
+
+What is left, with a rough account of the remaining 48%:
+
+1. **Phonons 6% too soft:** worth about +14% in λ, and they are soft at the coarse-grid points where nothing is interpolated.
+2. **The 4×4×4 q-grid:** likely most of the rest **[Likely]**. The coupling-weighted frequency average (127 K) is still well below the plain one (147 K), so too much coupling still sits on soft modes. The test is a 6×6×6 q-grid with a 12×12×12 k-grid, best done on Hazel.
+
+The band check took about 10 minutes on 4 cores and needs no phonons, so it is worth running on every new material before trusting its λ.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
