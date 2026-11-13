@@ -368,6 +368,8 @@ What is left, with a rough account of the remaining 48%:
 
 The band check took about 10 minutes on 4 cores and needs no phonons, so it is worth running on every new material before trusting its λ.
 
+The updated package was also run end to end in smoke mode with the chain script (7 minutes on 4 cores, exit 0). Smoke mode now gives λ = 1.04 and ωlog = 144 K. That it no longer lands near the reference, as the six-function smoke run did (0.778), confirms the earlier agreement was a coincidence of errors.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
