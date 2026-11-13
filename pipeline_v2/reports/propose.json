@@ -1,15 +1,15 @@
 {
-  "cache_key": "4728961e225ad58e",
+  "cache_key": "23dccfe7ade41343",
   "eligible_untested": 13024,
   "interpretation": "Model hypotheses for review. Not predictions of superconductivity.",
   "output": "pipeline_v2/reports/next-batch.csv",
   "proposed": 25,
   "provenance": {
     "candidates_sha256": "994a4fbcdf49fa5d630c6b19e65910ad7572b8a4c06aa1d7d56d24e8bd6f8714",
-    "git_commit": "2a5fd28d677e90e8f8019d658421fa50ab579ed5",
+    "git_commit": "5f4c0b2f099b9f45b3a64b586bf6f2dd22700f13",
     "numpy": "2.5.3",
     "python": "3.13.18",
-    "rtsc2_source": "ae00d734a5c30b5a",
+    "rtsc2_source": "833b22296976a0f3",
     "scikit_learn": "1.9.1",
     "seeds": {
       "models": "7 + repeat",
@@ -18,11 +18,11 @@
     },
     "torch": "2.15.0+cpu"
   },
-  "seconds": 5.5,
+  "seconds": 7.3,
   "settings": {
     "batch": 25,
     "model": "tree_bag",
-    "policy": "diverse"
+    "policy": "greedy"
   },
   "trained_on": 2153,
   "untested": 28205

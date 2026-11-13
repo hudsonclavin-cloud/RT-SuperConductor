@@ -184,7 +184,7 @@ def compare_policies(dataset: Dataset, target: np.ndarray, *, policies: tuple[st
     return summary
 
 
-def propose(dataset: Dataset, model: Any, *, policy: str = "diverse", batch: int = 25, seed: int = 0,
+def propose(dataset: Dataset, model: Any, *, policy: str = "greedy", batch: int = 25, seed: int = 0,
             eligible: np.ndarray | None = None) -> "Any":
     """Rank untested materials with a fitted model and return the next batch as a table."""
     import pandas as pd

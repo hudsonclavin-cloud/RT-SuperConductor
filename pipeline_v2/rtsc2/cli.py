@@ -166,7 +166,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--initial", type=int, default=100, help="replay: size of the starting labelled set")
     parser.add_argument("--high-tc", type=float, default=10.0, help="replay: kelvin threshold for the rare target")
     parser.add_argument("--model", default="tree_bag", choices=sorted(registry()), help="propose: model to fit")
-    parser.add_argument("--policy", default="diverse", choices=agent.POLICIES)
+    parser.add_argument("--policy", default="greedy", choices=agent.POLICIES,
+                        help="propose: selection rule; greedy is the default because no policy beat it in replay")
     args = parser.parse_args(argv)
     todo = {"run": (run_benchmark, run_replay, run_propose), "benchmark": (run_benchmark,),
             "replay": (run_replay,), "propose": (run_propose,)}[args.command]

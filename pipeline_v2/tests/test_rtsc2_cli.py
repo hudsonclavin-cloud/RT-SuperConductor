@@ -36,3 +36,19 @@ def test_eligibility_screen(toy):
     index[3, 0] = 89  # actinium: no stable isotope
     mask = cli.eligible_mask(replace(toy, frame=frame, el_index=index))
     assert mask[:4].tolist() == [False] * 4 and mask[4:].all() and len(mask) == n
+
+
+def test_greedy_is_the_default_policy():
+    import inspect
+
+    from rtsc2 import agent
+
+    assert inspect.signature(agent.propose).parameters["policy"].default == "greedy"
+    parser_default = {}
+    original = cli.run_propose
+    try:
+        cli.run_propose = lambda args: parser_default.update(policy=args.policy)
+        cli.main(["propose"])
+    finally:
+        cli.run_propose = original
+    assert parser_default["policy"] == "greedy"

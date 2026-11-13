@@ -175,14 +175,14 @@
       "rounds": 20
     }
   },
-  "cache_key": "9e166c9cbc5b261e",
+  "cache_key": "8fdaf3f014ac3e87",
   "caveat": "Replay over materials whose outcome is already known. It ranks policies on this labelled set; it does not measure the hit rate to expect on untested materials.",
   "provenance": {
     "candidates_sha256": "994a4fbcdf49fa5d630c6b19e65910ad7572b8a4c06aa1d7d56d24e8bd6f8714",
-    "git_commit": "eced6954a1fd0c919a2ca9770793fac5ff4542cf",
+    "git_commit": "5f4c0b2f099b9f45b3a64b586bf6f2dd22700f13",
     "numpy": "2.5.3",
     "python": "3.13.18",
-    "rtsc2_source": "7ffb1d4145062489",
+    "rtsc2_source": "833b22296976a0f3",
     "scikit_learn": "1.9.1",
     "seeds": {
       "models": "7 + repeat",
@@ -191,7 +191,7 @@
     },
     "torch": "2.15.0+cpu"
   },
-  "seconds": 462.0,
+  "seconds": 571.0,
   "settings": {
     "batch": 25,
     "high_tc_k": 10.0,
