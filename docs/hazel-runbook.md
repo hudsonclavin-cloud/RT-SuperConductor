@@ -963,6 +963,93 @@ starts:
 - λ rises from 1.710 (the smaller smearing resolves more of the small-q
   coupling, as for tantalum's +4%): 60%.
 
+### No Hazel; Cerqueira et al.'s methods; the stop rule's rerun runs here, 2026-11-14 19:30 UTC
+
+**Correction: there is no Hazel account.** The owner confirmed on
+2026-11-14 that the project has no access to Hazel. "Better on Hazel" and
+"it belongs on Hazel" in the sections above assumed access that does not
+exist; the assumption came from this runbook's name and its Slurm scripts,
+and was never checked. Everything below runs on the project's 4-core cloud
+machine. NC State HPC accounts and NSF ACCESS allocations usually need a
+faculty sponsor [Likely; check with NC State's HPC office].
+
+**PBE convergence at (0, 0, 1/3), all runs read.** PAW-PBE at its own
+lattice; transverse (twice) and longitudinal modes, cm⁻¹:
+
+| k-grid | Smearing (Ry) | Modes |
+| --- | --- | --- |
+| 16³ (package) | 0.02 | 31.0, 31.0, 151.4 |
+| 24³ | 0.02 | 44.3, 44.3, 156.1 |
+| 24³ | 0.01 | 41.4, 41.4, 157.1 |
+| 32³ | 0.01 | 43.6, 43.6, 157.0 |
+
+- [Certain] At the stop rule's smearing (0.01 Ry), 24³ is within 5% of 32³.
+  The transverse mode at 32³ is 1.41 times the package's 16³ value.
+- Against the predictions written at 18:32:
+  - 24³ at least 10% above 16³: right (given 65%).
+  - At 0.01 Ry, 32³ differs from 24³ by more than 10%: wrong (given 50%);
+    it differs by 5%.
+  - The best-converged mode at least 1.3 times the package value: right
+    (given 40%).
+- The first 32³ run crashed when the disk filled. It was rerun with
+  `reduce_io`.
+
+**Cerqueira et al.'s methods, read 2026-11-14** (arXiv:2307.10728v1,
+section VI and Table I; the published *Advanced Materials* version was not
+read):
+- [Certain, quoted]
+  - PBEsol, PseudoDojo "stringent" scalar-relativistic norm-conserving
+    pseudopotentials, cutoff at PseudoDojo's high-precision hint.
+  - Quantum ESPRESSO 6.8 and 7.1. The coupling comes from ph.x's own
+    double-grid method, not EPW.
+  - Lattice relaxed with PBEsol at 1500 k-points per reciprocal atom.
+  - Coarse coupling k-grid: the relaxation grid; fine k-grid: four times
+    denser in each direction; q-grid: half the k-grid.
+  - Double-delta integration with Methfessel–Paxton smearing of 0.05 Ry
+    (0.68 eV; this package's EPW uses 0.1 eV).
+  - "Accurate" settings: 3000 k-points per reciprocal atom, coarse grid
+    doubled.
+  - Up to three imaginary frequencies at Γ below 35i cm⁻¹ are accepted.
+    "Spurious soft modes due to insufficient k-point sampling" are
+    acknowledged.
+- [Certain] Table I, the source of niobium's λ = 1.248 and ωlog = 147.1 K,
+  uses the accurate settings. Its Tc column is the isotropic Eliashberg
+  solution at μ* = 0.10, not Allen–Dynes. It lists bcc niobium as 29 meV/atom
+  above the convex hull, which the paper does not explain.
+- [Speculative] For one-atom bcc niobium, 3000 k-points per atom is about
+  14³, so the accurate coarse grid is about 28³. That is roughly twice as
+  dense per direction as this package's 16³, and in the range where the
+  transverse mode above has stiffened by 1.4 times.
+- What this means:
+  - The reference rests on denser phonon grids than this package's, so it
+    stays a fair target.
+  - It is still one high-throughput setting, not a convergence study, so a
+    pass within ±15% is evidence, not proof.
+  - [Likely] Much of the gap (λ 1.71 against 1.248) is this package's 16³
+    phonon grid, not the functional.
+  - The double-delta smearing differs by a factor of about 7, a difference
+    in method that can move λ either way.
+
+**The stop rule's rerun, queued 19:27 UTC to start after the electron
+fine-grid test:**
+- Phonons: 6×6×6 at scf k 24³ and 0.01 Ry.
+- EPW ground state: scf on the same 24³ grid at 0.01 Ry (it was 12³ at
+  0.02 Ry), so it matches the phonons.
+- EPW fine grids: k 36³, `degaussw` 0.05 eV, q 18³ with `mp_mesh_q`.
+- Everything else as in the package.
+- Expected: about 11 to 14 h of phonons and 2 h of EPW on 4 cores.
+- To make room, the 16³ run's wavefunction, coupling and dvscf files are
+  deleted after the fine-grid test; its outputs, dynamical matrices and a2F
+  files are kept. So the 16³ data cannot be re-run through EPW afterwards.
+
+**Prediction for the rerun** [Speculative], written before it starts:
+- λ inside 1.061 to 1.435: 45%; above 1.435: 45%; below 1.061: 10%.
+- ωlog at least 125.0 K: 70%.
+- λ and ωlog both inside: 40%. All four checks pass (adding band and
+  symmetry): 25%.
+- Under the accepted stop rule, a miss on these grids means niobium has
+  failed and candidates are judged from published calculations.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
