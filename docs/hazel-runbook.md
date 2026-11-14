@@ -512,6 +512,39 @@ grid, and their 6×6×6 versions are queued.
 ones? If they are loosened, decide the new limits before reading the niobium
 and 6×6×6 checks, not after.
 
+### Niobium on a 4×4×4 phonon grid, 2026-11-14: fails the rule, because of the phonon interpolation
+
+Run on 4 cores with the tantalum package's settings adapted to niobium
+(`celldm(1) = 6.2568` bohr, the PBE zero-pressure lattice at 90 Ry; 90 Ry
+cutoff; nine Wannier functions; windows set from niobium's own bands, Fermi
+level 17.96 eV; `delta_approx` and `mp_mesh_q` on). Phonons took 74 minutes,
+EPW 8.
+
+| Check (rule above) | Result | Limit | Verdict |
+| --- | --- | --- | --- |
+| λ | **3.35** | 1.061 to 1.435 (reference 1.248) | fail |
+| ωlog | **28 K** | 125.0 to 169.2 K (reference 147.1 K) | fail |
+| Band check, near E_F | mean 12.9 meV, 95th percentile 36.8 meV, worst 49.8 meV | 50 / 100 meV | pass |
+| Band check, DOS at E_F | +1.0% at 0.1 eV smearing, +6.2% at 0.05 eV | 5% | fail (0.05 eV only) |
+| Symmetry check | not run on this grid | | |
+
+**Why.** The electrons are interpolated well, better than tantalum's (12.9
+against 36 meV). The phonons are not. On the fine grid, 5 of the 72
+symmetry-distinct phonon points have an imaginary mode, all near Γ, and two
+points, q = (1/12, 1/12, 1/6) and (1/6, 1/6, 1/6) in crystal coordinates,
+have acoustic modes at 0.7 and 1.1 meV with λ = 107 and 111. Since λ goes as
+1/ω², those two points, 1.7% of the weight, carry 1.87 of the 3.35. Without
+them λ would be 1.50. Real transverse acoustic modes there sit at several meV,
+so this is the Fourier interpolation of the 4×4×4 force constants failing,
+not niobium. Tantalum on the same grid had no imaginary mode.
+[Likely] Niobium's force constants reach further than tantalum's (its phonons
+have Kohn anomalies), so a 4×4×4 grid is too coarse for it.
+
+**Next, already running:** the same calculation on a 6×6×6 phonon grid with a
+12×12×12 electron grid. The point (1/6, 1/6, 1/6) is on that grid, so its
+phonon is computed directly instead of interpolated. The rule above applies
+unchanged.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
