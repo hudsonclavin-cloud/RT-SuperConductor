@@ -603,6 +603,134 @@ The most likely verdict is a fail on λ or ωlog. That would trace to the DFT
 phonons near Γ, which points at the phonon smearing and k-grid, not the
 q-grid.
 
+### Niobium 6×6×6 result, 2026-11-14 14:05 UTC: fails the rule
+
+Phonons took 3 h 15 min on 4 cores, EPW 63 min. Most of the EPW time (50
+min) went to the coarse-grid matrix elements, because both the coarse q-grid
+(4³ → 6³) and the coarse k-grid (8³ → 12³) grew. Fine grids as in the
+package: k 24×24×24, q 12×12×12 with `mp_mesh_q`, `degaussw` 0.1 eV.
+
+| Check (rule above) | Result | Limit | Verdict |
+| --- | --- | --- | --- |
+| λ | **1.767** (+42%) | 1.061 to 1.435 (reference 1.248) | fail |
+| ωlog | **120.7 K** (−18%) | 125.0 to 169.2 K (reference 147.1 K) | fail |
+| Band check | not run: λ and ωlog already decide the verdict | | |
+| Symmetry check (96 points in 5 whole stars) | median spread inside a star 14%, largest 23%; no negative coupling; frequencies identical inside every star | median ≤ 5% | fail |
+| Tc, this pipeline's formula (McMillan form, no f1·f2; information only) | 15.9 K at μ* = 0.10, 13.9 K at 0.15 (18.6 and 15.8 K with f1·f2); measured 9.25 K | | |
+
+**Against the prediction.** λ fell in the 1.435 to 2.0 bin (given 45%, the
+most likely bin) and ωlog below 125 K (given 50%). The predicted verdict, a
+fail, was right. One prediction says little about how well calibrated the
+odds were. The prediction also blamed the DFT phonons near Γ; the checks
+below do not confirm that.
+
+All numbers below were recomputed from the raw output by a second,
+independent reader, who also argued against the first draft of this
+section. The draft overstated what η shows and listed too few causes; this
+version takes in those corrections.
+
+**What the run shows.**
+
+- [Certain] The 4×4×4 artifact is gone. No fine-grid point has an imaginary
+  mode (72 symmetry-distinct points), and λ fell from 3.35 to 1.77, ωlog rose
+  from 28 to 121 K.
+- [Certain] 38% of this run's λ (0.67) comes from modes below 10 meV, which
+  are 12% of the q-weighted modes; 22% (0.40) comes from modes below 6 meV
+  (4.5%). Five of the six largest contributions are small-q points whose
+  lowest mode is at 1.7 to 5.5 meV (the sixth is at 8.9 meV), for example
+  crystal (0, 0, 1/12), λ_q = 9.5 at 1.7 meV, and (1/12, 1/12, 1/6), λ_q =
+  6.5 at 3.8 meV.
+- [Certain] The symmetry check fails worst nearest Γ: the spread inside a
+  star is 23% at crystal (0, 0, 1/12), 16% at (1/12, 1/12, 1/6), 14% at
+  (1/12, 1/12, 1/12), then 10% at (0, 1/12, 1/3) and 5% at (1/6, 1/6, 1/6).
+  The frequencies agree exactly, so the phonons are symmetric and the
+  coupling is not. [Likely] At small q the double delta picks out a thin set
+  of electron pairs, which a 24×24×24 fine k-grid with 0.1 eV smearing
+  samples unevenly. That is 10 to 20% noise on the points that carry the
+  most coupling; it does not say which way the converged λ moves.
+- [Certain] The electron density of states at E_F is 0.742 states per spin
+  per eV, [Likely, from memory] a normal value for niobium, so the
+  normalisation of λ is not suspect.
+
+**Where the excess sits is not settled.**
+
+- [Certain, arithmetic on this run's modes] Stiffening only the modes below
+  10 meV cannot reproduce the reference pair: reaching λ = 1.248 that way
+  needs a factor of 2.1 and pushes ωlog to 179 K, outside the band. A factor
+  of 1.45 to 1.7 would put both λ (1.42 to 1.33) and ωlog (157 to 168 K)
+  inside the band. Stiffening every mode by 1.2 instead gives λ = 1.227 and
+  ωlog = 145 K, almost exactly the reference.
+- [Speculative] So the data fit a lattice that is softer than the
+  reference's everywhere as well as a problem confined to small q. The
+  reference used PBEsol, which gives a stiffer lattice than PBE (used here);
+  the same difference was the leading explanation for tantalum's +12%.
+- η = λ M⟨ω²⟩ does not settle it. This run's 7.66 eV/Å² is 5% below the
+  8.02 estimated for the reference, but that estimate borrows this run's
+  own ratio ω₂/ωlog = 1.34, which the soft modes inflate. With the soft modes
+  stiffened by 1.2 or 1.4, the ratio falls to 1.23 or 1.16 and the estimate
+  to 6.7 or 6.0, which would make this run 14 to 27% high. η is also blind to
+  the soft modes, frequencies and matrix elements alike (modes below 10 meV
+  give 7% of it), so it cannot say which of the two is off there.
+- The measured C44 (about 29 to 31 GPa, from memory) shows the small-q
+  modes are softer than experiment (ρv² = 7.5 and 12.4 GPa at the two
+  smallest computed q-points), not that they are softer than the reference
+  calculation.
+- Tc is not compared with Bercx et al. They report Migdal–Eliashberg Tc, not
+  this formula, and even the broken 4×4×4 run gives 5.3 K, so "it still
+  says superconductor" cannot tell a good run from a broken one.
+
+**Candidate causes, and the test for each.** Only the first has been run.
+
+1. **Fine q sampling.** [Likely] small. The whole first shell around Γ adds
+   0.066 to λ, and every point with |q| ≤ 0.24 (2π/a) adds 0.20, while λ
+   must fall by 0.33 to reach the band. Test: fine q 18×18×18 on the same
+   data. **The second reader's prediction, written before the result:** λ
+   moves by a few hundredths, probably upward.
+   **Result (read 14:35 UTC, after the stop rule below was pushed):** 195
+   symmetry-distinct points, no imaginary mode, λ = 1.710 (−0.057, −3.2%),
+   ωlog = 120.5 K (unchanged), Tc 15.4 / 13.4 K at μ* = 0.10 / 0.15. Still a
+   fail on both. The size of the change matched the prediction; the
+   direction did not. [Likely] Fine q sampling is not the cause: 38% of λ
+   still comes from modes below 10 meV.
+2. **Electron fine grid.** 24×24×24 k with 0.1 eV smearing has never been
+   tested on niobium. [Speculative, from memory of niobium's Fermi velocity]
+   one k-step is 0.2 to 0.45 eV near E_F, two to four times the smearing.
+   Tantalum's λ rose 4% when the smearing was halved. Test: nkf 36³ or 48³
+   with `degaussw` 0.05 eV on the same data (no new phonons).
+3. **Phonon scf k-grid and smearing** (16³, 0.02 Ry Marzari–Vanderbilt).
+   Change both together, for example 24³ to 32³ at 0.01 Ry. The computed
+   TA[00ζ] branch dips (3.9 meV at ζ = 1/3, 20.2 meV at 2/3, 25.7 meV at H),
+   a Fermi-surface shape that smearing smooths out, so less smearing may
+   soften these modes further and raise λ. This test can move either way.
+4. **Functional.** PBE here against PBEsol in the reference. Test: lattice
+   constant and phonons with a PBEsol pseudopotential. That is a change of
+   method, not a convergence check.
+5. **Coarse phonon grid.** 6³ against 8³ has not been checked. Going from
+   4³ to 6³ halved λ.
+
+**Stop rule, proposed before the 18×18×18 result was read** (the owner
+decides; written now so that it cannot be fitted to the next results):
+
+- "Converged grids" in the roadmap means: fine q 18³ or denser, fine k 36³
+  or denser with `degaussw` 0.05 eV, and 6×6×6 phonons recomputed with an
+  scf k-grid of 24³ or denser at 0.01 Ry smearing.
+- If λ is still outside 1.061 to 1.435 or ωlog outside 125.0 to 169.2 K on
+  those grids, the niobium benchmark counts as failed and the roadmap's stop
+  condition is met: no candidate runs with this setup, and candidates are
+  judged from published calculations instead (for example Bercx et al.,
+  Materials Cloud 2025.39).
+- Switching to PBEsol counts as a new method, which must pass tantalum and
+  niobium again from the start.
+- Candidates stay blocked until that result is in, not merely until a test
+  has been run.
+
+**What this means for Stage 1.** Not passed. Tantalum misses narrowly (band
+check 104 against 100 meV; symmetry 6.2% against 5%). Niobium misses clearly
+on λ and ωlog, and on the symmetry check.
+
+**Open question for the owner:** do you accept the stop rule above, before
+any of its tests is read?
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
