@@ -1,0 +1,139 @@
+{
+  "compositions": 15960,
+  "superconductors": 11819,
+  "negatives": 3708,
+  "unlabelled_hosono_only": 433,
+  "mixed_reports": 196,
+  "element_systems": 4550,
+  "major_groups": 3632,
+  "groups": 3308,
+  "largest_groups": [
+    [
+      "Ba-Cu-O-Y",
+      4245
+    ],
+    [
+      "As-Ba-Fe",
+      263
+    ],
+    [
+      "As-Fe-La-O",
+      152
+    ],
+    [
+      "B-Mg",
+      139
+    ],
+    [
+      "Al-Nb",
+      112
+    ]
+  ],
+  "max_elements": 8,
+  "major_fraction": 0.05,
+  "near_tolerance": 0.02,
+  "train_only_share": 0.05,
+  "lockbox_percent_of_groups": 15,
+  "folds": 5,
+  "near_twin_pairs_split_across_groups": 0,
+  "by_split": {
+    "train_only": {
+      "rows": 4245,
+      "groups": 1,
+      "superconductors": 3272,
+      "negatives": 973,
+      "tc_above_40k": 2103,
+      "families": {
+        "Cuprates": 4244,
+        "Oxides": 1
+      }
+    },
+    "lockbox": {
+      "rows": 1950,
+      "groups": 539,
+      "superconductors": 1444,
+      "negatives": 439,
+      "tc_above_40k": 80,
+      "families": {
+        "Cuprates": 220,
+        "Ferrites": 126,
+        "Other": 1517,
+        "Oxides": 87
+      }
+    },
+    "dev fold 0": {
+      "rows": 1719,
+      "groups": 502,
+      "superconductors": 1253,
+      "negatives": 392,
+      "tc_above_40k": 58,
+      "families": {
+        "Cuprates": 145,
+        "Ferrites": 194,
+        "Other": 1269,
+        "Oxides": 111
+      }
+    },
+    "dev fold 1": {
+      "rows": 1854,
+      "groups": 558,
+      "superconductors": 1358,
+      "negatives": 414,
+      "tc_above_40k": 65,
+      "families": {
+        "Cuprates": 135,
+        "Ferrites": 235,
+        "Other": 1267,
+        "Oxides": 217
+      }
+    },
+    "dev fold 2": {
+      "rows": 2058,
+      "groups": 580,
+      "superconductors": 1473,
+      "negatives": 521,
+      "tc_above_40k": 30,
+      "families": {
+        "Cuprates": 142,
+        "Ferrites": 305,
+        "Other": 1474,
+        "Oxides": 137
+      }
+    },
+    "dev fold 3": {
+      "rows": 1968,
+      "groups": 532,
+      "superconductors": 1422,
+      "negatives": 484,
+      "tc_above_40k": 27,
+      "families": {
+        "Cuprates": 224,
+        "Ferrites": 360,
+        "Other": 1302,
+        "Oxides": 82
+      }
+    },
+    "dev fold 4": {
+      "rows": 2166,
+      "groups": 596,
+      "superconductors": 1597,
+      "negatives": 485,
+      "tc_above_40k": 65,
+      "families": {
+        "Cuprates": 177,
+        "Ferrites": 256,
+        "Other": 1505,
+        "Oxides": 228
+      }
+    }
+  },
+  "elements_left_out_for_missing_properties": [
+    "He",
+    "Ne",
+    "Ar",
+    "At",
+    "Rn",
+    "Fr"
+  ],
+  "output_sha256": "cdc480abd88aace9f80bb1f0931b5d58298233da592d6d8c7070170b9771e74a"
+}
