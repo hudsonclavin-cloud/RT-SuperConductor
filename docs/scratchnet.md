@@ -711,20 +711,20 @@ predictions, with each finding re-checked by a sceptical second reader
   folds. Rule set in advance: Tc error 0.401 or below means the loss was a
   training choice and the change should be kept; 0.395 or below (level with
   boosting) means the 50/50 mix should be looked at again; 0.410 or above
-  means training is not the cause, and further network work on this table is
-  not worth it.
+  means training is not the cause. The next step would then be feeding the
+  formula features to the network in a different form (15 fits); if neither
+  experiment reaches 0.401, network work on this table should stop.
 
 **What this means.** [Likely] The network loses for two reasons: on a table
 of this size, trees get more out of the same numbers than this network does,
 and the hand-made features carry chemistry the network does not work out for
-itself. More rows of the same kind would help both models, the network's
-classification perhaps a little more, but there are no more rows of this kind
-to be had: SuperCon is the source every published model uses.
+itself. More rows of the same kind would help both models, but there are no more
+rows of this kind to be had: SuperCon is the source every published model
+uses.
 [Speculative] Where a network has the advantage is a much larger table with
 richer inputs, for example calculated electron-phonon coupling for crystal
 structures (thousands of such calculations are now public, and larger sets
-are appearing). That is a
-different target from this one, and the better place for further network work.
+are appearing). That is a different target from this one, and the better place for further network work.
 
 ## Not done
 
