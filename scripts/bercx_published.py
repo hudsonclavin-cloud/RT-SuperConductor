@@ -24,7 +24,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw" / "bercx-2025"
 ARCHIVE = "https://archive.materialscloud.org/records/0wv1s-yqg46/files/{}?download=1"
-EPRINT = "https://arxiv.org/e-print/2503.10943"
+EPRINT = "https://arxiv.org/e-print/2503.10943v2"
+EPRINT_SHA256 = "e2355f7a79b984c819b52cdb22e3ec50f7a6f308fccb0e1c8b0e5abc5a7243f0"
+SI_MATERIALS = 250
 TABLES = {
     "Table_A.csv": "c497700e6295bd2267f204666fe0978fb6fe248f700a1f1ebea135306bc5eef2",
     "Table_B.csv": "1d643a42ae14fe76ff53248e0b26d7402ef02ed0a0318e784ec4b935b689f323",
@@ -70,7 +72,7 @@ def parse_material(text: str) -> dict | None:
     return {
         "formula": re.sub(r"[$\{\}_\\ ]|mathrm", "", formula_tex),
         "spacegroup": sg.group(2) if sg else "",
-        "source_id": _grab(r"Source database\}\s*&\s*([A-Za-z]+-[A-Za-z0-9]+)", text),
+        "source_id": _grab(r"Source database\}\s*&\s*([A-Za-z0-9]+-[A-Za-z0-9]+)", text),
         "mc3d_id": _grab(r"\{(mc3d-\d+)\}", text),
         "category": _grab(r"Category\}\s*&\s*(?:\\multicolumn\{\d\}\{l\}\{)?\s*([A-Za-z\-]+)", text),
         "lambda": _number(_grab(r"boldsymbol\{\\lambda\}\$\}\s*&\s*([-\d.~]+)", text)),
@@ -79,9 +81,9 @@ def parse_material(text: str) -> dict | None:
         "tc_iso_k": _number(iso),
         "tc_iso_text": iso.replace("$<$", "<").replace("~", "").replace(" ", ""),
         "tc_aniso_k": _number(aniso),
-        "tc_experimental": re.sub(r"\\cite\{[^}]*\}", "",
-                                  _grab(_cell(r"Experimental \$T_c\$").replace(r"(\$<\$~?\s*[\d.]+|[-\d.~]+)", r"(.+?)\\\\"),
-                                        text)).replace("~", " ").replace("$<$", "<").strip(),
+        "tc_experimental": " ".join(re.sub(r"\\cite\{[^}]*\}", "",
+                                           _grab(r"Experimental \$T_c\$\s*\}?\s*\[K\]\}?\s*&\s*(.+?)\\\\", text)
+                                           ).replace("~", " ").replace("$<$", "<").split()),
         "note": re.sub(r"\s+", " ", _grab(r"Note\}\s*&\s*\\multicolumn\{3\}\{p\{11cm\}\}\{(.+?)\}\s*\\\\", text, re.S))[:300],
     }
 
@@ -99,15 +101,23 @@ def made_metal(row: dict) -> bool:
             and "Cu" not in row["element_system"].split("-"))
 
 
+def _si_tier(m: dict) -> str:
+    if m["category"] == "problematic":
+        return "T3"   # problematic entries carry no verdict, whatever their Tc
+    if m["tc_iso_k"] is not None and m["tc_iso_k"] >= T4_MIN_TC_K:
+        return "T4"
+    return "T4-low"
+
+
 def tier(key: tuple[str, str], si: dict, table_b: set, table_c: set, table_d: set) -> str:
-    """The pre-registered evidence tier for a (reduced formula, space group) key."""
+    """The pre-registered evidence tier for a (reduced formula, space group) key.
+
+    ``si`` maps a key to a list of supplementary records (the same structure can appear more than once). If the
+    records disagree on the tier, the compound gets no verdict (T3).
+    """
     if key in si:
-        m = si[key]
-        if m["tc_iso_k"] is not None and m["tc_iso_k"] >= T4_MIN_TC_K and m["category"] != "problematic":
-            return "T4"
-        if m["tc_iso_k"] is not None and m["tc_iso_k"] >= T4_MIN_TC_K:
-            return "T3"   # problematic entries carry no verdict
-        return "T4-low"
+        tiers = {_si_tier(m) for m in (si[key] if isinstance(si[key], list) else [si[key]])}
+        return tiers.pop() if len(tiers) == 1 else "T3"
     if key in table_d:
         return "T3"
     if key in table_c:
@@ -142,6 +152,9 @@ def download() -> None:
             sys.exit(f"{name}: checksum {got} does not match the recorded {digest}")
         (RAW / name).write_bytes(data)
     blob = urllib.request.urlopen(EPRINT, timeout=300).read()
+    got = hashlib.sha256(blob).hexdigest()
+    if got != EPRINT_SHA256:
+        sys.exit(f"arXiv e-print: checksum {got} does not match the recorded {EPRINT_SHA256}")
     si = []
     with tarfile.open(fileobj=io.BytesIO(blob), mode="r:gz") as tar:
         for member in tar.getmembers():
@@ -149,11 +162,34 @@ def download() -> None:
                 record = parse_material(tar.extractfile(member).read().decode("utf-8", "replace"))
                 if record:
                     si.append(record)
+    if len(si) != SI_MATERIALS:
+        sys.exit(f"parsed {len(si)} supplementary materials, expected {SI_MATERIALS}")
     with open(RAW / "si-materials.csv", "w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(si[0]))
         writer.writeheader()
         writer.writerows(sorted(si, key=lambda r: (r["formula"], r["spacegroup"])))
     print(f"{len(si)} materials parsed; tables verified")
+
+
+def table_d_by_source() -> dict:
+    """Source id -> (reduced formula, space group) as Table D gives it."""
+    with open(RAW / "Table_D.csv", newline="") as handle:
+        return {f"{r['Source Database'].strip()}-{r[' Source ID'].strip()}".lower():
+                (composition_key(r["Formula"].strip()), r[" Spacegroup"].strip()) for r in csv.DictReader(handle)}
+
+
+def si_index(si_rows: list[dict], d_by_source: dict) -> dict:
+    """Key -> list of supplementary records. Each record is filed under its own (formula, space group) and, when its
+    source id is in Table D with another space group, under Table D's too: 13 supplementary pages print a lower
+    symmetry than Table D gives for the same structure."""
+    index: dict = {}
+    for r in si_rows:
+        keys = {(composition_key(r["formula"]), r["spacegroup"])}
+        if r["source_id"].lower() in d_by_source:
+            keys.add(d_by_source[r["source_id"].lower()])
+        for key in keys:
+            index.setdefault(key, []).append(r)
+    return index
 
 
 def load_keys(name: str) -> set:
@@ -167,8 +203,8 @@ def join() -> dict:
     for r in si_rows:
         for k in ("tc_iso_k", "tc_aniso_k", "tc_allen_dynes_k", "lambda", "omega_log_mev"):
             r[k] = float(r[k]) if r[k] not in ("", "None") else None
-    si = {(composition_key(r["formula"]), r["spacegroup"]): r for r in si_rows}
     table_b, table_c, table_d = load_keys("Table_B.csv"), load_keys("Table_C.csv"), load_keys("Table_D.csv")
+    si = si_index(si_rows, table_d_by_source())
     bercx_formulas = {k[0] for k in table_b} | {k[0] for k in si}
     with gzip.open(MP_SUMMARY, "rt") as handle:
         spacegroup = {r["mp_id"]: r["spacegroup_number"] for r in csv.DictReader(handle)}
@@ -185,7 +221,8 @@ def join() -> dict:
         if t == "T0" and key[0] in bercx_formulas:
             formula_only[group] += 1
         if t != "T0":
-            m = si.get(key, {})
+            found = si.get(key, [])
+            m = found[0] if len(found) == 1 else {}
             rows.append({"made_metals_rank": position, "mp_id": r["mp_id"], "formula": r["formula"],
                          "spacegroup": key[1], "boosting_p": r["p_superconductor"], "tier": t,
                          "bercx_category": m.get("category", ""), "bercx_lambda": m.get("lambda", ""),

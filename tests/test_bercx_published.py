@@ -91,3 +91,37 @@ def test_committed_summary_matches_the_join_table():
     (a, b), (c, d) = summary["fisher_t4_top_vs_rest"]["table"]
     assert summary["fisher_t4_top_vs_rest"]["p_two_sided"] == round(B.fisher_two_sided(a, b, c, d), 5)
     assert {r["tier"] for r in rows} <= set(B.TIERS[:-1])
+
+
+def test_experimental_tc_keeps_text_values():
+    page = LAYOUT_ONE.replace(r"9.25~\cite{Cappelletti_1967}", r"no~\cite{x} (film)")
+    assert B.parse_material(page)["tc_experimental"] == "no (film)"
+
+
+def test_tier_edge_cases():
+    b = c = d = set()
+    def si(*records):
+        return {("X", "1"): list(records)}
+    assert B.tier(("X", "1"), si({"tc_iso_k": 5.0, "category": "unknown"}), b, c, d) == "T4"          # boundary is inclusive
+    assert B.tier(("X", "1"), si({"tc_iso_k": 4.99, "category": "unknown"}), b, c, d) == "T4-low"
+    assert B.tier(("X", "1"), si({"tc_iso_k": None, "category": "problematic"}), b, c, d) == "T3"     # no verdict at any Tc
+    agree = si({"tc_iso_k": 9.0, "category": "unknown"}, {"tc_iso_k": 8.0, "category": "known-exp-formula"})
+    clash = si({"tc_iso_k": 9.0, "category": "unknown"}, {"tc_iso_k": 9.0, "category": "problematic"})
+    assert B.tier(("X", "1"), agree, b, c, d) == "T4"
+    assert B.tier(("X", "1"), clash, b, c, d) == "T3"
+
+
+def test_si_records_are_also_filed_under_table_d_space_group():
+    pytest.importorskip("pymatgen")
+    rows = [{"formula": "V", "spacegroup": "139", "source_id": "icsd-60614"}]
+    index = B.si_index(rows, {"icsd-60614": ("V", "229")})
+    assert set(index) == {("V", "139"), ("V", "229")}
+
+
+def test_join_ranks_agree_with_the_committed_made_metals_list():
+    committed = list(csv.DictReader(open(ROOT / "docs" / "scratchnet-candidates-boosting-top-made-metals.csv", newline="")))
+    joined = [r for r in csv.DictReader(open(ROOT / "docs" / "bercx-made-metals-join.csv", newline=""))
+              if int(r["made_metals_rank"]) <= len(committed)]
+    assert joined
+    for r in joined:
+        assert committed[int(r["made_metals_rank"]) - 1]["mp_id"] == r["mp_id"], r["formula"]

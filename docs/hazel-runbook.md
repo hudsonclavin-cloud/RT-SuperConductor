@@ -1173,6 +1173,19 @@ the session does not go idle again.
 - So the niobium rerun's chance of λ inside the band is revised from 45% to
   30% (labelled revision; the 45% stays on record).
 
+### Note on the fallback section above (after an independent review)
+
+- The section above headed "20:20 UTC" was committed at 20:14:05 UTC (36a67a5).
+- The niobium predictions now stand as a coherent revised set, still written
+  before the result:
+  - λ inside: 30%;
+  - λ above 1.435: 60%;
+  - λ below 1.061: 10%;
+  - λ and ωlog both inside: 27%;
+  - full pass: 9%.
+- Bercx et al.'s +20% may come from their 18³ / 0.02 Ry phonon grid rather
+  than the method. See the corrections in `docs/bercx-published-check.md`.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
