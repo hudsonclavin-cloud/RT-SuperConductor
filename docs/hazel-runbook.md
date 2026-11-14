@@ -731,6 +731,61 @@ on λ and ωlog, and on the symmetry check.
 **Open question for the owner:** do you accept the stop rule above, before
 any of its tests is read?
 
+### Stop rule accepted; PBEsol test for niobium, plan and prediction, 2026-11-14 18:05 UTC
+
+**The owner accepted the stop rule above on 2026-11-14** (in the session,
+after PR #41 was merged) and asked for the PBEsol test. The rule now applies
+as written.
+
+**Why this test.** Stiffening every niobium mode by 1.2 reproduces the
+reference pair, and the reference used PBEsol where this pipeline uses PBE.
+If PBEsol alone stiffens niobium's phonons enough, the miss is the method,
+not the grids.
+
+**How.**
+- The package's PBE file cannot be regenerated with PBEsol here. Its
+  generator, ONCVPSP, is not packaged on conda-forge, and building it from
+  source was not allowed on this machine.
+- Instead, Quantum ESPRESSO's own generator (`ld1.x` 7.6) makes two PAW
+  datasets from pslibrary's niobium recipe, `Nb.$fct-spn-kjpaw_psl.0.3.0`.
+  That is the version pslibrary does not list as broken with PBEsol; its
+  1.0.0 niobium is listed as not working with PBEsol.
+- The two generator inputs differ only in `dft` ('PBE' or 'PBESOL').
+- Both runs use the same settings: 60 Ry and 480 Ry cutoffs (the datasets
+  suggest at least 42 and 364), 16×16×16 k-points, Marzari–Vanderbilt
+  smearing 0.02 Ry, `tr2_ph` 1e-14. Each runs at its own zero-pressure
+  lattice constant.
+- Phonons at three points (Cartesian, 2π/a): H = (0, 0, 1), (0, 0, 1/3) and
+  (0, −1/6, 1/6).
+- The PAW-PBE frequencies are also compared with the package's ONCV-PBE
+  frequencies at the same points, to see how much the pseudopotential
+  itself moves them.
+
+**Decision rule, written before any result.**
+- **Measure:** the PBEsol/PBE frequency ratio for each of the nine modes
+  (three per point), both PAW. The summary is their geometric mean.
+- **Threshold, from this run's own numbers:** stiffening every mode by 9.2%
+  takes λ from 1.710 to 1.435, the band edge, and ωlog to 132 K.
+- **Mean ratio 1.09 or more:** PBEsol may fix the miss. Run the full PBEsol
+  benchmark (6×6×6 chain). Under the stop rule that is a new method, so
+  tantalum and niobium must both pass from the start on converged grids.
+- **1.04 to 1.09:** PBEsol explains part of the miss. The stop rule's
+  remaining grid tests come first.
+- **Below 1.04:** the functional is not the explanation, and the remaining
+  stop-rule tests decide.
+- **Caveat:** this measures phonons only. PBEsol also changes the coupling
+  matrix elements, which these three phonons do not show.
+- **Pseudopotential check:** if PAW-PBE and ONCV-PBE frequencies differ by
+  more than 3% on average, the pseudopotential matters about as much as the
+  functional, and that is reported.
+
+**Prediction** [Speculative], made before any result:
+- PBEsol lattice constant 1.0 to 1.5% below PBE (3.311 Å here with ONCV;
+  measured 3.300 Å).
+- Mean PBEsol/PBE frequency ratio below 1.04: 35%; 1.04 to 1.09: 45%; 1.09
+  or more: 20%.
+- The small-q transverse modes move more, in proportion, than the modes at H.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
