@@ -97,3 +97,74 @@ composition with a different or missing space group is reported as
   Allen-Dynes Tc, so T1 to T3 are graded by a coarse calculation.
 - Tables A to D give one space group per entry. The same formula in another
   structure is a different material.
+
+## Results, 2026-11-14 20:25 UTC
+
+Produced by `python scripts/bercx_published.py join`; full table in
+`docs/bercx-made-metals-join.csv` (matched rows only), counts in
+`docs/bercx-made-metals-summary.json`. Ranks are positions in the uncapped
+made-metals order (7,693 compounds, by boosting probability); the committed
+top-200 file caps compounds per element system, so its row numbers differ.
+
+**Coverage.** 1,598 of the 7,693 made metals (21%) match a Bercx et al.
+structure (formula and space group). 6,095 are T0, outside their scope; 58
+of those share a formula with a Bercx entry but not its space group.
+
+| Tier | Top 500 | Ranks 501 to 7,693 |
+| --- | --- | --- |
+| T4 (calculated superconductor, isotropic Tc ≥ 5 K) | 3 | 11 |
+| T4-low (calculated, isotropic Tc < 5 K) | 5 | 13 |
+| T3 (sent to EPW, no final result) | 13 | 76 |
+| T2 (coarse Tc > 1 K, not selected) | 36 | 130 |
+| T1 (coarse Tc ≤ 1 K) | 132 | 1,179 |
+| T0 (not screened) | 311 | 5,784 |
+
+One detail the rules above did not spell out: entries Bercx et al. tag
+`problematic` with an isotropic Tc of 5 K or more are counted as T3 (no
+verdict), not T4.
+
+**The pre-registered test.** Among matched compounds, 3 of 189 in the top
+500 are T4 (1.6%) against 11 of 1,409 in the rest (0.8%): odds ratio 2.05,
+two-sided Fisher p = 0.22. [Certain] Not significant. Against the
+prediction: the direction and the odds-ratio range were right; "p below
+0.05" (given 50%) was wrong. With 14 T4 compounds in all, even a real
+doubling could not be shown.
+
+**Exploratory, not pre-registered.** Counting every matched compound whose
+coarse Allen-Dynes Tc exceeded 1 K (T2 to T4 and T4-low): 57 of 189 in the
+top 500 (30%) against 230 of 1,409 in the rest (16%), odds ratio 2.2,
+p = 1×10⁻⁵. [Likely] So the ranking and a coarse physics calculation agree
+more than chance, on the 21% of made metals that both cover. It was chosen
+after seeing the tier table, so treat it as a lead.
+
+**Calculated superconductors among the made metals that Bercx et al. list
+as never measured** (category `unknown`; their literature survey, 2025, not
+re-checked here):
+
+| Made-metals rank | Compound | Space group | λ | Isotropic Tc (K) | Anisotropic Tc (K) |
+| --- | --- | --- | --- | --- | --- |
+| 9 | Zr6Ga2Ni | 189 | 0.70 | 5.5 | 5.8 |
+| 511 | Ti3SnH | 221 | 1.18 | 14.6 | 18.7 |
+| 1,002 | ZrSbRu (their half-Heusler highlight) | 216 | 0.96 | 11.3 | 13.2 |
+| 1,055 | TiAlPt | 194 | 0.75 | 6.2 | 5.3 |
+| 1,658 | Y2B3C2 | 65 | 0.53 | 5.6 | 7.7 |
+| 2,028 | ZrS | 129 | 1.13 | 13.4 | 18.8 |
+| 2,105 | NbCoSb | 216 | 1.73 | 20.4 | 21.4 |
+| 5,992 | Ti2Ga | 194 | 0.69 | 7.1 | 8.3 |
+
+- **Calculated Tc runs high.** For the matched known superconductors, the
+  isotropic Tc is 1.1 to 2.8 times the measured value: LiGa2Ir 5.6 against
+  2.9 K, LiGa2Rh 6.8 against 2.4 K, YSn3 7.7 against 7.0 K, LiGePd2 2.8
+  against 2.0 K, TaH2 8.3 against 3.0 K. LiZrSe2 is about 6 times (5.0
+  against 0.5 to 1.05 K). Read these Tc values as upper bounds.
+- **False positives exist.** TaB2 and RuO2 are T4 but are not
+  superconductors in experiment. This project's ranking puts them at 3,242
+  and 5,761.
+- **Zr6Ga2Ni** is the only compound that both this ranking (top 10) and the
+  published calculation call a superconductor without a measurement. Its
+  calculated Tc (5.5 K isotropic) is low enough that a real Tc near 2 to
+  3 K is plausible [Speculative, from the ratios above]. Its relatives
+  Zr6Ga2Co (rank 11) and Hf6Ga2Co (rank 98) are calculated at 4.7 and 3.0 K
+  (T4-low).
+
+Nothing was relabelled, retrained or added to training.

@@ -1,0 +1,49 @@
+{
+ "made_metals": 7693,
+ "top_n": 500,
+ "t4_min_tc_iso_k": 5.0,
+ "tier_counts": {
+  "top": {
+   "T4": 3,
+   "T4-low": 5,
+   "T3": 13,
+   "T2": 36,
+   "T1": 132,
+   "T0": 311
+  },
+  "rest": {
+   "T4": 11,
+   "T4-low": 13,
+   "T3": 76,
+   "T2": 130,
+   "T1": 1179,
+   "T0": 5784
+  }
+ },
+ "structure_matched": {
+  "top": 189,
+  "rest": 1409
+ },
+ "formula_only_not_structure": {
+  "top": 4,
+  "rest": 54
+ },
+ "t4_share_among_matched": {
+  "top": 0.0159,
+  "rest": 0.0078
+ },
+ "fisher_t4_top_vs_rest": {
+  "table": [
+   [
+    3,
+    186
+   ],
+   [
+    11,
+    1398
+   ]
+  ],
+  "odds_ratio": 2.05,
+  "p_two_sided": 0.22433
+ }
+}
