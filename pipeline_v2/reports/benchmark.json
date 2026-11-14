@@ -1,0 +1,302 @@
+{
+  "cache_key": "bfecff9ab6fc8405",
+  "element_systems": 1338,
+  "features": 177,
+  "models": {
+    "blend": {
+      "auc_mean": 0.8207762118598495,
+      "auc_per_repeat": [
+        0.8256491420430341,
+        0.8197487237148104,
+        0.8169307698217041
+      ],
+      "auc_sd_across_repeats": 0.0036326576555428844,
+      "average_precision_mean": 0.83875751100617,
+      "brier_mean": 0.1708352634503342,
+      "calibration_error_mean": 0.018580453743390877,
+      "fit_seconds_total": 121.9,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": 0.0018550656824196654,
+        "mean": -0.0036127949772678156,
+        "min": -0.009768557640600806,
+        "of": 3,
+        "wins": 1
+      },
+      "source": "rtsc2",
+      "top_decile_share_mean": 0.9333333333333332
+    },
+    "deep_ensemble": {
+      "auc_mean": 0.7765555198606968,
+      "auc_per_repeat": [
+        0.7837814008059277,
+        0.7740529998812758,
+        0.771832158894887
+      ],
+      "auc_sd_across_repeats": 0.005189287057499269,
+      "average_precision_mean": 0.7962226158697128,
+      "brier_mean": 0.1907461294842676,
+      "calibration_error_mean": 0.02631628328585323,
+      "fit_seconds_total": 62.4,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": -0.04001267555468668,
+        "mean": -0.0478334869764205,
+        "min": -0.0554642814741354,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "rtsc2",
+      "top_decile_share_mean": 0.8852713178294573
+    },
+    "legacy:ensemble_rf_hgb_mlp": {
+      "auc_mean": 0.8238311776742627,
+      "auc_per_repeat": [
+        0.8308572935071827,
+        0.8215025246352723,
+        0.819133714880333
+      ],
+      "auc_sd_across_repeats": 0.005061458464842004,
+      "average_precision_mean": 0.8420341143386966,
+      "brier_mean": 0.17027255730900326,
+      "calibration_error_mean": 0.033960352066883415,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": 0.0070632171465683236,
+        "mean": -0.0005578291628546653,
+        "min": -0.00801475672013896,
+        "of": 3,
+        "wins": 1
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.9426356589147287
+    },
+    "legacy:extra_trees": {
+      "auc_mean": 0.8152526264820157,
+      "auc_per_repeat": [
+        0.817167781743011,
+        0.8167090349118996,
+        0.8118810627911363
+      ],
+      "auc_sd_across_repeats": 0.002391400350562504,
+      "average_precision_mean": 0.8340023188155912,
+      "brier_mean": 0.17368901790470348,
+      "calibration_error_mean": 0.02646715281003252,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": -0.006626294617603445,
+        "mean": -0.009136380355101744,
+        "min": -0.01280824644351164,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.9209302325581395
+    },
+    "legacy:gradient_boosting": {
+      "auc_mean": 0.8243890068371172,
+      "auc_per_repeat": [
+        0.8237940763606144,
+        0.8295172813554113,
+        0.8198556627953264
+      ],
+      "auc_sd_across_repeats": 0.00396670938386366,
+      "average_precision_mean": 0.8388069732501444,
+      "brier_mean": 0.1722026334024823,
+      "calibration_error_mean": 0.056781203127419105,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": 0.0,
+        "mean": 0.0,
+        "min": 0.0,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.9054263565891473
+    },
+    "legacy:logistic_regression": {
+      "auc_mean": 0.7635045871773203,
+      "auc_per_repeat": [
+        0.7719713979425793,
+        0.7606131581336555,
+        0.7579292054557263
+      ],
+      "auc_sd_across_repeats": 0.0060863817327631445,
+      "average_precision_mean": 0.7853670262968494,
+      "brier_mean": 0.19897799087063786,
+      "calibration_error_mean": 0.06067535965319709,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": -0.05182267841803512,
+        "mean": -0.060884419659797,
+        "min": -0.06890412322175576,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.8744186046511628
+    },
+    "legacy:neural_network_mlp": {
+      "auc_mean": 0.7824191278659675,
+      "auc_per_repeat": [
+        0.7959711465266187,
+        0.7730586846754989,
+        0.7782275523957847
+      ],
+      "auc_sd_across_repeats": 0.009812312187975328,
+      "average_precision_mean": 0.8080984837705273,
+      "brier_mean": 0.21853936175052016,
+      "calibration_error_mean": 0.1582199213500542,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": -0.027822929833995702,
+        "mean": -0.04196987897114993,
+        "min": -0.056458596679912376,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.9100775193798448
+    },
+    "legacy:random_forest": {
+      "auc_mean": 0.8180710168611648,
+      "auc_per_repeat": [
+        0.8209608454560058,
+        0.8197482872287675,
+        0.8135039178987212
+      ],
+      "auc_sd_across_repeats": 0.0032671464678090648,
+      "average_precision_mean": 0.8358957471252805,
+      "brier_mean": 0.17370773963870786,
+      "calibration_error_mean": 0.0406619650100635,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": -0.00283323090460863,
+        "mean": -0.0063179899759525275,
+        "min": -0.009768994126643782,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.9255813953488371
+    },
+    "legacy:torch_mlp": {
+      "auc_mean": 0.7555814925261949,
+      "auc_per_repeat": [
+        0.7472160920182416,
+        0.7570758752418133,
+        0.76245251031853
+      ],
+      "auc_sd_across_repeats": 0.006309357887608702,
+      "average_precision_mean": 0.7773662834382106,
+      "brier_mean": 0.20292043031439308,
+      "calibration_error_mean": 0.06498434231305154,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": -0.05740315247679639,
+        "mean": -0.0688075143109224,
+        "min": -0.07657798434237284,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.8697674418604652
+    },
+    "legacy:torch_mlp_multitask_tc": {
+      "auc_mean": 0.7639870497500971,
+      "auc_per_repeat": [
+        0.7602823017131204,
+        0.7622373226993693,
+        0.7694415248378018
+      ],
+      "auc_sd_across_repeats": 0.00393861232973928,
+      "average_precision_mean": 0.7818770259578637,
+      "brier_mean": 0.2021764871484106,
+      "calibration_error_mean": 0.07776763183155289,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": -0.050414137957524585,
+        "mean": -0.060401957087020196,
+        "min": -0.06727995865604197,
+        "of": 3,
+        "wins": 0
+      },
+      "source": "scores saved by scripts/benchmark_sc_models.py on the same folds",
+      "top_decile_share_mean": 0.8666666666666667
+    },
+    "legacy_boosting": {
+      "auc_mean": 0.8243891523324649,
+      "auc_per_repeat": [
+        0.8237949493327003,
+        0.8295172813554113,
+        0.8198552263092835
+      ],
+      "auc_sd_across_repeats": 0.003966832055288585,
+      "average_precision_mean": 0.8388069040284707,
+      "brier_mean": 0.17220262956720842,
+      "calibration_error_mean": 0.05678120326557604,
+      "fit_seconds_total": 10.0,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": 8.729720858413614e-07,
+        "mean": 1.4549534765873062e-07,
+        "min": -4.3648604286516957e-07,
+        "of": 3,
+        "wins": 1
+      },
+      "source": "rtsc2",
+      "top_decile_share_mean": 0.9054263565891473
+    },
+    "tree_bag": {
+      "auc_mean": 0.8264479115015817,
+      "auc_per_repeat": [
+        0.828491539154544,
+        0.8250197291691399,
+        0.8258324661810614
+      ],
+      "auc_sd_across_repeats": 0.0014826655839176204,
+      "average_precision_mean": 0.8437215974750857,
+      "brier_mean": 0.17021747106679228,
+      "calibration_error_mean": 0.04621373327708045,
+      "fit_seconds_total": 63.9,
+      "paired_auc_gain": {
+        "against": "legacy:gradient_boosting",
+        "max": 0.00597680338573503,
+        "mean": 0.002058904664464419,
+        "min": -0.0044975521862713475,
+        "of": 3,
+        "wins": 2
+      },
+      "source": "rtsc2",
+      "top_decile_share_mean": 0.9426356589147287
+    }
+  },
+  "positives": 1192,
+  "provenance": {
+    "candidates_sha256": "994a4fbcdf49fa5d630c6b19e65910ad7572b8a4c06aa1d7d56d24e8bd6f8714",
+    "git_commit": "2a5fd28d677e90e8f8019d658421fa50ab579ed5",
+    "numpy": "2.5.3",
+    "python": "3.13.18",
+    "rtsc2_source": "ae00d734a5c30b5a",
+    "scikit_learn": "1.9.1",
+    "seeds": {
+      "models": "7 + repeat",
+      "outer_split": "1000 + repeat",
+      "replay": "0..seeds-1"
+    },
+    "torch": "2.15.0+cpu"
+  },
+  "rows": 2153,
+  "seconds": 264.9,
+  "settings": {
+    "models": [
+      "legacy_boosting",
+      "tree_bag",
+      "deep_ensemble",
+      "blend"
+    ],
+    "repeats": 3
+  },
+  "split": "StratifiedGroupKFold by element system, 5 folds x 3 shuffles"
+}
