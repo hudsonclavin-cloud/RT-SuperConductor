@@ -472,6 +472,46 @@ python scripts/epw_diagnostics.py stars --xml <run_dir>/epw/ta.xml --grid 12 12 
 
 **What this means for Stage 1.** The one-number pass rule against JARVIS (0.757) should be replaced. A fair rule compares with the calculation that uses the same method (0.96 and 143 K) and accepts the published range. Whether 12% above that counts as a pass is the owner's decision; the remaining 12% is most likely the softer PBE phonons plus the 16% symmetry noise. Run the symmetry check on every new material before trusting its λ.
 
+### Stage 1 pass rule, proposed 2026-11-14, written before the niobium result was read
+
+**A correction to the comparison above.** Cerqueira et al.'s 11.2 K for
+tantalum does not come from the formula this pipeline uses. Their λ = 0.961
+and ωlog = 143.3 K put into this pipeline's Allen-Dynes formula at μ* = 0.10
+give 9.4 K. Like for like, this pipeline's 10.9 K is 16% high, not 3% low;
+that matches the +12% in λ. Their niobium and vanadium Tc values (17.0 and
+24.9 K) are also above what the same formula gives from their own λ and ωlog
+(13.8 and 20.6 K). So compare λ and ωlog, not Tc.
+
+**Proposed rule (the owner decides; written down now so that it cannot be
+fitted to the niobium result):**
+
+1. Judge λ and ωlog, not Tc. Report Tc at μ* = 0.10 and 0.15 as information.
+2. The reference for every element benchmark is the published calculation
+   that uses the same double-delta definition on dense grids: Cerqueira et al.
+   2023 (arXiv:2307.10728). Tantalum: λ 0.961, ωlog 143.3 K. **Niobium: λ
+   1.248, ωlog 147.1 K.** Chosen before the niobium run finished, because
+   published niobium values spread by about 30% (other calculations near
+   0.90 to 0.97, and experimental estimates of 1.04 to 1.22, both as reported
+   by the literature search and not checked here).
+3. Pass only if all four hold: λ within ±15% of the reference (niobium: 1.061
+   to 1.435), ωlog within ±15% (niobium: 125.0 to 169.2 K), the band check
+   passes at its default limits (`scripts/check_wannier_bands.py`: mean error
+   near E_F at most 50 meV, 95th percentile at most the smearing, density of
+   states at E_F within 5%), and the symmetry check passes at its default
+   limits (`scripts/epw_diagnostics.py symmetry`: no negative coupling, equal
+   frequencies within a symmetry set, median disagreement within a set at
+   most 5%).
+
+**Tantalum under this rule, today: not yet a pass.** λ (+12%) and ωlog (−2%)
+are inside. But the nine-function band check above has a 95th percentile of
+104 meV against a 100 meV limit, and the 4×4×4 symmetry check gave a 16%
+median disagreement against 5%. Both checks are close calls or depend on the
+grid, and their 6×6×6 versions are queued.
+
+**Open question for the owner:** are the two checks' default limits the right
+ones? If they are loosened, decide the new limits before reading the niobium
+and 6×6×6 checks, not after.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
