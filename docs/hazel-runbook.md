@@ -1050,6 +1050,30 @@ fine-grid test:**
 - Under the accepted stop rule, a miss on these grids means niobium has
   failed and candidates are judged from published calculations.
 
+### The electron fine-grid test failed (out of memory); the 16³ data were deleted by a script fault, 2026-11-14 19:40 UTC
+
+- **The test did not run.** EPW with fine k 36³, fine q 18³ and 4 processes
+  was killed by the kernel's out-of-memory handler about a minute in, after
+  setting up the 195 q-points. Each process held about 3.6 GB against about
+  15 GB for the whole machine. There is no result, and no prediction can be
+  scored.
+- **Script fault.** The queue then deleted the 16³ run's wavefunction,
+  coupling and dvscf files, as planned, but it did so unconditionally. It
+  should have deleted them only after the test succeeded. So this test can no
+  longer be run on the 16³ data. The stop rule's fine-grid requirement is
+  instead covered inside the 24³ rerun, whose EPW step uses the same fine
+  grids.
+- **Fix for the rerun.** The rerun's EPW step will hit the same limit with 4
+  processes. It writes the Wannier-space coupling file before the fine-grid
+  stage, so a follow-up queue redoes only that stage from the saved file
+  with 2 processes (about 10 GB, about twice as slow) if the chain's EPW step
+  fails.
+- **Last convergence point**, PBE 32³ at 0.02 Ry, (0, 0, 1/3): 44.3, 44.3,
+  155.9 cm⁻¹, the same as 24³ at 0.02 Ry to 0.1%. So 24³ is converged at
+  0.02 Ry and within 5% at 0.01 Ry, which supports the rerun's choice of
+  24³.
+- The rerun started at 19:35 UTC; the phonon scf took 32 s.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
