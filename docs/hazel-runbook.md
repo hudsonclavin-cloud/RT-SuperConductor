@@ -368,6 +368,43 @@ What is left, with a rough account of the remaining 48%:
 
 The band check took about 10 minutes on 4 cores and needs no phonons, so it is worth running on every new material before trusting its λ.
 
+### Running the band check (added 2026-11-14)
+
+`scripts/check_wannier_bands.py` does the check above for any finished EPW run folder (the one holding `scf.in`, `nscf.in`, `epw.in`, `<prefix>.save` and `<prefix>_hr.dat`). Three steps:
+
+```bash
+python scripts/check_wannier_bands.py prepare --epw-dir <run_dir>/epw --out <run_dir>/bandcheck
+```
+
+```bash
+sbatch --partition=compute --qos=normal --ntasks=4 <run_dir>/bandcheck/run.sh
+```
+
+```bash
+python scripts/check_wannier_bands.py analyze --epw-dir <run_dir>/epw --check-dir <run_dir>/bandcheck
+```
+
+- **prepare** copies only the charge density and pseudopotentials (a few MB). It writes a direct calculation at 300 random k-points plus 12 coarse-grid points, and a 24×24×24 calculation for the density of states.
+- **run.sh** is two short `pw.x` runs, about a minute on 4 cores for tantalum. It is a calculation, so submit it as a job, not on the login node. Put `LAUNCHER="mpirun -np 4"` in front if the MPI check in section 5 said so. Off Hazel, run it with `LAUNCHER="mpirun -np 4" bash <run_dir>/bandcheck/run.sh`.
+- **analyze** prints a verdict, writes `report.json` in the check folder, and exits 0 for pass, 1 for fail, 2 when files are missing.
+
+**What it checks.** It takes every directly calculated state within EPW's own window around E_F (`fsthick`) and measures how far the nearest interpolated state is. It passes when:
+
+- the mean error is at most 50 meV;
+- 95% of errors are at most EPW's smearing (`degaussw`);
+- the density of states at E_F agrees within 5% at two smearing widths.
+
+It also checks that the coarse-grid points come out exact, which catches a `_hr.dat` from a different calculation. The thresholds come from one material and are a starting point, not a standard; each one is an option.
+
+**Results on tantalum, with the script:**
+
+| Setup | Mean error | 95th percentile | DOS ratio (0.1 / 0.05 eV) | Verdict |
+| --- | --- | --- | --- | --- |
+| 6 functions (the failed run) | 193 meV | 802 meV | 1.04 / 1.11 | fail |
+| 9 functions (the package now) | 38 meV | 110 meV | 0.98 / 0.96 | fail, narrowly |
+
+Both coarse-grid self-checks were exact (0.0 meV). The numbers differ a little from the hand check above because the script uses a different set of random points. The nine-function setup misses only the 95th-percentile limit (110 against 100 meV). Read it as "much better, still not clean at the 8×8×8 grid", which matches λ still being 48% high. The 12×12×12 grid planned for Hazel should be checked the same way.
+
 The updated package was also run end to end in smoke mode with the chain script (7 minutes on 4 cores, exit 0). Smoke mode now gives λ = 1.04 and ωlog = 144 K. That it no longer lands near the reference, as the six-function smoke run did (0.778), confirms the earlier agreement was a coincidence of errors.
 
 ## 8. Candidates: closing the loop
