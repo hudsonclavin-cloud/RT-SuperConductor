@@ -1074,6 +1074,45 @@ fine-grid test:**
   24³.
 - The rerun started at 19:35 UTC; the phonon scf took 32 s.
 
+### Owner's decision: the checks keep their default limits, 2026-11-14 19:50 UTC
+
+**Decided by the owner before the rerun's result exists:** the band check and
+the symmetry check apply at their default limits. A narrow miss is a miss.
+
+For the rerun those defaults are:
+- **Band check** (`scripts/check_wannier_bands.py`): mean error near E_F at
+  most 50 meV; 95th percentile at most EPW's `degaussw`; density of states at
+  E_F, at that same smearing, within 5% of the direct calculation.
+  - The rerun's `degaussw` is 0.05 eV, so the 95th-percentile limit is
+    **50 meV** (it was 100 meV for the earlier runs at 0.1 eV), and the
+    density of states is compared at 0.05 eV.
+  - On the 4×4×4 run that comparison missed (+6.2%). That run had an 8³
+    coarse electron grid; the rerun has 12³.
+- **Symmetry check** (`scripts/epw_diagnostics.py symmetry`): no negative
+  coupling, identical frequencies inside every star, median spread inside a
+  star at most 5%. It uses the same five stars as the 16³ test, which gave
+  14%.
+
+Both checks run automatically after the rerun's EPW step, with 2 processes
+for the star test because of memory.
+
+**What follows for Stage 1.**
+- Tantalum does not pass at these limits today. Its band check gave a
+  95th percentile of 104 against 100 meV, and its symmetry spread was 6.2%
+  against 5%.
+- [Speculative] Tantalum's phonons also used a 16³ scf grid, so its λ may
+  move on a converged grid too.
+- So Stage 1 needs a tantalum rerun on the stop rule's grids as well, even if
+  niobium passes.
+
+**Added prediction** [Speculative], written after reading the check
+definitions and before any rerun result:
+- If λ and ωlog are inside the band, both checks pass: 35%.
+- Taken with the earlier 40% for λ and ωlog, that gives about 14% for a full
+  pass. That is lower than the 25% written at 19:27, because the tighter
+  50 meV and 0.05 eV limits were not considered then. The 25% stands as the
+  recorded prediction; this is a revision, labelled as one.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
