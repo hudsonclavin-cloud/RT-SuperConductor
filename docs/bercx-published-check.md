@@ -168,3 +168,25 @@ re-checked here):
   (T4-low).
 
 Nothing was relabelled, retrained or added to training.
+
+## Literature check of Zr6Ga2Ni: decided 2026-11-14 20:40 UTC, prediction before the result
+
+**Owner's decision:** Zr6Ga2Ni goes to a literature check, the first of the
+eight never-measured calculated superconductors.
+
+**Method.** Three readers search independently, each by a different route:
+- scholarly databases, for the synthesis paper behind ICSD 635001 / MPDS
+  S1613081;
+- the general web and arXiv;
+- the Zr6MX2 family, for context.
+
+Each gives a verdict for Zr6Ga2Ni itself from the fixed list in
+`data/benchmarks/literature-check/PROVENANCE.md`. A sceptical second reader
+then tries to open every cited source and gives the final verdict. Bercx et
+al.'s calculation does not count as evidence.
+
+**Prediction** [Speculative], written before any reader returned:
+- `no_low_temperature_data_found`: 70%;
+- a measured superconductor (ambient, or pressure/doping only): 15%;
+- `measured_no_superconductivity`: 10%;
+- magnetic or insulating: 5%.
