@@ -512,6 +512,11 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
     C.write_table(out_dir / "scratchnet-candidates-top.csv", head, fields)
     C.write_table(out_dir / "scratchnet-candidates-top-not-cuprates.csv",
                   capped([r for r in ranked if r["family"] != "Cuprates"], top, per_system), fields)
+    # The list the electron-phonon pipeline can actually check: calculated to be metals, with no copper-oxygen
+    # or iron-pnictogen chemistry (those families superconduct by a mechanism that pipeline does not model).
+    metals = capped([r for r in ranked if r["is_metal"] == "True" and r["family"] in ("Other", "Oxides")
+                     and "Cu" not in r["element_system"].split("-")], top, per_system)
+    C.write_table(out_dir / "scratchnet-candidates-top-metals.csv", metals, fields)
     agree = float(C.T.spearman(network[0][untested] * network[1][untested], boosting[0][untested] * boosting[1][untested]))
     summary = {
         "name": name, "structures_in_pool": len(pool), "distinct_compositions_scored": len(usable),
@@ -529,6 +534,11 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
         "pool_median_distance_to_nearest_training": float(np.median(distance[untested])),
         "pool_share_beyond_0.3": float(np.mean(distance[untested] >= 0.3)),
         "highest_expected_tc_k": head[0]["expected_tc_k"] if head else None,
+        "top_containing_copper": sum("Cu" in r["element_system"].split("-") for r in head),
+        "metals_list": {"rows": len(metals), "highest_expected_tc_k": metals[0]["expected_tc_k"] if metals else None,
+                        "median_expected_tc_k": float(np.median([r["expected_tc_k"] for r in metals])) if metals else None,
+                        "median_distance_to_nearest_training":
+                            float(np.median([r["distance_to_nearest_training"] for r in metals])) if metals else None},
     }
     out = out_dir / "scratchnet-candidates.json"
     out.write_text(json.dumps(rounded(summary), indent=1) + "\n", encoding="utf-8")

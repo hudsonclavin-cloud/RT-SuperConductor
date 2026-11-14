@@ -1,0 +1,34 @@
+{
+ "name": "round2",
+ "structures_in_pool": 30358,
+ "distinct_compositions_scored": 26911,
+ "structures_skipped_unreadable_or_unknown_element": 7,
+ "untested_scored": 25019,
+ "network_members": 25,
+ "boosting_members": 5,
+ "network_vs_boosting_rank_agreement": 0.8516,
+ "top": 200,
+ "at_most_per_element_system": 3,
+ "top_not_metals_by_dft": 118,
+ "top_also_in_network_top_1000": 191,
+ "top_also_in_boosting_top_1000": 189,
+ "top_families": {
+  "Cuprates": 49,
+  "Ferrites": 6,
+  "Other": 114,
+  "Oxides": 31
+ },
+ "top_median_distance_to_nearest_training": 0.526,
+ "top_within_0.1_of_a_training_composition": 28,
+ "top_beyond_0.3_of_any_training_composition": 131,
+ "pool_median_distance_to_nearest_training": 0.2885,
+ "pool_share_beyond_0.3": 0.4917,
+ "highest_expected_tc_k": 83.2,
+ "top_containing_copper": 94,
+ "metals_list": {
+  "rows": 200,
+  "highest_expected_tc_k": 25.83,
+  "median_expected_tc_k": 9.835,
+  "median_distance_to_nearest_training": 0.3335
+ }
+}
