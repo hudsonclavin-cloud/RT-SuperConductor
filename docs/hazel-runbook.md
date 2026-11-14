@@ -830,6 +830,52 @@ reading it** [Speculative]:
 - PBEsol with a 24×24×24 k-grid: TA still imaginary: 55%.
 - PBEsol with 0.04 Ry smearing instead of 0.02: TA real: 70%.
 
+### PBEsol follow-up: the imaginary mode is a k-grid artifact, 2026-11-14 18:32 UTC
+
+All at q = (0, 0, 1/3), PAW, 60/480 Ry, Marzari–Vanderbilt smearing:
+
+| Run | Lattice (bohr) | k-grid | Smearing (Ry) | Pressure (kbar) | Modes (cm⁻¹) |
+| --- | --- | --- | --- | --- | --- |
+| PBE (Stage A) | 6.2536 | 16³ | 0.02 | 0 | 31.0, 31.0, 151.4 |
+| PBEsol (Stage A) | 6.1824 | 16³ | 0.02 | 0 | −33.4, −33.4, 151.4 |
+| PBE at the PBEsol lattice | 6.1824 | 16³ | 0.02 | +63 | −25.4, −25.4, 155.3 |
+| PBEsol at the PBE lattice | 6.2536 | 16³ | 0.02 | −60 | 22.0, 22.0, 147.5 |
+| PBEsol, denser k | 6.1824 | **24³** | 0.02 | 0 | **41.2, 41.2, 162.4** |
+| PBEsol, larger smearing | 6.1824 | 16³ | **0.04** | −1 | **47.4, 47.4, 163.1** |
+
+- **[Certain] On the package's settings (16³ k, 0.02 Ry) these modes are
+  not converged.** Going to 24³ moves PBEsol's transverse mode from −33.4 to
+  +41.2 cm⁻¹, and even the longitudinal mode moves 7%.
+- [Certain] At 16³, both a smaller volume (PBE compressed by 1.1%) and the
+  functional at fixed volume (PBEsol at the PBE lattice: 22.0 against 31.0)
+  soften the mode. At 16³, though, both effects are smaller than the
+  k-grid's.
+- **So the Stage A verdict ("below 1.04") stands as recorded, but its premise
+  does not.** The comparison was made on phonon settings that are not
+  converged for the modes that matter. It says nothing reliable about PBEsol
+  until both functionals are compared on converged k-grids.
+- **The package's PBE phonons have the same problem.** That makes cause 3
+  (phonon scf k-grid and smearing) the leading suspect for niobium's excess
+  λ. It is also the stop rule's test (b).
+- Against the follow-up predictions:
+  - PBE at the PBEsol lattice, imaginary: right (given 65%).
+  - PBEsol at the PBE lattice, within 10% of PBE: wrong (given 60%); it is
+    29% lower.
+  - PBEsol at 24³ still imaginary: wrong (given 55%).
+  - 0.04 Ry gives a real mode: right (given 70%).
+
+**Next, launched 18:35 UTC: convergence of the PBE mode at (0, 0, 1/3)**,
+at PBE's own lattice. The runs are k 24³ and 32³ at 0.02 Ry and at 0.01 Ry
+(the stop rule's setting), plus PBEsol at 32³ and 0.01 Ry. Prediction,
+written before the result [Speculative]:
+- PBE at 24³ and 0.02 Ry: transverse mode at least 10% above the package's
+  31.0 cm⁻¹: 65%.
+- At 0.01 Ry, 32³ differs from 24³ by more than 10%: 50%.
+- The best-converged PBE transverse mode is at least 1.3 times the package
+  value (41 cm⁻¹ or more): 40%. If it is, a full 6×6×6 phonon rerun at
+  that k-grid (about 11 h on 4 cores at 24³, so better on Hazel) is the next
+  step, and the arithmetic above says λ could drop into the band.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
