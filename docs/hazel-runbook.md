@@ -731,7 +731,7 @@ on λ and ωlog, and on the symmetry check.
 **Open question for the owner:** do you accept the stop rule above, before
 any of its tests is read?
 
-### Stop rule accepted; PBEsol test for niobium, plan and prediction, 2026-11-14 18:05 UTC
+### Stop rule accepted; PBEsol test for niobium, plan and prediction, 2026-11-14 18:01 UTC
 
 **The owner accepted the stop rule above on 2026-11-14** (in the session,
 after PR #41 was merged) and asked for the PBEsol test. The rule now applies
@@ -785,6 +785,50 @@ not the grids.
 - Mean PBEsol/PBE frequency ratio below 1.04: 35%; 1.04 to 1.09: 45%; 1.09
   or more: 20%.
 - The small-q transverse modes move more, in proportion, than the modes at H.
+
+### PBEsol test for niobium: result, 2026-11-14 18:17 UTC
+
+**PBEsol makes the soft modes worse, not better.** It gives imaginary
+transverse acoustic modes, an instability of the lattice, at both small-q
+points.
+
+| q (Cartesian, 2π/a) | ONCV-PBE (package, cm⁻¹) | PAW-PBE (cm⁻¹) | PAW-PBEsol (cm⁻¹) | PBEsol / PBE |
+| --- | --- | --- | --- | --- |
+| H (0, 0, 1) | 207.5 ×3 | 208.2 ×3 | 216.5 ×3 | 1.040 |
+| (0, 0, 1/3) | 31.6, 31.6, 151.0 | 31.0, 31.0, 151.4 | **−33.4, −33.4** (imaginary), 151.4 | imaginary, imaginary, 1.000 |
+| (0, −1/6, 1/6) | 28.7, 55.4, 95.8 | 28.3, 55.2, 96.1 | **−15.6** (imaginary), 54.5, 90.1 | imaginary, 0.986, 0.938 |
+
+- Zero-pressure lattice constants: PAW-PBE 6.2536 bohr (3.309 Å), ONCV-PBE
+  6.2568 bohr (3.311 Å), PAW-PBEsol 6.1824 bohr (3.272 Å). PBEsol is 1.14%
+  below PBE, inside the predicted 1.0 to 1.5%. The measured value is
+  3.300 Å.
+- Cutoff check: raising the cutoffs from 60/480 to 80/640 Ry moves the PBE
+  pressure by 1 kbar.
+- **[Certain] Pseudopotential check passes.** PAW-PBE and ONCV-PBE agree to
+  within 2% at every mode; the geometric mean ratio is 0.996.
+- **[Certain] Decision under the rule: "below 1.04".** The pre-registered
+  geometric mean cannot be taken, because three of the nine PBEsol modes are
+  imaginary. Over the six real modes it is 1.006. Only H stiffens, by 4.0%.
+  The modes that carry niobium's excess coupling went the wrong way. So the
+  functional is not the explanation, and the stop rule's remaining grid
+  tests decide.
+- **Against the prediction.** The lattice constant came out as predicted.
+  The frequency ratio fell in "below 1.04" (given 35%). The prediction that
+  the small-q modes move more than H was right in size but wrong in sign.
+- [Speculative] This fits what is known of niobium under compression:
+  PBEsol's 1.1% smaller lattice is like PBE under a few GPa. The transverse
+  modes near Γ in niobium depend on the Fermi surface, and smearing and the
+  k-grid move them strongly. If so, Cerqueira et al.'s PBEsol λ = 1.248 must
+  rest on settings that keep these modes stable, most likely a larger
+  smearing. That would make the reference itself depend on the smearing.
+
+**Follow-up at (0, 0, 1/3), launched 18:18 UTC; prediction written before
+reading it** [Speculative]:
+- PBE at the PBEsol lattice constant: TA imaginary or below 15 cm⁻¹ (volume
+  alone does it): 65%.
+- PBEsol at the PBE lattice constant: TA real and within 10% of PBE: 60%.
+- PBEsol with a 24×24×24 k-grid: TA still imaginary: 55%.
+- PBEsol with 0.04 Ry smearing instead of 0.02: TA real: 70%.
 
 ## 8. Candidates: closing the loop
 
