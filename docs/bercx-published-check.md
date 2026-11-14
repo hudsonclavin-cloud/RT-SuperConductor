@@ -345,3 +345,27 @@ experimental partner:
 But no family member with a group-13 element has been reported as a
 superconductor, and the calculation sits only 0.5 K above the cut. Nothing
 was relabelled.
+
+## Owner's decision on Zr6Ga2Ni: wait for the library read (2026-11-14)
+
+Zr6Ga2Ni does not go on the experimental-partner list until a person with
+library access has read I. Yu. Zavalii, "Hydrogenation of Zr6MeX2
+intermetallic compounds: absorption and desorption characteristics, crystal
+structure, and magnetic properties (Me = Fe, Co, Ni; X = Al, Ga, Sn)",
+*Materials Science* 34(4), 528–537 (1998), doi:10.1007/BF02360705 (it is a
+translation; the original is in *Fiz.-Khim. Mekh. Mater.*).
+
+**What to look for, and what each finding means** (proposed rule, for the
+owner to confirm):
+
+| What the paper shows for Zr6NiGa2 (the hydrogen-free compound) | Verdict | Next step |
+| --- | --- | --- |
+| Susceptibility or resistivity down to about 2 K or lower, no transition | `measured_no_superconductivity` | Drop Zr6Ga2Ni; move to the next never-measured candidate (Ti3SnH or ZrSbRu) |
+| A superconducting transition | `superconductor_ambient` | Record it as a known superconductor (a person adds the row to `data/training/negative_evidence.csv` only if it is currently a negative) |
+| Measurements that stop above about 2 K, or Zr6NiGa2 not among the compounds measured | stays `no_low_temperature_data_found` | Zr6Ga2Ni goes on the experimental-partner list |
+| Magnetic order in Zr6NiGa2 | `magnetic_or_insulating_no_superconductivity` | Drop Zr6Ga2Ni |
+
+Also note the lowest temperature reached, the sample form (powder, arc-melted
+button) and whether Zr6NiGa2 is single-phase. The same reader could also
+check Zavaliy et al. 1999 (doi:10.1016/S0925-8388(98)00877-9), whose
+abstract reports magnetic ordering only for the Fe aluminide.
