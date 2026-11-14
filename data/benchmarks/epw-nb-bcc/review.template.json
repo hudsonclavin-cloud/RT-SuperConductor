@@ -1,0 +1,13 @@
+{
+  "role": "benchmark",
+  "formula": "Nb",
+  "converged": false,
+  "reviewer": "",
+  "mu_star": 0.1,
+  "reference": {
+    "lambda": 1.248,
+    "omega_log_k": 147.1,
+    "source": "Cerqueira, Sanna and Marques 2023, arXiv:2307.10728 (same double-delta definition of lambda)"
+  },
+  "notes": "Stage 1 second benchmark: niobium. Judge it by the rule in docs/hazel-runbook.md, section 7 ('Stage 1 pass rule'), which was written before any niobium result was read: lambda and omega_log each within 15% of the reference, and the band check and symmetry check both passing. On a 4x4x4 phonon grid it failed (lambda 3.35, from two interpolated near-zero acoustic modes); this package holds the 6x6x6 settings. Copy the contents of CHAIN_MODE.txt from the run directory here; only a CHAIN_MODE=full run counts."
+}

@@ -1,0 +1,26 @@
+ &control
+    calculation = 'scf'
+    prefix      = 'nb'
+    pseudo_dir  = '../pp/'
+    outdir      = './'
+ /
+ &system
+    ibrav       = 3
+    celldm(1)   = 6.2568
+    nat         = 1
+    ntyp        = 1
+    ecutwfc     = 90
+    occupations = 'smearing'
+    smearing    = 'mv'
+    degauss     = 0.02
+ /
+ &electrons
+    mixing_beta = 0.5
+    conv_thr    = 1.0d-12
+ /
+ATOMIC_SPECIES
+ Nb 92.90637 Nb_ONCV_PBE_sr.upf
+ATOMIC_POSITIONS crystal
+ Nb 0.000000000 0.000000000 0.000000000
+K_POINTS automatic
+ 12 12 12 0 0 0

@@ -35,7 +35,7 @@ Full text read for every paper cited except the two marked under "Papers read" (
 
 | Step | Why | Cost | Chance (estimate) | Success | First action |
 |---|---|---|---|---|---|
-| 1. Repair labels; freeze a verified test set | Six wrong negatives, two in the locked set; the correction file is empty and the network builder ignores it | 1–2 days | 95% better labels; AUC barely moves | One correction file feeds both tables; nulls carry their lowest temperature | Task A |
+| 1. Repair labels; freeze a verified test set | Six wrong negatives, two in the locked set; the correction file is empty ~~and the network builder ignores it~~ (correction, 14 Nov: the network builder does read it; see `docs/negative-labels.md`) | 1–2 days | 95% better labels; AUC barely moves | One correction file feeds both tables; nulls carry their lowest temperature | Task A |
 | 2. Close the tantalum and niobium gate with a rule written first | Ta λ 1.08 vs 0.96 by the same method; the runbook's "10.9 vs 11.2 K" mixed formulas (9.4 K like-for-like; corrected in the runbook) | Half a day | 65% | Niobium inside the preset margin; band and symmetry checks pass | Task B |
 | 3. Download calculated data; clean the λ model | 431 of 1,057 training rows unstable; physics model AUC 0.53 | 1–2 weeks; downloads need a normal network | 40–60% | Lookup before every run; AUC ≥ 0.65 on measured metals | Task C |
 | 4. Calibrate EPW on ZrN, HfN, TiN, TaB2 | Bercx: ZrN 12.6 vs 9.3–9.6 K measured; TaB2 17.5 vs below 1.5 K | Hazel, 2–4 weeks | 50% | Your calculated/measured ratio at μ* 0.10 and 0.21 | Copy Bercx's settings (Materials Cloud 2025.39) |

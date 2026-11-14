@@ -545,6 +545,26 @@ have Kohn anomalies), so a 4×4×4 grid is too coarse for it.
 phonon is computed directly instead of interpolated. The rule above applies
 unchanged.
 
+### Tantalum 6×6×6: smearing and symmetry, 2026-11-14
+
+Two checks on the 6×6×6 data, run after the rule above was written:
+
+| Check | Result | Under the rule |
+| --- | --- | --- |
+| Electron smearing halved (`degaussw` 0.1 → 0.05 eV), same symmetry-reduced fine grid | λ 1.124 (+4.2% against 1.079), ωlog 139.2 K (−0.5%) | λ is +17% against the reference 0.961: outside ±15% |
+| Symmetry check on four whole stars (90 points) | median disagreement inside a star 6.2%, largest 6.9%; no negative coupling; frequencies identical inside every star | fail, narrowly (limit 5%); it was 16% on the 4×4×4 grid |
+
+- The denser phonon grid made the coupling much more symmetric (16% → 6%),
+  so most of the earlier disagreement was the 4×4×4 interpolation.
+- λ rises as the smearing falls. With the package's 0.1 eV, tantalum is inside
+  the λ band (+12%); with 0.05 eV it is not (+17%). The rule does not say which
+  smearing counts. [Likely] The converged value is at or above 1.12, so on λ
+  this pipeline is about 15 to 20% above the reference calculation, which is
+  what the softer PBE phonons (5 to 13% below neutron data) would predict.
+- Not run, for lack of time on this machine: the phonon probes at H (lattice
+  constant and electron mesh) and the full-grid check of `mp_mesh_q`. The
+  cores went to niobium on a 6×6×6 grid instead.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:

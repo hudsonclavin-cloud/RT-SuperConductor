@@ -136,5 +136,10 @@ What it means:
 - **To act on this**, read each paper and record it in
   `data/training/negative_evidence.csv` with `superconductivity_observed = yes`
   and `tc_k`. `build_mp_candidates.py` turns such a row into a positive report.
-  `scripts/build_scratchnet_data.py` does not read that file, so the network's
-  table would need the same change made there before a rebuild.
+  ~~`scripts/build_scratchnet_data.py` does not read that file, so the network's
+  table would need the same change made there before a rebuild.~~
+  **Correction (14 November 2026):** it does. `scripts/build_scratchnet_data.py`
+  takes its labels from `build_mp_candidates.known_index`, which reads this
+  file, so one recorded row changes both tables after a rebuild
+  (`tests/test_scratchnet_data.py` checks this with YRu3B2). The network's
+  table checksum in `docs/scratchnet-data.json` will change with it.

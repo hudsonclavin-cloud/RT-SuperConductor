@@ -148,3 +148,28 @@ def test_build_composition_rows_labels_and_groups():
 def test_lineage_collapses_the_supercon_copies():
     assert [build.lineage(s) for s in ("stanev", "3dsc", "mtg", "hosono:4", "supermat:9", "audit:1")] == \
         ["supercon", "supercon", "supercon", "hosono", "supermat", "audit"]
+
+
+def test_a_verified_paper_in_the_evidence_file_reaches_the_network_table(tmp_path):
+    """The network's table takes its labels from known_index, which reads data/training/negative_evidence.csv.
+
+    A composition known only from database zeros becomes a superconductor once a person records a paper that
+    measured it superconducting, the way YRu3B2 would (docs/negative-labels.md).
+    """
+    import build_mp_candidates as labels
+
+    stanev = tmp_path / "stanev.csv"
+    stanev.write_text("name,Tc\nYRu3B2,0\nYRu3B2,0\nNb3Sn,18\n", encoding="utf-8")
+    header = ("formula,phase_or_sample,publication_doi,page_table_or_figure,superconductivity_observed,tc_k,"
+              "lowest_measured_temperature_k,pressure_gpa,applied_field_t,measurement_method,synthesis_conditions,"
+              "evidence_note,reviewer,date\n")
+    audit = tmp_path / "negative_evidence.csv"
+    audit.write_text(header, encoding="utf-8")
+    before = build.build_composition_rows(labels.known_index(tmp_path / "none.csv", stanev, None, audit))
+    audit.write_text(header + "YRu3B2,arc-melted,arXiv:2512.16945,Fig. 4,yes,0.81,0.06,,,specific heat,,,someone,2026-11-14\n",
+                     encoding="utf-8")
+    after = build.build_composition_rows(labels.known_index(tmp_path / "none.csv", stanev, None, audit))
+    key = {row["system"]: row for row in before}["B-Ru-Y"]["composition"]
+    assert {row["composition"]: row for row in before}[key]["label"] == 0
+    row = {row["composition"]: row for row in after}[key]
+    assert row["label"] == 1 and float(row["tc_k"]) == 0.81 and "audit" in row["lineages"]
