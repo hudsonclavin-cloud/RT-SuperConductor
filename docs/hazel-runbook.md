@@ -614,7 +614,7 @@ package: k 24×24×24, q 12×12×12 with `mp_mesh_q`, `degaussw` 0.1 eV.
 | λ | **1.767** (+42%) | 1.061 to 1.435 (reference 1.248) | fail |
 | ωlog | **120.7 K** (−18%) | 125.0 to 169.2 K (reference 147.1 K) | fail |
 | Band check | not run: λ and ωlog already decide the verdict | | |
-| Symmetry check | running at the time of writing (96 points in 5 whole stars) | median spread within a star ≤ 5% | not yet read |
+| Symmetry check (96 points in 5 whole stars) | median spread inside a star 14%, largest 23%; no negative coupling; frequencies identical inside every star | median ≤ 5% | fail |
 | Tc, Allen–Dynes (information only) | 15.9 K at μ* = 0.10, 13.9 K at 0.15; measured 9.25 K | | |
 
 **Against the prediction.** λ fell in the 1.435 to 2.0 bin (given 45%, the
@@ -649,6 +649,15 @@ odds were.
   2. The small-q coupling is sampled too coarsely. On a 12×12×12 fine q-grid
      the point next to Γ carries 0.7% of the weight and λ_q = 9.5. Test: a
      denser fine q-grid on the same data (below).
+- [Certain] The symmetry check fails, and its pattern points at the
+  sampling. The spread inside a star is largest for the stars nearest Γ:
+  23% at crystal (0, 0, 1/12), 16% at (1/12, 1/12, 1/6), 14% at (1/12, 1/12,
+  1/12), then 10% at (0, 1/12, 1/3) and 5% at (1/6, 1/6, 1/6). The
+  frequencies agree exactly, so the phonons are symmetric; the coupling is
+  not. [Likely] At small q the double delta picks out a thin set of
+  electron pairs, which a 24×24×24 fine k-grid with 0.1 eV smearing samples
+  unevenly. That is noise of 10 to 20% on exactly the points that carry the
+  excess; it does not by itself say which way the converged λ moves.
 - The Tc ratio, 15.9 / 9.25 = 1.7, is inside what Bercx et al. found for
   this toolchain (calculated Tc above measured in 26 of 27 cases, median 2.6
   times), so as a yes/no tool the run still says "superconductor". The rule
