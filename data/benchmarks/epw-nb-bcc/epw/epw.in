@@ -1,0 +1,57 @@
+--
+&inputepw
+  prefix      = 'nb'
+  amass(1)    = 92.90637
+  outdir      = './'
+
+  elph        = .true.
+  epbwrite    = .true.
+  epbread     = .false.
+
+  epwwrite    = .true.
+  epwread     = .false.
+
+  nbndsub     = 9
+  bands_skipped = 'exclude_bands = 1-4'
+
+  wannierize  = .true.
+  num_iter    = 500
+  dis_win_min = 11.0
+  dis_win_max = 45.0
+  dis_froz_min= 11.0
+  dis_froz_max= 25.5
+  proj(1)     = 'Nb:d'
+  proj(2)     = 'Nb:s'
+  proj(3)     = 'Nb:p'
+
+  iverbosity  = 0
+
+  elecselfen  = .false.
+  phonselfen  = .true.
+  delta_approx = .true. ! both electrons on the Fermi surface: the standard definition of lambda
+
+  fsthick     = 0.4 ! eV
+  temps       = 0.075 ! K
+  degaussw    = 0.1 ! eV
+
+  a2f         = .true.
+  mp_mesh_q   = .true. ! one q-point per symmetry star on the fine grid
+
+  dvscf_dir   = '../phonons/save'
+
+  nkf1         = 24
+  nkf2         = 24
+  nkf3         = 24
+
+  nqf1         = 12
+  nqf2         = 12
+  nqf3         = 12
+
+  nk1         = 12
+  nk2         = 12
+  nk3         = 12
+
+  nq1         = 6
+  nq2         = 6
+  nq3         = 6
+ /

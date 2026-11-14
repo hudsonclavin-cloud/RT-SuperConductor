@@ -1,0 +1,13 @@
+# Smoke-mode edits for the niobium benchmark: file, text to find, replacement (tab-separated).
+# Phonon k-mesh 8x8x8 instead of 16x16x16; q-mesh 2x2x2 instead of 6x6x6; EPW fine q-mesh 6x6x6 instead of
+# 12x12x12. The coarse k-mesh (12x12x12) contains the 2x2x2 q-mesh, so the band step is left alone.
+phonons/scf.in	 16 16 16 0 0 0	 8 8 8 0 0 0
+phonons/ph.in	nq1 = 6	nq1 = 2
+epw/epw.in	nq1         = 6	nq1         = 2
+epw/epw.in	nqf1         = 12	nqf1         = 6
+phonons/ph.in	nq2 = 6	nq2 = 2
+epw/epw.in	nq2         = 6	nq2         = 2
+epw/epw.in	nqf2         = 12	nqf2         = 6
+phonons/ph.in	nq3 = 6	nq3 = 2
+epw/epw.in	nq3         = 6	nq3         = 2
+epw/epw.in	nqf3         = 12	nqf3         = 6
