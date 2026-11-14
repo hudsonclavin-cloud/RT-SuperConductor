@@ -1113,6 +1113,55 @@ definitions and before any rerun result:
   50 meV and 0.05 eV limits were not considered then. The 25% stands as the
   recorded prediction; this is a revision, labelled as one.
 
+### Machine restored from a snapshot; queues lost and rebuilt; tantalum rerun approved, 2026-11-14 20:00 UTC
+
+**What happened.**
+- [Certain] At about 19:48 UTC the cloud machine was restored from a
+  snapshot while the session sat idle between turns. The kernel log restarts
+  ("crng reseeded due to virtual machine fork") and the uptime at 19:56 was
+  8 minutes. Every background job was lost.
+- The niobium rerun's phonons had been running for 12 minutes (q-point 2 of
+  16). They were restarted from scratch at 19:57 UTC.
+- **Queue fault.** Queues 7 to 9 each treated "the previous queue's process
+  is gone" as "the previous queue finished". After the restore:
+  - queue 8 logged "checks skipped";
+  - queue 9 started tantalum on that false signal;
+  - queue 9 also deleted the old tantalum 16³ run's wavefunction, coupling
+    and dvscf files to make space. Its outputs and dynamical matrices are
+    kept, and the rerun supersedes them.
+- Queue 9 was stopped by hand within a minute.
+
+**The replacement (queue 10).** One script runs niobium and then tantalum,
+each through:
+- the chain;
+- an EPW fine-grid redo with 2 processes if the 4-process stage runs out of
+  memory;
+- moments;
+- the symmetry star test;
+- the band check.
+
+It advances only on explicit markers in the log. It deletes nothing except
+the finished niobium phonon wavefunctions, and only after niobium's last
+marker and only if space is short. A background waiter stays pending so that
+the session does not go idle again.
+
+**Owner's decision: rerun tantalum after niobium**, on the same grids.
+- Package: the 6×6×6 tantalum inputs with `delta_approx` and `mp_mesh_q`
+  added (as in the niobium package), phonon scf k 24³ at 0.01 Ry, EPW ground
+  state on the same grid, fine k 36³, `degaussw` 0.05 eV, fine q 18³.
+- Its star test uses the same four stars as tantalum's earlier test (6.2%).
+- Tantalum's phonons took 1 h 31 min at 16³, so about 5 h at 24³.
+
+**Prediction for tantalum** [Speculative], written before it starts:
+- λ inside 0.817 to 1.105 (±15% of 0.961): 70%.
+- ωlog inside 121.8 to 164.8 K: 90%.
+- Band check passes at the default limits: 35%. The 50 meV limit now
+  applies, and tantalum's 95th percentile was 104 to 110 meV on an 8³ coarse
+  grid; the rerun has 12³.
+- Symmetry check passes (median at most 5%): 35%.
+- All four pass: 10%.
+- So the most likely outcome is that Stage 1 fails on the checks, not on λ.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
