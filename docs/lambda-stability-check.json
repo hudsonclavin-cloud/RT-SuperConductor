@@ -1,0 +1,42 @@
+{
+ "rows": 1057,
+ "stable_rows": 626,
+ "scored_on": "held-out stable rows only",
+ "split": "5-fold GroupKFold by element system, the same folds for both",
+ "largest_lambda_unstable": 18.2723,
+ "largest_lambda_stable": 8.1415,
+ "lambda_error_of_always_guessing_the_stable_median": 0.24246453674121407,
+ "all rows": {
+  "lambda_mae": 0.2711833381644295,
+  "omega_log_mae_k": 104.51383019836001,
+  "tc_mae_k": 2.502546009655765,
+  "lambda_spearman": 0.49039385329298624,
+  "tc_spearman": 0.5382099785515335
+ },
+ "stable rows only": {
+  "lambda_mae": 0.2196863160674717,
+  "omega_log_mae_k": 63.47468902633976,
+  "tc_mae_k": 2.1761370084506093,
+  "lambda_spearman": 0.4847840741059957,
+  "tc_spearman": 0.5093302321856612
+ },
+ "stable_only_minus_all": {
+  "lambda_mae": {
+   "low": -0.06813608612200357,
+   "median": -0.051178547202415145,
+   "high": -0.03502220725654559
+  },
+  "tc_mae_k": {
+   "low": -0.5300841521535317,
+   "median": -0.3247366630597581,
+   "high": -0.1454919294067218
+  },
+  "tc_spearman": {
+   "low": -0.0842147508135618,
+   "median": -0.0296260186572726,
+   "high": 0.023621010784333353
+  },
+  "resampled": "517 element systems, 1000 times"
+ },
+ "table": "physics-target-characteristics.csv"
+}
