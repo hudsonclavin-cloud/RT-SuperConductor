@@ -679,13 +679,19 @@ version takes in those corrections.
   this formula, and even the broken 4×4×4 run gives 5.3 K, so "it still
   says superconductor" cannot tell a good run from a broken one.
 
-**Candidate causes, and the test for each.** Only the first is running.
+**Candidate causes, and the test for each.** Only the first has been run.
 
 1. **Fine q sampling.** [Likely] small. The whole first shell around Γ adds
    0.066 to λ, and every point with |q| ≤ 0.24 (2π/a) adds 0.20, while λ
    must fall by 0.33 to reach the band. Test: fine q 18×18×18 on the same
-   data (running). **The second reader's prediction, written before the
-   result:** λ moves by a few hundredths, probably upward.
+   data. **The second reader's prediction, written before the result:** λ
+   moves by a few hundredths, probably upward.
+   **Result (read 14:35 UTC, after the stop rule below was pushed):** 195
+   symmetry-distinct points, no imaginary mode, λ = 1.710 (−0.057, −3.2%),
+   ωlog = 120.5 K (unchanged), Tc 15.4 / 13.4 K at μ* = 0.10 / 0.15. Still a
+   fail on both. The size of the change matched the prediction; the
+   direction did not. [Likely] Fine q sampling is not the cause: 38% of λ
+   still comes from modes below 10 meV.
 2. **Electron fine grid.** 24×24×24 k with 0.1 eV smearing has never been
    tested on niobium. [Speculative, from memory of niobium's Fermi velocity]
    one k-step is 0.2 to 0.45 eV near E_F, two to four times the smearing.

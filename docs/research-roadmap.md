@@ -119,5 +119,6 @@ Steps 1–3 run in parallel this week.
   λ comes from modes below 10 meV, but the run cannot yet say where the
   excess over the reference comes from. Stage 1 is not passed. A stop rule
   was proposed before the next tests were read: if niobium still misses on
-  converged grids, stop candidate runs and use published calculations. See
+  converged grids, stop candidate runs and use published calculations. The
+  first of those tests, a denser fine q-grid (18³), moved λ only to 1.710. See
   "Niobium 6×6×6 result" in `docs/hazel-runbook.md`.
