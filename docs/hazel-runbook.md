@@ -876,6 +876,75 @@ written before the result [Speculative]:
   that k-grid (about 11 h on 4 cores at 24³, so better on Hazel) is the next
   step, and the arithmetic above says λ could drop into the band.
 
+### Corrections to the three PBEsol sections above, 2026-11-14 18:45 UTC
+
+A second, independent reader recomputed every number in the three sections
+above from the raw files and found all of them correct. It also confirmed
+from the commit times that each prediction was written before its result.
+It found the following faults of wording and reasoning. The sections are
+kept as committed, because their timestamps are what make the predictions
+checkable. These notes take precedence over them.
+
+- **Heading "the imaginary mode is a k-grid artifact": too strong.** The
+  data show the mode is not converged at 16³ k and 0.02 Ry. One denser
+  grid (24³, real at 41.2 cm⁻¹) does not show that the converged mode is
+  real. 24³ is also the only one of 16³, 24³ and 32³ that puts k+q for this
+  q on the k-grid, so density and commensurability are mixed. [Likely] real
+  at 0.02 Ry; unknown at 0.01 Ry.
+- **"[Certain] … So the functional is not the explanation": only the bin is
+  certain.** The bin "below 1.04" holds however the imaginary modes are
+  treated, and its action (do not run the PBEsol chain; the stop rule's
+  tests decide) stands. That the functional is not the explanation holds only
+  at 16³ k and 0.02 Ry. This weakness was foreseeable: the plan used 16³ and
+  0.02 Ry although the accepted stop rule already defined converged phonons
+  as 24³ or denser at 0.01 Ry.
+- **Most of PBEsol's softening at 16³ is the smaller lattice.** In ω² at
+  (0, 0, 1/3), the volume effect is −1602 cm⁻², the functional at fixed
+  volume −476, and the two add almost exactly to the observed change
+  (−1119).
+- **Stage A is not a reproduction of the reference.** It tests PBEsol with
+  this PAW set, at its own relaxed lattice and the package's phonon
+  settings. The reference's code, pseudopotentials, smearing, grids and
+  lattice (relaxed or measured) are not recorded in this repository. The
+  roadmap's readers did not read the paper, so even its use of PBEsol is
+  second-hand (the runbook's tantalum table).
+- **The [Speculative] paragraph on niobium under compression and the
+  reference's smearing is superseded.** A denser k-grid at the same 0.02 Ry
+  also stabilises the mode, so "most likely a larger smearing" no longer
+  follows. "Like PBE under a few GPa" was +63 kbar (6.3 GPa). No source in
+  the repository supports "what is known of niobium under compression".
+- **"The package's PBE phonons have the same problem" is [Likely], not
+  established.** It is inferred from the PBEsol runs. PBE at 16³ is real
+  (31.0 PAW, 31.6 ONCV), and no PBE run on a denser grid had been read when
+  this was written. "Leading suspect" assumes a direction that no data at
+  0.01 Ry support: at 16³, raising the smearing from 0.02 to 0.04 Ry stiffened
+  the mode more than 16³ → 24³ did, so halving it to 0.01 Ry should soften the
+  mode and could undo the k-grid's stiffening.
+- **"The stop rule's test (b)"** is defined nowhere. It means the stop rule's
+  phonon requirement: 6×6×6 phonons at scf k 24³ or denser and 0.01 Ry.
+- **The convergence plan, as actually run** (launched 18:33 UTC, not 18:35):
+  PBE 24³ at 0.02 and 0.01 Ry, PBE 32³ at 0.01 Ry, PBEsol 32³ at 0.01 Ry.
+  There is no 32³ run at 0.02 Ry. The baseline is the Stage A PAW-PBE value
+  31.0 cm⁻¹, not "the package's" (ONCV, 31.6), so 1.3 times it is 40.2 cm⁻¹,
+  not 41.
+- **"λ could drop into the band" at 1.3×: wrong arithmetic.** Stiffening
+  only the modes below 10 meV needs about 1.45× to reach λ = 1.435;
+  1.3× gives about 1.445 to 1.49.
+- **What the PBEsol 32³ run decides, written before it is read: nothing.**
+  It is for information only. Under the stop rule, PBEsol is a new method
+  that must pass tantalum and niobium from the start.
+- **The next step does not depend on one mode's threshold.** The stop rule
+  needs λ on 6×6×6 phonons at 24³ or denser and 0.01 Ry for any verdict, pass
+  or fail. That rerun is required whatever the single-q runs show. They
+  only choose its k-grid. It takes about 11 h on 4 cores at 24³ and about
+  26 h at 32³, so it belongs on Hazel.
+- **Cheaper required tests were missing from the plan.**
+  - The stop rule's electron fine-grid test (fine k 36³ or denser at
+    `degaussw` 0.05 eV, fine q 18³) needs no new phonons. It reuses the
+    existing EPW data and takes about an hour here.
+  - The second soft point, (0, −1/6, 1/6), is not in the convergence batch.
+  - Both are queued after the batch, along with 32³ at 0.02 Ry.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
