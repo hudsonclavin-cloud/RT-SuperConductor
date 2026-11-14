@@ -14,6 +14,11 @@ result is never added to training.
 > (the electrons were interpolated well). This package holds the 6×6×6
 > phonon grid and 12×12×12 electron grid that were run next; see the runbook
 > for the result.
+>
+> **Status, 2026-11-14 14:05 UTC: fails the rule.** The 6×6×6 run gave
+> λ = 1.767 (band 1.061 to 1.435) and ωlog = 120.7 K (band 125.0 to
+> 169.2 K), with no imaginary mode. The excess comes from soft transverse
+> modes near Γ; see "Niobium 6×6×6 result" in `docs/hazel-runbook.md`.
 
 The inputs follow the tantalum package (`data/benchmarks/epw-ta-jvasp-1014/`),
 changed only where niobium needs it.

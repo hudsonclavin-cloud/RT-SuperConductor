@@ -603,6 +603,72 @@ The most likely verdict is a fail on λ or ωlog. That would trace to the DFT
 phonons near Γ, which points at the phonon smearing and k-grid, not the
 q-grid.
 
+### Niobium 6×6×6 result, 2026-11-14 14:05 UTC: fails the rule
+
+Phonons took 3 h 15 min on 4 cores, EPW 63 min (the 6×6×6 coarse grid made
+the Wannier transform much longer than on 4×4×4). Fine grids as in the
+package: k 24×24×24, q 12×12×12 with `mp_mesh_q`, `degaussw` 0.1 eV.
+
+| Check (rule above) | Result | Limit | Verdict |
+| --- | --- | --- | --- |
+| λ | **1.767** (+42%) | 1.061 to 1.435 (reference 1.248) | fail |
+| ωlog | **120.7 K** (−18%) | 125.0 to 169.2 K (reference 147.1 K) | fail |
+| Band check | not run: λ and ωlog already decide the verdict | | |
+| Symmetry check | running at the time of writing (96 points in 5 whole stars) | median spread within a star ≤ 5% | not yet read |
+| Tc, Allen–Dynes (information only) | 15.9 K at μ* = 0.10, 13.9 K at 0.15; measured 9.25 K | | |
+
+**Against the prediction.** λ fell in the 1.435 to 2.0 bin (given 45%, the
+most likely bin) and ωlog below 125 K (given 50%). The predicted verdict, a
+fail, was right. One prediction says little about how well calibrated the
+odds were.
+
+**Why.**
+
+- [Certain] The 4×4×4 artifact is gone. No fine-grid point has an imaginary
+  mode (72 symmetry-distinct points), and λ fell from 3.35 to 1.77, ωlog rose
+  from 28 to 121 K.
+- [Certain] The excess sits in the soft modes. Modes below 10 meV are 12% of
+  all modes and carry 0.67 of λ (38%); modes below 6 meV are 4.5% and carry
+  0.40 (22%). The six largest contributions are all small-q points whose
+  lowest mode is at 1.7 to 5.5 meV, for example crystal (0, 0, 1/12), λ_q =
+  9.5 at 1.7 meV, and (1/12, 1/12, 1/6), λ_q = 6.5 at 3.8 meV.
+- [Likely] The electron side is about right. η = λ M⟨ω²⟩ is 7.66 eV/Å²,
+  5% below the 8.02 estimated from the reference λ and ωlog (that estimate
+  assumes ω₂/ωlog = 1.34, so it is rough). η weights each mode by ω², so soft
+  modes barely move it, while λ weights them by 1/ω². A matching η with a
+  high λ points at the low-frequency end, not the coupling matrix elements.
+- [Speculative, arithmetic only] If every mode below 10 meV were 1.2 times
+  stiffer, λ would be 1.56; 1.4 times stiffer gives 1.44, the edge of the
+  band.
+- Two causes fit, and this run cannot separate them:
+  1. The DFT transverse modes near Γ are too soft (ρv² of 7.5 and 12.4 GPa
+     at the smallest computed q, against a measured C44 of about 29 to 31 GPa,
+     from memory). Test: one small-q phonon with a denser scf k-grid or a
+     smaller smearing than 16×16×16 and 0.02 Ry.
+  2. The small-q coupling is sampled too coarsely. On a 12×12×12 fine q-grid
+     the point next to Γ carries 0.7% of the weight and λ_q = 9.5. Test: a
+     denser fine q-grid on the same data (below).
+- The Tc ratio, 15.9 / 9.25 = 1.7, is inside what Bercx et al. found for
+  this toolchain (calculated Tc above measured in 26 of 27 cases, median 2.6
+  times), so as a yes/no tool the run still says "superconductor". The rule
+  judges λ, and λ misses.
+
+**Fine-grid test, queued:** the same data on an 18×18×18 fine q-grid with
+`mp_mesh_q`. Not read at the time of writing.
+
+**What this means for Stage 1.** Not passed. Tantalum misses narrowly (band
+check 104 against 100 meV; symmetry 6.2% against 5%); niobium misses clearly
+on λ and ωlog. The roadmap says to stop candidate runs if niobium misses
+"after converged grids". The phonon grid is now reasonable, but the scf
+smearing and k-grid of the phonons have not been tested, so [Likely] that
+condition is not yet met. Do not run candidates until one of the two tests
+above is done.
+
+**Open question for the owner:** which test comes first, the phonon smearing
+and k-grid (a new phonon run at one or two small q, about an hour on 4
+cores), or the fine-grid density (minutes per grid, no new phonons)? Decide
+the pass rule's treatment of the result before reading it, as before.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
