@@ -407,6 +407,71 @@ Both coarse-grid self-checks were exact (0.0 meV). The numbers differ a little f
 
 The updated package was also run end to end in smoke mode with the chain script (7 minutes on 4 cores, exit 0). Smoke mode now gives λ = 1.04 and ωlog = 144 K. That it no longer lands near the reference, as the six-function smoke run did (0.778), confirms the earlier agreement was a coincidence of errors.
 
+### 6×6×6 result, 2026-11-14: the formula was wrong, the grid mattered little, and the benchmark was held to the lowest published number
+
+**Main idea:** with one input line added, this pipeline now gives λ = 1.08, ωlog = 140 K and Tc = 10.9 K for tantalum. The most careful comparable published calculation gives 0.96, 143 K and 11.2 K. The earlier "failures" came from three things: a formula that should not have been used, a reference at the low end of the published range, and Wannier functions that were too few (fixed on 2026-11-13).
+
+**What was run.** The package inputs with a 6×6×6 phonon grid and a 12×12×12 electron grid (16 phonon points instead of 8, about 3.5 hours on 4 cores), nine Wannier functions.
+
+**1. The formula.** The EPW input copied `temps = 0.075` from the lead tutorial but not `delta_approx = .true.`. Without that line EPW weights each electron pair by a difference of Fermi functions at 0.075 K, which on a finite grid is a difference of step functions and is extremely sensitive to errors of a few meV in the interpolated bands. Points that the crystal's symmetry maps onto each other must give the same coupling. In the 4×4×4 run they did not:
+
+| Formula | Points with negative coupling | Disagreement inside a symmetry set (median) | Phonon frequencies inside a set |
+| --- | --- | --- | --- |
+| Without `delta_approx` (all runs before today) | 45 of 1,728, lowest −2.8 | 145% | identical |
+| With `delta_approx = .true.` | none | 16% (four sets checked) | identical |
+
+A negative coupling is not physically possible. `delta_approx = .true.` puts both electrons on the Fermi surface, which is the standard definition of λ and the one the published values use. It is now in the package's `epw.in`.
+
+**2. The result, and what the grid did.**
+
+| Run (double-delta, nine Wannier functions) | λ | ωlog | Tc at μ* = 0.10 |
+| --- | --- | --- | --- |
+| 4×4×4 phonon grid, 8×8×8 electron grid | 1.165 | 131.3 K | 11.3 K |
+| 6×6×6 phonon grid, 12×12×12 electron grid | 1.079 | 139.9 K | 10.9 K |
+
+The finer grid moved λ by 7%. The estimate above that the 4×4×4 grid was "likely most of the rest" was wrong.
+
+**3. What to compare with.** Published values for tantalum:
+
+| Source | Method | λ | ωlog | Tc calculated |
+| --- | --- | --- | --- | --- |
+| JARVIS-SuperconDB JVASP-1014 (arXiv:2205.00060) | high-throughput, coarse grids | 0.757 | 165 K | |
+| Savrasov and Savrasov 1996 (arXiv:cond-mat/9604124) | LDA linear response | 0.86 | 160 K | 5.1 K with μ* fitted to 0.17 |
+| Cerqueira et al. 2023 (arXiv:2307.10728) | PBEsol, double-delta, dense grids | 0.961 | 143.3 K | 11.2 K at μ* = 0.10 |
+| Experiment | tunnelling; specific heat | 0.78; 0.83 | | 4.47 K measured |
+| **This pipeline, 6×6×6** | PBE, double-delta | **1.079** | **139.9 K** | **10.9 K at μ* = 0.10** |
+
+Against the 2023 calculation, which uses the same formula, this result is 12% high in λ, 2% low in ωlog and 3% low in Tc. Against JARVIS it is 42% high in λ. A calculated Tc near 11 K for a metal that superconducts at 4.5 K is normal for this kind of calculation with μ* = 0.10; every calculation in the table overshoots unless μ* is raised.
+
+**4. Which half is off.** λ can be written as η / (M⟨ω²⟩): an electronic part η divided by the mass and the squared phonon frequency. `scripts/epw_diagnostics.py moments` reports η = 8.21 eV/Å² for this run, against about 8.6 for the 1996 calculation. So the electrons and their coupling agree with the literature to about 4%, and what differs between the published calculations is the phonon frequency average (143 to 165 K). This pipeline's phonons are 5 to 13% below the neutron measurements at the two points where data exist:
+
+| Point | Calculated (THz) | Measured (THz) | Difference |
+| --- | --- | --- | --- |
+| H | 4.75 | 5.03 | −5.5% |
+| N | 2.49 / 3.79 / 4.25 | 2.63 / 4.35 / 4.35 | −5.3% / −12.9% / −2.3% |
+
+**5. A 24 times faster last step.** The final EPW loop ran over all 1,728 points of the fine phonon grid, but only 72 of them are different by symmetry. `mp_mesh_q = .true.` computes just those: 2 minutes instead of about 2 hours on 4 cores for the 4×4×4 data, 8 minutes for the 6×6×6 data. The per-point values are identical to the full run's. Because the interpolated coupling is not perfectly symmetric (the 16% above), the short cut is an estimate: in four symmetry sets the point it uses differed from the set's average by −2.3% to +2.9%. Use it for convergence tests; a full-grid check is in progress.
+
+**Three new checks, none needing a new calculation** (`scripts/epw_diagnostics.py`):
+
+```bash
+python scripts/epw_diagnostics.py moments --a2f <run_dir>/epw/ta.a2f.01.0.075 --mass-amu 180.94788 --compare 0.961 143.3
+```
+
+```bash
+python scripts/epw_diagnostics.py symmetry --epw-out <run_dir>/epw/epw.out --xml <run_dir>/epw/ta.xml
+```
+
+```bash
+python scripts/epw_diagnostics.py stars --xml <run_dir>/epw/ta.xml --grid 12 12 12 --point 0 0 0.0833333333 --point 0.25 0.3333333333 0.0833333333 --out star.qf
+```
+
+- **moments** prints λ, the frequency averages and η, and with `--compare` an estimate of a published calculation's η for comparison.
+- **symmetry** groups the phonon points of an EPW output into symmetry sets and reports the disagreement inside each. It exits 1 if any coupling is negative, if frequencies differ inside a set, or if the median disagreement is above 5%. It needs an output that contains whole sets: a full-grid run, or a run on a file written by **stars**.
+- **stars** writes such a file for a few chosen points (set `filqf = 'star.qf'` in `epw.in`, remove the `nqf` lines). The check then takes a minute or two.
+
+**What this means for Stage 1.** The one-number pass rule against JARVIS (0.757) should be replaced. A fair rule compares with the calculation that uses the same method (0.96 and 143 K) and accepts the published range. Whether 12% above that counts as a pass is the owner's decision; the remaining 12% is most likely the softer PBE phonons plus the 16% symmetry noise. Run the symmetry check on every new material before trusting its λ.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:

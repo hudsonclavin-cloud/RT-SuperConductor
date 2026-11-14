@@ -28,6 +28,7 @@
 
   elecselfen  = .false.
   phonselfen  = .true.
+  delta_approx = .true. ! both electrons on the Fermi surface: the standard definition of lambda
 
   fsthick     = 0.4 ! eV
   temps       = 0.075 ! K
