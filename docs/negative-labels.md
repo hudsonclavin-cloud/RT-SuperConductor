@@ -143,3 +143,67 @@ What it means:
   file, so one recorded row changes both tables after a rebuild
   (`tests/test_scratchnet_data.py` checks this with YRu3B2). The network's
   table checksum in `docs/scratchnet-data.json` will change with it.
+
+## A blinded check of 80 training negatives, 14 November 2026
+
+The question: are the negatives that boosting rates most likely to
+superconduct more often wrong than negatives in general? If so, some of the
+model's "false positives" are label errors.
+
+The sample is 40 suspects (the development negatives boosting rates highest,
+p ≥ 0.932) and 40 random development negatives. Readers were blind to which
+was which. Data and method are in `data/benchmarks/literature-check/`
+(`negatives-sample.csv`); the summary is in `docs/literature-check-negatives.json`.
+
+| Group | Reported superconductor (ambient, bulk) | Superconducts only doped, pressed or as film | Measured, not superconducting | Magnetic or insulating | Nothing found |
+| --- | --- | --- | --- | --- | --- |
+| suspect (40) | **1** (2.5%, 95% interval 0.4 to 13%) | 3 | 3 | 0 | 33 |
+| random (40) | **0** (0 to 8.8%) | 1 | 4 | 6 | 29 |
+
+- **Confirmed wrong negative** [Certain]: Ti3V22 (V0.88Ti0.12, development
+  fold). V0.90Ti0.10 is a bulk superconductor at 6.4 K (arXiv:1810.02083,
+  checked in full text by the second reader).
+- **The test cannot tell the groups apart** (Fisher p = 1.0). That comes from
+  the search failing, not from the labels being clean. 33 suspects came back
+  "nothing found". Most suspects are alloys measured in the 1950s to 1970s,
+  reported in Physical Review, and that site and doi.org could not be reached.
+- **What the suspects are**:
+  - [Certain] 29 of the 40 suspects are made only of metals, against 15 of the
+    random 40.
+  - [Likely, my reading of the formulas] 26 of those 29 are alloys or solid
+    solutions written as whole-number formulas, such as Ti–V, Nb–Ti–Hf, In–Tl,
+    Hg–Cd, Ta–Ti, W–Re and Zr–V. Most of the random group's all-metal rows are
+    line compounds (La5Sn3, CaPd2, HfFe2).
+  - So the model is most confident in alloy systems where Tc changes smoothly
+    with composition and a neighbour is a known superconductor.
+- **Most likely also wrong, not verified** [Likely, from physics knowledge;
+  the second reader could not open the sources, so the CSV keeps
+  `no_low_temperature_data_found`]:
+  - TlIn19 (In0.95Tl0.05): indium-rich In–Tl alloys superconduct close to
+    indium's 3.4 K. The reader found that SuperCon lists this composition and
+    In0.9Tl0.1 with Tc = 0, which looks like an entry with no Tc recorded
+    rather than a measured null.
+  - CdHg19 (Hg0.95Cd0.05): Claeson, Luo and Merriam (Phys. Rev. 141, 412,
+    1966) determined Tc across the whole Hg–Cd range.
+  - Hf(Ti2Nb)8 (Ti0.64Nb0.32Hf0.04): this sits next to the composition of
+    commercial Nb–Ti wire (about Ti0.63Nb0.37, Tc about 9 K).
+  - [Speculative]: Ta9Ti8 (bcc Ti–Ta), ReW9 (W–Re) and Zr3V (which may hold
+    ZrV2, a superconductor).
+- **Probably right** [Likely]: La24Ce and ErTh9, where a few percent of a
+  magnetic rare earth suppresses superconductivity (Kondo and pair-breaking
+  effects). The same goes for YbNi2B2C (measured, not superconducting, though
+  its Lu and Y relatives are) and Zr3Sc and Zr9Sc (Zr–Sc measured down to
+  1.1 K). Composition alone cannot see magnetic pair breaking, so the model
+  will keep rating such alloys highly.
+
+What it means:
+
+- [Likely] Some of the model's most confident development "errors" are
+  label errors: 1 confirmed and 3 more probable out of 40, so roughly 10%,
+  with a wide interval. The development scores are therefore slightly
+  pessimistic in the high-probability region. Nothing was rescored.
+- [Likely] The cheap next step is not more web searching. It is for a person
+  to read the four alloy papers named above (Phys. Rev. and IEEE Trans. Magn.,
+  reachable from a university library) and record each in
+  `data/training/negative_evidence.csv`.
+- Nothing was relabelled.

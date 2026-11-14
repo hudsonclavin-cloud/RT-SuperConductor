@@ -565,6 +565,44 @@ Two checks on the 6×6×6 data, run after the rule above was written:
   constant and electron mesh) and the full-grid check of `mp_mesh_q`. The
   cores went to niobium on a 6×6×6 grid instead.
 
+### Niobium 6×6×6, before the λ result, 2026-11-14 11:40 UTC
+
+Written while the phonons were at 8 of 16 q-points and before EPW had started,
+so the prediction below can be checked against the result.
+
+The 6×6×6 run computes directly the point that broke the 4×4×4 run.
+Cartesian q = (0, 0, 1/3) (2π/a) is crystal (1/6, 1/6, 1/6):
+
+| q (Cartesian, 2π/a) | Lowest modes, cm⁻¹ (6×6×6, computed) | 4×4×4 at the same point |
+| --- | --- | --- |
+| (0, 0, 1/3) = crystal (1/6, 1/6, 1/6) | 31.6, 31.6, 151.0 (3.9 meV) | 1.1 meV, interpolated, λ = 111 |
+| (0, −1/6, 1/6) = crystal (0, 0, 1/6) | 28.7, 55.4, 95.8 | not on the grid |
+| (0, −1/3, 1/3) | 109.3, 114.1, 142.6 | not on the grid |
+| (0, 1/2, −1/2) = N | 130.7, 166.9, 171.1 | 130.7, 166.9, 171.1 (computed on both) |
+
+- [Certain] None of the 8 computed q-points has an imaginary mode, and N agrees
+  with the 4×4×4 run to 0.1 cm⁻¹. The 1.1 meV mode was the interpolation: DFT
+  gives 3.9 meV there, so that point's coupling drops by about (3.9/1.1)² ≈ 13.
+- [Certain] The transverse acoustic branch is still soft at small q. Read as
+  sound speeds, the two lowest modes give ρv² = 12.4 GPa and 7.5 GPa. By
+  q = (0, −1/3, 1/3) the branch is back to 45 GPa.
+- [Likely, from memory, not looked up tonight] Niobium's measured C44 is about
+  29 to 31 GPa. If so, DFT with this smearing (0.02 Ry Marzari–Vanderbilt,
+  16×16×16 k-points) puts these modes at roughly half the measured frequency.
+  Their coupling would then be about four times too large, since λ goes as 1/ω².
+
+**Prediction** [Speculative], made before the result:
+
+- λ below 1.061: 5%
+- λ inside the pass band (1.061 to 1.435): 30%
+- λ from 1.435 to 2.0: 45%
+- λ above 2.0: 20%
+- ωlog below 125 K: 50%
+
+The most likely verdict is a fail on λ or ωlog. That would trace to the DFT
+phonons near Γ, which points at the phonon smearing and k-grid, not the
+q-grid.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
