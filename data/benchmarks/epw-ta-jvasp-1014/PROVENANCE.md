@@ -13,6 +13,8 @@ settings and the checks behind them are below.
 
 > **Update, 2026-11-13: Wannier setup changed from 6 to 9 functions.** A direct check showed the 6-function interpolation missing the true bands near the Fermi level by 137 meV on average between grid points, more than EPW's 0.1 eV smearing. With 9 functions (s, p, d) the error is 36 meV and λ falls from 1.447 to 1.122 (ωlog 108.6 to 127.1 K) on the same phonons. The benchmark still does not pass; see `docs/hazel-runbook.md`, section 7.
 
+> **Update, 2026-11-14: `delta_approx = .true.` added; first result that matches a published calculation.** Without that line EPW used a formula that gave negative coupling at 45 of 1,728 phonon points and values that broke crystal symmetry by 145% (median). With it, and a 6×6×6 phonon grid, the result is λ = 1.079, ωlog = 139.9 K, Tc = 10.9 K at μ* = 0.10. Cerqueira et al. 2023 (arXiv:2307.10728, PBEsol, same formula) give 0.961, 143.3 K and 11.2 K; JARVIS's 0.757 is the low end of the published range. See `docs/hazel-runbook.md`, section 7. The grids in this package are still the 4×4×4 ones, which give λ = 1.165 with the same formula.
+
 ## Pseudopotential
 
 | Item | Value |
@@ -69,7 +71,7 @@ refuses such an input.
 | `phonons/pp.py` | `5aef3d150ed78ac12f3e1c1632cfa57e73c4f5696e7457148e237b6bcb88c3d6` |
 | `epw/scf.in` | `977a2c38deff4c65bca2b4379bce10d2258094e73c96d6836e3891ab426b2ece` |
 | `epw/nscf.in` | `ef35f93f57eb1c1a6b57c9f397cc0fa91c7ea2765ad1a206e72dcb7cb0b09343` |
-| `epw/epw.in` | `baf3c3efd5dfc23585a988c37143913b66603e671c931e98a0f42470459de7e4` |
+| `epw/epw.in` | `099a9ccf05b5ac5470c0b41be10cbef700fc5584f05813b31f6385b55d4738ee` |
 
 ## Files added for the pipeline
 

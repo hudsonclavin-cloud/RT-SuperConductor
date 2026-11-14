@@ -103,3 +103,13 @@ def test_review_template_carries_the_reference_the_project_already_uses():
     source = (ROOT / "scripts/prepare_tantalum_epw_benchmark.py").read_text()
     assert f"TARGET_LAMBDA = {review['reference']['lambda']}" in source
     assert f"TARGET_OMEGA_LOG_K = {review['reference']['omega_log_k']}" in source
+
+
+def test_epw_input_uses_the_double_delta_definition_of_lambda():
+    """Without delta_approx EPW weights the Fermi-surface sum by a difference of Fermi functions at 0.075 K,
+    which gave negative coupling at some q-points and values that broke crystal symmetry by several hundred
+    percent on tantalum (docs/hazel-runbook.md, section 7)."""
+    epw = (PACKAGE / "epw/epw.in").read_text()
+    lines = [line.split("!")[0].replace(" ", "") for line in epw.splitlines()]
+    assert "delta_approx=.true." in lines
+    assert "phonselfen=.true." in lines and "a2f=.true." in lines
