@@ -11,9 +11,14 @@
           ``--rehearse`` it treats development fold 0 as the test set instead,
           to check the code path without touching the locked set.
 
-``rank``  Score the Materials Project candidates with the final ensemble.
+``rank``  Score the Materials Project candidates with the final ensemble. The order is
+          gradient boosting's (the ranking of record, since mixing in the network was a tie
+          on the locked test set); the network's own rank is given beside it as a second opinion.
 
 ``rescore`` Recompute a cv report's scores from its saved predictions (no training).
+
+``second-opinion`` On development rows, check whether the network agreeing with boosting's top picks
+          says anything about how those picks turn out (no training, locked set not read).
 
 Results go to ``docs/scratchnet-<name>.json``; out-of-fold predictions and
 model files go under ``data/processed/scratchnet/`` and are not committed.
@@ -27,6 +32,7 @@ import hashlib
 import json
 import multiprocessing
 import time
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -409,6 +415,107 @@ def run_final(name: str, variants: list[str], seeds: list[int], jobs: int, blend
     return report
 
 
+SECOND_OPINION_RULES = ((0.10, 0.10), (0.10, 0.20), (0.10, 0.30), (0.05, 0.10), (0.02, 0.10))
+FAR_BAND_RULES = ((0.10, 0.10), (0.10, 0.20), (0.10, 0.30))
+SIZE_RULES = ((0.10, 0.5), (0.10, 0.3), (0.05, 0.5), (0.05, 0.3))     # (boosting's top share, network/boosting below)
+
+
+def chemistry_class(elements: set[str]) -> str:
+    """A coarse class for reporting which kinds of picks a model rejects."""
+    if {"Cu", "O"} <= elements:
+        return "copper oxide"
+    if "Fe" in elements and elements & {"As", "P", "Sb", "S", "Se", "Te"}:
+        return "iron pnictide or chalcogenide"
+    return "other"
+
+
+def run_second_opinion(name: str, out_dir: Path, size_threshold: float = 25.0) -> dict:
+    """Write docs/scratchnet-second-opinion.json from a cv run's saved out-of-fold predictions.
+
+    Boosting is the first model and the network chosen in that run is the second. Development rows only.
+    """
+    report = json.loads((out_dir / f"scratchnet-{name}.json").read_text(encoding="utf-8"))
+    ds = C.load_dataset()
+    if report["data_sha256"] != ds.sha256:
+        raise SystemExit(f"scratchnet-{name}.json was computed on a different composition table")
+    variant = report["selection"]["variant"]
+    with np.load(C.WORK / f"{name}-oof.npz") as saved:
+        dev, distance = saved["rows"], saved["distance"]
+        boosting = (saved["p::boosting"], saved["tc::boosting"])
+        network = (saved[f"p::network {variant}"], saved[f"tc::network {variant}"])
+    label, tc, groups = ds.arrays.label[dev], ds.arrays.tc_k[dev], ds.arrays.group[dev]
+    classes = np.array([chemistry_class(set(ds.rows[int(row)]["system"].split("-"))) for row in dev])
+    labelled = np.isfinite(label)
+    truth = np.where(label == 1, np.nan_to_num(tc, nan=0.0), 0.0)
+    expected_boosting, expected_network = boosting[0] * boosting[1], network[0] * network[1]
+    bands = {band: (distance >= low) & (distance < high) for band, low, high in C.DISTANCE_BANDS}
+
+    # Where do boosting's best picks sit, and does its order still mean anything inside each band's top tenth?
+    top_tenth = C.top_rows(expected_boosting, np.flatnonzero(labelled), 0.1)
+    order = {}
+    for band, inside in bands.items():
+        picks = C.top_rows(expected_boosting, np.flatnonzero(labelled & inside), 0.1)
+        if len(picks) < 5:
+            order[band] = {"rows": int(len(picks))}
+            continue
+        spread = C.group_bootstrap(groups[picks], lambda sample, picks=picks: T.spearman(
+            expected_boosting[picks][sample], truth[picks][sample]), resamples=1000)
+        order[band] = {"rows": int(len(picks)), "median_true_tc_k": float(np.median(truth[picks])),
+                       "rank_correlation_with_true_tc": T.spearman(expected_boosting[picks], truth[picks]),
+                       "interval": {"low": spread["low"], "high": spread["high"]}}
+
+    far = bands["far"] & labelled
+    high = {}
+    for threshold in (10, 20, 30):
+        for model, expected in (("boosting", expected_boosting), ("network", expected_network)):
+            rows = np.flatnonzero(far & (expected >= threshold))
+            high[f"{model} expects at least {threshold} K"] = {
+                "rows": int(len(rows)), "of_which_true_tc_at_least_that": int(np.sum(truth[rows] >= threshold)),
+                "median_true_tc_k": float(np.median(truth[rows])) if len(rows) else None}
+    confident = np.flatnonzero(labelled & (expected_boosting >= size_threshold))
+    ratio = expected_network[confident] / expected_boosting[confident]
+    out = {
+        "name": name, "data_sha256": ds.sha256,
+        "rows": "development rows, out-of-fold predictions; the locked test set is not read",
+        "first_model": "boosting", "second_model": f"network {variant}",
+        "labelled_rows": int(labelled.sum()),
+        "rejection_checks": [C.rejection_check(label, tc, groups, boosting, network, first_share, second_share,
+                                               family=classes)
+                             for first_share, second_share in SECOND_OPINION_RULES],
+        # The same check run inside the far band alone: the top shares are shares of the far rows.
+        "far_band_rejection_checks": [
+            C.rejection_check(np.where(bands["far"], label, np.nan), tc, groups, boosting, network, first_share,
+                              second_share, family=classes) for first_share, second_share in FAR_BAND_RULES],
+        # Rejection by size instead of rank: the network's figure is below a fraction of boosting's.
+        "size_rejection_checks": [
+            C.rejection_check(label, tc, groups, boosting, network, first_share, family=classes, second_ratio=ratio_cut)
+            for first_share, ratio_cut in SIZE_RULES],
+        "network_expected_tc_at_the_edge_of_its_top_share": {
+            f"{share:g}": float(expected_network[C.top_rows(expected_network, np.flatnonzero(labelled), share)[-1]])
+            for share in (0.1, 0.2, 0.3)},
+        "far_band_boosting_top_tenth_expected_tc_range_k": [
+            float(expected_boosting[C.top_rows(expected_boosting, np.flatnonzero(far), 0.1)].min()),
+            float(expected_boosting[C.top_rows(expected_boosting, np.flatnonzero(far), 0.1)].max())],
+        "boosting_expected_tc_at_the_edge_of_its_top_share": {
+            f"{share:g}": float(expected_boosting[C.top_rows(expected_boosting, np.flatnonzero(labelled), share)[-1]])
+            for share in (0.02, 0.05, 0.1)},
+        "boosting_top_tenth_by_distance": {band: int(inside[top_tenth].sum()) for band, inside in bands.items()},
+        "boosting_order_inside_each_bands_top_tenth": order,
+        "size_agreement": {"threshold_k": size_threshold, "rows": int(len(confident)),
+                           "median_network_over_boosting": float(np.median(ratio)) if len(ratio) else None,
+                           "share_network_below_half_of_boosting": float(np.mean(ratio < 0.5)) if len(ratio) else None},
+        "far_rows": {"labelled": int(far.sum()), "true_tc_at_least_10k": int(np.sum(truth[far] >= 10)),
+                     "true_tc_at_least_20k": int(np.sum(truth[far] >= 20)),
+                     "true_tc_at_least_30k": int(np.sum(truth[far] >= 30)),
+                     "highest_true_tc_k": float(truth[far].max()) if far.any() else None,
+                     "high_predictions": high},
+    }
+    path = out_dir / "scratchnet-second-opinion.json"
+    path.write_text(json.dumps(rounded(out), indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(rounded(out), indent=1))
+    return out
+
+
 def capped(ranked: list[dict], top: int, per_system: int) -> list[dict]:
     """The first ``top`` rows, taking at most ``per_system`` from any one set of elements."""
     taken: dict[str, int] = {}
@@ -422,8 +529,50 @@ def capped(ranked: list[dict], top: int, per_system: int) -> list[dict]:
     return out
 
 
-def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: int = 3) -> dict:
+ORDERS = ("boosting", "mix", "network")
+
+
+def ranking_scores(network: tuple[np.ndarray, np.ndarray], boosting: tuple[np.ndarray, np.ndarray],
+                   weight: float, order: str) -> tuple[np.ndarray, np.ndarray]:
+    """(probability, Tc) of the model that decides the order of the candidates."""
+    if order == "boosting":
+        return boosting
+    if order == "network":
+        return network
+    if order == "mix":
+        return C.blend(network, boosting, weight)
+    raise ValueError(f"order must be one of {ORDERS}, not {order!r}")
+
+
+def network_view(network_expected: float, ranking_expected: float, agree_ratio: float = 0.5,
+                 reject_ratio: float = 0.3) -> str:
+    """The network's second opinion in one word, from the size of its figure against the ranking model's.
+
+    Both figures are probability x Tc. "rejects": the network's is below ``reject_ratio`` of the ranking
+    model's; "agrees": at least ``agree_ratio`` of it; "lukewarm": in between. A ratio means the same thing
+    for a candidate as for a material with a known answer, so the label can be checked on known materials.
+    """
+    if ranking_expected <= 0:
+        return "lukewarm"
+    ratio = network_expected / ranking_expected
+    if ratio >= agree_ratio:
+        return "agrees"
+    return "rejects" if ratio < reject_ratio else "lukewarm"
+
+
+def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: int = 3, order: str = "boosting",
+             agree_ratio: float = 0.5, reject_ratio: float = 0.3) -> dict:
+    """Rank the untested candidates by ``order`` and write the top lists.
+
+    ``boosting`` is the ranking of record. ``mix`` (the network and boosting averaged with the weight
+    chosen in round 2) writes to the original file names; the other orders carry their name in the file name.
+
+    Each row carries the network's second opinion, ``network_view`` (see the function of that name).
+    """
     import joblib
+
+    if order not in ORDERS:
+        raise ValueError(f"order must be one of {ORDERS}, not {order!r}")
 
     ds = C.load_dataset()
     model_dir = C.WORK / "models" / name
@@ -472,7 +621,7 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
     spread = np.std([p for p, _ in members], axis=0)
     boosted = [C.boosting_apply(joblib.load(model_dir / f"boosting-fold{fold}.joblib"), X) for fold in ensemble["folds"]]
     boosting = (np.mean([p for p, _ in boosted], axis=0), C.log_mean_tc([tc for _, tc in boosted]))
-    blended = C.blend(network, boosting, ensemble["blend_weight"])
+    blended = ranking_scores(network, boosting, ensemble["blend_weight"], order)     # the model that sets the order
     dense = C.dense_fractions(compositions, ds.table)
     labelled = np.flatnonzero(np.isfinite(ds.arrays.label))
     _, nearest = C.nearest_distance(ds.dense[labelled], dense)      # nearest known material, wherever it sits
@@ -482,14 +631,15 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
     expected = blended[0] * blended[1]
     families = np.array([C.family_of(set(c)) for c in compositions])
     untested = np.array([row.get("known_match", "") == "" for row in usable])
-    order = [i for i in np.argsort(-expected, kind="mergesort") if untested[i]]
+    sequence = [i for i in np.argsort(-expected, kind="mergesort") if untested[i]]
     net_expected, boost_expected = network[0] * network[1], boosting[0] * boosting[1]
     net_rank = {int(i): r for r, i in enumerate([i for i in np.argsort(-net_expected, kind="mergesort") if untested[i]], 1)}
     boost_rank = {int(i): r for r, i in enumerate([i for i in np.argsort(-boost_expected, kind="mergesort") if untested[i]], 1)}
     fields = ["rank", "mp_id", "formula", "family", "element_system", "network_rank", "boosting_rank", "expected_tc_k", "p_superconductor", "tc_if_superconductor_k",
               "network_p", "network_tc_k", "boosting_p", "boosting_tc_k", "network_disagreement",
               "distance_to_nearest_training", "nearest_known", "nearest_known_tc_k", "is_metal", "band_gap_ev",
-              "energy_above_hull_ev_per_atom", "theoretical", "structures_with_this_formula"]
+              "energy_above_hull_ev_per_atom", "theoretical", "structures_with_this_formula",
+              "ranked_by", "network_expected_tc_k", "network_view"]
 
     def record(rank: int, i: int) -> dict:
         row, twin = usable[i], ds.rows[nearest[i]]
@@ -504,22 +654,49 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
                 "nearest_known_tc_k": twin["tc_k"] if twin["label"] == "1" else "0",
                 "is_metal": row.get("is_metal", ""), "band_gap_ev": row.get("band_gap_ev", ""),
                 "energy_above_hull_ev_per_atom": row.get("energy_above_hull_ev_per_atom", ""),
-                "theoretical": row.get("theoretical", ""), "structures_with_this_formula": structure_count[i]}
+                "theoretical": row.get("theoretical", ""), "structures_with_this_formula": structure_count[i],
+                "ranked_by": order, "network_expected_tc_k": round(float(net_expected[i]), 2),
+                # From the two figures as printed in this row, so a reader can recompute the label from the file.
+                "network_view": network_view(round(float(net_expected[i]), 2), round(float(expected[i]), 2),
+                                             agree_ratio, reject_ratio)}
 
-    ranked = [record(rank, i) for rank, i in enumerate(order, start=1)]
-    C.write_table(C.WORK / f"{name}-candidates.csv.gz", ranked, fields)
+    ranked = [record(rank, i) for rank, i in enumerate(sequence, start=1)]
+    stem = "scratchnet-candidates" if order == "mix" else f"scratchnet-candidates-{order}"
+    C.write_table(C.WORK / f"{name}-candidates-{order}.csv.gz", ranked, fields)
     head = capped(ranked, top, per_system)
-    C.write_table(out_dir / "scratchnet-candidates-top.csv", head, fields)
-    C.write_table(out_dir / "scratchnet-candidates-top-not-cuprates.csv",
+    C.write_table(out_dir / f"{stem}-top.csv", head, fields)
+    C.write_table(out_dir / f"{stem}-top-not-cuprates.csv",
                   capped([r for r in ranked if r["family"] != "Cuprates"], top, per_system), fields)
     # The list the electron-phonon pipeline can actually check: calculated to be metals, with no copper-oxygen
     # or iron-pnictogen chemistry (those families superconduct by a mechanism that pipeline does not model).
     metals = capped([r for r in ranked if r["is_metal"] == "True" and r["family"] in ("Other", "Oxides")
                      and "Cu" not in r["element_system"].split("-")], top, per_system)
-    C.write_table(out_dir / "scratchnet-candidates-top-metals.csv", metals, fields)
+    C.write_table(out_dir / f"{stem}-top-metals.csv", metals, fields)
     agree = float(C.T.spearman(network[0][untested] * network[1][untested], boosting[0][untested] * boosting[1][untested]))
+    element_counts = Counter(element for r in head for element in r["element_system"].split("-"))
+
+    def views(rows: list[dict]) -> dict:
+        return {view: sum(r["network_view"] == view for r in rows) for view in ("agrees", "lukewarm", "rejects")}
     summary = {
-        "name": name, "structures_in_pool": len(pool), "distinct_compositions_scored": len(usable),
+        "name": name, "ranked_by": order,
+        "second_opinion": f"network_view compares the network's probability x Tc with the ranking model's: 'agrees' "
+                          f"at {agree_ratio:g} of it or more, 'rejects' below {reject_ratio:g} of it, 'lukewarm' between",
+        "top_network_view": views(head),
+        "top_network_view_by_distance": {
+            band: views([r for r in head if low <= r["distance_to_nearest_training"] < high])
+            for band, low, high in C.DISTANCE_BANDS},
+        "top_network_view_copper_oxides": views([r for r in head if chemistry_class(
+            set(r["element_system"].split("-"))) == "copper oxide"]),
+        "top_rejected_fluorides": sum(r["network_view"] == "rejects" and "F" in r["element_system"].split("-")
+                                      for r in head),
+        "expected_tc_of_last_listed_row_k": head[-1]["expected_tc_k"] if head else None,
+        "top_network_expected_below_half_of_ranking_model": sum(
+            r["network_expected_tc_k"] < 0.5 * r["expected_tc_k"] for r in head),
+        "top_network_expected_below_0.3_of_ranking_model": sum(
+            r["network_expected_tc_k"] < 0.3 * r["expected_tc_k"] for r in head),
+        "top_median_network_expected_over_ranking_model": float(np.median(
+            [r["network_expected_tc_k"] / r["expected_tc_k"] for r in head if r["expected_tc_k"] > 0])) if head else None,
+        "structures_in_pool": len(pool), "distinct_compositions_scored": len(usable),
         "structures_skipped_unreadable_or_unknown_element": skipped,
         "untested_scored": int(untested.sum()), "network_members": len(members), "boosting_members": len(boosted),
         "network_vs_boosting_rank_agreement": agree,
@@ -535,12 +712,22 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
         "pool_share_beyond_0.3": float(np.mean(distance[untested] >= 0.3)),
         "highest_expected_tc_k": head[0]["expected_tc_k"] if head else None,
         "top_containing_copper": sum("Cu" in r["element_system"].split("-") for r in head),
-        "metals_list": {"rows": len(metals), "highest_expected_tc_k": metals[0]["expected_tc_k"] if metals else None,
+        "top_median_expected_tc_k": float(np.median([r["expected_tc_k"] for r in head])) if head else None,
+        "top_median_network_expected_tc_k":
+            float(np.median([r["network_expected_tc_k"] for r in head])) if head else None,
+        "top_expected_tc_at_least_30k": sum(r["expected_tc_k"] >= 30 for r in head),
+        "top_network_expected_tc_at_least_30k": sum(r["network_expected_tc_k"] >= 30 for r in head),
+        "top_most_common_elements": dict(element_counts.most_common(8)),
+        "top_copper_fluorides_without_oxygen": sum(
+            {"Cu", "F"} <= set(r["element_system"].split("-")) and "O" not in r["element_system"].split("-")
+            for r in head),
+        "metals_list": {"rows": len(metals), "network_view": views(metals),
+                        "highest_expected_tc_k": metals[0]["expected_tc_k"] if metals else None,
                         "median_expected_tc_k": float(np.median([r["expected_tc_k"] for r in metals])) if metals else None,
                         "median_distance_to_nearest_training":
                             float(np.median([r["distance_to_nearest_training"] for r in metals])) if metals else None},
     }
-    out = out_dir / "scratchnet-candidates.json"
+    out = out_dir / f"{stem}.json"
     out.write_text(json.dumps(rounded(summary), indent=1) + "\n", encoding="utf-8")
     print(json.dumps(rounded(summary), indent=1))
     return summary
@@ -583,16 +770,31 @@ def main() -> int:
     rank.add_argument("--candidates", type=Path, default=CANDIDATES)
     rank.add_argument("--top", type=int, default=200)
     rank.add_argument("--per-system", type=int, default=3, help="most rows kept from one set of elements")
+    rank.add_argument("--order", choices=ORDERS, default="boosting",
+                      help="which model sets the order: boosting (the ranking of record), mix, or network")
+    rank.add_argument("--agree-ratio", type=float, default=0.5,
+                      help="the network 'agrees' when its figure is at least this fraction of the ranking model's")
+    rank.add_argument("--reject-ratio", type=float, default=0.3,
+                      help="the network 'rejects' when its figure is below this fraction of the ranking model's")
     rank.add_argument("--out-dir", type=Path, default=ROOT / "docs")
     rescore = sub.add_parser("rescore", help="recompute a cv report's scores from its saved predictions")
     rescore.add_argument("--name", required=True)
     rescore.add_argument("--out-dir", type=Path, default=ROOT / "docs")
+    opinion = sub.add_parser("second-opinion", help="does the network's agreement say anything about boosting's picks?")
+    opinion.add_argument("--name", required=True, help="the cv run whose saved predictions to use")
+    opinion.add_argument("--size-threshold", type=float, default=25.0,
+                         help="compare the two models' Tc sizes on rows where boosting expects at least this (K)")
+    opinion.add_argument("--out-dir", type=Path, default=ROOT / "docs")
     args = parser.parse_args()
+    if args.command == "second-opinion":
+        run_second_opinion(args.name, args.out_dir, args.size_threshold)
+        return 0
     if args.command == "rescore":
         print_summary(run_rescore(args.name, args.out_dir))
         return 0
     if args.command == "rank":
-        run_rank(args.name, args.candidates, args.top, args.out_dir, args.per_system)
+        run_rank(args.name, args.candidates, args.top, args.out_dir, args.per_system, args.order, args.agree_ratio,
+                 args.reject_ratio)
         return 0
     seeds = [int(s) for s in args.seeds.split(",")]
     if args.command == "final":

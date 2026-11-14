@@ -7,6 +7,10 @@ and what the scores do and do not mean.
 
 Short version of the result is in [the last section](#what-the-results-mean).
 
+**Decision, 13 November 2026:** candidates are ranked by gradient boosting
+alone; the network is shown beside it as a second opinion. See
+[the ranking of record](#the-ranking-of-record-boosting-with-the-network-as-a-second-opinion).
+
 ## Words used on this page
 
 | Word | Meaning |
@@ -22,6 +26,8 @@ Short version of the result is in [the last section](#what-the-results-mean).
 | Group | A set of materials too alike to separate (see below). Splits are always made by whole groups. |
 | Gradient boosting | The existing method in this project: many small decision trees, each correcting the last. It is the method to beat. |
 | Ensemble | Several models trained separately whose predictions are averaged. |
+| Labelled | A row whose answer is known: recorded either as a superconductor or as not one. |
+| Rank correlation | How alike two orderings of the same materials are: 1 is the same order, 0 no relation. |
 
 ## What was built
 
@@ -128,6 +134,10 @@ to swap to turn a material into its nearest training material. "Near" is
 under 0.1; "far" is 0.3 or more. The candidate pool sits mostly far (median
 about 0.26), so the far rows are the ones that resemble the real job.
 
+*Correction added 13 November 2026: measured against the materials the final
+models trained on, the pool's median distance is 0.29 and 49% of it is far.
+Of boosting's top 200 candidates, 164 are far.*
+
 ## Round 1: train, test, see what is wrong
 
 Basic network, two independently trained copies averaged, five folds.
@@ -219,6 +229,14 @@ Full numbers: `docs/scratchnet-lockbox.json`.
 
 ## The candidate ranking, and why not to trust its top
 
+*Note added 13 November 2026: the three lists described in this section are
+ordered by the 50/50 mix of network and boosting. They are kept for
+comparison, and `rank --order mix` reproduces them (with three extra columns
+at the end). The ranking of record is now boosting's, described in the next
+section. One statement below is also narrowed there: "only their order
+means anything" holds for near and middle-distance rows; for far rows (131
+of this list's 200) the order has not been verified either.*
+
 `scripts/run_scratchnet.py rank` scores the 26,911 distinct compositions in
 the Materials Project pool (25,019 of them untested) and writes three lists
 of 200, at most three per set of elements:
@@ -255,6 +273,175 @@ not as a list of discoveries.**
   among arbitrary compounds the true share is far lower. Expected Tc values
   are therefore inflated and only their order means anything.
 
+## The ranking of record: boosting, with the network as a second opinion
+
+On the locked test set the mix was a tie with boosting alone, so the simpler
+model sets the order. `scripts/run_scratchnet.py rank` now ranks by boosting
+and writes:
+
+- `docs/scratchnet-candidates-boosting-top.csv`: everything;
+- `docs/scratchnet-candidates-boosting-top-not-cuprates.csv`;
+- `docs/scratchnet-candidates-boosting-top-metals.csv`: calculated metals
+  with no copper and no iron-pnictogen chemistry;
+- `docs/scratchnet-candidates-boosting.json`: most of the counts quoted
+  below; the rest can be recounted from the three CSV files.
+
+How to read a row:
+
+| Column | Meaning |
+|---|---|
+| `rank`, `expected_tc_k`, `p_superconductor`, `tc_if_superconductor_k` | Boosting's view. `expected_tc_k` is probability x Tc and sets the order. |
+| `network_rank`, `network_expected_tc_k`, `network_p`, `network_tc_k` | The network's view of the same material. |
+| `network_view` | The second opinion in one word, from the two figures in the row. `rejects`: `network_expected_tc_k` is below 0.3 of `expected_tc_k`. `agrees`: it is at least half. `lukewarm`: in between. |
+| `network_disagreement` | How much the 25 networks differ among themselves on this material. |
+| `distance_to_nearest_training` | 0 is a known material, 1 shares no atoms with anything the models saw. |
+
+### What the second opinion is worth
+
+Short answer: **on known materials close to the training data, a rejection
+by the network was a real warning. For materials far from known ones, which
+is most of the list, nothing could be measured.** So the label is
+information, not a tested filter for this list.
+
+The check uses the development rows, where the answers are known
+(`scripts/run_scratchnet.py second-opinion`, results in
+`docs/scratchnet-second-opinion.json`; the locked set is not read). Of the
+9,399 development rows with a known answer, take the ones boosting ranks
+highest and apply the same rule as the label.
+
+Boosting has its own way of doubting a pick: a low `p_superconductor`. A
+second opinion is worth having only if it flags failures that boosting's own
+doubt misses. So set aside, as boosting's doubted picks, the same number of
+picks that boosting itself rates least probable, and compare the picks **only
+the network** rejects with the picks **neither** doubts. Gaps are in
+percentage points, with 95% intervals from resampling whole groups
+(materials in one group are too alike to count separately).
+
+| Boosting's top | Network's figure is below | Picks rejected (copper oxides among them) | Superconduct: kept | rejected | only the network rejects | neither doubts | Gap between the last two |
+|---|---|---|---|---|---|---|---|
+| 10% (940 picks) | half of boosting's | 53 (35) | 89% | 47% | 21 of 42 | 762 of 845 | +40.2 (+21.8 to +66.1) |
+| 10% | 0.3 of boosting's, the `rejects` rule | 17 (13) | 88% | 12% | 2 of 14 | 804 of 909 | +74.2 (+55.3 to +90.0) |
+| 5% (470 picks) | half of boosting's | 19 (16) | 91% | 26% | 5 of 17 | 397 of 434 | +62.1 (+34.4 to +91.1) |
+| 5% | 0.3 of boosting's | 6 (6) | 89% | 0% | 0 of 6 | 410 of 458 | too few picks for an interval |
+
+What this shows, and what it does not:
+
+- **On these rows a rejection was a real warning.** Picks that only the
+  network rejected superconducted 2 times in 14 at the `rejects` rule,
+  against 88% for picks neither model doubted.
+- **It flags different picks from boosting's own doubt.** Of the 17 picks
+  the network rejects at that rule, 3 are among boosting's 17 least
+  probable. As a filter used alone, the network's rejection cannot be shown
+  to beat boosting's probability (boosting's 17 least probable picks
+  superconduct 41% of the time against the network's 12%; the difference
+  between the two kept-against-rejected gaps, +30 points, has an interval
+  from -9 to +62). Its value is as an addition.
+- **Most of the rejected picks are copper oxides** (13 of the 17). That is
+  where the skill shows: spotting copper oxides that resemble cuprates
+  without being superconductors. For other kinds of material the evidence is
+  a handful of picks.
+- **These rows are close to known materials.** Of boosting's 940 top
+  development picks, 655 are near, 283 are at middle distance and 2 are far,
+  so the rule cannot be run for far materials at all. A looser version can:
+  inside the far band alone (boosting's top tenth of the 1,068 far rows,
+  with the network's own top tenth of them as the cut), picks only the
+  network rejected superconducted 19 times in 29 against 37 in 48 for picks
+  neither doubted. The gap, +11.6 points, has an interval from -13.6 to
+  +34.3. No effect could be seen.
+- **"Agrees" is the ordinary case, not a bonus.** On these rows the network
+  agrees with 887 of boosting's 940 picks, so agreement tells you little.
+  "Lukewarm" sits in between: of the 36 picks where the network's figure was
+  between 0.3 and half of boosting's, 23 superconducted.
+- **The check was run on the rows the network was chosen on,** the same rows
+  that made the 50/50 mix look better than it was. On the locked set, adding
+  the network to boosting changed nothing (+0.001 AUC). Read the gaps above
+  as upper estimates.
+
+The JSON also holds the kept-against-rejected comparison with "reaches
+20 K" as the outcome, and all of the checks with rules based on rank instead
+of size. They point the same way.
+
+### What boosting's top 200 looks like
+
+- 139 contain fluorine; 80 contain rubidium, 72 caesium, 58 potassium. 137
+  are fluorides of an alkali metal. Half of those (68) are fluorides of
+  copper, silver or palladium, which fill the top of the list (27 of the
+  first 50 rows); the rest are fluorides of other metals. The first two rows
+  are copper oxides close to known cuprates.
+- 46 contain copper: 21 copper oxides and 25 copper fluorides with no oxygen.
+- 164 are far (0.3 or more) from anything the models trained on, 26 are at
+  middle distance and 10 are near.
+- 149 are not metals according to their calculated band structure.
+- The network agrees on 47, is lukewarm on 48 and rejects 105.
+- **The 105 rejected rows are not the kind the check covers.** 91 are far
+  and 14 are at middle distance; 76 are fluorides; none contains copper. The
+  14 at middle distance are oxides of silver, gold, cadmium, tin, lead and
+  antimony, 13 of them with an alkali metal (KAuO2, CsAgO2, K2Cd2O3 and
+  similar) and one with strontium (SrAgO2). They are the rows
+  for which the rejection has the most behind it, and even there the
+  evidence came mostly from copper oxides.
+- **37 of the 47 rows the network agrees on contain copper**: 15 of the 21
+  copper oxides and 22 of the 25 copper fluorides. The two models were
+  trained on the same answers, and this network is also fed the same 155
+  formula features, so they share the habit of treating copper with a
+  strongly electron-attracting partner as cuprate-like. Their agreement
+  here is one opinion stated twice, not two.
+- Row 2, Sr2Cu2O5, is worth a second look for the opposite reason: it is a
+  near copper oxide on which the network's figure is 17 K against boosting's
+  55 K. In the check, 15 of the 35 copper oxides with the network below half
+  of boosting superconducted.
+- The metals list reaches down to boosting's place 1,655 and tops out at an
+  expected Tc of 47 K. The network agrees on 32 of its 200 rows, is lukewarm
+  on 53 and rejects 115, of which 93 are far and 22 at middle distance.
+
+**The two models disagree about size in a way they rarely did on known
+materials.** Across the whole untested pool their orders are similar (rank
+correlation 0.85), though only 55 of boosting's 200 listed materials are in
+the network's own first 200. On the 536 development rows where boosting
+expected 25 K or more, the network's figure was typically 90% of boosting's
+and was below half of it in 4% of cases. In the top 200 candidates the
+network's figure is typically 28% of boosting's and is below half in 153
+cases. Boosting expects 30 K or more for 106 of the 200, the network for 16.
+For far materials the development data cannot say which is right. Both
+models' high predictions for far materials failed there (boosting expected
+20 K or more for 2 far rows and the network for 1; none reached 20 K), and
+of the 1,068 far development rows with a known answer only 2 reach 20 K and
+none reaches 30 K. What the size gap does show is that the top of this list
+is outside the territory where either model has been checked.
+
+One more limit. Inside the top tenth of near and of middle-distance
+development rows, boosting's order still tracks the true Tc (rank
+correlation 0.46 and 0.39). Inside the top tenth of far rows no such order
+could be seen (0.02, interval -0.20 to +0.27). That group is not much like
+the list either: its median true Tc is 4 K. So for far candidates the order
+is unverified, not shown to be empty. The list says "boosting puts this in
+its top group"; whether "this one is better than the row below" has not been
+tested.
+
+### A sensible way to use the lists
+
+1. Read a list as boosting's top group, and treat `expected_tc_k` as
+   membership of that group, not as a temperature. For far rows
+   (`distance_to_nearest_training` of 0.3 or more) do not lean on the order
+   within the list either.
+2. Take `network_view = rejects` seriously for near and middle-distance
+   rows, most of all for copper oxides: on known materials of that kind such
+   picks mostly failed. For far rows it is untested, so there it is a reason
+   to look harder, not a verdict.
+3. Do not read `agrees` as confirmation. It mostly marks the copper
+   look-alikes.
+4. `p_superconductor` is boosting's own measure of doubt and can be used the
+   same way: of the 17 top development picks it rated least probable, 7
+   superconducted, against 88% of the picks neither model doubted. In the
+   top 200 it runs from 0.46 to 0.97, and 19 rows are below 0.7.
+5. Choose among far candidates on other grounds: stability
+   (`energy_above_hull_ev_per_atom`), whether it is a metal, and what the
+   nearest known material is.
+6. For anything headed to the electron-phonon pipeline, use the metals list,
+   and expect the calculation to reject most of it. A calculated "metal" flag
+   is unreliable for copper and silver fluorides and oxides, which standard
+   band-structure calculations often wrongly describe as metallic.
+
 ## What the results mean
 
 1. **The network works.** It is built from nothing but numpy, its gradients
@@ -269,6 +456,8 @@ not as a list of discoveries.**
    development folds shrank to +0.001 on the locked set. That gap is the
    reason the locked set exists: a gain picked out of 25 variant-and-weight
    combinations was partly luck.
+   Decision taken on this (13 November 2026): rank by boosting alone and
+   show the network as a second opinion.
 4. **The bottleneck is the data, not the model.** Two very different models
    land in the same place and both fall off at the same rate with distance
    from known materials. A third model family is unlikely to change that.
@@ -277,6 +466,13 @@ not as a list of discoveries.**
 5. **The one neural-network-specific gain was the auxiliary task.** That is
    the direction worth extending if this network is developed further: more
    calculated properties, and structure as an input.
+6. **As a second opinion, the network is worth something near known
+   materials and unproven where the candidates are.** Its view is printed
+   beside boosting's, as decided. On known materials close to the training
+   data, the picks it rejected mostly failed, and they were mostly not the
+   picks boosting itself doubted. For materials far from known ones, where
+   most of the listed candidates sit (164 of boosting's top 200), neither
+   its agreement nor its rejection made a measurable difference.
 
 ## Not done
 
@@ -307,6 +503,10 @@ python scripts/run_scratchnet.py final --name round2 --selection docs/scratchnet
 python scripts/run_scratchnet.py rank --name round2
 ```
 
+```bash
+python scripts/run_scratchnet.py second-opinion --name round2
+```
+
 The first needs the SuperCon exports
 (`python scripts/download_training_data.py --cif-limit 0`). The third
 refuses to run while `docs/scratchnet-lockbox.json` exists: the locked set
@@ -316,3 +516,7 @@ cores the cross-validation took 68 minutes and the final step 18.
 
 Model files and the full ranking are written under
 `data/processed/scratchnet/` and are not committed.
+
+`rank` orders by boosting unless told otherwise: `--order mix` gives the
+50/50 mix (the first version of the lists) and `--order network` the network
+alone. `second-opinion` needs the saved predictions of the `cv` run.

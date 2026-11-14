@@ -356,6 +356,8 @@ def group_bootstrap(groups: np.ndarray, statistic, resamples: int = 300, seed: i
         value = statistic(np.concatenate([members[i] for i in chosen]))
         if np.isfinite(value):
             values.append(value)
+    if not values:                                    # the statistic was undefined in every resample
+        return {"low": float("nan"), "median": float("nan"), "high": float("nan"), "resamples": 0}
     low, mid, high = np.percentile(values, [2.5, 50, 97.5])
     return {"low": float(low), "median": float(mid), "high": float(high), "resamples": len(values)}
 
@@ -404,6 +406,118 @@ def intervals(ds: Dataset, rows: np.ndarray, prediction: tuple[np.ndarray, np.nd
         return float(np.mean(np.abs(np.log1p(t[sample]) - np.log1p(tc[sample])))) if len(sample) else float("nan")
 
     return {"auc": group_bootstrap(groups, auc, resamples), "tc_log_mae": group_bootstrap(groups, tc_error, resamples)}
+
+
+def top_rows(score: np.ndarray, rows: np.ndarray, share: float) -> np.ndarray:
+    """The ``share`` of ``rows`` with the highest score, best first (ties keep their original order)."""
+    k = max(1, int(round(share * len(rows))))
+    return rows[np.argsort(-score[rows], kind="mergesort")[:k]]
+
+
+def rejection_check(label: np.ndarray, tc: np.ndarray, groups: np.ndarray,
+                    first: tuple[np.ndarray, np.ndarray], second: tuple[np.ndarray, np.ndarray],
+                    first_share: float, second_share: float | None = None, family: np.ndarray | None = None,
+                    resamples: int = 1000, seed: int = 0, minimum_rejected: int = 10,
+                    second_ratio: float | None = None) -> dict:
+    """Does it mean anything when a second model rejects one of the first model's top picks?
+
+    The picks are the ``first_share`` of labelled rows the first model ranks highest (by probability x Tc).
+    A pick is "kept" when the second model also has it in its own top ``second_share`` and "rejected"
+    otherwise. With ``second_ratio`` the rule is about size instead of rank: a pick is rejected when the
+    second model's probability x Tc is below that fraction of the first model's.
+    The gap is how much more often kept picks turn out well than rejected ones.
+
+    A gap alone proves little, because the first model's own columns may already single out the same picks.
+    Each outcome therefore has a placebo that rejects the same number of picks using only the first model:
+
+    * "superconducts": the picks to which the first model itself gave the lowest probability;
+    * "reaches 20 K": the picks the first model itself ranked lowest by probability x Tc.
+
+    Only the part of the gap beyond the placebo can be credited to the second model.
+
+    Intervals are 95%, from resampling whole groups among the picks (materials in one group are too alike
+    to count as separate evidence). They are left out when fewer than ``minimum_rejected`` picks are
+    rejected: a handful of picks that all turned out the same way gives a falsely narrow interval.
+    True Tc counts as 0 for a material that does not superconduct. Rows without a label are ignored, so
+    blanking the labels outside a subset runs the whole check inside that subset.
+    """
+    labelled = np.flatnonzero(np.isfinite(label))
+    truth = np.where(label == 1, np.nan_to_num(tc, nan=0.0), 0.0)
+    if (second_share is None) == (second_ratio is None):
+        raise ValueError("give exactly one of second_share and second_ratio")
+    picks = top_rows(first[0] * first[1], labelled, first_share)
+    if second_ratio is None:
+        second_top = set(top_rows(second[0] * second[1], labelled, second_share).tolist())
+        kept = np.array([int(row) in second_top for row in picks])
+    else:
+        kept = (second[0] * second[1])[picks] >= second_ratio * (first[0] * first[1])[picks]
+    rejected = int((~kept).sum())
+    by_order = np.ones(len(picks), bool)                 # picks are already in the first model's order
+    by_order[len(picks) - rejected:] = False
+    by_probability = np.ones(len(picks), bool)
+    by_probability[np.argsort(first[0][picks], kind="mergesort")[:rejected]] = False
+    out = {"first_share": first_share, "second_share": second_share, "second_ratio": second_ratio,
+           "picks": int(len(picks)), "kept": int(kept.sum()), "rejected": rejected,
+           "rejected_also_rejected_by_probability_placebo": int((~kept & ~by_probability).sum()), "outcomes": {}}
+    if family is not None:
+        out["rejected_by_family"] = {
+            str(name): {"rows": int(np.sum(family[picks][~kept] == name)),
+                        "superconduct": int(np.sum((family[picks][~kept] == name) & (label[picks][~kept] == 1)))}
+            for name in sorted(set(family[picks][~kept].tolist()))}
+    names, inverse = np.unique(groups[picks], return_inverse=True)
+    members = [np.flatnonzero(inverse == i) for i in range(len(names))]
+    rng = np.random.default_rng(seed)
+    samples = [np.concatenate([members[i] for i in rng.integers(0, len(names), len(names))])
+               for _ in range(resamples)] if rejected >= minimum_rejected else []
+
+    def gap(outcome: np.ndarray, mask: np.ndarray, sample: np.ndarray | None = None) -> float:
+        rows = np.arange(len(picks)) if sample is None else sample
+        yes, no = rows[mask[rows]], rows[~mask[rows]]
+        return float(outcome[yes].mean() - outcome[no].mean()) if len(yes) and len(no) else float("nan")
+
+    def interval(values: list[float]) -> dict | None:
+        values = [value for value in values if np.isfinite(value)]
+        if len(values) < 20:
+            return None
+        low, high = np.percentile(values, [2.5, 97.5])
+        return {"low": float(low), "high": float(high)}
+
+    # The second opinion is useful if a pick only it rejects does worse than a pick neither model doubts.
+    only, neither = np.flatnonzero(~kept & by_probability), np.flatnonzero(kept & by_probability)
+    superconducts = (label[picks] == 1).astype(float)
+    out["rejected_by_second_model_only_against_doubted_by_neither"] = {
+        "second_model_only": {"rows": int(len(only)), "superconduct": int(superconducts[only].sum())},
+        "neither": {"rows": int(len(neither)), "superconduct": int(superconducts[neither].sum())},
+        "gap": float(superconducts[neither].mean() - superconducts[only].mean()) if len(only) and len(neither) else None,
+        "gap_interval": None}
+    if len(only) >= minimum_rejected and len(neither):
+        is_only, is_neither = np.zeros(len(picks), bool), np.zeros(len(picks), bool)
+        is_only[only], is_neither[neither] = True, True
+        draws = []
+        for sample in samples or [np.concatenate([members[i] for i in rng.integers(0, len(names), len(names))])
+                                  for _ in range(resamples)]:
+            a, b = sample[is_neither[sample]], sample[is_only[sample]]
+            if len(a) and len(b):
+                draws.append(float(superconducts[a].mean() - superconducts[b].mean()))
+        out["rejected_by_second_model_only_against_doubted_by_neither"]["gap_interval"] = interval(draws)
+
+    for name, outcome, placebo, placebo_rule in (
+            ("superconducts", (label[picks] == 1).astype(float), by_probability,
+             "the first model's own least probable picks"),
+            ("true_tc_at_least_20k", (truth[picks] >= 20.0).astype(float), by_order,
+             "the first model's own lowest-ranked picks")):
+        real = [gap(outcome, kept, sample) for sample in samples]
+        fake = [gap(outcome, placebo, sample) for sample in samples]
+        out["outcomes"][name] = {
+            "kept_share": float(outcome[kept].mean()) if kept.any() else None,
+            "rejected_share": float(outcome[~kept].mean()) if rejected else None,
+            "gap": gap(outcome, kept), "gap_interval": interval(real),
+            "placebo_rejects": placebo_rule,
+            "placebo_rejected_share": float(outcome[~placebo].mean()) if rejected else None,
+            "placebo_gap": gap(outcome, placebo), "placebo_gap_interval": interval(fake),
+            "gap_minus_placebo": gap(outcome, kept) - gap(outcome, placebo),
+            "gap_minus_placebo_interval": interval([r - f for r, f in zip(real, fake)])}
+    return out
 
 
 def blend(first: tuple[np.ndarray, np.ndarray], second: tuple[np.ndarray, np.ndarray],
