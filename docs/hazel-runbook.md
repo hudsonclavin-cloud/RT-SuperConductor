@@ -945,6 +945,24 @@ checkable. These notes take precedence over them.
   - The second soft point, (0, −1/6, 1/6), is not in the convergence batch.
   - Both are queued after the batch, along with 32³ at 0.02 Ry.
 
+### Queued 18:44 UTC: extra phonon checks and the electron fine-grid test; prediction
+
+Queued after the convergence batch:
+- PBE 32³ at 0.02 Ry at (0, 0, 1/3);
+- PBE 24³ at 0.01 and 0.02 Ry at (0, −1/6, 1/6);
+- the stop rule's electron fine-grid test on the existing ONCV-PBE 6×6×6 EPW
+  data: fine k 36³, `degaussw` 0.05 eV, fine q 18³ with `mp_mesh_q`. That is
+  a component test only: its phonons are still the 16³-scf ones.
+
+First convergence result, read at 18:44 UTC: PBE 24³ at 0.02 Ry gives 44.3,
+44.3 and 156.1 cm⁻¹ at (0, 0, 1/3), against 31.0, 31.0 and 151.4 at 16³.
+
+Prediction for the fine-grid EPW test [Speculative], written before it
+starts:
+- λ stays above 1.435 (the phonons are unchanged): 80%.
+- λ rises from 1.710 (the smaller smearing resolves more of the small-q
+  coupling, as for tantalum's +4%): 60%.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
