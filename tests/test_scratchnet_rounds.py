@@ -244,3 +244,337 @@ def test_capped_keeps_the_order_and_limits_each_element_system():
     kept = R.capped(ranked, top=5, per_system=2)
     assert [row["rank"] for row in kept] == [1, 2, 5, 6, 7]
     assert len(R.capped(ranked, top=50, per_system=1)) == 4
+
+
+def test_ranking_scores_pick_the_model_that_sets_the_order():
+    network, boosting = (np.array([0.9]), np.array([80.0])), (np.array([0.3]), np.array([8.0]))
+    assert R.ranking_scores(network, boosting, 0.5, "boosting") is boosting
+    assert R.ranking_scores(network, boosting, 0.5, "network") is network
+    mixed = R.ranking_scores(network, boosting, 0.5, "mix")
+    assert mixed[0][0] == pytest.approx(0.6) and mixed[1][0] == pytest.approx(np.sqrt(81.0 * 9.0) - 1.0)
+    with pytest.raises(ValueError):
+        R.ranking_scores(network, boosting, 0.5, "best")
+
+
+@pytest.fixture(scope="module")
+def ranked_toy(dataset, tmp_path_factory):
+    """A tiny saved ensemble (two networks with a formula branch, two boosting models) and a candidate pool."""
+    pytest.importorskip("matminer")
+    joblib = pytest.importorskip("joblib")
+    folder = tmp_path_factory.mktemp("rank")
+    model_dir = folder / "work" / "models" / "toy"
+    model_dir.mkdir(parents=True)
+    X, _ = C.formula_features([C.formula_text(C.fractions_of(row["composition"])) for row in dataset.rows])
+    held = np.isin(dataset.arrays.group, ["Pb-Bi", "K-Cl"])
+    fit, valid = np.flatnonzero((dataset.split != "lockbox") & ~held), np.flatnonzero(held)
+    config = C.Config(n_elements=90, n_features=28, width=8, blocks=1, heads=2, pool_heads=1, trunk=(8,),
+                      n_global=X.shape[1])
+    settings = {**C.BOOSTING_DEFAULT, "min_samples_leaf": 2}
+    for fold in (1, 2):
+        C.network_fit_predict(dataset, fit, valid, [], config, C.T.TrainConfig(epochs=3, min_epochs=1, batch_size=16),
+                              X=X, save=model_dir / f"network-toy-fold{fold}-seed0.npz")
+        models, _ = C.boosting_fit(X, dataset.arrays, fit, valid, seed=fold, classifier_settings=settings,
+                                   regressor_settings=settings)
+        joblib.dump(models, model_dir / f"boosting-fold{fold}.joblib")
+    # A stray member file that is not in the recorded ensemble must be ignored.
+    (model_dir / "network-toy-fold9-seed0.npz").write_bytes(b"not a model")
+    (model_dir / "ensemble.json").write_text(json.dumps(
+        {"variants": ["toy"], "seeds": [0], "folds": [1, 2], "blend_weight": 0.5, "data_sha256": dataset.sha256}))
+    header = ["mp_id", "formula", "energy_above_hull_ev_per_atom", "known_match", "is_metal", "band_gap_ev", "theoretical"]
+    lines = [["mp-1", "Nb3Al", "0.0", "", "True", "0", "False"], ["mp-2", "NbN", "0.2", "", "True", "0", "False"],
+             ["mp-3", "NbN", "0.0", "", "True", "0", "False"], ["mp-4", "V3Ge", "0.0", "", "True", "0", "False"],
+             ["mp-5", "NaF", "0.0", "", "False", "6", "False"], ["mp-6", "KBr", "0.0", "", "False", "5", "False"],
+             ["mp-7", "MgB2", "0.0", "exact", "True", "0", "False"], ["mp-8", "PbTe", "0.0", "", "False", "0.2", "False"],
+             ["mp-9", "HeNe", "0.0", "", "False", "9", "True"], ["mp-10", "Nb3Ga", "0.0", "", "True", "0", "False"],
+             ["mp-11", "Nb5Al", "0.0", "", "True", "0", "False"], ["mp-12", "Nb7Al", "0.0", "", "True", "0", "False"],
+             ["mp-13", "Nb9Al", "0.0", "", "True", "0", "False"], ["mp-14", "CuF2", "0.0", "", "True", "0", "False"],
+             ["mp-15", "Cu2OF2", "0.0", "", "False", "1", "False"]]
+    pool = folder / "candidates.csv.gz"
+    with gzip.open(pool, "wt", encoding="utf-8", newline="") as handle:
+        handle.write("\n".join(",".join(line) for line in [header] + lines) + "\n")
+    return folder, pool
+
+
+def run_toy_rank(ranked_toy, dataset, monkeypatch, order):
+    folder, pool = ranked_toy
+    monkeypatch.setattr(C, "WORK", folder / "work")
+    monkeypatch.setattr(C, "load_dataset", lambda *args, **kwargs: dataset)
+    out = folder / f"out-{order}"
+    out.mkdir(exist_ok=True)
+    summary = R.run_rank("toy", pool, top=20, out_dir=out, per_system=2, order=order)
+    return summary, out
+
+
+def test_chemistry_class_marks_the_two_unconventional_families():
+    assert R.chemistry_class({"Ba", "Cu", "O", "Y"}) == "copper oxide"
+    assert R.chemistry_class({"Fe", "Se"}) == "iron pnictide or chalcogenide"
+    assert R.chemistry_class({"Cu", "F", "Rb"}) == "other" and R.chemistry_class({"Nb", "Sn"}) == "other"
+
+
+def test_network_view_has_three_levels_set_by_the_ratio_of_the_two_figures():
+    assert [R.network_view(network, 40.0) for network in (40.0, 20.0, 19.9, 12.0, 11.9, 0.0)] == \
+        ["agrees", "agrees", "lukewarm", "lukewarm", "rejects", "rejects"]
+    assert R.network_view(90.0, 40.0) == "agrees"                    # the network may also be the more optimistic one
+    assert R.network_view(5.0, 40.0, agree_ratio=0.1, reject_ratio=0.05) == "agrees"
+    assert R.network_view(5.0, 0.0) == "lukewarm"                    # nothing to compare with
+
+
+def test_rank_defaults_to_boosting_when_no_order_is_given(ranked_toy, dataset, monkeypatch):
+    """The owner's decision: boosting sets the order unless someone asks for something else."""
+    folder, pool = ranked_toy
+    monkeypatch.setattr(C, "WORK", folder / "work")
+    monkeypatch.setattr(C, "load_dataset", lambda *args, **kwargs: dataset)
+    out = folder / "out-default"
+    out.mkdir(exist_ok=True)
+    monkeypatch.setattr(sys, "argv", ["run_scratchnet.py", "rank", "--name", "toy", "--candidates", str(pool),
+                                      "--out-dir", str(out), "--top", "20"])
+    assert R.main() == 0
+    assert sorted(path.name for path in out.iterdir()) == [
+        "scratchnet-candidates-boosting-top-metals.csv", "scratchnet-candidates-boosting-top-not-cuprates.csv",
+        "scratchnet-candidates-boosting-top.csv", "scratchnet-candidates-boosting.json"]
+    top = D.read_table(out / "scratchnet-candidates-boosting-top.csv")
+    assert {row["ranked_by"] for row in top} == {"boosting"} and all(row["rank"] == row["boosting_rank"] for row in top)
+    summary = json.loads((out / "scratchnet-candidates-boosting.json").read_text())
+    assert summary["ranked_by"] == "boosting"
+    # Defaults of the second opinion: "agrees" at half of boosting's figure or more, "rejects" below 0.3 of it.
+    assert "at 0.5 of it or more" in summary["second_opinion"] and "below 0.3 of it" in summary["second_opinion"]
+    direct = R.run_rank("toy", pool, top=20, out_dir=out)                 # the function's own default, too
+    assert direct["ranked_by"] == "boosting"
+
+
+def test_rank_orders_by_boosting_with_the_network_as_a_second_opinion(ranked_toy, dataset, monkeypatch):
+    summary, out = run_toy_rank(ranked_toy, dataset, monkeypatch, "boosting")
+    assert sorted(path.name for path in out.iterdir()) == [
+        "scratchnet-candidates-boosting-top-metals.csv", "scratchnet-candidates-boosting-top-not-cuprates.csv",
+        "scratchnet-candidates-boosting-top.csv", "scratchnet-candidates-boosting.json"]
+    full = D.read_table(ranked_toy[0] / "work" / "toy-candidates-boosting.csv.gz")
+    # One row per composition, known materials and unreadable elements left out.
+    formulas = [row["formula"] for row in full]
+    assert sorted(formulas) == sorted(["Nb3Al", "NbN", "V3Ge", "NaF", "KBr", "PbTe", "Nb3Ga", "Nb5Al", "Nb7Al", "Nb9Al",
+                                       "CuF2", "Cu2OF2"])
+    nbn = next(row for row in full if row["formula"] == "NbN")
+    assert nbn["mp_id"] == "mp-3" and nbn["structures_with_this_formula"] == "2"      # the lower-energy structure
+    # The order, and the headline numbers, are boosting's.
+    expected = [float(row["expected_tc_k"]) for row in full]
+    assert expected == sorted(expected, reverse=True)
+    for row in full:
+        assert row["ranked_by"] == "boosting" and row["rank"] == row["boosting_rank"]
+        assert row["p_superconductor"] == row["boosting_p"] and row["tc_if_superconductor_k"] == row["boosting_tc_k"]
+        assert float(row["expected_tc_k"]) == pytest.approx(float(row["boosting_p"]) * float(row["boosting_tc_k"]), abs=0.06)
+        assert row["network_view"] == R.network_view(float(row["network_expected_tc_k"]), float(row["expected_tc_k"]))
+        assert float(row["network_expected_tc_k"]) == pytest.approx(float(row["network_p"]) * float(row["network_tc_k"]), abs=0.06)
+    assert sorted(int(row["network_rank"]) for row in full) == list(range(1, 13))
+    assert {row["network_view"] for row in full} <= {"agrees", "lukewarm", "rejects"}
+    # The top list keeps at most two rows per set of elements (four Al-Nb compositions are in the pool).
+    top = D.read_table(out / "scratchnet-candidates-boosting-top.csv")
+    assert sum(row["element_system"] == "Al-Nb" for row in top) == 2 and len(top) == 10
+    metals = D.read_table(out / "scratchnet-candidates-boosting-top-metals.csv")
+    assert metals and all(row["is_metal"] == "True" for row in metals)
+    assert summary["ranked_by"] == "boosting" and summary["network_members"] == 2 and summary["boosting_members"] == 2
+    assert summary["untested_scored"] == 12 and summary["distinct_compositions_scored"] == 13
+    # Every count in the summary can be recomputed from the list it describes.
+    def views(rows):
+        return {view: sum(row["network_view"] == view for row in rows) for view in ("agrees", "lukewarm", "rejects")}
+
+    assert summary["top_network_view"] == views(top) and summary["metals_list"]["network_view"] == views(metals)
+    assert sum(views(top).values()) == len(top) and sum(views(metals).values()) == len(metals)
+    by_distance = summary["top_network_view_by_distance"]
+    assert set(by_distance) == {"near", "middle", "far"}
+    assert sum(sum(counts.values()) for counts in by_distance.values()) == len(top)
+    assert sum(summary["top_network_view_copper_oxides"].values()) == 1              # Cu2OF2 is the one copper oxide
+    assert summary["top_rejected_fluorides"] == sum(row["network_view"] == "rejects" and "F" in
+                                                    row["element_system"].split("-") for row in top)
+    systems = [set(row["element_system"].split("-")) for row in top]
+    assert summary["top_containing_copper"] == sum("Cu" in system for system in systems) == 2
+    assert summary["top_copper_fluorides_without_oxygen"] == 1                       # CuF2 but not Cu2OF2
+    assert summary["top_most_common_elements"]["Nb"] == sum("Nb" in system for system in systems)
+    expected = np.array([float(row["expected_tc_k"]) for row in top])
+    by_network = np.array([float(row["network_expected_tc_k"]) for row in top])
+    assert summary["top_median_expected_tc_k"] == pytest.approx(np.median(expected))
+    assert summary["top_median_network_expected_tc_k"] == pytest.approx(np.median(by_network))
+    assert summary["top_expected_tc_at_least_30k"] == int((expected >= 30).sum())
+    assert summary["top_network_expected_tc_at_least_30k"] == int((by_network >= 30).sum())
+    assert summary["top_network_expected_below_half_of_ranking_model"] == int((by_network < 0.5 * expected).sum())
+    assert summary["top_network_expected_below_0.3_of_ranking_model"] == int((by_network < 0.3 * expected).sum())
+    assert summary["top_not_metals_by_dft"] == sum(row["is_metal"] == "False" for row in top)
+    assert summary["expected_tc_of_last_listed_row_k"] == float(top[-1]["expected_tc_k"])
+
+
+def test_rank_by_the_mix_keeps_the_original_file_names_and_differs_from_boosting(ranked_toy, dataset, monkeypatch):
+    run_toy_rank(ranked_toy, dataset, monkeypatch, "boosting")                        # so this test stands alone
+    _, out = run_toy_rank(ranked_toy, dataset, monkeypatch, "mix")
+    assert sorted(path.name for path in out.iterdir()) == [
+        "scratchnet-candidates-top-metals.csv", "scratchnet-candidates-top-not-cuprates.csv",
+        "scratchnet-candidates-top.csv", "scratchnet-candidates.json"]
+    full = D.read_table(ranked_toy[0] / "work" / "toy-candidates-mix.csv.gz")
+    assert {row["ranked_by"] for row in full} == {"mix"}
+    assert any(row["p_superconductor"] != row["boosting_p"] for row in full)          # the mix is not boosting
+    # The second-opinion columns do not depend on which model sets the order.
+    by_boosting = {row["formula"]: row for row in D.read_table(ranked_toy[0] / "work" / "toy-candidates-boosting.csv.gz")}
+    for row in full:
+        twin = by_boosting[row["formula"]]
+        assert (row["network_rank"], row["boosting_rank"], row["network_p"]) == \
+            (twin["network_rank"], twin["boosting_rank"], twin["network_p"])
+
+
+def rejection_toy():
+    """105 rows; the first model ranks them 0, 1, 2, ...; five unlabelled rows sit at the very top of its order."""
+    n = 105
+    label = np.ones(n)
+    label[[15, 16, 17, 18, 19, 22]] = 0.0            # rows 15-19 and row 22 do not superconduct
+    label[:5] = np.nan                               # no answer known: never among the picks
+    tc = np.where(label == 1, 10.0, np.nan)
+    tc[5:10] = 30.0                                  # the first five labelled rows are the high-Tc ones
+    first = (np.ones(n), np.linspace(200.0, 1.0, n))
+    second_score = np.linspace(100.0, 1.0, n)
+    second_score[15:20] = 0.5                        # the second model rejects rows 15-19 ...
+    second_score[60:65] = 150.0                      # ... and prefers five rows the first model ranks low
+    groups = np.arange(n) // 2
+    return label, tc, groups, first, (np.ones(n), second_score)
+
+
+def test_rejection_check_compares_kept_and_rejected_picks_with_a_placebo():
+    label, tc, groups, first, second = rejection_toy()
+    family = np.where(np.arange(len(label)) % 2 == 0, "even", "odd")
+    check = C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_share=0.2, resamples=300,
+                              family=family, minimum_rejected=5)
+    assert check["rejected_by_family"] == {"even": {"rows": 2, "superconduct": 0}, "odd": {"rows": 3, "superconduct": 0}}
+    # 100 labelled rows: the picks are rows 5-24; the second model keeps all but rows 15-19.
+    assert (check["picks"], check["kept"], check["rejected"]) == (20, 15, 5)
+    superconducts = check["outcomes"]["superconducts"]
+    assert superconducts["kept_share"] == pytest.approx(14 / 15) and superconducts["rejected_share"] == 0.0
+    assert superconducts["gap"] == pytest.approx(14 / 15)
+    # Placebo for "superconducts": reject the five picks the first model itself found least probable. In this
+    # toy every probability is 1, so ties leave the first five picks (rows 5-9), all superconductors.
+    assert superconducts["placebo_rejected_share"] == 1.0
+    assert superconducts["placebo_gap"] == pytest.approx(9 / 15 - 1.0)
+    assert superconducts["gap_minus_placebo"] == pytest.approx(14 / 15 - (9 / 15 - 1.0))
+    # Placebo for "reaches 20 K": reject the first model's own last five picks (rows 20-24).
+    high = check["outcomes"]["true_tc_at_least_20k"]
+    assert high["kept_share"] == pytest.approx(5 / 15) and high["rejected_share"] == 0.0
+    assert high["gap"] == pytest.approx(1 / 3) and high["placebo_gap"] == pytest.approx(1 / 3)
+    assert high["gap_minus_placebo"] == pytest.approx(0.0)
+
+    # The intervals, recomputed here from row numbers with the same random draws: whole groups are resampled.
+    picks, rejected = np.arange(5, 25), set(range(15, 20))
+    names = np.unique(groups[picks])
+    rng = np.random.default_rng(0)
+    gaps = []
+    for _ in range(300):
+        rows = np.concatenate([picks[groups[picks] == names[i]] for i in rng.integers(0, len(names), len(names))])
+        yes = [label[row] for row in rows if row not in rejected]
+        no = [label[row] for row in rows if row in rejected]
+        if yes and no:
+            gaps.append(np.mean(yes) - np.mean(no))
+    low, high_end = np.percentile(gaps, [2.5, 97.5])
+    assert superconducts["gap_interval"] == {"low": pytest.approx(low), "high": pytest.approx(high_end)}
+    assert superconducts["gap_interval"]["low"] < 14 / 15 <= superconducts["gap_interval"]["high"] + 1e-9
+
+
+def test_rejection_check_with_too_few_rejections_gives_no_interval():
+    label, tc, groups, first, second = rejection_toy()
+    everything = C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_share=1.0)
+    assert everything["rejected"] == 0 and everything["outcomes"]["superconducts"]["rejected_share"] is None
+    assert everything["outcomes"]["superconducts"]["gap_interval"] is None
+    one = C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_share=0.99)
+    assert one["rejected"] == 1 and one["outcomes"]["superconducts"]["rejected_share"] == 0.0
+    assert one["outcomes"]["superconducts"]["gap_interval"] is None          # one rejection is not evidence
+    with pytest.raises(ValueError, match="exactly one"):
+        C.rejection_check(label, tc, groups, first, second, first_share=0.2)
+    with pytest.raises(ValueError, match="exactly one"):
+        C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_share=0.2, second_ratio=0.5)
+    five = C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_share=0.2)
+    assert five["rejected"] == 5 and five["outcomes"]["superconducts"]["gap_interval"] is None   # under the default floor of ten
+    same = C.rejection_check(label, tc, groups, first, first, first_share=0.2, second_share=0.2)
+    assert same["kept"] == 20 and same["rejected"] == 0                     # a model never rejects its own picks
+
+
+def test_rejection_by_size_rejects_picks_the_second_model_scores_far_lower():
+    label, tc, groups, first, second = rejection_toy()
+    # The first model's scores for the picks (rows 5-24) run from about 190 down to 154; the second model gives
+    # rows 15-19 a score of 0.5 and the others between 95 and 77, so only rows 15-19 fall below 0.3 of the first.
+    by_size = C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_ratio=0.3, minimum_rejected=5)
+    by_rank = C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_share=0.2, minimum_rejected=5)
+    assert (by_size["kept"], by_size["rejected"], by_size["second_ratio"], by_size["second_share"]) == (15, 5, 0.3, None)
+    assert by_size["outcomes"] == by_rank["outcomes"]                       # here both rules reject the same five picks
+    assert C.rejection_check(label, tc, groups, first, second, first_share=0.2, second_ratio=0.6)["rejected"] == 20
+    assert by_size["rejected_also_rejected_by_probability_placebo"] == 0    # the placebo took rows 5-9 instead
+    # Picks only the second model rejects (rows 15-19, none superconducts) against picks neither model doubts
+    # (rows 10-14 and 20-24, of which row 22 does not superconduct).
+    only_against_neither = by_size["rejected_by_second_model_only_against_doubted_by_neither"]
+    assert only_against_neither["second_model_only"] == {"rows": 5, "superconduct": 0}
+    assert only_against_neither["neither"] == {"rows": 10, "superconduct": 9}
+    assert only_against_neither["gap"] == pytest.approx(0.9)
+    assert only_against_neither["gap_interval"]["low"] <= 0.9 <= only_against_neither["gap_interval"]["high"]
+
+
+def test_rejection_placebo_for_superconducts_uses_the_first_models_own_probability():
+    """If the second model only rejects what the first model already doubted, nothing is left beyond the placebo."""
+    n = 60
+    label = np.ones(n)
+    label[40:50] = 0.0
+    tc = np.where(label == 1, 10.0, np.nan)
+    probability = np.ones(n)
+    probability[40:50] = 0.3                              # the first model already doubts exactly these rows
+    first = (probability, np.full(n, 100.0) - np.arange(n) * 0.01 + np.where(probability < 1, 300.0, 0.0))
+    second_score = np.arange(n, 0, -1).astype(float)
+    second_score[40:50] = -1.0                            # and the second model rejects exactly the same rows
+    check = C.rejection_check(label, tc, np.arange(n), first, (np.ones(n), second_score), first_share=0.5,
+                              second_share=0.5, resamples=200)
+    superconducts = check["outcomes"]["superconducts"]
+    assert check["rejected"] == 10 and superconducts["rejected_share"] == 0.0 and superconducts["gap"] == 1.0
+    assert superconducts["placebo_gap"] == 1.0 and superconducts["gap_minus_placebo"] == 0.0
+    assert superconducts["gap_minus_placebo_interval"] == {"low": 0.0, "high": 0.0}
+
+
+def test_second_opinion_command_reads_the_saved_development_predictions(dataset, tmp_path, monkeypatch):
+    dev = np.flatnonzero(dataset.split == "dev")
+    label = np.nan_to_num(dataset.arrays.label[dev], nan=0.0)
+    tc = np.nan_to_num(dataset.arrays.tc_k[dev], nan=1.0)
+    rng = np.random.default_rng(0)
+    distance = np.where(np.arange(len(dev)) % 3 == 0, 0.5, 0.05)             # a third of the rows are far
+    work = tmp_path / "work"
+    work.mkdir()
+    np.savez(work / "toy-oof.npz", rows=dev, distance=distance,
+             **{"p::boosting": label * 0.6 + 0.2, "tc::boosting": tc * 2.0,
+                "p::network x": label * 0.5 + 0.25 + rng.normal(0, 0.05, len(dev)), "tc::network x": tc,
+                "p::network y": np.zeros(len(dev)), "tc::network y": np.zeros(len(dev))})
+    (tmp_path / "scratchnet-toy.json").write_text(json.dumps(
+        {"data_sha256": dataset.sha256, "selection": {"variant": "x"}}))
+    monkeypatch.setattr(C, "WORK", work)
+    monkeypatch.setattr(C, "load_dataset", lambda *args, **kwargs: dataset)
+    monkeypatch.setattr(sys, "argv", ["run_scratchnet.py", "second-opinion", "--name", "toy", "--out-dir",
+                                      str(tmp_path), "--size-threshold", "20"])
+    assert R.main() == 0
+    out = json.loads((tmp_path / "scratchnet-second-opinion.json").read_text())
+    assert out["first_model"] == "boosting" and out["second_model"] == "network x"       # the selected variant
+    assert out["labelled_rows"] == int(np.isfinite(dataset.arrays.label[dev]).sum()) == 153
+    assert [(c["first_share"], c["second_share"]) for c in out["rejection_checks"]] == \
+        [tuple(rule) for rule in R.SECOND_OPINION_RULES]
+    assert all(c["kept"] + c["rejected"] == c["picks"] for c in out["rejection_checks"])
+    assert all(sum(f["rows"] for f in c["rejected_by_family"].values()) == c["rejected"] for c in out["rejection_checks"])
+    far_picks = max(1, round(0.1 * int(((distance >= 0.3) & np.isfinite(dataset.arrays.label[dev])).sum())))
+    assert [c["picks"] for c in out["far_band_rejection_checks"]] == [far_picks] * len(R.FAR_BAND_RULES)
+    assert set(out["network_expected_tc_at_the_edge_of_its_top_share"]) == {"0.1", "0.2", "0.3"}
+    assert [(c["first_share"], c["second_ratio"]) for c in out["size_rejection_checks"]] == \
+        [tuple(rule) for rule in R.SIZE_RULES]
+    # The toy network's figure is about half of boosting's: below 0.3 of it for nobody.
+    assert out["size_rejection_checks"][1]["rejected"] == 0
+    assert sum(out["boosting_top_tenth_by_distance"].values()) == out["rejection_checks"][0]["picks"] == 15
+    labelled = np.isfinite(dataset.arrays.label[dev])
+    far = (distance >= 0.3) & labelled
+    truth = np.where(dataset.arrays.label[dev] == 1, np.nan_to_num(dataset.arrays.tc_k[dev]), 0.0)
+    assert out["far_rows"]["labelled"] == int(far.sum())
+    assert out["far_rows"]["true_tc_at_least_10k"] == int((truth[far] >= 10).sum())
+    assert set(out["far_rows"]["high_predictions"]) == {f"{model} expects at least {t} K" for model in
+                                                        ("boosting", "network") for t in (10, 20, 30)}
+    expected = (label * 0.6 + 0.2) * tc * 2.0
+    confident = labelled & (expected >= 20)
+    assert out["size_agreement"]["rows"] == int(confident.sum()) and out["size_agreement"]["threshold_k"] == 20
+    assert 0.3 < out["size_agreement"]["median_network_over_boosting"] < 0.7     # the toy network says about half
+    assert set(out["boosting_order_inside_each_bands_top_tenth"]) == {"near", "middle", "far"}
+    assert out["boosting_order_inside_each_bands_top_tenth"]["middle"] == {"rows": 0}
+    # A report computed on another table is refused.
+    (tmp_path / "scratchnet-toy.json").write_text(json.dumps({"data_sha256": "0" * 64, "selection": {"variant": "x"}}))
+    with pytest.raises(SystemExit, match="different composition table"):
+        R.run_second_opinion("toy", tmp_path)

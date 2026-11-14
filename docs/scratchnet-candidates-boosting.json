@@ -1,0 +1,88 @@
+{
+ "name": "round2",
+ "ranked_by": "boosting",
+ "second_opinion": "network_view compares the network's probability x Tc with the ranking model's: 'agrees' at 0.5 of it or more, 'rejects' below 0.3 of it, 'lukewarm' between",
+ "top_network_view": {
+  "agrees": 47,
+  "lukewarm": 48,
+  "rejects": 105
+ },
+ "top_network_view_by_distance": {
+  "near": {
+   "agrees": 9,
+   "lukewarm": 1,
+   "rejects": 0
+  },
+  "middle": {
+   "agrees": 9,
+   "lukewarm": 3,
+   "rejects": 14
+  },
+  "far": {
+   "agrees": 29,
+   "lukewarm": 44,
+   "rejects": 91
+  }
+ },
+ "top_network_view_copper_oxides": {
+  "agrees": 15,
+  "lukewarm": 6,
+  "rejects": 0
+ },
+ "top_rejected_fluorides": 76,
+ "expected_tc_of_last_listed_row_k": 25.43,
+ "top_network_expected_below_half_of_ranking_model": 153,
+ "top_network_expected_below_0.3_of_ranking_model": 105,
+ "top_median_network_expected_over_ranking_model": 0.2831,
+ "structures_in_pool": 30358,
+ "distinct_compositions_scored": 26911,
+ "structures_skipped_unreadable_or_unknown_element": 7,
+ "untested_scored": 25019,
+ "network_members": 25,
+ "boosting_members": 5,
+ "network_vs_boosting_rank_agreement": 0.8516,
+ "top": 200,
+ "at_most_per_element_system": 3,
+ "top_not_metals_by_dft": 149,
+ "top_also_in_network_top_1000": 127,
+ "top_also_in_boosting_top_1000": 200,
+ "top_families": {
+  "Cuprates": 21,
+  "Ferrites": 0,
+  "Other": 141,
+  "Oxides": 38
+ },
+ "top_median_distance_to_nearest_training": 0.65,
+ "top_within_0.1_of_a_training_composition": 10,
+ "top_beyond_0.3_of_any_training_composition": 164,
+ "pool_median_distance_to_nearest_training": 0.2885,
+ "pool_share_beyond_0.3": 0.4917,
+ "highest_expected_tc_k": 83.62,
+ "top_containing_copper": 46,
+ "top_median_expected_tc_k": 30.24,
+ "top_median_network_expected_tc_k": 9.435,
+ "top_expected_tc_at_least_30k": 106,
+ "top_network_expected_tc_at_least_30k": 16,
+ "top_most_common_elements": {
+  "F": 139,
+  "Rb": 80,
+  "Cs": 72,
+  "O": 59,
+  "K": 58,
+  "Cu": 46,
+  "Ag": 41,
+  "Na": 26
+ },
+ "top_copper_fluorides_without_oxygen": 25,
+ "metals_list": {
+  "rows": 200,
+  "network_view": {
+   "agrees": 32,
+   "lukewarm": 53,
+   "rejects": 115
+  },
+  "highest_expected_tc_k": 46.62,
+  "median_expected_tc_k": 15.475,
+  "median_distance_to_nearest_training": 0.4
+ }
+}
