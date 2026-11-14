@@ -1,0 +1,89 @@
+{
+ "data_sha256": "cdc480abd88aace9f80bb1f0931b5d58298233da592d6d8c7070170b9771e74a",
+ "rows": "development rows, out-of-fold; the locked test set is not read",
+ "boosting_settings": {
+  "classifier_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 31,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  },
+  "regressor_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 63,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  }
+ },
+ "boosting_by_input": {
+  "155 hand-made formula features": {
+   "columns": 155,
+   "auc": 0.79,
+   "tc_log_mae": 0.3877,
+   "tc_mae_k": 3.9127,
+   "expected_tc_spearman": 0.6387
+  },
+  "raw amounts of each element (90 numbers)": {
+   "columns": 90,
+   "auc": 0.7349,
+   "tc_log_mae": 0.4158,
+   "tc_mae_k": 4.0234,
+   "expected_tc_spearman": 0.5832,
+   "minus_formula_features": {
+    "auc": {
+     "low": -0.0714,
+     "median": -0.0547,
+     "high": -0.0391,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0104,
+     "median": 0.0287,
+     "high": 0.0449,
+     "resamples": 300
+    }
+   }
+  },
+  "each element's amount and properties (8 x 29 numbers)": {
+   "columns": 232,
+   "auc": 0.7765,
+   "tc_log_mae": 0.4311,
+   "tc_mae_k": 4.4716,
+   "expected_tc_spearman": 0.5999,
+   "minus_formula_features": {
+    "auc": {
+     "low": -0.0285,
+     "median": -0.0126,
+     "high": -0.0007,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0278,
+     "median": 0.043,
+     "high": 0.0576,
+     "resamples": 300
+    }
+   }
+  }
+ },
+ "networks_in_round_2": {
+  "network tuned": {
+   "auc": 0.7564,
+   "tc_log_mae": 0.4274
+  },
+  "network hybrid": {
+   "auc": 0.7692,
+   "tc_log_mae": 0.4282
+  },
+  "network multitask": {
+   "auc": 0.7751,
+   "tc_log_mae": 0.4053
+  },
+  "network hybrid-multitask": {
+   "auc": 0.7842,
+   "tc_log_mae": 0.4149
+  }
+ },
+ "note": "The plain network ('network tuned') sees each element's amount and properties and nothing else; 'hybrid' also gets the formula features; 'multitask' adds the Materials Project side task.",
+ "minutes": 2.9
+}

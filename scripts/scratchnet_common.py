@@ -68,6 +68,11 @@ def dense_fractions(compositions: list[dict[str, float]], table: ElementTable) -
     return dense
 
 
+def has_element(ds: "Dataset", rows: np.ndarray, symbol: str) -> np.ndarray:
+    """True for each of ``rows`` whose composition contains ``symbol`` (column 0 of ``dense`` is padding)."""
+    return ds.dense[rows][:, ds.table.index[symbol]] > 0
+
+
 def load_dataset(path: Path = DATA, elements: Path = ELEMENTS, report: Path | None = DATA_REPORT) -> Dataset:
     """Read the composition table. With ``report``, refuse a table whose checksum differs from the recorded one."""
     sha = hashlib.sha256(Path(path).read_bytes()).hexdigest()

@@ -91,3 +91,50 @@ Paired differences are against "current" on the same shuffles. "Audited" test ro
 Negatives were not the only labels in question. The 3DSC rows on structure `mp-510625` (CuCrO₂ at 132 K and two iron-doped versions at 117.5 K and 98 K) are quarantined by `rt_superconductor.label_quarantine` pending a paper check, and a Tc above 77 K without copper triggers the same rule. The raw SuperCon export carries the same three values, so `build_mp_candidates.py` now drops a quarantined label from every source, not just 3DSC's copy (9 reports in the stable build). Before this, CuCrO₂ was a positive training example for the classifier through the SuperCon route even though Codex's pipeline had excluded it. A reviewer decision of `retain` in `data/training/label_audit_queue.csv` releases a label. Removing the three rows moved the classifier's held-out AUC from 0.818 to 0.829.
 
 The biggest remaining lever is the one no download provides: verified nulls near the top candidates, recorded in `data/training/negative_evidence.csv` from the papers themselves.
+
+## Wrong negatives found in November 2026 (for the owner's review)
+
+Six compositions that the network's table (`data/processed/scratchnet/compositions.csv.gz`)
+labels as non-superconductors are reported superconductors. Each rests on two
+SuperCon zeros, which per the table above is one lineage. Nothing has been
+relabelled: these are listed for a person to check against the papers.
+
+| Formula | Where it sits | What the literature reports | Source | Confidence |
+| --- | --- | --- | --- | --- |
+| YRu3B2 | development, fold 3 | Bulk superconductor, 0.63 to 0.81 K by criterion, three independent groups; the 1980 null stopped at 1.2 K | arXiv:2512.16945, 2512.09314 (Phys. Scr. 101, 055912), 2512.08514 | high |
+| LuRu3B2 | development, fold 2 | Bulk superconductor, 0.95 K (specific heat), about 90% superconducting fraction | arXiv:2512.16945 | high (one group) |
+| ScS | development, fold 1 | Bulk superconductor, 5.1 K, rocksalt; first reported in 1974, Tc depends on Sc vacancies | Phys. Rev. B 106, L020504 (arXiv:2203.16458); Moodenbaugh et al., Mat. Res. Bull. 9, 1671 (1974) | high |
+| W3Re2C | locked test set | Bulk superconductor, 6.2 K, beta-Mn type, about 100% shielding | arXiv:2509.15078; J. Am. Chem. Soc. 148, 2429 (2026) | high |
+| WB | development, fold 3 | 4.3 K (tetragonal) and 2.8 K (orthorhombic), one group, bulk nature not checked; SuperCon also holds an older zero | Kayhan et al., Solid State Sci. 14, 1656 (2012) | medium |
+| NbS | locked test set | Orthorhombic NbS superconducts at 6.0 K (2023); stoichiometric NbS of unstated structure was measured as not superconducting in 1954; NbS0.9 superconducts at 3.8 K | Ruan et al., Phys. Rev. B 108, 174517 (2023) | medium: depends on the crystal form |
+
+Checked and **not** found to be wrong:
+
+| Formula | Finding |
+| --- | --- |
+| VRu | Equiatomic VRu is not reported to superconduct; V-Ru superconducts only on the vanadium-rich side (about 42 to 47.5 at.% Ru). Label likely right (low confidence: the 1971 paper was seen only as an abstract). |
+| W2B5 | No phase of this composition is supported. The phase once called W2B5 is WB2 (W2B4); its 5.4 K report was not reproduced in single crystals, which show no superconductivity down to 1.8 K below 50 GPa. |
+| V3Pb | No measurement found; the compound probably does not form. |
+| Mo3Re2C | No measurement found (its tungsten twin W3Re2C superconducts). |
+
+How they were found: YRu3B2 and LuRu3B2 came up while verifying published
+machine-learning picks (`data/benchmarks/prospective-cases/`). The next seven
+came from Supplementary Table F.23 of arXiv:2604.23758, which lists literature
+Tc values extracted by a language model; Mo3Re2C was added because the model
+rated it highly. Each was then looked up by one reader and re-checked by a
+second, sceptical reader against the original papers (full text where it
+could be reached, otherwise abstracts and citing papers).
+
+What it means:
+
+- **The locked score was computed against at least two wrong answers**
+  (W3Re2C and NbS, out of about 1,950 locked rows). The locked set has been
+  used once and is not rescored. [Likely] The effect on its AUC is small.
+- **Old nulls stop too high.** Two of the six were missed because an early
+  measurement stopped at 1.2 K, and one depends on which crystal form was
+  measured. A zero with no stated lowest temperature is weak evidence.
+- **To act on this**, read each paper and record it in
+  `data/training/negative_evidence.csv` with `superconductivity_observed = yes`
+  and `tc_k`. `build_mp_candidates.py` turns such a row into a positive report.
+  `scripts/build_scratchnet_data.py` does not read that file, so the network's
+  table would need the same change made there before a rebuild.

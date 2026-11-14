@@ -1,0 +1,346 @@
+{
+ "data_sha256": "cdc480abd88aace9f80bb1f0931b5d58298233da592d6d8c7070170b9771e74a",
+ "rows": "development rows, out-of-fold; the locked test set is not read",
+ "shares": [
+  0.125,
+  0.25,
+  0.5,
+  1.0
+ ],
+ "networks": [
+  "tuned",
+  "hybrid-multitask"
+ ],
+ "seeds": [
+  0,
+  1
+ ],
+ "folds": [
+  0,
+  1,
+  2,
+  3,
+  4
+ ],
+ "boosting_settings": {
+  "classifier_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 31,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  },
+  "regressor_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 63,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  }
+ },
+ "curve": {
+  "boosting": {
+   "0.125": {
+    "mean_training_rows_per_fold": 1404.0,
+    "auc": 0.6935,
+    "auc_interval": [
+     0.6644,
+     0.7169
+    ],
+    "tc_log_mae": 0.5647,
+    "tc_log_mae_interval": [
+     0.5283,
+     0.5987
+    ],
+    "expected_tc_spearman": 0.4574
+   },
+   "0.25": {
+    "mean_training_rows_per_fold": 2843.0,
+    "auc": 0.7128,
+    "auc_interval": [
+     0.6911,
+     0.7354
+    ],
+    "tc_log_mae": 0.498,
+    "tc_log_mae_interval": [
+     0.4657,
+     0.5364
+    ],
+    "expected_tc_spearman": 0.5204
+   },
+   "0.5": {
+    "mean_training_rows_per_fold": 6017.0,
+    "auc": 0.7509,
+    "auc_interval": [
+     0.7307,
+     0.7717
+    ],
+    "tc_log_mae": 0.4261,
+    "tc_log_mae_interval": [
+     0.4048,
+     0.4475
+    ],
+    "expected_tc_spearman": 0.5893
+   },
+   "1": {
+    "mean_training_rows_per_fold": 12057.0,
+    "auc": 0.79,
+    "auc_interval": [
+     0.7685,
+     0.8097
+    ],
+    "tc_log_mae": 0.3877,
+    "tc_log_mae_interval": [
+     0.3679,
+     0.4089
+    ],
+    "expected_tc_spearman": 0.6387
+   }
+  },
+  "tuned": {
+   "0.125": {
+    "mean_training_rows_per_fold": 1404.0,
+    "auc": 0.6449,
+    "auc_interval": [
+     0.6195,
+     0.6699
+    ],
+    "tc_log_mae": 0.5698,
+    "tc_log_mae_interval": [
+     0.5403,
+     0.6005
+    ],
+    "expected_tc_spearman": 0.3949
+   },
+   "0.25": {
+    "mean_training_rows_per_fold": 2843.0,
+    "auc": 0.6873,
+    "auc_interval": [
+     0.669,
+     0.7081
+    ],
+    "tc_log_mae": 0.5221,
+    "tc_log_mae_interval": [
+     0.4915,
+     0.5584
+    ],
+    "expected_tc_spearman": 0.4596
+   },
+   "0.5": {
+    "mean_training_rows_per_fold": 6017.0,
+    "auc": 0.713,
+    "auc_interval": [
+     0.6915,
+     0.7342
+    ],
+    "tc_log_mae": 0.4601,
+    "tc_log_mae_interval": [
+     0.4384,
+     0.4822
+    ],
+    "expected_tc_spearman": 0.5457
+   },
+   "1": {
+    "mean_training_rows_per_fold": 12057.0,
+    "auc": 0.7556,
+    "auc_interval": [
+     0.7349,
+     0.7779
+    ],
+    "tc_log_mae": 0.4248,
+    "tc_log_mae_interval": [
+     0.406,
+     0.4425
+    ],
+    "expected_tc_spearman": 0.5911
+   }
+  },
+  "hybrid-multitask": {
+   "0.125": {
+    "mean_training_rows_per_fold": 1404.0,
+    "auc": 0.6698,
+    "auc_interval": [
+     0.648,
+     0.6942
+    ],
+    "tc_log_mae": 0.5743,
+    "tc_log_mae_interval": [
+     0.5383,
+     0.6061
+    ],
+    "expected_tc_spearman": 0.415
+   },
+   "0.25": {
+    "mean_training_rows_per_fold": 2843.0,
+    "auc": 0.6922,
+    "auc_interval": [
+     0.6726,
+     0.7141
+    ],
+    "tc_log_mae": 0.5201,
+    "tc_log_mae_interval": [
+     0.4823,
+     0.5627
+    ],
+    "expected_tc_spearman": 0.4879
+   },
+   "0.5": {
+    "mean_training_rows_per_fold": 6017.0,
+    "auc": 0.7368,
+    "auc_interval": [
+     0.7173,
+     0.7595
+    ],
+    "tc_log_mae": 0.4705,
+    "tc_log_mae_interval": [
+     0.4421,
+     0.5007
+    ],
+    "expected_tc_spearman": 0.5564
+   },
+   "1": {
+    "mean_training_rows_per_fold": 12057.0,
+    "auc": 0.781,
+    "auc_interval": [
+     0.7605,
+     0.8019
+    ],
+    "tc_log_mae": 0.422,
+    "tc_log_mae_interval": [
+     0.4042,
+     0.4406
+    ],
+    "expected_tc_spearman": 0.6256
+   }
+  }
+ },
+ "gaps": {
+  "network tuned minus boosting": {
+   "0.125": {
+    "auc": {
+     "low": -0.073,
+     "median": -0.0472,
+     "high": -0.0248,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0196,
+     "median": 0.0058,
+     "high": 0.0298,
+     "resamples": 300
+    }
+   },
+   "0.25": {
+    "auc": {
+     "low": -0.0417,
+     "median": -0.0263,
+     "high": -0.0094,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0054,
+     "median": 0.0259,
+     "high": 0.0502,
+     "resamples": 300
+    }
+   },
+   "0.5": {
+    "auc": {
+     "low": -0.0554,
+     "median": -0.0385,
+     "high": -0.0231,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0074,
+     "median": 0.0334,
+     "high": 0.0585,
+     "resamples": 300
+    }
+   },
+   "1": {
+    "auc": {
+     "low": -0.0478,
+     "median": -0.0348,
+     "high": -0.0208,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0177,
+     "median": 0.0371,
+     "high": 0.0538,
+     "resamples": 300
+    }
+   },
+   "change_in_auc_gap_smallest_to_all": {
+    "low": -0.0125,
+    "median": 0.0132,
+    "high": 0.0375,
+    "resamples": 300
+   }
+  },
+  "network hybrid-multitask minus boosting": {
+   "0.125": {
+    "auc": {
+     "low": -0.043,
+     "median": -0.0239,
+     "high": -0.0033,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0157,
+     "median": 0.0104,
+     "high": 0.0337,
+     "resamples": 300
+    }
+   },
+   "0.25": {
+    "auc": {
+     "low": -0.0354,
+     "median": -0.0203,
+     "high": -0.0044,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.005,
+     "median": 0.0213,
+     "high": 0.0464,
+     "resamples": 300
+    }
+   },
+   "0.5": {
+    "auc": {
+     "low": -0.0281,
+     "median": -0.0137,
+     "high": -0.0008,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0153,
+     "median": 0.0398,
+     "high": 0.0785,
+     "resamples": 300
+    }
+   },
+   "1": {
+    "auc": {
+     "low": -0.0197,
+     "median": -0.0093,
+     "high": 0.0017,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0195,
+     "median": 0.0341,
+     "high": 0.05,
+     "resamples": 300
+    }
+   },
+   "change_in_auc_gap_smallest_to_all": {
+    "low": -0.0084,
+    "median": 0.0143,
+    "high": 0.0341,
+    "resamples": 300
+   }
+  }
+ },
+ "minutes": 33.0
+}

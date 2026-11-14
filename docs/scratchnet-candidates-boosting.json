@@ -84,5 +84,22 @@
   "highest_expected_tc_k": 46.62,
   "median_expected_tc_k": 15.475,
   "median_distance_to_nearest_training": 0.4
+ },
+ "made_metals_list": {
+  "rows": 200,
+  "ordered_by": "p_superconductor",
+  "eligible_compositions": 7693,
+  "network_view": {
+   "agrees": 167,
+   "lukewarm": 7,
+   "rejects": 26
+  },
+  "also_in_metals_list": 31,
+  "lowest_p_superconductor": 0.89,
+  "median_expected_tc_k": 3.27,
+  "median_nearest_known_tc_k": 2.4685,
+  "within_0.1_of_a_training_composition": 13,
+  "beyond_0.3_of_any_training_composition": 75,
+  "median_distance_to_nearest_training": 0.2375
  }
 }

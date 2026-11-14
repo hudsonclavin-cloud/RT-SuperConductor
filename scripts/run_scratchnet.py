@@ -532,6 +532,51 @@ def capped(ranked: list[dict], top: int, per_system: int) -> list[dict]:
 ORDERS = ("boosting", "mix", "network")
 
 
+def load_ensemble(ds: C.Dataset, name: str) -> dict:
+    """The record of which saved models make up ensemble ``name``; refuses models from another table."""
+    ensemble = json.loads((C.WORK / "models" / name / "ensemble.json").read_text(encoding="utf-8"))
+    if ensemble["data_sha256"] != ds.sha256:
+        raise SystemExit("the saved models were trained on a different composition table")
+    return ensemble
+
+
+def ensemble_predict(ds: C.Dataset, name: str, compositions: list[dict[str, float]], cache: Path | None = None) -> dict:
+    """Score compositions with exactly the saved members of ensemble ``name``.
+
+    Returns the network's and boosting's (probability, Tc if superconducting) pairs, each averaged over its
+    members, and the spread of the network members' probabilities.
+    """
+    import joblib
+
+    ensemble = load_ensemble(ds, name)
+    model_dir = C.WORK / "models" / name
+    index, fraction, mask = C.encode(compositions, ds.table, C.MAX_ELEMENTS)
+    blank = np.full(len(compositions), np.nan)
+    arrays = T.Arrays(index, fraction, mask, blank, blank, np.array([""] * len(compositions)))
+    variant = ensemble["variants"][0]
+    X, _ = C.formula_features([C.formula_text(c) for c in compositions], cache=cache)
+    members = []
+    for path in [model_dir / f"network-{variant}-fold{fold}-seed{seed}.npz"
+                 for seed in ensemble["seeds"] for fold in ensemble["folds"]]:      # exactly the recorded members
+        model, scale, scaler = C.load_network(path, ds.table)
+        members.append(T.predict(model, C.with_extra(arrays, X, scaler) if scaler else arrays, scale))
+    boosted = [C.boosting_apply(joblib.load(model_dir / f"boosting-fold{fold}.joblib"), X) for fold in ensemble["folds"]]
+    return {"network": (np.mean([p for p, _ in members], axis=0), C.log_mean_tc([tc for _, tc in members])),
+            "spread": np.std([p for p, _ in members], axis=0),
+            "boosting": (np.mean([p for p, _ in boosted], axis=0), C.log_mean_tc([tc for _, tc in boosted])),
+            "network_members": len(members), "boosting_members": len(boosted)}
+
+
+def made_metal(row: dict) -> bool:
+    """A ranked row the electron-phonon pipeline can check and a laboratory could re-measure.
+
+    Calculated to be a metal, reported from experiment (Materials Project's ``theoretical`` flag is False), and
+    with no copper-oxygen or iron-pnictogen chemistry and no copper at all.
+    """
+    return (row["is_metal"] == "True" and row["theoretical"] == "False" and row["family"] in ("Other", "Oxides")
+            and "Cu" not in row["element_system"].split("-"))
+
+
 def ranking_scores(network: tuple[np.ndarray, np.ndarray], boosting: tuple[np.ndarray, np.ndarray],
                    weight: float, order: str) -> tuple[np.ndarray, np.ndarray]:
     """(probability, Tc) of the model that decides the order of the candidates."""
@@ -569,16 +614,11 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
 
     Each row carries the network's second opinion, ``network_view`` (see the function of that name).
     """
-    import joblib
-
     if order not in ORDERS:
         raise ValueError(f"order must be one of {ORDERS}, not {order!r}")
 
     ds = C.load_dataset()
-    model_dir = C.WORK / "models" / name
-    ensemble = json.loads((model_dir / "ensemble.json").read_text(encoding="utf-8"))
-    if ensemble["data_sha256"] != ds.sha256:
-        raise SystemExit("the saved models were trained on a different composition table")
+    ensemble = load_ensemble(ds, name)
     with gzip.open(candidates, "rt", encoding="utf-8", newline="") as handle:
         pool = list(csv.DictReader(handle))
     # One row per composition: structures that share a formula get identical scores from a model that only
@@ -607,20 +647,8 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
     usable = [best[key][1] for key in sorted(best)]
     compositions = [best[key][2] for key in sorted(best)]
     structure_count = [structures[key] for key in sorted(best)]
-    index, fraction, mask = C.encode(compositions, ds.table, C.MAX_ELEMENTS)
-    blank = np.full(len(usable), np.nan)
-    arrays = T.Arrays(index, fraction, mask, blank, blank, np.array([""] * len(usable)))
-    variant = ensemble["variants"][0]
-    X, _ = C.formula_features([C.formula_text(c) for c in compositions], cache=C.WORK / "candidate-features.npz")
-    members = []
-    for path in [model_dir / f"network-{variant}-fold{fold}-seed{seed}.npz"
-                 for seed in ensemble["seeds"] for fold in ensemble["folds"]]:      # exactly the recorded members
-        model, scale, scaler = C.load_network(path, ds.table)
-        members.append(T.predict(model, C.with_extra(arrays, X, scaler) if scaler else arrays, scale))
-    network = (np.mean([p for p, _ in members], axis=0), C.log_mean_tc([tc for _, tc in members]))
-    spread = np.std([p for p, _ in members], axis=0)
-    boosted = [C.boosting_apply(joblib.load(model_dir / f"boosting-fold{fold}.joblib"), X) for fold in ensemble["folds"]]
-    boosting = (np.mean([p for p, _ in boosted], axis=0), C.log_mean_tc([tc for _, tc in boosted]))
+    scored = ensemble_predict(ds, name, compositions, cache=C.WORK / "candidate-features.npz")
+    network, spread, boosting = scored["network"], scored["spread"], scored["boosting"]
     blended = ranking_scores(network, boosting, ensemble["blend_weight"], order)     # the model that sets the order
     dense = C.dense_fractions(compositions, ds.table)
     labelled = np.flatnonzero(np.isfinite(ds.arrays.label))
@@ -672,6 +700,12 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
     metals = capped([r for r in ranked if r["is_metal"] == "True" and r["family"] in ("Other", "Oxides")
                      and "Cu" not in r["element_system"].split("-")], top, per_system)
     C.write_table(out_dir / f"{stem}-top-metals.csv", metals, fields)
+    # A second list for the same pipeline, shaped like the machine-learning-led finds that have been confirmed in
+    # the laboratory so far: compounds that have already been made (not only calculated), calculated to be
+    # metals, and ordered by the chance of superconducting at all instead of chance x Tc. Ties keep the order above.
+    made = capped(sorted([r for r in ranked if made_metal(r)], key=lambda r: -r["p_superconductor"]), top, per_system)
+    C.write_table(out_dir / f"{stem}-top-made-metals.csv", made, fields)
+    metal_ids = {r["mp_id"] for r in metals}
     agree = float(C.T.spearman(network[0][untested] * network[1][untested], boosting[0][untested] * boosting[1][untested]))
     element_counts = Counter(element for r in head for element in r["element_system"].split("-"))
 
@@ -698,7 +732,8 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
             [r["network_expected_tc_k"] / r["expected_tc_k"] for r in head if r["expected_tc_k"] > 0])) if head else None,
         "structures_in_pool": len(pool), "distinct_compositions_scored": len(usable),
         "structures_skipped_unreadable_or_unknown_element": skipped,
-        "untested_scored": int(untested.sum()), "network_members": len(members), "boosting_members": len(boosted),
+        "untested_scored": int(untested.sum()), "network_members": scored["network_members"],
+        "boosting_members": scored["boosting_members"],
         "network_vs_boosting_rank_agreement": agree,
         "top": top, "at_most_per_element_system": per_system,
         "top_not_metals_by_dft": sum(r["is_metal"] == "False" for r in head),
@@ -726,6 +761,21 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: i
                         "median_expected_tc_k": float(np.median([r["expected_tc_k"] for r in metals])) if metals else None,
                         "median_distance_to_nearest_training":
                             float(np.median([r["distance_to_nearest_training"] for r in metals])) if metals else None},
+        "made_metals_list": {"rows": len(made), "ordered_by": "p_superconductor",
+                             "eligible_compositions": sum(made_metal(r) for r in ranked),
+                             "network_view": views(made),
+                             "also_in_metals_list": sum(r["mp_id"] in metal_ids for r in made),
+                             "lowest_p_superconductor": made[-1]["p_superconductor"] if made else None,
+                             "median_expected_tc_k":
+                                 float(np.median([r["expected_tc_k"] for r in made])) if made else None,
+                             "median_nearest_known_tc_k":
+                                 float(np.median([float(r["nearest_known_tc_k"]) for r in made])) if made else None,
+                             "within_0.1_of_a_training_composition":
+                                 sum(r["distance_to_nearest_training"] < 0.1 for r in made),
+                             "beyond_0.3_of_any_training_composition":
+                                 sum(r["distance_to_nearest_training"] >= 0.3 for r in made),
+                             "median_distance_to_nearest_training":
+                                 float(np.median([r["distance_to_nearest_training"] for r in made])) if made else None},
     }
     out = out_dir / f"{stem}.json"
     out.write_text(json.dumps(rounded(summary), indent=1) + "\n", encoding="utf-8")
