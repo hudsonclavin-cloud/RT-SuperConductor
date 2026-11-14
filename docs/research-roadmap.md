@@ -115,7 +115,9 @@ Steps 1–3 run in parallel this week.
 
 - **Task B, update (14 November 2026, 14:05 UTC):** niobium on the 6×6×6
   grid fails the pre-registered rule: λ 1.767 against 1.061 to 1.435, ωlog
-  120.7 K against 125.0 to 169.2 K. The excess comes from soft transverse
-  modes near Γ. Stage 1 is not passed, and no candidate should be run until
-  the phonon smearing or the fine-grid density has been tested. See
+  120.7 K against 125.0 to 169.2 K; the symmetry check also fails. 38% of
+  λ comes from modes below 10 meV, but the run cannot yet say where the
+  excess over the reference comes from. Stage 1 is not passed. A stop rule
+  was proposed before the next tests were read: if niobium still misses on
+  converged grids, stop candidate runs and use published calculations. See
   "Niobium 6×6×6 result" in `docs/hazel-runbook.md`.
