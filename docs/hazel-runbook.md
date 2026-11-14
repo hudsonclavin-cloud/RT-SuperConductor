@@ -731,6 +731,349 @@ on λ and ωlog, and on the symmetry check.
 **Open question for the owner:** do you accept the stop rule above, before
 any of its tests is read?
 
+### Stop rule accepted; PBEsol test for niobium, plan and prediction, 2026-11-14 18:01 UTC
+
+**The owner accepted the stop rule above on 2026-11-14** (in the session,
+after PR #41 was merged) and asked for the PBEsol test. The rule now applies
+as written.
+
+**Why this test.** Stiffening every niobium mode by 1.2 reproduces the
+reference pair, and the reference used PBEsol where this pipeline uses PBE.
+If PBEsol alone stiffens niobium's phonons enough, the miss is the method,
+not the grids.
+
+**How.**
+- The package's PBE file cannot be regenerated with PBEsol here. Its
+  generator, ONCVPSP, is not packaged on conda-forge, and building it from
+  source was not allowed on this machine.
+- Instead, Quantum ESPRESSO's own generator (`ld1.x` 7.6) makes two PAW
+  datasets from pslibrary's niobium recipe, `Nb.$fct-spn-kjpaw_psl.0.3.0`.
+  That is the version pslibrary does not list as broken with PBEsol; its
+  1.0.0 niobium is listed as not working with PBEsol.
+- The two generator inputs differ only in `dft` ('PBE' or 'PBESOL').
+- Both runs use the same settings: 60 Ry and 480 Ry cutoffs (the datasets
+  suggest at least 42 and 364), 16×16×16 k-points, Marzari–Vanderbilt
+  smearing 0.02 Ry, `tr2_ph` 1e-14. Each runs at its own zero-pressure
+  lattice constant.
+- Phonons at three points (Cartesian, 2π/a): H = (0, 0, 1), (0, 0, 1/3) and
+  (0, −1/6, 1/6).
+- The PAW-PBE frequencies are also compared with the package's ONCV-PBE
+  frequencies at the same points, to see how much the pseudopotential
+  itself moves them.
+
+**Decision rule, written before any result.**
+- **Measure:** the PBEsol/PBE frequency ratio for each of the nine modes
+  (three per point), both PAW. The summary is their geometric mean.
+- **Threshold, from this run's own numbers:** stiffening every mode by 9.2%
+  takes λ from 1.710 to 1.435, the band edge, and ωlog to 132 K.
+- **Mean ratio 1.09 or more:** PBEsol may fix the miss. Run the full PBEsol
+  benchmark (6×6×6 chain). Under the stop rule that is a new method, so
+  tantalum and niobium must both pass from the start on converged grids.
+- **1.04 to 1.09:** PBEsol explains part of the miss. The stop rule's
+  remaining grid tests come first.
+- **Below 1.04:** the functional is not the explanation, and the remaining
+  stop-rule tests decide.
+- **Caveat:** this measures phonons only. PBEsol also changes the coupling
+  matrix elements, which these three phonons do not show.
+- **Pseudopotential check:** if PAW-PBE and ONCV-PBE frequencies differ by
+  more than 3% on average, the pseudopotential matters about as much as the
+  functional, and that is reported.
+
+**Prediction** [Speculative], made before any result:
+- PBEsol lattice constant 1.0 to 1.5% below PBE (3.311 Å here with ONCV;
+  measured 3.300 Å).
+- Mean PBEsol/PBE frequency ratio below 1.04: 35%; 1.04 to 1.09: 45%; 1.09
+  or more: 20%.
+- The small-q transverse modes move more, in proportion, than the modes at H.
+
+### PBEsol test for niobium: result, 2026-11-14 18:17 UTC
+
+**PBEsol makes the soft modes worse, not better.** It gives imaginary
+transverse acoustic modes, an instability of the lattice, at both small-q
+points.
+
+| q (Cartesian, 2π/a) | ONCV-PBE (package, cm⁻¹) | PAW-PBE (cm⁻¹) | PAW-PBEsol (cm⁻¹) | PBEsol / PBE |
+| --- | --- | --- | --- | --- |
+| H (0, 0, 1) | 207.5 ×3 | 208.2 ×3 | 216.5 ×3 | 1.040 |
+| (0, 0, 1/3) | 31.6, 31.6, 151.0 | 31.0, 31.0, 151.4 | **−33.4, −33.4** (imaginary), 151.4 | imaginary, imaginary, 1.000 |
+| (0, −1/6, 1/6) | 28.7, 55.4, 95.8 | 28.3, 55.2, 96.1 | **−15.6** (imaginary), 54.5, 90.1 | imaginary, 0.986, 0.938 |
+
+- Zero-pressure lattice constants: PAW-PBE 6.2536 bohr (3.309 Å), ONCV-PBE
+  6.2568 bohr (3.311 Å), PAW-PBEsol 6.1824 bohr (3.272 Å). PBEsol is 1.14%
+  below PBE, inside the predicted 1.0 to 1.5%. The measured value is
+  3.300 Å.
+- Cutoff check: raising the cutoffs from 60/480 to 80/640 Ry moves the PBE
+  pressure by 1 kbar.
+- **[Certain] Pseudopotential check passes.** PAW-PBE and ONCV-PBE agree to
+  within 2% at every mode; the geometric mean ratio is 0.996.
+- **[Certain] Decision under the rule: "below 1.04".** The pre-registered
+  geometric mean cannot be taken, because three of the nine PBEsol modes are
+  imaginary. Over the six real modes it is 1.006. Only H stiffens, by 4.0%.
+  The modes that carry niobium's excess coupling went the wrong way. So the
+  functional is not the explanation, and the stop rule's remaining grid
+  tests decide.
+- **Against the prediction.** The lattice constant came out as predicted.
+  The frequency ratio fell in "below 1.04" (given 35%). The prediction that
+  the small-q modes move more than H was right in size but wrong in sign.
+- [Speculative] This fits what is known of niobium under compression:
+  PBEsol's 1.1% smaller lattice is like PBE under a few GPa. The transverse
+  modes near Γ in niobium depend on the Fermi surface, and smearing and the
+  k-grid move them strongly. If so, Cerqueira et al.'s PBEsol λ = 1.248 must
+  rest on settings that keep these modes stable, most likely a larger
+  smearing. That would make the reference itself depend on the smearing.
+
+**Follow-up at (0, 0, 1/3), launched 18:18 UTC; prediction written before
+reading it** [Speculative]:
+- PBE at the PBEsol lattice constant: TA imaginary or below 15 cm⁻¹ (volume
+  alone does it): 65%.
+- PBEsol at the PBE lattice constant: TA real and within 10% of PBE: 60%.
+- PBEsol with a 24×24×24 k-grid: TA still imaginary: 55%.
+- PBEsol with 0.04 Ry smearing instead of 0.02: TA real: 70%.
+
+### PBEsol follow-up: the imaginary mode is a k-grid artifact, 2026-11-14 18:32 UTC
+
+All at q = (0, 0, 1/3), PAW, 60/480 Ry, Marzari–Vanderbilt smearing:
+
+| Run | Lattice (bohr) | k-grid | Smearing (Ry) | Pressure (kbar) | Modes (cm⁻¹) |
+| --- | --- | --- | --- | --- | --- |
+| PBE (Stage A) | 6.2536 | 16³ | 0.02 | 0 | 31.0, 31.0, 151.4 |
+| PBEsol (Stage A) | 6.1824 | 16³ | 0.02 | 0 | −33.4, −33.4, 151.4 |
+| PBE at the PBEsol lattice | 6.1824 | 16³ | 0.02 | +63 | −25.4, −25.4, 155.3 |
+| PBEsol at the PBE lattice | 6.2536 | 16³ | 0.02 | −60 | 22.0, 22.0, 147.5 |
+| PBEsol, denser k | 6.1824 | **24³** | 0.02 | 0 | **41.2, 41.2, 162.4** |
+| PBEsol, larger smearing | 6.1824 | 16³ | **0.04** | −1 | **47.4, 47.4, 163.1** |
+
+- **[Certain] On the package's settings (16³ k, 0.02 Ry) these modes are
+  not converged.** Going to 24³ moves PBEsol's transverse mode from −33.4 to
+  +41.2 cm⁻¹, and even the longitudinal mode moves 7%.
+- [Certain] At 16³, both a smaller volume (PBE compressed by 1.1%) and the
+  functional at fixed volume (PBEsol at the PBE lattice: 22.0 against 31.0)
+  soften the mode. At 16³, though, both effects are smaller than the
+  k-grid's.
+- **So the Stage A verdict ("below 1.04") stands as recorded, but its premise
+  does not.** The comparison was made on phonon settings that are not
+  converged for the modes that matter. It says nothing reliable about PBEsol
+  until both functionals are compared on converged k-grids.
+- **The package's PBE phonons have the same problem.** That makes cause 3
+  (phonon scf k-grid and smearing) the leading suspect for niobium's excess
+  λ. It is also the stop rule's test (b).
+- Against the follow-up predictions:
+  - PBE at the PBEsol lattice, imaginary: right (given 65%).
+  - PBEsol at the PBE lattice, within 10% of PBE: wrong (given 60%); it is
+    29% lower.
+  - PBEsol at 24³ still imaginary: wrong (given 55%).
+  - 0.04 Ry gives a real mode: right (given 70%).
+
+**Next, launched 18:35 UTC: convergence of the PBE mode at (0, 0, 1/3)**,
+at PBE's own lattice. The runs are k 24³ and 32³ at 0.02 Ry and at 0.01 Ry
+(the stop rule's setting), plus PBEsol at 32³ and 0.01 Ry. Prediction,
+written before the result [Speculative]:
+- PBE at 24³ and 0.02 Ry: transverse mode at least 10% above the package's
+  31.0 cm⁻¹: 65%.
+- At 0.01 Ry, 32³ differs from 24³ by more than 10%: 50%.
+- The best-converged PBE transverse mode is at least 1.3 times the package
+  value (41 cm⁻¹ or more): 40%. If it is, a full 6×6×6 phonon rerun at
+  that k-grid (about 11 h on 4 cores at 24³, so better on Hazel) is the next
+  step, and the arithmetic above says λ could drop into the band.
+
+### Corrections to the three PBEsol sections above, 2026-11-14 18:45 UTC
+
+A second, independent reader recomputed every number in the three sections
+above from the raw files and found all of them correct. It also confirmed
+from the commit times that each prediction was written before its result.
+It found the following faults of wording and reasoning. The sections are
+kept as committed, because their timestamps are what make the predictions
+checkable. These notes take precedence over them.
+
+- **Heading "the imaginary mode is a k-grid artifact": too strong.** The
+  data show the mode is not converged at 16³ k and 0.02 Ry. One denser
+  grid (24³, real at 41.2 cm⁻¹) does not show that the converged mode is
+  real. 24³ is also the only one of 16³, 24³ and 32³ that puts k+q for this
+  q on the k-grid, so density and commensurability are mixed. [Likely] real
+  at 0.02 Ry; unknown at 0.01 Ry.
+- **"[Certain] … So the functional is not the explanation": only the bin is
+  certain.** The bin "below 1.04" holds however the imaginary modes are
+  treated, and its action (do not run the PBEsol chain; the stop rule's
+  tests decide) stands. That the functional is not the explanation holds only
+  at 16³ k and 0.02 Ry. This weakness was foreseeable: the plan used 16³ and
+  0.02 Ry although the accepted stop rule already defined converged phonons
+  as 24³ or denser at 0.01 Ry.
+- **Most of PBEsol's softening at 16³ is the smaller lattice.** In ω² at
+  (0, 0, 1/3), the volume effect is −1602 cm⁻², the functional at fixed
+  volume −476, and the two add almost exactly to the observed change
+  (−1119).
+- **Stage A is not a reproduction of the reference.** It tests PBEsol with
+  this PAW set, at its own relaxed lattice and the package's phonon
+  settings. The reference's code, pseudopotentials, smearing, grids and
+  lattice (relaxed or measured) are not recorded in this repository. The
+  roadmap's readers did not read the paper, so even its use of PBEsol is
+  second-hand (the runbook's tantalum table).
+- **The [Speculative] paragraph on niobium under compression and the
+  reference's smearing is superseded.** A denser k-grid at the same 0.02 Ry
+  also stabilises the mode, so "most likely a larger smearing" no longer
+  follows. "Like PBE under a few GPa" was +63 kbar (6.3 GPa). No source in
+  the repository supports "what is known of niobium under compression".
+- **"The package's PBE phonons have the same problem" is [Likely], not
+  established.** It is inferred from the PBEsol runs. PBE at 16³ is real
+  (31.0 PAW, 31.6 ONCV), and no PBE run on a denser grid had been read when
+  this was written. "Leading suspect" assumes a direction that no data at
+  0.01 Ry support: at 16³, raising the smearing from 0.02 to 0.04 Ry stiffened
+  the mode more than 16³ → 24³ did, so halving it to 0.01 Ry should soften the
+  mode and could undo the k-grid's stiffening.
+- **"The stop rule's test (b)"** is defined nowhere. It means the stop rule's
+  phonon requirement: 6×6×6 phonons at scf k 24³ or denser and 0.01 Ry.
+- **The convergence plan, as actually run** (launched 18:33 UTC, not 18:35):
+  PBE 24³ at 0.02 and 0.01 Ry, PBE 32³ at 0.01 Ry, PBEsol 32³ at 0.01 Ry.
+  There is no 32³ run at 0.02 Ry. The baseline is the Stage A PAW-PBE value
+  31.0 cm⁻¹, not "the package's" (ONCV, 31.6), so 1.3 times it is 40.2 cm⁻¹,
+  not 41.
+- **"λ could drop into the band" at 1.3×: wrong arithmetic.** Stiffening
+  only the modes below 10 meV needs about 1.45× to reach λ = 1.435;
+  1.3× gives about 1.445 to 1.49.
+- **What the PBEsol 32³ run decides, written before it is read: nothing.**
+  It is for information only. Under the stop rule, PBEsol is a new method
+  that must pass tantalum and niobium from the start.
+- **The next step does not depend on one mode's threshold.** The stop rule
+  needs λ on 6×6×6 phonons at 24³ or denser and 0.01 Ry for any verdict, pass
+  or fail. That rerun is required whatever the single-q runs show. They
+  only choose its k-grid. It takes about 11 h on 4 cores at 24³ and about
+  26 h at 32³, so it belongs on Hazel.
+- **Cheaper required tests were missing from the plan.**
+  - The stop rule's electron fine-grid test (fine k 36³ or denser at
+    `degaussw` 0.05 eV, fine q 18³) needs no new phonons. It reuses the
+    existing EPW data and takes about an hour here.
+  - The second soft point, (0, −1/6, 1/6), is not in the convergence batch.
+  - Both are queued after the batch, along with 32³ at 0.02 Ry.
+
+### Queued 18:44 UTC: extra phonon checks and the electron fine-grid test; prediction
+
+Queued after the convergence batch:
+- PBE 32³ at 0.02 Ry at (0, 0, 1/3);
+- PBE 24³ at 0.01 and 0.02 Ry at (0, −1/6, 1/6);
+- the stop rule's electron fine-grid test on the existing ONCV-PBE 6×6×6 EPW
+  data: fine k 36³, `degaussw` 0.05 eV, fine q 18³ with `mp_mesh_q`. That is
+  a component test only: its phonons are still the 16³-scf ones.
+
+First convergence result, read at 18:44 UTC: PBE 24³ at 0.02 Ry gives 44.3,
+44.3 and 156.1 cm⁻¹ at (0, 0, 1/3), against 31.0, 31.0 and 151.4 at 16³.
+
+Prediction for the fine-grid EPW test [Speculative], written before it
+starts:
+- λ stays above 1.435 (the phonons are unchanged): 80%.
+- λ rises from 1.710 (the smaller smearing resolves more of the small-q
+  coupling, as for tantalum's +4%): 60%.
+
+### No Hazel; Cerqueira et al.'s methods; the stop rule's rerun runs here, 2026-11-14 19:30 UTC
+
+**Correction: there is no Hazel account.** The owner confirmed on
+2026-11-14 that the project has no access to Hazel. "Better on Hazel" and
+"it belongs on Hazel" in the sections above assumed access that does not
+exist; the assumption came from this runbook's name and its Slurm scripts,
+and was never checked. Everything below runs on the project's 4-core cloud
+machine. NC State HPC accounts and NSF ACCESS allocations usually need a
+faculty sponsor [Likely; check with NC State's HPC office].
+
+**PBE convergence at (0, 0, 1/3), all runs read.** PAW-PBE at its own
+lattice; transverse (twice) and longitudinal modes, cm⁻¹:
+
+| k-grid | Smearing (Ry) | Modes |
+| --- | --- | --- |
+| 16³ (package) | 0.02 | 31.0, 31.0, 151.4 |
+| 24³ | 0.02 | 44.3, 44.3, 156.1 |
+| 24³ | 0.01 | 41.4, 41.4, 157.1 |
+| 32³ | 0.01 | 43.6, 43.6, 157.0 |
+
+- [Certain] At the stop rule's smearing (0.01 Ry), 24³ is within 5% of 32³.
+  The transverse mode at 32³ is 1.41 times the package's 16³ value.
+- Against the predictions written at 18:32:
+  - 24³ at least 10% above 16³: right (given 65%).
+  - At 0.01 Ry, 32³ differs from 24³ by more than 10%: wrong (given 50%);
+    it differs by 5%.
+  - The best-converged mode at least 1.3 times the package value: right
+    (given 40%).
+- The first 32³ run crashed when the disk filled. It was rerun with
+  `reduce_io`.
+
+**Cerqueira et al.'s methods, read 2026-11-14** (arXiv:2307.10728v1,
+section VI and Table I; the published *Advanced Materials* version was not
+read):
+- [Certain, quoted]
+  - PBEsol, PseudoDojo "stringent" scalar-relativistic norm-conserving
+    pseudopotentials, cutoff at PseudoDojo's high-precision hint.
+  - Quantum ESPRESSO 6.8 and 7.1. The coupling comes from ph.x's own
+    double-grid method, not EPW.
+  - Lattice relaxed with PBEsol at 1500 k-points per reciprocal atom.
+  - Coarse coupling k-grid: the relaxation grid; fine k-grid: four times
+    denser in each direction; q-grid: half the k-grid.
+  - Double-delta integration with Methfessel–Paxton smearing of 0.05 Ry
+    (0.68 eV; this package's EPW uses 0.1 eV).
+  - "Accurate" settings: 3000 k-points per reciprocal atom, coarse grid
+    doubled.
+  - Up to three imaginary frequencies at Γ below 35i cm⁻¹ are accepted.
+    "Spurious soft modes due to insufficient k-point sampling" are
+    acknowledged.
+- [Certain] Table I, the source of niobium's λ = 1.248 and ωlog = 147.1 K,
+  uses the accurate settings. Its Tc column is the isotropic Eliashberg
+  solution at μ* = 0.10, not Allen–Dynes. It lists bcc niobium as 29 meV/atom
+  above the convex hull, which the paper does not explain.
+- [Speculative] For one-atom bcc niobium, 3000 k-points per atom is about
+  14³, so the accurate coarse grid is about 28³. That is roughly twice as
+  dense per direction as this package's 16³, and in the range where the
+  transverse mode above has stiffened by 1.4 times.
+- What this means:
+  - The reference rests on denser phonon grids than this package's, so it
+    stays a fair target.
+  - It is still one high-throughput setting, not a convergence study, so a
+    pass within ±15% is evidence, not proof.
+  - [Likely] Much of the gap (λ 1.71 against 1.248) is this package's 16³
+    phonon grid, not the functional.
+  - The double-delta smearing differs by a factor of about 7, a difference
+    in method that can move λ either way.
+
+**The stop rule's rerun, queued 19:27 UTC to start after the electron
+fine-grid test:**
+- Phonons: 6×6×6 at scf k 24³ and 0.01 Ry.
+- EPW ground state: scf on the same 24³ grid at 0.01 Ry (it was 12³ at
+  0.02 Ry), so it matches the phonons.
+- EPW fine grids: k 36³, `degaussw` 0.05 eV, q 18³ with `mp_mesh_q`.
+- Everything else as in the package.
+- Expected: about 11 to 14 h of phonons and 2 h of EPW on 4 cores.
+- To make room, the 16³ run's wavefunction, coupling and dvscf files are
+  deleted after the fine-grid test; its outputs, dynamical matrices and a2F
+  files are kept. So the 16³ data cannot be re-run through EPW afterwards.
+
+**Prediction for the rerun** [Speculative], written before it starts:
+- λ inside 1.061 to 1.435: 45%; above 1.435: 45%; below 1.061: 10%.
+- ωlog at least 125.0 K: 70%.
+- λ and ωlog both inside: 40%. All four checks pass (adding band and
+  symmetry): 25%.
+- Under the accepted stop rule, a miss on these grids means niobium has
+  failed and candidates are judged from published calculations.
+
+### The electron fine-grid test failed (out of memory); the 16³ data were deleted by a script fault, 2026-11-14 19:40 UTC
+
+- **The test did not run.** EPW with fine k 36³, fine q 18³ and 4 processes
+  was killed by the kernel's out-of-memory handler about a minute in, after
+  setting up the 195 q-points. Each process held about 3.6 GB against about
+  15 GB for the whole machine. There is no result, and no prediction can be
+  scored.
+- **Script fault.** The queue then deleted the 16³ run's wavefunction,
+  coupling and dvscf files, as planned, but it did so unconditionally. It
+  should have deleted them only after the test succeeded. So this test can no
+  longer be run on the 16³ data. The stop rule's fine-grid requirement is
+  instead covered inside the 24³ rerun, whose EPW step uses the same fine
+  grids.
+- **Fix for the rerun.** The rerun's EPW step will hit the same limit with 4
+  processes. It writes the Wannier-space coupling file before the fine-grid
+  stage, so a follow-up queue redoes only that stage from the saved file
+  with 2 processes (about 10 GB, about twice as slow) if the chain's EPW step
+  fails.
+- **Last convergence point**, PBE 32³ at 0.02 Ry, (0, 0, 1/3): 44.3, 44.3,
+  155.9 cm⁻¹, the same as 24³ at 0.02 Ry to 0.1%. So 24³ is converged at
+  0.02 Ry and within 5% at 0.01 Ry, which supports the rerun's choice of
+  24³.
+- The rerun started at 19:35 UTC; the phonon scf took 32 s.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
