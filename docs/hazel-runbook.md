@@ -337,6 +337,76 @@ What remains, in order of how likely it now looks:
 2. **The electronic interpolation [Speculative].** One of the six Wannier functions is fairly spread out (7.5 Å²). Comparing Wannier-interpolated bands with directly calculated bands near the Fermi level is a 10-minute check.
 3. **The pseudopotential [Speculative].** It reproduces the lattice constant and gives phonons 6% soft, which is ordinary, so it is the least likely cause.
 
+### Band check, 2026-11-13: the electronic interpolation was a real cause
+
+EPW computes everything on a coarse grid and fills in the rest by interpolating through Wannier functions, so the interpolated bands must match the true bands, especially near the Fermi level where the coupling is decided. They were checked against bands calculated directly with Quantum ESPRESSO at 308 k-points (a path through Γ, H, N and P plus 120 random points), none of them on the coarse grid.
+
+| Wannier setup | Mean error within 0.4 eV of E_F | 95th percentile | Worst | DOS at E_F against direct calculation |
+| --- | --- | --- | --- | --- |
+| 6 functions (d, s), 8×8×8 grid: the failed run | 137 meV | 371 meV | 1,094 meV | +4% (0.1 eV smearing), +11% (0.05 eV) |
+| 6 functions, 12×12×12 grid | 93 meV | 268 meV | 931 meV | +7%, +10% |
+| **9 functions (d, s, p), 8×8×8 grid** | **36 meV** | **104 meV** | **149 meV** | **−1%, −1%** |
+
+On the grid points themselves all setups are exact, as they should be. The six-function setup was too poor between them: its errors were larger than EPW's 0.1 eV smearing, so the wrong states counted as being on the Fermi surface. A denser grid helped only partly, and its s-like function spread to 15 Å². Adding the three p-like functions made the d-like ones compact (1.2 to 1.3 Å² against 1.7 to 3.4 Å² before).
+
+EPW was then rerun with nine functions on the same phonons, everything else unchanged:
+
+| Quantity | 6 functions | 9 functions | Reference |
+| --- | --- | --- | --- |
+| λ | 1.447 | **1.122** | 0.757 |
+| ωlog | 108.6 K | **127.1 K** | 164.99 K |
+| Tc at μ* = 0.1 | 11.9 K | 10.4 K | 6.9 K |
+| Share of λ near Γ | 11.7% | 6.0% | |
+| Negative, unphysical linewidths | 522 | 224 | |
+
+**This is a real improvement but not a pass.** λ is still 48% too high and ωlog 23% too low. The package in `data/benchmarks/epw-ta-jvasp-1014/` now uses the nine-function setup (18 bands in the band step), exactly as tested here.
+
+What is left, with a rough account of the remaining 48%:
+
+1. **Phonons 6% too soft:** worth about +14% in λ, and they are soft at the coarse-grid points where nothing is interpolated.
+2. **The 4×4×4 q-grid:** likely most of the rest **[Likely]**. The coupling-weighted frequency average (127 K) is still well below the plain one (147 K), so too much coupling still sits on soft modes. The test is a 6×6×6 q-grid with a 12×12×12 k-grid, best done on Hazel.
+
+The band check took about 10 minutes on 4 cores and needs no phonons, so it is worth running on every new material before trusting its λ.
+
+### Running the band check (added 2026-11-14)
+
+`scripts/check_wannier_bands.py` does the check above for any finished EPW run folder (the one holding `scf.in`, `nscf.in`, `epw.in`, `<prefix>.save` and `<prefix>_hr.dat`). Three steps:
+
+```bash
+python scripts/check_wannier_bands.py prepare --epw-dir <run_dir>/epw --out <run_dir>/bandcheck
+```
+
+```bash
+sbatch --partition=compute --qos=normal --ntasks=4 <run_dir>/bandcheck/run.sh
+```
+
+```bash
+python scripts/check_wannier_bands.py analyze --epw-dir <run_dir>/epw --check-dir <run_dir>/bandcheck
+```
+
+- **prepare** copies only the charge density and pseudopotentials (a few MB). It writes a direct calculation at 300 random k-points plus 12 coarse-grid points, and a 24×24×24 calculation for the density of states.
+- **run.sh** is two short `pw.x` runs, about a minute on 4 cores for tantalum. It is a calculation, so submit it as a job, not on the login node. Put `LAUNCHER="mpirun -np 4"` in front if the MPI check in section 5 said so. Off Hazel, run it with `LAUNCHER="mpirun -np 4" bash <run_dir>/bandcheck/run.sh`.
+- **analyze** prints a verdict, writes `report.json` in the check folder, and exits 0 for pass, 1 for fail, 2 when files are missing.
+
+**What it checks.** It takes every directly calculated state within EPW's own window around E_F (`fsthick`) and measures how far the nearest interpolated state is. It passes when:
+
+- the mean error is at most 50 meV;
+- 95% of errors are at most EPW's smearing (`degaussw`);
+- the density of states at E_F agrees within 5% at two smearing widths.
+
+It also checks that the coarse-grid points come out exact, which catches a `_hr.dat` from a different calculation. The thresholds come from one material and are a starting point, not a standard; each one is an option.
+
+**Results on tantalum, with the script:**
+
+| Setup | Mean error | 95th percentile | DOS ratio (0.1 / 0.05 eV) | Verdict |
+| --- | --- | --- | --- | --- |
+| 6 functions (the failed run) | 193 meV | 802 meV | 1.04 / 1.11 | fail |
+| 9 functions (the package now) | 38 meV | 110 meV | 0.98 / 0.96 | fail, narrowly |
+
+Both coarse-grid self-checks were exact (0.0 meV). The numbers differ a little from the hand check above because the script uses a different set of random points. The nine-function setup misses only the 95th-percentile limit (110 against 100 meV). Read it as "much better, still not clean at the 8×8×8 grid", which matches λ still being 48% high. The 12×12×12 grid planned for Hazel should be checked the same way.
+
+The updated package was also run end to end in smoke mode with the chain script (7 minutes on 4 cores, exit 0). Smoke mode now gives λ = 1.04 and ωlog = 144 K. That it no longer lands near the reference, as the six-function smoke run did (0.778), confirms the earlier agreement was a coincidence of errors.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:

@@ -11,6 +11,8 @@ settings and the checks behind them are below.
 
 > **Status, 2026-11-11: not validated.** With these settings the full run gives λ = 1.447 and ωlog = 108.6 K against the reference 0.7572 and 164.99 K. The phonon calculation is not converged with respect to k-points (the H-point frequency moves 13% between the 8×8×8 and 16×16×16 k-meshes). The settings below are a starting point for the convergence tests listed in `docs/hazel-runbook.md`, section 7, not a finished benchmark.
 
+> **Update, 2026-11-13: Wannier setup changed from 6 to 9 functions.** A direct check showed the 6-function interpolation missing the true bands near the Fermi level by 137 meV on average between grid points, more than EPW's 0.1 eV smearing. With 9 functions (s, p, d) the error is 36 meV and λ falls from 1.447 to 1.122 (ωlog 108.6 to 127.1 K) on the same phonons. The benchmark still does not pass; see `docs/hazel-runbook.md`, section 7.
+
 ## Pseudopotential
 
 | Item | Value |
@@ -40,10 +42,10 @@ build environment could not reach). It was therefore tested before use:
 | Cell | bcc, `celldm(1) = 6.2736` bohr | The zero-pressure lattice for this pseudopotential, so phonons are computed at equilibrium |
 | Smearing | Marzari-Vanderbilt, 0.02 Ry | A standard choice for metals |
 | Phonon k-mesh, q-mesh | 16×16×16, 4×4×4 (8 irreducible q-points) | |
-| EPW coarse k-mesh | 8×8×8, listed in full in `epw/nscf.in`, 14 bands | Must contain the q-mesh |
-| Wannier functions | 6: the five 5d and one 6s orbital (`proj = 'Ta:d'`, `'Ta:s'`) | Bands 5 to 10 are the s-d complex that crosses the Fermi level |
+| EPW coarse k-mesh | 8×8×8, listed in full in `epw/nscf.in`, 18 bands (14 before 2026-11-13) | Must contain the q-mesh |
+| Wannier functions | 9: five 5d, one 6s and three 6p orbitals (`proj = 'Ta:d'`, `'Ta:s'`, `'Ta:p'`). Until 2026-11-13: 6 (d and s only) | Six functions could not be made compact enough: between grid points they missed the directly calculated bands near the Fermi level by 137 meV on average. Nine cut that to 36 meV (see the update below) |
 | Skipped bands | 1 to 4 | The 5s and 5p semicore states, 33 and 67 eV below the Fermi level |
-| Energy windows | Outer 9 to 28 eV; frozen 9 to 26 eV (Fermi level 18.1 eV) | Band 11 starts at 26.6 eV, so the frozen window holds exactly the six wanted bands; the outer window reaches the top of band 10 at 27.4 eV |
+| Energy windows | Outer 9 to 45 eV (28 eV until 2026-11-13); frozen 9 to 26 eV (Fermi level 18.1 eV) | Band 11 starts at 26.6 eV, so the frozen window holds exactly the six bands that cross or approach the Fermi level and they are reproduced exactly on the grid; the wider outer window gives the three p-like functions bands to draw on |
 | Fine meshes | k 24×24×24, q 12×12×12, `fsthick = 0.4` eV, `degaussw = 0.1` eV | |
 
 The windows are absolute energies and belong to this pseudopotential and
@@ -66,8 +68,8 @@ refuses such an input.
 | `phonons/ph.in` | `4f19fe6c6795976fadea8cc9e5e1143722691237ec8acc18fc0c985d15d5a0d3` |
 | `phonons/pp.py` | `5aef3d150ed78ac12f3e1c1632cfa57e73c4f5696e7457148e237b6bcb88c3d6` |
 | `epw/scf.in` | `977a2c38deff4c65bca2b4379bce10d2258094e73c96d6836e3891ab426b2ece` |
-| `epw/nscf.in` | `e30b2661eaaab0f67003dd15ff1935a51308e17b5cce06dd44d0fde5fd9189ea` |
-| `epw/epw.in` | `784e16c633fc678da9d22adb33beb4f2163dbb456a95d7dd0da648e113df2124` |
+| `epw/nscf.in` | `ef35f93f57eb1c1a6b57c9f397cc0fa91c7ea2765ad1a206e72dcb7cb0b09343` |
+| `epw/epw.in` | `baf3c3efd5dfc23585a988c37143913b66603e671c931e98a0f42470459de7e4` |
 
 ## Files added for the pipeline
 
