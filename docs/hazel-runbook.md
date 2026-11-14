@@ -629,12 +629,13 @@ odds were.
   from 28 to 121 K.
 - [Certain] The excess sits in the soft modes. Modes below 10 meV are 12% of
   all modes and carry 0.67 of λ (38%); modes below 6 meV are 4.5% and carry
-  0.40 (22%). The six largest contributions are all small-q points whose
-  lowest mode is at 1.7 to 5.5 meV, for example crystal (0, 0, 1/12), λ_q =
-  9.5 at 1.7 meV, and (1/12, 1/12, 1/6), λ_q = 6.5 at 3.8 meV.
+  0.40 (22%). Five of the six largest contributions are small-q points whose
+  lowest mode is at 1.7 to 5.5 meV (the sixth is at 8.9 meV), for example
+  crystal (0, 0, 1/12), λ_q = 9.5 at 1.7 meV, and (1/12, 1/12, 1/6), λ_q =
+  6.5 at 3.8 meV.
 - [Likely] The electron side is about right. η = λ M⟨ω²⟩ is 7.66 eV/Å²,
   5% below the 8.02 estimated from the reference λ and ωlog (that estimate
-  assumes ω₂/ωlog = 1.34, so it is rough). η weights each mode by ω², so soft
+  borrows this run's own ratio ω₂/ωlog = 1.34, so it is rough). η weights each mode by ω², so soft
   modes barely move it, while λ weights them by 1/ω². A matching η with a
   high λ points at the low-frequency end, not the coupling matrix elements.
 - [Speculative, arithmetic only] If every mode below 10 meV were 1.2 times
@@ -642,7 +643,7 @@ odds were.
   band.
 - Two causes fit, and this run cannot separate them:
   1. The DFT transverse modes near Γ are too soft (ρv² of 7.5 and 12.4 GPa
-     at the smallest computed q, against a measured C44 of about 29 to 31 GPa,
+     at the two smallest computed q-points, against a measured C44 of about 29 to 31 GPa,
      from memory). Test: one small-q phonon with a denser scf k-grid or a
      smaller smearing than 16×16×16 and 0.02 Ry.
   2. The small-q coupling is sampled too coarsely. On a 12×12×12 fine q-grid
