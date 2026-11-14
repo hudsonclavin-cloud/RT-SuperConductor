@@ -88,5 +88,21 @@ Steps 1–3 run in parallel this week.
   `docs/negative-labels.md` for a person to check against the papers.
   `data/training/negative_evidence.csv` is meant to be filled in by a person
   who has read the paper, so no rows were added, and no label was changed.
-- **Task C, the λ model's stability filter:** not started.
+- **Task C, the λ model's stability filter: measured, not yet applied.**
+  `scripts/lambda_stability_check.py` (result in
+  `docs/lambda-stability-check.json`) trains the λ and ωlog forests on the
+  same grouped folds twice, on all 1,057 rows and on the 626 stable rows, and
+  scores both on the same held-out stable rows. Training on stable rows only
+  lowers the λ error from 0.271 to 0.220 (difference -0.051, interval -0.068
+  to -0.035, resampling 517 element systems), the ωlog error from 105 K to
+  63 K and the Tc error from 2.50 K to 2.18 K (-0.32 K, -0.53 to -0.15). It
+  does not change how well the model orders materials (Tc rank correlation
+  0.51 against 0.54, difference -0.03, -0.08 to +0.02). Trained on all rows,
+  the model's λ error is worse than always guessing the median (0.242); on
+  stable rows it is a little better. [Likely] So the filter should go in, but
+  it fixes the size of the predictions, not the ranking, and the physics
+  model should still not choose what EPW checks. The production retrain
+  (`scripts/train_physics_targets.py`) downloads the JARVIS file, which this
+  cloud machine cannot reach, so the one-line filter is left for a run on a
+  normal network.
 
