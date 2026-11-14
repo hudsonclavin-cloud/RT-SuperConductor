@@ -1,0 +1,147 @@
+{
+ "name": "round2",
+ "data_sha256": "cdc480abd88aace9f80bb1f0931b5d58298233da592d6d8c7070170b9771e74a",
+ "rows": 43,
+ "scored": 43,
+ "clean_means": "no row of the training table within 0.02 (half the summed difference of the atomic fractions)",
+ "pool": {
+  "file": "round2-candidates-boosting.csv.gz",
+  "rows": 25019,
+  "ranked_by": "boosting"
+ },
+ "with_known_outcome": 31,
+ "all": {
+  "subset": "every scored row with a known outcome",
+  "rows": 31,
+  "groups": 9,
+  "boosting": {
+   "by_probability": {
+    "superconductors": 19,
+    "not_superconductors": 12,
+    "auc": 0.5658,
+    "low": 0.1176,
+    "high": 0.7854,
+    "resampled": "whole groups"
+   },
+   "by_expected_tc": {
+    "superconductors": 19,
+    "not_superconductors": 12,
+    "auc": 0.5504,
+    "low": 0.2812,
+    "high": 0.7627,
+    "resampled": "whole groups"
+   },
+   "median_p_superconductors": 0.84,
+   "median_p_not_superconductors": 0.798,
+   "tc_rows": 19,
+   "tc_median_log_error": 0.1749,
+   "tc_median_predicted_over_measured": 0.9151
+  },
+  "network": {
+   "by_probability": {
+    "superconductors": 19,
+    "not_superconductors": 12,
+    "auc": 0.4759,
+    "low": 0.1818,
+    "high": 0.6355,
+    "resampled": "whole groups"
+   },
+   "by_expected_tc": {
+    "superconductors": 19,
+    "not_superconductors": 12,
+    "auc": 0.3991,
+    "low": 0.125,
+    "high": 0.627,
+    "resampled": "whole groups"
+   },
+   "median_p_superconductors": 0.882,
+   "median_p_not_superconductors": 0.875,
+   "tc_rows": 19,
+   "tc_median_log_error": 0.137,
+   "tc_median_predicted_over_measured": 1.1741
+  },
+  "network_view_superconductors": {
+   "agrees": 19,
+   "lukewarm": 0,
+   "rejects": 0
+  },
+  "network_view_not_superconductors": {
+   "agrees": 12,
+   "lukewarm": 0,
+   "rejects": 0
+  }
+ },
+ "clean": {
+  "subset": "rows the models have never seen",
+  "rows": 28,
+  "groups": 8,
+  "boosting": {
+   "by_probability": {
+    "superconductors": 16,
+    "not_superconductors": 12,
+    "auc": 0.6146,
+    "low": 0.125,
+    "high": 0.8286,
+    "resampled": "whole groups"
+   },
+   "by_expected_tc": {
+    "superconductors": 16,
+    "not_superconductors": 12,
+    "auc": 0.6432,
+    "low": 0.3462,
+    "high": 0.8232,
+    "resampled": "whole groups"
+   },
+   "median_p_superconductors": 0.845,
+   "median_p_not_superconductors": 0.798,
+   "tc_rows": 16,
+   "tc_median_log_error": 0.1666,
+   "tc_median_predicted_over_measured": 0.9111
+  },
+  "network": {
+   "by_probability": {
+    "superconductors": 16,
+    "not_superconductors": 12,
+    "auc": 0.5234,
+    "low": 0.125,
+    "high": 0.6701,
+    "resampled": "whole groups"
+   },
+   "by_expected_tc": {
+    "superconductors": 16,
+    "not_superconductors": 12,
+    "auc": 0.4583,
+    "low": 0.125,
+    "high": 0.6714,
+    "resampled": "whole groups"
+   },
+   "median_p_superconductors": 0.8845,
+   "median_p_not_superconductors": 0.875,
+   "tc_rows": 16,
+   "tc_median_log_error": 0.1365,
+   "tc_median_predicted_over_measured": 1.1006
+  },
+  "network_view_superconductors": {
+   "agrees": 16,
+   "lukewarm": 0,
+   "rejects": 0
+  },
+  "network_view_not_superconductors": {
+   "agrees": 12,
+   "lukewarm": 0,
+   "rejects": 0
+  }
+ },
+ "in_table": {
+  "rows": 3,
+  "table_label_disagrees_with_outcome": [
+   "YRu3B2",
+   "LuRu3B2"
+  ]
+ },
+ "clean_superconductors_median_pool_percentile_by_expected_tc": 21.2,
+ "clean_superconductors_in_top_10_percent_by_expected_tc": 0,
+ "clean_superconductors_median_pool_percentile_by_p": 10.9,
+ "clean_superconductors_in_top_10_percent_by_p": 6,
+ "cases_file": "cases.csv"
+}

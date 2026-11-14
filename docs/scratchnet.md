@@ -442,6 +442,140 @@ tested.
    is unreliable for copper and silver fluorides and oxides, which standard
    band-structure calculations often wrongly describe as metallic.
 
+### A second list for the electron-phonon pipeline: made metals, ordered by chance
+
+`rank` also writes `docs/scratchnet-candidates-boosting-top-made-metals.csv`.
+It keeps the compounds that Materials Project marks as experimentally
+reported (`theoretical` is `False`), that are calculated to be metals, that
+are outside the copper-oxide and iron families and that contain no copper
+(7,693 compositions), and orders them by `p_superconductor` instead of
+probability x Tc, at most three per set of elements.
+
+Why a second list. The literature read for this project found that the
+machine-learning picks confirmed in a laboratory so far are metals close to
+known superconductors, mostly below 10 K, and that invented compounds tend
+not to form at all (one campaign made 18 and none came out as predicted).
+The pipeline can only confirm conventional superconductors, and the earlier
+lists put such compounds far down: the 2025 find PtPb3Bi, to which boosting
+gives a probability of 0.885 and a Tc of 3.4 K (measured 2.98 K), is at place
+7,042 of the boosting order. Ordered by chance it rises to place 221 of the
+7,693 made metals, just outside the 200 written out (its 0.885 is below the
+list's lowest probability, 0.89).
+
+What ordering by chance buys, checked on development rows outside the copper
+and iron families (`python scripts/scratchnet_diagnose.py orderings`,
+results in `docs/scratchnet-orderings.json`). Each order picks its top share
+of the same rows; the last column is the median measured Tc of the picks
+that do superconduct (by chance against by chance x Tc). Intervals are 95%,
+from resampling whole groups.
+
+| Rows | Top share | Superconduct: by chance | by chance x Tc | Difference | Median Tc of the hits |
+|---|---|---|---|---|---|
+| All 7,018 | 10% | 97.0% | 94.4% | +2.6 points (-0.8 to +6.8) | 7.4 K against 16.4 K |
+| 0.1 or more from any training composition (4,219) | 10% | 94.3% | 85.6% | +8.8 points (+4.1 to +12.9) | 5.6 K against 9.9 K |
+| 0.1 or more | 20% | 91.7% | 84.4% | +7.3 points (+4.0 to +11.1) | 4.5 K against 7.8 K |
+| 0.3 or more (1,004) | 10% | 83% | 80% | +3 points (-10 to +22) | 4.2 K against 4.5 K |
+
+- Away from the training data, ordering by chance finds superconductors
+  about 7 to 9 points more often. The price is lower Tc: the median Tc of
+  the hits is about 40% lower (5.6 against 9.9 K at 10%, 4.5 against 7.8 K
+  at 20%), and the measured Tc averaged over all picks (non-superconductors
+  as zero) is a quarter to a third lower (6.6 against 9.6 K, -3.0 K,
+  interval -4.4 to -1.8; at 20%, 5.7 against 7.6 K, -1.9 K, interval -2.8
+  to -1.1).
+- For far rows (0.3 or more) no difference could be measured either way.
+- So this is a list for "most likely to superconduct at all, at a few
+  kelvin", not a list for high Tc. That matches what the pipeline can confirm.
+
+What the list holds (top 200):
+
+- Probability 0.89 and above; median expected Tc 3.3 K; the nearest known
+  material's Tc has a median of 2.5 K.
+- 13 are within 0.1 of a training composition, 75 are 0.3 or more away;
+  median distance 0.24. 31 rows are also on the metals list.
+- The network agrees on 167, is lukewarm on 7 and rejects 26. **24 of the 26
+  rejections are halides**, and the list holds 30 halides in all (Rb2NbCl6,
+  Cs2IrCl6, CsTiCl3, K2MoCl6 and similar), none of which the network agrees
+  on. [Likely] These are insulators that the band-structure calculation
+  wrongly calls metals, the same failure noted for copper and silver
+  fluorides above; treat a halide on this list as out unless something else
+  says otherwise. Boosting likes them because the halides in the training
+  table mostly superconduct (87% of the 240 development rows with a halogen
+  outside the copper and iron families).
+- **A blinded literature check** looked up the top 60, 60 picked at random
+  from the 7,693 and 40 of the ones the model rates least likely, without the
+  readers knowing which was which (`data/benchmarks/literature-check/`,
+  summary in `docs/literature-check-made-metals.json`).
+
+  | Group | Superconductor at ambient pressure | Only under pressure or doping | Measured, none | Magnetic or insulating | Nothing found |
+  |---|---|---|---|---|---|
+  | Top 60 | 1 (ThCoC2, 2.55 K) | 2 | 5 | 5 | 47 |
+  | Random 60 | 0 | 2 | 4 | 12 | 42 |
+  | Least likely 40 | 0 | 0 | 0 | 19 | 21 |
+
+  - **The literature cannot say whether the top of the list is right.** One
+    ambient superconductor in 60 (ThCoC2, reported in 2014 and missing from
+    the training table) against none in the other groups is no
+    measurable difference (exact test p = 1.0).
+  - **What it does show is that the model's low scores land on magnetic
+    compounds**: 19 of the 40 least likely are magnetically ordered or
+    insulating, against 12 of 60 random and 5 of 60 at the top
+    (p = 0.00001, top against least likely). Most are rare-earth compounds
+    with iron, cobalt or nickel, which do not superconduct. That is the
+    model working as intended, not a discovery.
+  - **Most of the top has not been tested, as far as could be found.** For 47
+    of the 60 no low-temperature measurement turned up. That is what a list of
+    candidates should look like, but it is a weak finding: the readers ran
+    out of searches for about half of all rows, so "nothing found" often means
+    "not found in the time allowed".
+  - Of the 13 top compounds with data, 4 are halides that turned out to be
+    insulators (all 4 rejected by the network), and 5 are metals measured
+    without superconducting (La3ScBi5 and NbAlRu2 down to 2 K, La3MgBi5 to
+    1.8 K, Th7Ru3 and LuNiC2 with no stated lowest temperature).
+
+### An out-of-time test: published picks that were made and measured
+
+`data/benchmarks/prospective-cases/` holds 43 compounds that other groups'
+machine-learning or calculation screens picked and that were then made and
+measured (14 papers, 2018 to 2026, each row checked against its paper by two
+readers; scoring rules in its `PROVENANCE.md`). 31 can be scored at ambient
+pressure: 19 superconduct and 12 did not. 28 of them, from 8 papers, are not
+in the training table and count as clean.
+`scripts/score_external_cases.py` scored them with the saved ensemble
+(results in `docs/scratchnet-prospective.json`, one row per case in
+`docs/scratchnet-prospective-rows.csv`). Intervals resample whole papers.
+
+| Clean cases (16 superconduct, 12 not) | AUC by chance | AUC by chance x Tc | Median chance: superconductors | failures |
+|---|---|---|---|---|
+| Boosting | 0.61 (0.13 to 0.83) | 0.64 (0.35 to 0.82) | 0.85 | 0.80 |
+| Network | 0.52 (0.13 to 0.67) | 0.46 (0.13 to 0.67) | 0.88 | 0.88 |
+
+- **Neither model can tell which of these picks worked.** Both rate nearly
+  all of them as likely (they were chosen because some model already did),
+  and the intervals include 0.5. The network agrees with boosting on all 28,
+  so its second opinion adds nothing here.
+- **Boosting's Tc is close for the ones that did superconduct.** For the 16
+  clean superconductors its Tc-if-superconducting is typically 0.91 of the
+  measured value (median log error 0.17); the network's is 1.10 (0.14). The
+  papers' own predictions were mostly higher than measured: 6.8 K against
+  0.81 K for YRu3B2, 14.9 K against 3.18 K for Be2Hf2Nb, 13.7 K against
+  7.3 K for HfTa4Zr, 12.7 K against 5.9 K for HfZr3Re8; PtPb3Bi (2.93 K
+  against 2.98 K) is the exception. [Likely] That says more about these
+  being low-Tc metals in familiar families, where the table has many
+  neighbours, than about a general skill.
+- **Where they would sit in this project's pool.** Ordered by chance, the 16
+  clean superconductors sit at a median of the top 10.9% of the untested
+  pool (6 of 16 in the top tenth); ordered by chance x Tc, at 21.2% (none in
+  the top tenth). The 12 failures sit at 17.9% and 26.8%. So ordering by
+  chance brings this kind of material up the list, failures included.
+- **Two wrong labels confirmed.** YRu3B2 and LuRu3B2 superconduct (0.81 K
+  and 0.95 K) but are in the training table as non-superconductors, because
+  an old measurement stopped at 1.2 K. They are not changed here; see
+  `docs/negative-labels.md`, which lists four more found the same way.
+- **Small and lopsided.** One paper supplies 13 of the 28 clean cases, and 9
+  of the 12 failures were only measured down to 4.2 K, which a 3 K
+  superconductor would pass unseen.
+
 ## What the results mean
 
 1. **The network works.** It is built from nothing but numpy, its gradients
@@ -473,6 +607,124 @@ tested.
    picks boosting itself doubted. For materials far from known ones, where
    most of the listed candidates sit (164 of boosting's top 200), neither
    its agreement nor its rejection made a measurable difference.
+
+## Why the network loses to boosting
+
+Two experiments on the development rows (the locked set was not read),
+written by `scripts/scratchnet_diagnose.py` to
+`docs/scratchnet-inputs.json` and `docs/scratchnet-learning-curve.json`.
+
+**1. Same inputs.** Boosting was trained three times: on its usual 155
+hand-made formula features, on the raw amount of each element (90 numbers),
+and on exactly what the plain network sees, the amount and 28 properties of
+each element (8 x 29 numbers).
+
+| Model and input | AUC | Tc error (log scale) |
+|---|---|---|
+| Boosting, 155 formula features | 0.790 | 0.388 |
+| Boosting, the network's own input (8 x 29) | 0.777 | 0.431 |
+| Boosting, raw element amounts (90) | 0.735 | 0.416 |
+| Plain network ("tuned"), elements only (round 2, three copies) | 0.756 | 0.427 |
+| Final network, also given the formula features and the side task (round 2, three copies) | 0.784 | 0.415 |
+
+- Fed the same numbers, boosting still ranks better: 0.777 against 0.756.
+  So about 0.02 of the plain network's 0.034 AUC gap is the learner, and
+  about 0.013 is the hand-made features (boosting loses 0.013 when it is
+  given the network's input instead, interval -0.029 to -0.001). The
+  split is the difference of two measured gaps; it has no interval of its own.
+- For Tc it is the other way round. On the same input the network is as good
+  as boosting (0.427 against 0.431); boosting's lead in Tc comes from the
+  formula features (0.388), and the network gets nothing out of those features
+  for Tc (0.428 with them, 0.427 without). The final network's better Tc
+  (0.415) comes from the side task: with the side task and no formula features
+  the network reaches 0.405.
+- Giving the network the formula features and the Materials Project side task
+  is what brought it close: 0.784 against 0.790 on these rows (interval -0.017
+  to +0.005), -0.019 on the locked set (-0.038 to +0.003).
+
+**2. More data.** Each model was trained on 1/8, 1/4, 1/2 and all of each
+development fold's training rows (whole development groups dropped at
+random; the training-only cuprate chain, about a third of the training rows,
+is instead thinned compound by compound, so every share keeps the same mix of
+it and the rest; about 1,400, 2,800, 6,000 and 12,000 rows), two network seeds
+each, and scored on the same held-out rows. Only these labelled rows were
+thinned. The final network also had all 26,911 Materials Project side-task
+rows at every share: about 19 per labelled row at 1/8, about 2 with all the
+data.
+
+| Labelled training rows per fold | Boosting AUC | Plain network | Final network | Plain gap | Final gap |
+|---|---|---|---|---|---|
+| 1,400 | 0.694 | 0.645 | 0.670 | -0.047 | -0.024 |
+| 2,800 | 0.713 | 0.687 | 0.692 | -0.026 | -0.020 |
+| 6,000 | 0.751 | 0.713 | 0.737 | -0.039 | -0.014 |
+| 12,000 | 0.790 | 0.756 | 0.781 | -0.035 | -0.009 (-0.020 to +0.002) |
+
+| Labelled training rows per fold | Boosting Tc error | Plain network | Final network |
+|---|---|---|---|
+| 1,400 | 0.565 | 0.570 | 0.574 |
+| 12,000 | 0.388 | 0.425 | 0.422 |
+
+The 12,000-row line is round 2's seeds 0 and 1, retrained and averaged over
+two copies instead of round 2's three; hence 0.781 and 0.422 for the final
+network here, against 0.784 and 0.415 in the table above, and 0.425 against
+0.427 for the plain network's Tc.
+
+- **Neither gap is shown to close with data.** From 1,400 to 12,000 rows the
+  plain network's gap goes from -0.047 to -0.035, unevenly (-0.026 at 2,800
+  rows), and the final network's from -0.024 to -0.009, a little at each step.
+  The two changes are about the same, +0.013 (interval -0.013 to +0.038) and
+  +0.014 (-0.008 to +0.034), and both intervals include zero. The final
+  network's smaller gap at 1,400 labelled rows may come partly from the 26,911
+  side-task rows it had throughout, so it does not show that it needs less
+  SuperCon data than the plain one.
+- **The Tc gap looks larger with more data.** With 1,400 rows the three are
+  level (gaps +0.006 and +0.010, intervals including zero); with 12,000
+  boosting is 0.034 to 0.037 better (interval for the plain network +0.018
+  to +0.054). No interval was computed for the change itself, so "boosting
+  turns extra rows into better Tc estimates faster" is [Likely], not shown.
+- All AUCs rise steadily with no sign of levelling off, for every model. The
+  data set is the limit for all of them, which is the same conclusion as
+  point 4 of the section above, reached a different way.
+
+**3. What the saved predictions add.** A separate analysis of the round-2
+predictions, with each finding re-checked by a sceptical second reader
+(development rows only; intervals resample whole groups):
+
+- [Certain] Averaged over copies, the final network's classification gap is
+  small: -0.006 on development rows (-0.017 to +0.005) and -0.019 on the
+  locked set (-0.038 to +0.003); taken together about -0.009 (-0.019 to
+  +0.001). A single copy trails by about 0.014, and most of that is the
+  scatter between training runs, which averaging removes.
+- [Likely] Its firm loss is Tc: 0.415 against 0.388 on development rows (gap
+  +0.027, +0.014 to +0.041), and +0.031 on the locked set. Part of that,
+  about a third, is that boosting's Tc model was tuned on these same rows
+  for this score and the network's never was.
+- [Likely] Given the 155 features, the network does not get better at Tc
+  (+0.001, -0.012 to +0.016), while boosting gains 0.043 from them.
+- [Certain] On the 366 attempts that Hosono's group made and that failed, the
+  network ranks better than boosting (+0.037, +0.014 to +0.061). Far from
+  known materials neither separates superconductors from those failures
+  (AUC 0.48 for boosting, 0.54 for the network).
+- **The experiment that would settle it**, if the network is developed
+  further: give the Tc output its own stopping point and a loss that matches
+  the score (absolute instead of squared error), 30 fits on the development
+  folds. Rule set in advance: Tc error 0.401 or below means the loss was a
+  training choice and the change should be kept; 0.395 or below (level with
+  boosting) means the 50/50 mix should be looked at again; 0.410 or above
+  means training is not the cause, and further network work on this table is
+  not worth it.
+
+**What this means.** [Likely] The network loses for two reasons: on a table
+of this size, trees get more out of the same numbers than this network does,
+and the hand-made features carry chemistry the network does not work out for
+itself. More rows of the same kind would help both models, the network's
+classification perhaps a little more, but there are no more rows of this kind
+to be had: SuperCon is the source every published model uses.
+[Speculative] Where a network has the advantage is a much larger table with
+richer inputs, for example calculated electron-phonon coupling for crystal
+structures (thousands of such calculations are now public, and larger sets
+are appearing). That is a
+different target from this one, and the better place for further network work.
 
 ## Not done
 
@@ -520,3 +772,27 @@ Model files and the full ranking are written under
 `rank` orders by boosting unless told otherwise: `--order mix` gives the
 50/50 mix (the first version of the lists) and `--order network` the network
 alone. `second-opinion` needs the saved predictions of the `cv` run.
+
+```bash
+python scripts/scratchnet_diagnose.py inputs
+```
+
+```bash
+python scripts/scratchnet_diagnose.py learning-curve --networks tuned,hybrid-multitask --seeds 0,1 --jobs 4
+```
+
+```bash
+python scripts/scratchnet_diagnose.py orderings --name round2
+```
+
+The first takes about 3 minutes, the second about 35 on four cores; the
+third reads the saved predictions of the `cv` run.
+`scripts/score_external_cases.py` scores a list of formulas from outside
+the table with the saved ensemble (for published cases; the run behind the
+numbers above is `python scripts/score_external_cases.py --cases
+data/benchmarks/prospective-cases/cases.csv --name round2 --pool
+data/processed/scratchnet/round2-candidates-boosting.csv.gz --group-column
+source_arxiv --out-rows docs/scratchnet-prospective-rows.csv --out
+docs/scratchnet-prospective.json`), and
+`scripts/literature_check_summary.py` counts the result of a blinded
+literature check by group.

@@ -282,7 +282,7 @@ def ranked_toy(dataset, tmp_path_factory):
         {"variants": ["toy"], "seeds": [0], "folds": [1, 2], "blend_weight": 0.5, "data_sha256": dataset.sha256}))
     header = ["mp_id", "formula", "energy_above_hull_ev_per_atom", "known_match", "is_metal", "band_gap_ev", "theoretical"]
     lines = [["mp-1", "Nb3Al", "0.0", "", "True", "0", "False"], ["mp-2", "NbN", "0.2", "", "True", "0", "False"],
-             ["mp-3", "NbN", "0.0", "", "True", "0", "False"], ["mp-4", "V3Ge", "0.0", "", "True", "0", "False"],
+             ["mp-3", "NbN", "0.0", "", "True", "0", "False"], ["mp-4", "V3Ge", "0.0", "", "True", "0", "True"],
              ["mp-5", "NaF", "0.0", "", "False", "6", "False"], ["mp-6", "KBr", "0.0", "", "False", "5", "False"],
              ["mp-7", "MgB2", "0.0", "exact", "True", "0", "False"], ["mp-8", "PbTe", "0.0", "", "False", "0.2", "False"],
              ["mp-9", "HeNe", "0.0", "", "False", "9", "True"], ["mp-10", "Nb3Ga", "0.0", "", "True", "0", "False"],
@@ -303,6 +303,25 @@ def run_toy_rank(ranked_toy, dataset, monkeypatch, order):
     out.mkdir(exist_ok=True)
     summary = R.run_rank("toy", pool, top=20, out_dir=out, per_system=2, order=order)
     return summary, out
+
+
+def test_made_metals_list_is_ordered_by_chance_not_by_expected_tc(ranked_toy, dataset, monkeypatch):
+    """A made metal that is likely to superconduct, but only at a low Tc, leads the made-metals list."""
+    real = R.ensemble_predict
+
+    def rigged(ds, name, compositions, cache=None):
+        scored = real(ds, name, compositions, cache=cache)
+        chance = {frozenset({"Ga", "Nb"}): (0.6, 40.0), frozenset({"N", "Nb"}): (0.9, 2.0)}   # 24 K and 1.8 K
+        p, tc = zip(*[chance.get(frozenset(c), (0.5, 20.0)) for c in compositions])
+        return {**scored, "boosting": (np.array(p), np.array(tc))}
+
+    monkeypatch.setattr(R, "ensemble_predict", rigged)
+    _, out = run_toy_rank(ranked_toy, dataset, monkeypatch, "boosting")
+    made = D.read_table(out / "scratchnet-candidates-boosting-top-made-metals.csv")
+    assert [row["formula"] for row in made][:2] == ["NbN", "Nb3Ga"]
+    assert int(made[0]["rank"]) > int(made[1]["rank"])               # last of the two by chance x Tc, first by chance
+    chance = [float(row["p_superconductor"]) for row in made]
+    assert chance == sorted(chance, reverse=True)
 
 
 def test_chemistry_class_marks_the_two_unconventional_families():
@@ -330,8 +349,9 @@ def test_rank_defaults_to_boosting_when_no_order_is_given(ranked_toy, dataset, m
                                       "--out-dir", str(out), "--top", "20"])
     assert R.main() == 0
     assert sorted(path.name for path in out.iterdir()) == [
-        "scratchnet-candidates-boosting-top-metals.csv", "scratchnet-candidates-boosting-top-not-cuprates.csv",
-        "scratchnet-candidates-boosting-top.csv", "scratchnet-candidates-boosting.json"]
+        "scratchnet-candidates-boosting-top-made-metals.csv", "scratchnet-candidates-boosting-top-metals.csv",
+        "scratchnet-candidates-boosting-top-not-cuprates.csv", "scratchnet-candidates-boosting-top.csv",
+        "scratchnet-candidates-boosting.json"]
     top = D.read_table(out / "scratchnet-candidates-boosting-top.csv")
     assert {row["ranked_by"] for row in top} == {"boosting"} and all(row["rank"] == row["boosting_rank"] for row in top)
     summary = json.loads((out / "scratchnet-candidates-boosting.json").read_text())
@@ -345,8 +365,9 @@ def test_rank_defaults_to_boosting_when_no_order_is_given(ranked_toy, dataset, m
 def test_rank_orders_by_boosting_with_the_network_as_a_second_opinion(ranked_toy, dataset, monkeypatch):
     summary, out = run_toy_rank(ranked_toy, dataset, monkeypatch, "boosting")
     assert sorted(path.name for path in out.iterdir()) == [
-        "scratchnet-candidates-boosting-top-metals.csv", "scratchnet-candidates-boosting-top-not-cuprates.csv",
-        "scratchnet-candidates-boosting-top.csv", "scratchnet-candidates-boosting.json"]
+        "scratchnet-candidates-boosting-top-made-metals.csv", "scratchnet-candidates-boosting-top-metals.csv",
+        "scratchnet-candidates-boosting-top-not-cuprates.csv", "scratchnet-candidates-boosting-top.csv",
+        "scratchnet-candidates-boosting.json"]
     full = D.read_table(ranked_toy[0] / "work" / "toy-candidates-boosting.csv.gz")
     # One row per composition, known materials and unreadable elements left out.
     formulas = [row["formula"] for row in full]
@@ -370,6 +391,19 @@ def test_rank_orders_by_boosting_with_the_network_as_a_second_opinion(ranked_toy
     assert sum(row["element_system"] == "Al-Nb" for row in top) == 2 and len(top) == 10
     metals = D.read_table(out / "scratchnet-candidates-boosting-top-metals.csv")
     assert metals and all(row["is_metal"] == "True" for row in metals)
+    # The made-metals list: already made, calculated metals, no copper, ordered by the chance of superconducting.
+    made = D.read_table(out / "scratchnet-candidates-boosting-top-made-metals.csv")
+    assert made and all(R.made_metal(row) for row in made)
+    assert "V3Ge" in [row["formula"] for row in metals] and "V3Ge" not in [row["formula"] for row in made]  # only calculated
+    assert "CuF2" not in [row["formula"] for row in made]
+    chance = [float(row["p_superconductor"]) for row in made]
+    assert chance == sorted(chance, reverse=True)
+    assert max(sum(row["element_system"] == system for row in made) for system in {r["element_system"] for r in made}) <= 2
+    listed = summary["made_metals_list"]
+    assert listed["rows"] == len(made) and listed["ordered_by"] == "p_superconductor"
+    assert listed["eligible_compositions"] == sum(R.made_metal(row) for row in full) >= len(made)
+    assert listed["also_in_metals_list"] == len({row["mp_id"] for row in made} & {row["mp_id"] for row in metals})
+    assert listed["lowest_p_superconductor"] == float(made[-1]["p_superconductor"])
     assert summary["ranked_by"] == "boosting" and summary["network_members"] == 2 and summary["boosting_members"] == 2
     assert summary["untested_scored"] == 12 and summary["distinct_compositions_scored"] == 13
     # Every count in the summary can be recomputed from the list it describes.
@@ -377,6 +411,7 @@ def test_rank_orders_by_boosting_with_the_network_as_a_second_opinion(ranked_toy
         return {view: sum(row["network_view"] == view for row in rows) for view in ("agrees", "lukewarm", "rejects")}
 
     assert summary["top_network_view"] == views(top) and summary["metals_list"]["network_view"] == views(metals)
+    assert listed["network_view"] == views(made)
     assert sum(views(top).values()) == len(top) and sum(views(metals).values()) == len(metals)
     by_distance = summary["top_network_view_by_distance"]
     assert set(by_distance) == {"near", "middle", "far"}
@@ -404,8 +439,8 @@ def test_rank_by_the_mix_keeps_the_original_file_names_and_differs_from_boosting
     run_toy_rank(ranked_toy, dataset, monkeypatch, "boosting")                        # so this test stands alone
     _, out = run_toy_rank(ranked_toy, dataset, monkeypatch, "mix")
     assert sorted(path.name for path in out.iterdir()) == [
-        "scratchnet-candidates-top-metals.csv", "scratchnet-candidates-top-not-cuprates.csv",
-        "scratchnet-candidates-top.csv", "scratchnet-candidates.json"]
+        "scratchnet-candidates-top-made-metals.csv", "scratchnet-candidates-top-metals.csv",
+        "scratchnet-candidates-top-not-cuprates.csv", "scratchnet-candidates-top.csv", "scratchnet-candidates.json"]
     full = D.read_table(ranked_toy[0] / "work" / "toy-candidates-mix.csv.gz")
     assert {row["ranked_by"] for row in full} == {"mix"}
     assert any(row["p_superconductor"] != row["boosting_p"] for row in full)          # the mix is not boosting

@@ -1,0 +1,140 @@
+{
+ "cases_file": "made-metals.csv",
+ "rows": 160,
+ "groups": {
+  "bottom": {
+   "rows": 40,
+   "verdicts": {
+    "superconductor_ambient": 0,
+    "superconductor_only_pressure_doping_or_film": 0,
+    "measured_no_superconductivity": 0,
+    "magnetic_or_insulating_no_superconductivity": 19,
+    "no_low_temperature_data_found": 21
+   },
+   "with_low_temperature_data": 19,
+   "superconductor_of_all": {
+    "hits": 0,
+    "of": 40,
+    "share": 0.0,
+    "low": 0.0,
+    "high": 0.0876
+   },
+   "superconductor_of_measured": {
+    "hits": 0,
+    "of": 19,
+    "share": 0.0,
+    "low": 0.0,
+    "high": 0.1682
+   },
+   "superconducts_somehow_of_all": {
+    "hits": 0,
+    "of": 40,
+    "share": 0.0,
+    "low": 0.0,
+    "high": 0.0876
+   }
+  },
+  "random": {
+   "rows": 60,
+   "verdicts": {
+    "superconductor_ambient": 0,
+    "superconductor_only_pressure_doping_or_film": 2,
+    "measured_no_superconductivity": 4,
+    "magnetic_or_insulating_no_superconductivity": 12,
+    "no_low_temperature_data_found": 42
+   },
+   "with_low_temperature_data": 18,
+   "superconductor_of_all": {
+    "hits": 0,
+    "of": 60,
+    "share": 0.0,
+    "low": 0.0,
+    "high": 0.0602
+   },
+   "superconductor_of_measured": {
+    "hits": 0,
+    "of": 18,
+    "share": 0.0,
+    "low": 0.0,
+    "high": 0.1759
+   },
+   "superconducts_somehow_of_all": {
+    "hits": 2,
+    "of": 60,
+    "share": 0.0333,
+    "low": 0.0092,
+    "high": 0.1136
+   }
+  },
+  "top": {
+   "rows": 60,
+   "verdicts": {
+    "superconductor_ambient": 1,
+    "superconductor_only_pressure_doping_or_film": 2,
+    "measured_no_superconductivity": 5,
+    "magnetic_or_insulating_no_superconductivity": 5,
+    "no_low_temperature_data_found": 47
+   },
+   "with_low_temperature_data": 13,
+   "superconductor_of_all": {
+    "hits": 1,
+    "of": 60,
+    "share": 0.0167,
+    "low": 0.0029,
+    "high": 0.0886
+   },
+   "superconductor_of_measured": {
+    "hits": 1,
+    "of": 13,
+    "share": 0.0769,
+    "low": 0.0137,
+    "high": 0.3331
+   },
+   "superconducts_somehow_of_all": {
+    "hits": 3,
+    "of": 60,
+    "share": 0.05,
+    "low": 0.0171,
+    "high": 0.137
+   }
+  }
+ },
+ "comparisons": [
+  {
+   "first": "top",
+   "second": "random",
+   "superconductor_of_all": {
+    "difference": 0.0167,
+    "fisher_two_sided_p": 1.0
+   },
+   "superconductor_of_measured": {
+    "difference": 0.0769,
+    "fisher_two_sided_p": 0.4194
+   }
+  },
+  {
+   "first": "top",
+   "second": "bottom",
+   "superconductor_of_all": {
+    "difference": 0.0167,
+    "fisher_two_sided_p": 1.0
+   },
+   "superconductor_of_measured": {
+    "difference": 0.0769,
+    "fisher_two_sided_p": 0.4062
+   }
+  },
+  {
+   "first": "random",
+   "second": "bottom",
+   "superconductor_of_all": {
+    "difference": 0.0,
+    "fisher_two_sided_p": 1.0
+   },
+   "superconductor_of_measured": {
+    "difference": 0.0,
+    "fisher_two_sided_p": 1.0
+   }
+  }
+ ]
+}
