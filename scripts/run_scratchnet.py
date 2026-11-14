@@ -13,6 +13,8 @@
 
 ``rank``  Score the Materials Project candidates with the final ensemble.
 
+``rescore`` Recompute a cv report's scores from its saved predictions (no training).
+
 Results go to ``docs/scratchnet-<name>.json``; out-of-fold predictions and
 model files go under ``data/processed/scratchnet/`` and are not committed.
 """
@@ -21,6 +23,7 @@ from __future__ import annotations
 import argparse
 import csv
 import gzip
+import hashlib
 import json
 import multiprocessing
 import time
@@ -168,6 +171,43 @@ def rounded(value, digits: int = 4):
     return value
 
 
+def scored_parts(ds: C.Dataset, dev: np.ndarray, distance: np.ndarray, predictions: dict, variants: list[str],
+                 folds: list[int]) -> dict:
+    """Every score in a cv report that depends only on the saved out-of-fold predictions."""
+    fold_auc = {}
+    for model, (p, _) in predictions.items():
+        fold_auc[model] = [T.roc_auc(ds.arrays.label[dev][m], p[m]) for m in
+                           ((ds.fold[dev] == fold) & np.isfinite(ds.arrays.label[dev]) for fold in folds)]
+    not_cuprate = ds.family[dev] != "Cuprates"
+    differences = {}
+    for variant in variants:
+        for first in (f"network {variant}", f"blend {variant} + boosting"):
+            differences[f"{first} minus boosting"] = {
+                "all": C.paired_differences(ds, dev, predictions[first], predictions["boosting"]),
+                "not cuprates": C.paired_differences(ds, dev, predictions[first], predictions["boosting"], not_cuprate)}
+    return {"scores": C.score_table(ds, dev, distance, predictions), "auc_by_fold": fold_auc,
+            "differences": differences}
+
+
+def run_rescore(name: str, out_dir: Path) -> dict:
+    """Recompute a cv report's scores from its saved out-of-fold predictions, without retraining anything."""
+    path = out_dir / f"scratchnet-{name}.json"
+    report = json.loads(path.read_text(encoding="utf-8"))
+    ds = C.load_dataset()
+    if report["data_sha256"] != ds.sha256:
+        raise SystemExit(f"{path} was computed on a different composition table")
+    with np.load(C.WORK / f"{name}-oof.npz") as saved:
+        dev, distance = saved["rows"], saved["distance"]
+        predictions = {key[3:]: (saved[key], saved["tc::" + key[3:]]) for key in saved.files if key.startswith("p::")}
+    variants = list(report["variants"])
+    report.update(rounded(scored_parts(ds, dev, distance, predictions, variants, report["folds"])))
+    if "selection" in report:
+        report["selection"] = rounded({**choose(ds, dev, predictions, variants), "boosting": report["selection"]["boosting"]})
+    path.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
+    print(f"rewrote the scores in {path}")
+    return report
+
+
 def run_cv(name: str, variants: list[str], seeds: list[int], jobs: int, out_dir: Path, tune: bool = False) -> dict:
     started = time.time()
     ds = prepare(variants)
@@ -216,18 +256,8 @@ def run_cv(name: str, variants: list[str], seeds: list[int], jobs: int, out_dir:
                                              C.log_mean_tc([tc for _, tc in per_seed]))
         predictions[f"blend {variant} + boosting"] = C.blend(predictions[f"network {variant}"], predictions["boosting"])
 
-    scores = C.score_table(ds, dev, distance, predictions)
-    fold_auc = {}
-    for model, (p, _) in predictions.items():
-        fold_auc[model] = [T.roc_auc(ds.arrays.label[dev][m], p[m]) for m in
-                           ((ds.fold[dev] == fold) & np.isfinite(ds.arrays.label[dev]) for fold in folds)]
-    not_cuprate = ds.family[dev] != "Cuprates"
-    differences = {}
-    for variant in variants:
-        for first in (f"network {variant}", f"blend {variant} + boosting"):
-            differences[f"{first} minus boosting"] = {
-                "all": C.paired_differences(ds, dev, predictions[first], predictions["boosting"]),
-                "not cuprates": C.paired_differences(ds, dev, predictions[first], predictions["boosting"], not_cuprate)}
+    parts = scored_parts(ds, dev, distance, predictions, variants, folds)
+    scores, fold_auc, differences = parts["scores"], parts["auc_by_fold"], parts["differences"]
     C.WORK.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(C.WORK / f"{name}-oof.npz", rows=dev, distance=distance,
                         **{f"p::{model}": p for model, (p, _) in predictions.items()},
@@ -286,15 +316,29 @@ def _final_task(task: tuple[str, int, int]) -> dict:
 
 
 def run_final(name: str, variants: list[str], seeds: list[int], jobs: int, blend_weight: float, rehearse: bool,
-              out_dir: Path, boosting: dict | None = None) -> dict:
+              out_dir: Path, boosting: dict | None = None, selection_sha256: str | None = None) -> dict:
     import joblib
 
     boosting = boosting or {"classifier": C.BOOSTING_DEFAULT, "regressor": C.BOOSTING_DEFAULT}
 
-    report_path = out_dir / ("scratchnet-rehearsal.json" if rehearse else LOCKBOX_REPORT.name)
-    if not rehearse and LOCKBOX_REPORT.exists():
-        raise SystemExit(f"{LOCKBOX_REPORT} exists: the locked test set has already been used once.\n"
-                         "Scoring it again after seeing that result would make it an ordinary validation set.")
+    table_sha = hashlib.sha256(C.DATA.read_bytes()).hexdigest()
+    if selection_sha256 != table_sha:
+        raise SystemExit(f"the selection was made on composition table {selection_sha256}, but the table on disk is "
+                         f"{table_sha}: development and locked rows may have changed places since the choice was made")
+    if rehearse:
+        report_path = out_dir / "scratchnet-rehearsal.json"
+    else:
+        # The real report always goes to one fixed place, whatever --out-dir says, and that place is claimed
+        # before anything is trained. A second run, a parallel run or a run after a crash is then refused.
+        report_path = LOCKBOX_REPORT
+        try:
+            with open(LOCKBOX_REPORT, "x", encoding="utf-8") as handle:
+                handle.write(json.dumps({"status": "started", "name": name, "data_sha256": table_sha}) + "\n")
+        except FileExistsError:
+            raise SystemExit(f"{LOCKBOX_REPORT} exists: the locked test set has already been used, or a run on it "
+                             "was started.\nScoring it again after seeing a result would make it an ordinary "
+                             "validation set. If a run crashed before printing any score, delete the file by hand "
+                             "and say so in docs/scratchnet.md.") from None
     started = time.time()
     ds = prepare(variants)
     model_dir = C.WORK / "models" / (name + ("-rehearsal" if rehearse else ""))
@@ -330,7 +374,7 @@ def run_final(name: str, variants: list[str], seeds: list[int], jobs: int, blend
 
     not_cuprate = ds.family[test] != "Cuprates"
     report = {
-        "name": name, "rehearsal": rehearse, "data_sha256": ds.sha256,
+        "status": "finished", "name": name, "rehearsal": rehearse, "data_sha256": ds.sha256,
         "test_set": "development fold 0 (rehearsal)" if rehearse else "locked test set, scored once",
         "test_rows": int(len(test)), "test_groups": int(len(set(ds.arrays.group[test].tolist()))),
         "training_rows": int(len(train_all)), "validation_folds": folds, "seeds": seeds,
@@ -365,7 +409,20 @@ def run_final(name: str, variants: list[str], seeds: list[int], jobs: int, blend
     return report
 
 
-def run_rank(name: str, candidates: Path, top: int, out_dir: Path) -> dict:
+def capped(ranked: list[dict], top: int, per_system: int) -> list[dict]:
+    """The first ``top`` rows, taking at most ``per_system`` from any one set of elements."""
+    taken: dict[str, int] = {}
+    out = []
+    for row in ranked:
+        if taken.get(row["element_system"], 0) < per_system:
+            taken[row["element_system"]] = taken.get(row["element_system"], 0) + 1
+            out.append(row)
+            if len(out) == top:
+                break
+    return out
+
+
+def run_rank(name: str, candidates: Path, top: int, out_dir: Path, per_system: int = 3) -> dict:
     import joblib
 
     ds = C.load_dataset()
@@ -375,7 +432,11 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path) -> dict:
         raise SystemExit("the saved models were trained on a different composition table")
     with gzip.open(candidates, "rt", encoding="utf-8", newline="") as handle:
         pool = list(csv.DictReader(handle))
-    usable, compositions, skipped = [], [], 0
+    # One row per composition: structures that share a formula get identical scores from a model that only
+    # sees the formula, so keep the lowest-energy structure and count the rest.
+    best: dict[str, tuple[float, dict, dict[str, float]]] = {}
+    structures: dict[str, int] = {}
+    skipped = 0
     known_elements = set(ds.table.symbols)
     for row in pool:
         try:
@@ -386,64 +447,86 @@ def run_rank(name: str, candidates: Path, top: int, out_dir: Path) -> dict:
         if not set(fractions) <= known_elements or len(fractions) > C.MAX_ELEMENTS:
             skipped += 1
             continue
-        usable.append(row)
-        compositions.append(fractions)
+        key = C.formula_text(fractions)
+        try:
+            hull = float(row["energy_above_hull_ev_per_atom"])
+        except ValueError:
+            hull = float("inf")
+        structures[key] = structures.get(key, 0) + 1
+        if key not in best or hull < best[key][0] or (row.get("known_match", "") and not best[key][1].get("known_match", "")):
+            best[key] = (hull, row, fractions)
+    usable = [best[key][1] for key in sorted(best)]
+    compositions = [best[key][2] for key in sorted(best)]
+    structure_count = [structures[key] for key in sorted(best)]
     index, fraction, mask = C.encode(compositions, ds.table, C.MAX_ELEMENTS)
     blank = np.full(len(usable), np.nan)
     arrays = T.Arrays(index, fraction, mask, blank, blank, np.array([""] * len(usable)))
     variant = ensemble["variants"][0]
     X, _ = C.formula_features([C.formula_text(c) for c in compositions], cache=C.WORK / "candidate-features.npz")
     members = []
-    for path in sorted(model_dir.glob(f"network-{variant}-fold*-seed*.npz")):
+    for path in [model_dir / f"network-{variant}-fold{fold}-seed{seed}.npz"
+                 for seed in ensemble["seeds"] for fold in ensemble["folds"]]:      # exactly the recorded members
         model, scale, scaler = C.load_network(path, ds.table)
         members.append(T.predict(model, C.with_extra(arrays, X, scaler) if scaler else arrays, scale))
     network = (np.mean([p for p, _ in members], axis=0), C.log_mean_tc([tc for _, tc in members]))
     spread = np.std([p for p, _ in members], axis=0)
-    boosted = [C.boosting_apply(joblib.load(path), X) for path in sorted(model_dir.glob("boosting-fold*.joblib"))]
+    boosted = [C.boosting_apply(joblib.load(model_dir / f"boosting-fold{fold}.joblib"), X) for fold in ensemble["folds"]]
     boosting = (np.mean([p for p, _ in boosted], axis=0), C.log_mean_tc([tc for _, tc in boosted]))
     blended = C.blend(network, boosting, ensemble["blend_weight"])
     dense = C.dense_fractions(compositions, ds.table)
     labelled = np.flatnonzero(np.isfinite(ds.arrays.label))
-    distance, nearest = C.nearest_distance(ds.dense[labelled], dense)
+    _, nearest = C.nearest_distance(ds.dense[labelled], dense)      # nearest known material, wherever it sits
     nearest = labelled[nearest]
+    trained_on = np.flatnonzero((ds.split != "lockbox") & np.isfinite(ds.arrays.label))
+    distance, _ = C.nearest_distance(ds.dense[trained_on], dense)   # distance to what the models actually saw
     expected = blended[0] * blended[1]
     families = np.array([C.family_of(set(c)) for c in compositions])
     untested = np.array([row.get("known_match", "") == "" for row in usable])
     order = [i for i in np.argsort(-expected, kind="mergesort") if untested[i]]
-    fields = ["rank", "mp_id", "formula", "family", "expected_tc_k", "p_superconductor", "tc_if_superconductor_k",
+    net_expected, boost_expected = network[0] * network[1], boosting[0] * boosting[1]
+    net_rank = {int(i): r for r, i in enumerate([i for i in np.argsort(-net_expected, kind="mergesort") if untested[i]], 1)}
+    boost_rank = {int(i): r for r, i in enumerate([i for i in np.argsort(-boost_expected, kind="mergesort") if untested[i]], 1)}
+    fields = ["rank", "mp_id", "formula", "family", "element_system", "network_rank", "boosting_rank", "expected_tc_k", "p_superconductor", "tc_if_superconductor_k",
               "network_p", "network_tc_k", "boosting_p", "boosting_tc_k", "network_disagreement",
-              "distance_to_nearest_known", "nearest_known", "nearest_known_tc_k", "is_metal", "band_gap_ev",
-              "energy_above_hull_ev_per_atom", "theoretical"]
+              "distance_to_nearest_training", "nearest_known", "nearest_known_tc_k", "is_metal", "band_gap_ev",
+              "energy_above_hull_ev_per_atom", "theoretical", "structures_with_this_formula"]
 
     def record(rank: int, i: int) -> dict:
         row, twin = usable[i], ds.rows[nearest[i]]
         return {"rank": rank, "mp_id": row["mp_id"], "formula": row["formula"], "family": families[i],
+                "element_system": "-".join(sorted(compositions[i])), "network_rank": net_rank[int(i)],
+                "boosting_rank": boost_rank[int(i)],
                 "expected_tc_k": round(float(expected[i]), 2), "p_superconductor": round(float(blended[0][i]), 3),
                 "tc_if_superconductor_k": round(float(blended[1][i]), 2), "network_p": round(float(network[0][i]), 3),
                 "network_tc_k": round(float(network[1][i]), 2), "boosting_p": round(float(boosting[0][i]), 3),
                 "boosting_tc_k": round(float(boosting[1][i]), 2), "network_disagreement": round(float(spread[i]), 3),
-                "distance_to_nearest_known": round(float(distance[i]), 3), "nearest_known": twin["composition"],
+                "distance_to_nearest_training": round(float(distance[i]), 3), "nearest_known": twin["composition"],
                 "nearest_known_tc_k": twin["tc_k"] if twin["label"] == "1" else "0",
                 "is_metal": row.get("is_metal", ""), "band_gap_ev": row.get("band_gap_ev", ""),
                 "energy_above_hull_ev_per_atom": row.get("energy_above_hull_ev_per_atom", ""),
-                "theoretical": row.get("theoretical", "")}
+                "theoretical": row.get("theoretical", ""), "structures_with_this_formula": structure_count[i]}
 
     ranked = [record(rank, i) for rank, i in enumerate(order, start=1)]
     C.write_table(C.WORK / f"{name}-candidates.csv.gz", ranked, fields)
-    C.write_table(out_dir / "scratchnet-candidates-top.csv", ranked[:top], fields)
-    far_first = [r for r in ranked if r["family"] != "Cuprates"][:top]
-    C.write_table(out_dir / "scratchnet-candidates-top-not-cuprates.csv", far_first, fields)
-    head = ranked[:top]
+    head = capped(ranked, top, per_system)
+    C.write_table(out_dir / "scratchnet-candidates-top.csv", head, fields)
+    C.write_table(out_dir / "scratchnet-candidates-top-not-cuprates.csv",
+                  capped([r for r in ranked if r["family"] != "Cuprates"], top, per_system), fields)
     agree = float(C.T.spearman(network[0][untested] * network[1][untested], boosting[0][untested] * boosting[1][untested]))
     summary = {
-        "name": name, "candidates_in_pool": len(pool), "scored": len(usable), "skipped_unreadable_or_unknown_element": skipped,
+        "name": name, "structures_in_pool": len(pool), "distinct_compositions_scored": len(usable),
+        "structures_skipped_unreadable_or_unknown_element": skipped,
         "untested_scored": int(untested.sum()), "network_members": len(members), "boosting_members": len(boosted),
         "network_vs_boosting_rank_agreement": agree,
-        "top": top, "top_families": dict(sorted({f: sum(r["family"] == f for r in head) for f in set(families)}.items())),
-        "top_median_distance_to_nearest_known": float(np.median([r["distance_to_nearest_known"] for r in head])),
-        "top_within_0.1_of_a_known_composition": sum(r["distance_to_nearest_known"] < 0.1 for r in head),
-        "top_beyond_0.3_of_any_known_composition": sum(r["distance_to_nearest_known"] >= 0.3 for r in head),
-        "pool_median_distance_to_nearest_known": float(np.median(distance[untested])),
+        "top": top, "at_most_per_element_system": per_system,
+        "top_not_metals_by_dft": sum(r["is_metal"] == "False" for r in head),
+        "top_also_in_network_top_1000": sum(r["network_rank"] <= 1000 for r in head),
+        "top_also_in_boosting_top_1000": sum(r["boosting_rank"] <= 1000 for r in head),
+        "top_families": dict(sorted({f: sum(r["family"] == f for r in head) for f in set(families)}.items())),
+        "top_median_distance_to_nearest_training": float(np.median([r["distance_to_nearest_training"] for r in head])),
+        "top_within_0.1_of_a_training_composition": sum(r["distance_to_nearest_training"] < 0.1 for r in head),
+        "top_beyond_0.3_of_any_training_composition": sum(r["distance_to_nearest_training"] >= 0.3 for r in head),
+        "pool_median_distance_to_nearest_training": float(np.median(distance[untested])),
         "pool_share_beyond_0.3": float(np.mean(distance[untested] >= 0.3)),
         "highest_expected_tc_k": head[0]["expected_tc_k"] if head else None,
     }
@@ -489,16 +572,25 @@ def main() -> int:
     rank.add_argument("--name", required=True, help="name used for the final run")
     rank.add_argument("--candidates", type=Path, default=CANDIDATES)
     rank.add_argument("--top", type=int, default=200)
+    rank.add_argument("--per-system", type=int, default=3, help="most rows kept from one set of elements")
     rank.add_argument("--out-dir", type=Path, default=ROOT / "docs")
+    rescore = sub.add_parser("rescore", help="recompute a cv report's scores from its saved predictions")
+    rescore.add_argument("--name", required=True)
+    rescore.add_argument("--out-dir", type=Path, default=ROOT / "docs")
     args = parser.parse_args()
+    if args.command == "rescore":
+        print_summary(run_rescore(args.name, args.out_dir))
+        return 0
     if args.command == "rank":
-        run_rank(args.name, args.candidates, args.top, args.out_dir)
+        run_rank(args.name, args.candidates, args.top, args.out_dir, args.per_system)
         return 0
     seeds = [int(s) for s in args.seeds.split(",")]
     if args.command == "final":
-        selection = json.loads(args.selection.read_text(encoding="utf-8"))["selection"]
+        chosen = json.loads(args.selection.read_text(encoding="utf-8"))
+        selection = chosen["selection"]
         report = run_final(args.name, [selection["variant"]], seeds, args.jobs, float(selection["blend_weight"]),
-                           args.rehearse, args.out_dir, boosting=selection["boosting"])
+                           args.rehearse, args.out_dir, boosting=selection["boosting"],
+                           selection_sha256=chosen["data_sha256"])
     else:
         variants = args.variants.split(",")
         unknown = [v for v in variants if v not in VARIANTS]

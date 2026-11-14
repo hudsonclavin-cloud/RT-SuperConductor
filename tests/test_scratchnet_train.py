@@ -166,7 +166,7 @@ def test_auxiliary_targets_are_learned_and_do_not_count_toward_early_stopping():
     assert np.corrcoef(model.aux[:, 0], aux[240:, 0])[0, 1] > 0.9      # it learned the auxiliary target
     assert result["history"][-1]["train_loss"] < 0.3 * result["history"][0]["train_loss"]
     losses = T.evaluate_loss(model, unlabelled.take(np.arange(240)), scale, settings)
-    assert losses == {"total": 0.0, "class": 0.0, "tc": 0.0}            # nothing here for early stopping to see
+    assert losses == {"total": 0.0, "class": 0.0, "tc": 0.0}            # auxiliary targets never drive early stopping
 
 
 def test_weight_averaging_returns_the_average_not_the_last_step():
@@ -190,3 +190,23 @@ def test_class_output_can_start_at_the_training_base_rate():
     fit_rows, _ = T.inner_split(data.group, 12, 0)
     rate = data.label[fit_rows].mean()
     assert model.layers["head_class"].params["b"][0] == pytest.approx(np.log(rate / (1 - rate)), abs=1e-4)
+
+
+def test_top_decile_recall_does_not_depend_on_row_order_when_superconductors_are_rare():
+    label = np.array([1.0] * 3 + [0.0] * 97)
+    tc = np.array([50.0, 20.0, 5.0] + [np.nan] * 97)
+    probability = np.linspace(1.0, 0.0, 100)                    # the three superconductors are ranked first
+    tc_pred = np.full(100, 10.0)
+    forward = T.score(label, tc, probability, tc_pred)["top_decile_recall"]
+    order = np.arange(100)[::-1]                                # the same rows, listed backwards
+    backward = T.score(label[order], tc[order], probability[order], tc_pred[order])["top_decile_recall"]
+    assert forward == backward == 1.0                           # all three true positives are in the model's top ten
+    missed = T.score(label, tc, probability[::-1].copy(), tc_pred)["top_decile_recall"]
+    assert missed == 0.0
+
+
+def test_fit_refuses_validation_rows_without_any_label():
+    data, features, config = toy(n=60)
+    blank = T.Arrays(data.index, data.fraction, data.mask, np.full(60, np.nan), np.full(60, np.nan), data.group)
+    with pytest.raises(ValueError, match="early stopping"):
+        T.fit(CompositionNet(config, features, seed=0), data, T.TrainConfig(epochs=1), valid=blank)

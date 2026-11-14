@@ -296,6 +296,12 @@ def network_fit_predict(ds: Dataset, fit_rows: np.ndarray, valid_rows: np.ndarra
     model = CompositionNet(model_config, ds.table.features, seed=train_config.seed)
     info = T.fit(model, fit_data, train_config, valid=rows(valid_rows), scale=scale)
     info.pop("history")
+    if model_config.use_embedding:
+        # An element with no training row still holds its random starting vector. Give it no learned
+        # offset instead, so such a material is judged on its physical properties alone.
+        untrained = np.setdiff1d(np.arange(1, model_config.n_elements + 1), np.unique(fit_data.index))
+        model.layers["embedding"].params["E"][untrained] = 0.0
+        info["elements_never_trained"] = [ds.table.symbols[i - 1] for i in untrained]
     info["parameters"] = model.parameter_count()
     if save is not None:
         extra = {"tc_scale": info["tc_scale"], "symbols": ds.table.symbols,

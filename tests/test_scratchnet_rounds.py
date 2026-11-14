@@ -86,12 +86,35 @@ def test_final_rows_test_on_the_lockbox_and_rehearsals_never_see_it(dataset):
     assert set(dataset.fold[test]) == {0} and 0 not in set(dataset.fold[fit]) | set(dataset.fold[valid])
 
 
-def test_final_refuses_to_score_the_locked_test_set_twice(tmp_path, monkeypatch):
-    used = tmp_path / "scratchnet-lockbox.json"
-    used.write_text("{}")
-    monkeypatch.setattr(R, "LOCKBOX_REPORT", used)
+def test_final_claims_the_locked_test_set_before_training_and_refuses_a_second_run(tmp_path, monkeypatch, dataset):
+    table = tmp_path / "compositions.csv.gz"
+    D.write_table(table, dataset.rows, build.COMPOSITION_FIELDS)
+    sha = hashlib.sha256(table.read_bytes()).hexdigest()
+    marker = tmp_path / "docs" / "scratchnet-lockbox.json"
+    marker.parent.mkdir()
+    monkeypatch.setattr(C, "DATA", table)
+    monkeypatch.setattr(R, "LOCKBOX_REPORT", marker)
+
+    def crash(variants):
+        raise RuntimeError("training crashed")
+
+    monkeypatch.setattr(R, "prepare", crash)
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    # A selection made on a different table is refused before the locked set is claimed.
+    with pytest.raises(SystemExit, match="changed places"):
+        R.run_final("x", ["tuned"], [0], 1, 0.5, False, elsewhere, selection_sha256="0" * 64)
+    assert not marker.exists()
+    # A rehearsal never claims it.
+    with pytest.raises(RuntimeError):
+        R.run_final("x", ["tuned"], [0], 1, 0.5, True, elsewhere, selection_sha256=sha)
+    assert not marker.exists()
+    # A real run claims the fixed path first, even with another output folder and even if it then crashes.
+    with pytest.raises(RuntimeError):
+        R.run_final("x", ["tuned"], [0], 1, 0.5, False, elsewhere, selection_sha256=sha)
+    assert json.loads(marker.read_text())["status"] == "started" and not list(elsewhere.iterdir())
     with pytest.raises(SystemExit, match="already been used"):
-        R.run_final("again", ["tuned"], [0], 1, 0.5, False, tmp_path)
+        R.run_final("again", ["tuned"], [0], 1, 0.5, False, elsewhere, selection_sha256=sha)
 
 
 def test_formula_text_and_blend():
@@ -209,3 +232,15 @@ def test_one_network_trains_and_predicts_through_the_runner_path(dataset, tmp_pa
     model, scale, scaler = C.load_network(tmp_path / "member.npz", dataset.table)
     again = C.T.predict(model, C.with_extra(dataset.arrays.take(test), X[test], scaler), scale)
     np.testing.assert_allclose(again[0], prediction[0], rtol=1e-5)
+    # Elements with no training row are left with no learned vector, instead of their random starting one.
+    table = model.layers["embedding"].params["E"]
+    trained = np.unique(dataset.arrays.index[fit])
+    assert "Xe" in info["elements_never_trained"] and not table[dataset.table.index["Xe"]].any()
+    assert all(table[i].any() for i in trained if i > 0)
+
+
+def test_capped_keeps_the_order_and_limits_each_element_system():
+    ranked = [{"rank": i, "element_system": system} for i, system in enumerate("AAAABBCAD", start=1)]
+    kept = R.capped(ranked, top=5, per_system=2)
+    assert [row["rank"] for row in kept] == [1, 2, 5, 6, 7]
+    assert len(R.capped(ranked, top=50, per_system=1)) == 4

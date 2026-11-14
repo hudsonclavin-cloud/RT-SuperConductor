@@ -187,6 +187,8 @@ def fit(model: CompositionNet, train: Arrays, config: TrainConfig, valid: Arrays
         fit_data, valid_data = train.take(fit_rows), train.take(valid_rows)
     else:
         fit_data, valid_data = train, valid
+    if not np.isfinite(valid_data.label).any():
+        raise ValueError("the validation rows carry no class label, so early stopping has nothing to watch")
     scale = scale or TcScale.fit(fit_data.tc_k[fit_data.label == 1])
     if config.init_class_bias:
         rate = float(np.clip(np.nanmean(fit_data.label), 1e-3, 1 - 1e-3))
@@ -300,13 +302,16 @@ def score(label: np.ndarray, tc_k: np.ndarray, probability: np.ndarray, tc_pred:
         # Ranking everything by probability x Tc against the true Tc (0 for non-superconductors):
         "expected_tc_spearman": spearman(expected[labelled], truth_all[labelled]) if labelled.any() else float("nan"),
     }
-    if labelled.sum() >= 20:
-        # Of the true top tenth by Tc, the share found in the model's top tenth by expected Tc.
+    if labelled.sum() >= 20 and sc.any():
+        # Of the true top tenth by Tc, the share found in the model's top tenth by expected Tc. When fewer
+        # than a tenth of the rows superconduct, "the true top" is all of them: rows tied at Tc = 0 are
+        # never counted as top, so the answer does not depend on the order of the rows.
         k = max(1, int(round(0.1 * labelled.sum())))
         truth, guess = truth_all[labelled], expected[labelled]
-        top_true = set(np.argsort(-truth, kind="mergesort")[:k])
-        top_guess = set(np.argsort(-guess, kind="mergesort")[:k])
-        out["top_decile_recall"] = len(top_true & top_guess) / k
+        k_true = min(k, int((truth > 0).sum()))
+        top_true = set(np.argsort(-truth, kind="mergesort")[:k_true].tolist())
+        top_guess = set(np.argsort(-guess, kind="mergesort")[:k].tolist())
+        out["top_decile_recall"] = len(top_true & top_guess) / max(k_true, 1)
     return out
 
 
