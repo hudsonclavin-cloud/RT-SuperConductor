@@ -106,3 +106,9 @@ Steps 1–3 run in parallel this week.
   cloud machine cannot reach, so the one-line filter is left for a run on a
   normal network.
 
+- **Task A, update (14 November 2026, later):** a blinded check of 80
+  training negatives (40 that boosting rates highest, 40 at random) found one
+  more confirmed wrong negative, Ti3V22 (V0.88Ti0.12, 6.4 K). Three more alloy
+  rows are probably wrong but could not be verified from this machine. See
+  "A blinded check of 80 training negatives" in `docs/negative-labels.md`.
+  Again, no label was changed.
