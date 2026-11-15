@@ -1186,6 +1186,63 @@ the session does not go idle again.
 - Bercx et al.'s +20% may come from their 18³ / 0.02 Ry phonon grid rather
   than the method. See the corrections in `docs/bercx-published-check.md`.
 
+### Niobium rerun: phonons done, EPW out of memory at fine k 36³; validation plan written before any result, 2026-11-15 07:40 UTC
+
+**What happened.**
+- [Certain] The phonons finished at 07:20 UTC: all 16 q-points, scf k 24³,
+  0.01 Ry. The dynamical matrices and the Wannier-space coupling file
+  (`nb.epmatwp`, 1.9 GB) are on disk.
+- [Certain] EPW's fine-grid stage (k 36³, q 18³) was killed for lack of
+  memory with 4 processes, and again with 2 processes 30 s into the redo.
+  No λ was computed, so there is no result to read yet.
+- **My fault.** I wrote that 2 processes would need about 10 GB. That
+  assumed most of the memory was a fixed cost per process. I did not
+  measure it.
+- **Measured now, with 1 process** (the first 150 s of a run):
+
+  | Fine k | Points | Memory |
+  | --- | --- | --- |
+  | 18³ | 5,832 | 1.85 GB peak |
+  | 24³ | 13,824 | 4.3 GB, still rising when stopped |
+
+  Together with the 4-process run (about 3.6 GB each when killed), memory
+  is about 0.31 MB per fine k-point, whatever the number of processes. The
+  full 36³ grid (46,656 points) needs about 14 GB. This machine has about
+  15 GB in total. [Likely]
+- The queue stopped as designed: it deleted nothing, and tantalum did not
+  start.
+
+**The workaround, which EPW itself uses elsewhere.**
+- EPW counts only states within `fsthick` (0.4 eV) of E_F in λ. Its own
+  memory saver for this, `etf_mem = 3`, keeps only fine k-points near E_F,
+  but EPW 6.1 refuses it for the phonon self-energy.
+- So the same is done by hand. `scripts/epw_fermi_klist.py` interpolates
+  the bands on EPW's full Γ-centred 36³ grid from `nb_hr.dat` and
+  `nb_wsvec.dat`. It keeps every point with a band within 0.6 eV of
+  E_F = 17.819144 eV, which is EPW's own value from the full 36³ grid in
+  the killed run. Each kept point gets the full grid's weight 1/46,656.
+- That keeps 32,306 of 46,656 points, so about 10 GB.
+- A dropped point's states are at least 0.6 eV from E_F. At `degaussw`
+  0.05 eV their weight in the density of states is below e⁻¹⁴⁴.
+- EPW reads the list through `filkf`, with `efermi_read = .true.` and
+  `fermi_energy = 17.819144`. Every other setting is unchanged.
+
+**Validation rule, written before any EPW result exists.**
+- Run 1: the full 24³ grid. Run 2: the near-E_F list from the same 24³ grid
+  (9,586 of 13,824 points). Both use E_F fixed at 17.819144 eV, so they
+  differ only in the dropped points.
+- The list method counts as validated only if λ agrees within 0.5% and
+  ωlog within 0.5% between runs 1 and 2.
+- If validated, the 36³ list run gives the stop rule's fine k 36³ result.
+  The symmetry star test uses the same list. The band check does not use
+  EPW's fine grid, so it is unchanged.
+- If not validated, the rule's 36³ result cannot be computed on this
+  machine. That is reported as not computable, not as a pass or a miss.
+  Whether a smaller grid that fits (32³ or 34³; Bercx et al. used 34³)
+  should stand in for it is the owner's decision.
+- The niobium predictions above stand unchanged. They were written before
+  any result: λ inside 30%, λ and ωlog both inside 27%, full pass 9%.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
