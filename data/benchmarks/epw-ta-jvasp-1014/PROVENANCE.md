@@ -15,6 +15,22 @@ settings and the checks behind them are below.
 
 > **Update, 2026-11-14: `delta_approx = .true.` added; first result that matches a published calculation.** Without that line EPW used a formula that gave negative coupling at 45 of 1,728 phonon points and values that broke crystal symmetry by 145% (median). With it, and a 6×6×6 phonon grid, the result is λ = 1.079, ωlog = 139.9 K, Tc = 10.9 K at μ* = 0.10. Cerqueira et al. 2023 (arXiv:2307.10728, PBEsol, same formula) give 0.961, 143.3 K and 11.2 K; JARVIS's 0.757 is the low end of the published range. See `docs/hazel-runbook.md`, section 7. The grids in this package are still the 4×4×4 ones, which give λ = 1.165 with the same formula.
 
+> **Status, 2026-11-15 21:40 UTC: fails the Stage 1 rule on the stop rule's
+> grids.** The rule's reference is Cerqueira et al. 2023 (λ = 0.961,
+> ωlog = 143.3 K), not the JARVIS entry above.
+> - Grids: phonons 6×6×6 at scf k 24³ and 0.01 Ry; EPW coarse k 12³; fine
+>   k 36³ on a validated near-Fermi list; fine q 18³; `degaussw` 0.05 eV.
+> - λ = 0.962 and ωlog = 141.0 K, both inside the bands (0.817 to 1.105
+>   and 121.8 to 164.8 K).
+> - The band check fails: 95th percentile 52.9 meV against 50 meV, and the
+>   Wannier density of states at E_F is 6.2% below the direct one (limit 5%).
+> - The symmetry check fails: median spread 9.5% against 5%.
+> - The stop rule's own trigger (λ or ωlog outside the band) did not fire.
+> - The input changes against this package, which still holds the 4×4×4
+>   grids, are in `stop-rule-rerun.diff`. This package's own files are
+>   unchanged.
+> - See "Tantalum on the stop rule's grids" in `docs/hazel-runbook.md`.
+
 ## Pseudopotential
 
 | Item | Value |

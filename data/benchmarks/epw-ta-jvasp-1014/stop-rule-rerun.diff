@@ -1,0 +1,117 @@
+# Input changes for the tantalum stop-rule rerun (2026-11-15), against this package.
+# Two steps, from the package directory:
+#   1. Replace the K_POINTS block of epw/nscf.in (the 512-point 8^3 list) with the
+#      1,728-point 12^3 list, which is identical to the one in ../epw-nb-bcc/epw/nscf.in:
+#        { sed '/^K_POINTS/,$d' epw/nscf.in; sed -n '/^K_POINTS/,$p' ../epw-nb-bcc/epw/nscf.in; } > nscf.tmp && mv nscf.tmp epw/nscf.in
+#   2. patch -p1 < stop-rule-rerun.diff
+# The patched epw.in is the chain run's input. Its fine-grid stage ran out of memory at nkf 36.
+# The 36^3 result then came from a restart of that run with these changes to epw.in:
+#   epwread = .true.; epwwrite, epbwrite and wannierize = .false. (reuse the chain's ta.epmatwp);
+#   nkf1-3 removed and filkf = '<list>' added, the list written by
+#   scripts/epw_fermi_klist.py --n 36 --window 0.6;
+#   efermi_read = .true. and fermi_energy = 18.109458 (EPW's own E_F from the full 36^3 grid).
+# See docs/hazel-runbook.md, "Tantalum on the stop rule's grids".
+--- a/phonons/ph.in
++++ b/phonons/ph.in
+@@ -5,8 +5,8 @@
+   fildyn   = 'ta.dyn'
+   fildvscf = 'dvscf'
+   ldisp    = .true.
+-  nq1 = 4
+-  nq2 = 4
+-  nq3 = 4
++  nq1 = 6
++  nq2 = 6
++  nq3 = 6
+   tr2_ph   = 1.0d-14
+  /
+--- a/phonons/scf.in
++++ b/phonons/scf.in
+@@ -14,7 +14,7 @@
+     ecutwfc     = 70
+     occupations = 'smearing'
+     smearing    = 'mv'
+-    degauss     = 0.02
++    degauss     = 0.01
+  /
+  &electrons
+     mixing_beta = 0.5
+@@ -25,4 +25,4 @@
+ ATOMIC_POSITIONS crystal
+  Ta 0.000000000 0.000000000 0.000000000
+ K_POINTS automatic
+- 16 16 16 0 0 0
++ 24 24 24 0 0 0
+--- a/epw/scf.in
++++ b/epw/scf.in
+@@ -12,7 +12,7 @@
+     ecutwfc     = 70
+     occupations = 'smearing'
+     smearing    = 'mv'
+-    degauss     = 0.02
++    degauss     = 0.01
+  /
+  &electrons
+     mixing_beta = 0.5
+@@ -23,4 +23,4 @@
+ ATOMIC_POSITIONS crystal
+  Ta 0.000000000 0.000000000 0.000000000
+ K_POINTS automatic
+- 12 12 12 0 0 0
++ 24 24 24 0 0 0
+--- a/epw/nscf.in
++++ b/epw/nscf.in
+@@ -13,7 +13,7 @@
+     nbnd        = 18
+     occupations = 'smearing'
+     smearing    = 'mv'
+-    degauss     = 0.02
++    degauss     = 0.01
+  /
+  &electrons
+     mixing_beta = 0.5
+--- a/epw/epw.in
++++ b/epw/epw.in
+@@ -32,25 +32,26 @@
+ 
+   fsthick     = 0.4 ! eV
+   temps       = 0.075 ! K
+-  degaussw    = 0.1 ! eV
++  degaussw    = 0.05 ! eV
+ 
+   a2f         = .true.
++  mp_mesh_q   = .true. ! one q-point per symmetry star on the fine grid
+ 
+   dvscf_dir   = '../phonons/save'
+ 
+-  nkf1         = 24
+-  nkf2         = 24
+-  nkf3         = 24
+-
+-  nqf1         = 12
+-  nqf2         = 12
+-  nqf3         = 12
+-
+-  nk1         = 8
+-  nk2         = 8
+-  nk3         = 8
+-
+-  nq1         = 4
+-  nq2         = 4
+-  nq3         = 4
++  nkf1         = 36
++  nkf2         = 36
++  nkf3         = 36
++
++  nqf1         = 18
++  nqf2         = 18
++  nqf3         = 18
++
++  nk1         = 12
++  nk2         = 12
++  nk3         = 12
++
++  nq1         = 6
++  nq2         = 6
++  nq3         = 6
+  /

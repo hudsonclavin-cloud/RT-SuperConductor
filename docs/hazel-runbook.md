@@ -1531,6 +1531,178 @@ E_F = 17.819144 eV, agree:
     window choice, is not excluded.
 - Tantalum still cannot change the Stage 1 verdict for niobium.
 
+### Tantalum on the stop rule's grids, 2026-11-15 21:40 UTC: λ and ωlog pass, both checks fail
+
+**Grids:** the same as niobium's on the stop rule's grids.
+- Phonons 6×6×6 at scf k 24³ and 0.01 Ry. EPW ground state on the same
+  24³ grid at 0.01 Ry.
+- 9 Wannier functions on a 12³ coarse electron grid.
+- Fine k 36³ at `degaussw` 0.05 eV, on the validated near-E_F list (31,049
+  of 46,656 points).
+- Fine q 18³ with `mp_mesh_q`.
+
+The input changes against the package, which still holds the 4×4×4 grids,
+are in `data/benchmarks/epw-ta-jvasp-1014/stop-rule-rerun.diff`. They were
+checked to reproduce the run's inputs exactly.
+
+**How it ran.** [Certain]
+- Phonons ran from 10:34 to 18:12 UTC (7 h 38 min). No dynamical matrix has
+  a negative frequency.
+- EPW's chain stage printed E_F = 18.109458 eV from the full 36³ grid and
+  wrote `ta.epmatwp`. At 18:57 UTC it was killed for lack of memory, as
+  expected. The kernel killed it (one of 4 processes at 3.7 GB resident)
+  before the queue's 13.8 GB guard acted.
+- The run needed disk space at its largest phonon q-point (12.1 GB of
+  scratch files). These niobium files were deleted for it. Each can be
+  regenerated, and each had already been analysed:
+  - at 11:18 UTC, by hand: `nb.epmatwp` (1.9 GB), `nb.mmn` and the band
+    check's wavefunctions;
+  - at 12:30 UTC, by a guard set to act below 2.5 GB free: the coarse-grid
+    coupling files `nb.epb1` to `nb.epb4` (3.3 GB).
+
+**The list method passed tantalum's own validation**, under the rule
+written before any result. The full 24³ grid and its near-E_F list (9,198
+of 13,824 points), both at E_F = 18.109458 eV, agree:
+
+| Run | λ | ωlog |
+| --- | --- | --- |
+| Full 24³ | 0.9748 | 140.70 K |
+| List 24³ | 0.9748 | 140.70 K |
+
+- The difference is 0.000% for both. [Certain]
+- The coupling at every one of the 195 q-points (194 nonzero) is identical
+  to the printed precision.
+- The two a2F files are byte-identical.
+
+| Check (rule above) | Result | Limit | Verdict |
+| --- | --- | --- | --- |
+| λ | **0.962** (+0.07%) | 0.817 to 1.105 (reference 0.961) | pass |
+| ωlog | **141.0 K** (−1.6%) | 121.8 to 164.8 K (reference 143.3 K) | pass |
+| Band check (9 functions, coarse grid 12³, 300 random k-points) | 156 states within 0.4 eV of E_F: mean error 16.8 meV, **95th percentile 52.9 meV**, worst 118 meV. DOS at E_F: Wannier/direct ratio **0.938** at 0.05 eV smearing (0.896 at 0.025 eV) | mean ≤ 50 meV, 95th percentile ≤ 50 meV, DOS within 5% | **fail** (95th percentile and DOS) |
+| Symmetry check (90 points in 4 whole stars, 12³ grid) | **median spread inside a star 9.5%**, largest 14.9%. No negative coupling; frequencies identical inside every star | median ≤ 5% | **fail** |
+| Tc, this pipeline's formula (information only) | 9.2 K at μ* = 0.10, 7.0 K at 0.15. With f1·f2: 9.8 and 7.3 K. Measured: 4.47 K. The reference's own λ and ωlog give 9.4 K at μ* = 0.10 in this formula | | |
+
+**Verdict.**
+- Tantalum fails the Stage 1 rule on the two checks, as niobium did. The
+  rule needs all four, and the limits were fixed before the result.
+- The stop rule's own trigger (λ or ωlog outside the band) did not fire.
+- Stage 1 stays not passed. The owner's fallback already applies:
+  candidates are judged from Bercx et al.'s published calculations.
+
+**The predictions, both sets written before the result:**
+
+| Outcome | Original (section headed 2026-11-14 20:00 UTC) | Revised (18:30 UTC section, committed 18:35:15 in 0777b66) | Happened |
+| --- | --- | --- | --- |
+| λ inside 0.817 to 1.105 | 70% | 70% | yes |
+| ωlog inside 121.8 to 164.8 K | 90% | 90% | yes |
+| Band check passes | 35% | 15% | no |
+| Symmetry check passes | 35% | 25% | no |
+| All four pass | 10% | 4% | no |
+
+The original section also said the most likely outcome was that Stage 1
+fails on the checks, not on λ. That is what happened.
+
+**What the run shows.**
+- λ fell from 1.124 to 0.962. The 1.124 is the earlier 6×6×6 run at the
+  same 0.05 eV smearing. Unlike niobium's drop, this one is not the
+  phonons.
+  - [Certain] Across the 16 q-points (48 modes), the frequencies moved by a
+    median +0.7%, range −5.0% to +8.9%. ωlog moved from 139.2 to 141.0 K.
+  - The electronic factor η fell from 8.21 eV/Å² (that run at 0.1 eV
+    smearing) to 7.53 eV/Å².
+  - [Speculative] What moved it is not separated here. It could be the
+    finer fine-q grid (12³ to 18³), the new ground state, or the redone
+    Wannier functions. The earlier 0.05 eV run's files are not on disk.
+- From 24³ to 36³: λ −1.3% and ωlog +0.2%, while EPW's density of states
+  rose 8.7% (0.6195 to 0.6736).
+- [Likely] The 0.07% agreement with the reference is partly luck.
+  - On the same grid, the Wannier density of states is 6.2% below the
+    direct one.
+  - With the matrix elements fixed, λ scales with the density of states at
+    E_F. That error alone is many times 0.07%.
+  - The pass means λ is inside the ±15% band, nothing more.
+- The star spread rose although the Wannier functions hardly changed.
+
+  | Star (crystal q) | \|q\| (2π/a) | Members | λ_q mean | Range / mean | σ / mean |
+  | --- | --- | --- | --- | --- | --- |
+  | (0, 0, 1/12) | 0.118 | 12 | 1.421 | 8.6% | 3.0% |
+  | (1/12, 1/12, 1/12) | 0.167 | 6 | 0.889 | 5.6% | 1.9% |
+  | (0, 1/12, 1/6) | 0.204 | 24 | 1.509 | 10.5% | 3.1% |
+  | (0, 1/12, 1/3) | 0.425 | 48 | 0.893 | 14.9% | 3.8% |
+
+  - The check's 9.5% is a range. Single points differ from their star's
+    mean by σ = 1.9 to 3.8%.
+  - [Likely] The spread moves the total λ by a few percent at most. Unlike
+    niobium's, tantalum's λ is 15% from the upper edge and 18% from the
+    lower, so the λ pass does not hang on it.
+
+  - The earlier 6×6×6 run gave 6.2% on the same four stars, at 0.1 eV
+    smearing and fine k 24³.
+  - [Certain] Its Wannier functions, also on 12³ with the same settings,
+    were in nearly the same state:
+    - total spread 22.5 Å² against 22.7 Å² now;
+    - gauge-dependent part 9.0 against 9.2 Å²;
+    - p-like spreads 4.42 to 4.62 against 4.45 to 4.61 Å²;
+    - both stopped at the same caps.
+  - So something else that changed moved the spread by half again. The
+    smearing, the fine k-grid, the phonons and the ground state all
+    changed. [Speculative] The narrower smearing makes the double-delta sum
+    more sensitive to small band errors.
+  - Both sets are asymmetric, so this does not test the link between
+    asymmetric Wannier functions and the star spread.
+- The band check fails narrowly on the errors and clearly on the density of
+  states. The note written before it said a failure would be a fourth
+  consistent case, not proof. It is weak support at best:
+  - On the errors: the 12³ grid cut tantalum's 95th percentile from 104 to
+    110 meV (8³, also asymmetric) to 52.9 meV. The coarse grid therefore
+    matters at least as much as the symmetry.
+  - On the density of states: niobium's symmetric 8³ set missed it by 6.2%
+    too.
+
+  | 9-function set | Reached the symmetric set | 95th percentile | DOS ratio at 0.05 eV | Today's band check |
+  | --- | --- | --- | --- | --- |
+  | Niobium, 8³ | yes | 36.8 meV | 1.062 | fail (DOS) |
+  | Niobium, 12³ | no | 85.6 meV | 1.015 | fail (95th percentile) |
+  | Tantalum, 8³ | no | 104 to 110 meV (two sets of random points) | 0.96 | fail (95th percentile) |
+  | Tantalum, 12³ | no | 52.9 meV | 0.938 | fail (both) |
+
+  - [Certain] None of the four band-checked 9-function sets passes today's
+    band check.
+  - [Likely] Converged Wannier functions would fix the errors more readily
+    than the density of states.
+
+**What follows.**
+- Stage 1 is not passed on either metal, so the fallback stands.
+- Whether to retry once with converged Wannier functions is still the
+  owner's decision (the open question of PR #47). Tantalum adds evidence
+  both ways:
+  - For a retry: tantalum is close. λ and ωlog are well inside, and the
+    95th percentile is 6% over its limit. Its coarse-grid coupling files
+    (`ta.epb1` to `ta.epb4`, 3.5 GB) are still on disk, so a tantalum retry
+    starts at the Wannier step: about 4 h of machine time.
+  - Against: no 9-function set has passed today's band check, and the
+    density-of-states part failed with a symmetric set too.
+  - [Speculative] One retry passing all four: about 20% for tantalum and
+    about 15% for niobium. Niobium's λ was 2.0% from its edge, and it would
+    first need its deleted files regenerated (about 1 h more).
+
+### Corrections to earlier sections, 2026-11-15 21:40 UTC (labelled notes; the sections themselves are unchanged)
+
+- **"Tantalum 6×6×6: smearing and symmetry, 2026-11-14"** says: "[Likely]
+  The converged value is at or above 1.12, so on λ this pipeline is about
+  15 to 20% above the reference calculation." On the stop rule's grids λ
+  is 0.962, 0.07% above the reference. That statement was wrong.
+- **"Tantalum: the same validation rule"** says the queue's memory guard
+  stops EPW at 13.8 GB. On the day the kernel stopped it first. The outcome
+  was the same: E_F was printed and the coupling file was written.
+- **"Niobium on the stop rule's grids"** says a niobium retry can reuse the
+  saved `nb.epb1` to `nb.epb4`. They were deleted at 12:30 UTC for disk
+  space (see above). Regenerating them adds about 1 h, so the niobium retry
+  is about 5 h, not 4 h.
+- **The same section** expected tantalum to finish around 19:30 UTC. It
+  finished at 21:35 UTC. The 18:30 UTC section above already says the
+  estimate was low.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
