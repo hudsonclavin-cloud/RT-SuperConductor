@@ -1243,6 +1243,29 @@ the session does not go idle again.
 - The niobium predictions above stand unchanged. They were written before
   any result: λ inside 30%, λ and ωlog both inside 27%, full pass 9%.
 
+### Tantalum: the same validation rule, written before any tantalum result, 2026-11-15 09:54 UTC
+
+- [Certain] Tantalum's rerun has not started. It begins in the same queue
+  after niobium's checks finish.
+- Tantalum's EPW settings match niobium's: 9 Wannier functions, fine k 36³,
+  fine q 18³, `fsthick` 0.4 eV, `degaussw` 0.05 eV. So its chain EPW stage
+  is expected to run out of memory the same way, at about 14 GB. [Likely]
+  The queue's memory guard stops EPW at 13.8 GB.
+- The list method then applies with the same rule:
+  - E_F is EPW's own value from the full 36³ grid, read from the chain
+    run's output. If the chain run never printed it, tantalum is reported
+    as failed to run, not as a pass or a miss.
+  - Validation: the full 24³ grid against the near-E_F list from the same
+    grid, both at that fixed E_F. λ and ωlog must each agree within 0.5%.
+  - If validated, the 36³ list run is tantalum's stop-rule result. The star
+    test uses the same list and tantalum's four stars, and the band check is
+    unchanged.
+  - If not validated, tantalum's 36³ result is "not computable here". Any
+    smaller substitute grid is the owner's decision.
+- Niobium's validation does not carry over: tantalum gets its own.
+- Tantalum's predictions above stand unchanged: λ inside 70%, ωlog inside
+  90%, band check 35%, symmetry check 35%, all four 10%.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
