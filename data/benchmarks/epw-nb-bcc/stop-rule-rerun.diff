@@ -4,7 +4,7 @@
 # The 36^3 result then came from a restart of that run with these changes to epw.in:
 #   epwread = .true.; epwwrite, epbwrite and wannierize = .false. (reuse the chain's nb.epmatwp);
 #   nkf1-3 removed and filkf = '<list>' added, the list written by
-#   scripts/epw_fermi_klist.py --n 36 --window 0.6;
+#   scripts/epw_fermi_klist.py --epw-dir <chain epw dir> --prefix nb --n 36 --fermi 17.819144 --window 0.6 --out <list>;
 #   efermi_read = .true. and fermi_energy = 17.819144 (EPW's own E_F from the full 36^3 grid).
 # See docs/hazel-runbook.md, "Niobium rerun: phonons done, EPW out of memory" and
 # "Niobium on the stop rule's grids".

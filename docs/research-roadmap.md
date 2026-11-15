@@ -150,6 +150,9 @@ Steps 1–3 run in parallel this week.
   - The band check fails: 95th percentile 52.9 meV against 50 meV, and the
     Wannier density of states is 6.2% low (limit 5%).
   - The symmetry check fails: median spread 9.5% against 5%.
+  - [Likely] The near-exact λ is partly luck. An earlier run with Wannier
+    functions of nearly the same spread gave 1.124 on the same phonon grid,
+    and λ tracked the interpolated density of states at E_F.
   - Stage 1 stays not passed, and the fallback to Bercx et al. stands.
   - [Certain] None of the four band-checked 9-function Wannier sets, on
     either metal, passes today's band check.

@@ -1549,16 +1549,16 @@ checked to reproduce the run's inputs exactly.
 - Phonons ran from 10:34 to 18:12 UTC (7 h 38 min). No dynamical matrix has
   a negative frequency.
 - EPW's chain stage printed E_F = 18.109458 eV from the full 36³ grid and
-  wrote `ta.epmatwp`. At 18:57 UTC it was killed for lack of memory, as
-  expected. The kernel killed it (one of 4 processes at 3.7 GB resident)
-  before the queue's 13.8 GB guard acted.
+  wrote `ta.epmatwp`. At 18:57 UTC the kernel killed it for lack of memory,
+  as expected (one of 4 processes at 3.7 GB resident). The queue's own
+  guard could not act; see the corrections below.
 - The run needed disk space at its largest phonon q-point (12.1 GB of
   scratch files). These niobium files were deleted for it. Each can be
   regenerated, and each had already been analysed:
   - at 11:18 UTC, by hand: `nb.epmatwp` (1.9 GB), `nb.mmn` and the band
     check's wavefunctions;
   - at 12:30 UTC, by a guard set to act below 2.5 GB free: the coarse-grid
-    coupling files `nb.epb1` to `nb.epb4` (3.3 GB).
+    coupling files `nb.epb1` to `nb.epb4` (3.5 GB).
 
 **The list method passed tantalum's own validation**, under the rule
 written before any result. The full 24³ grid and its near-E_F list (9,198
@@ -1604,24 +1604,41 @@ fails on the checks, not on λ. That is what happened.
 
 **What the run shows.**
 - λ fell from 1.124 to 0.962. The 1.124 is the earlier 6×6×6 run at the
-  same 0.05 eV smearing. Unlike niobium's drop, this one is not the
-  phonons.
-  - [Certain] Across the 16 q-points (48 modes), the frequencies moved by a
-    median +0.7%, range −5.0% to +8.9%. ωlog moved from 139.2 to 141.0 K.
-  - The electronic factor η fell from 8.21 eV/Å² (that run at 0.1 eV
-    smearing) to 7.53 eV/Å².
-  - [Speculative] What moved it is not separated here. It could be the
-    finer fine-q grid (12³ to 18³), the new ground state, or the redone
-    Wannier functions. The earlier 0.05 eV run's files are not on disk.
+  same 0.05 eV smearing, whose outputs are on disk (only its Wannier-space
+  coupling file is gone).
+  - [Certain] At the same fine k 24³ and 0.05 eV, λ/N(E_F) is unchanged:
+    1.5727 then, 1.5735 now. λ fell 13.3% (1.124 to 0.975) because EPW's
+    density of states at E_F fell 13.3% (0.715 to 0.620 states/eV).
+  - [Certain] Across the 15 q-points other than Γ (45 modes), the phonon
+    frequencies moved by a median +1.1%, range −5.0% to +8.9%. ωlog moved
+    from 139.2 to 141.0 K, and ω2² rose 2.4% at the same fine k.
+  - η fell from 8.56 to 7.60 eV/Å² at the same fine k and smearing (7.53 at
+    36³).
+  - [Likely] So, unlike niobium's drop, this one is mostly not the phonon
+    frequencies, and not the finer fine-q grid either, which cannot change
+    N(E_F). It comes from the interpolated bands at E_F.
+  - [Speculative] Whether the new ground state or the redone Wannier
+    functions moved N(E_F) is not separated. On the band check's grid the
+    two 12³ Wannier sets give densities of states 10% apart: 0.680 for the
+    earlier set and 0.611 now, against 0.651 direct. The earlier set was
+    built on the old ground state but is compared with today's direct
+    bands.
 - From 24³ to 36³: λ −1.3% and ωlog +0.2%, while EPW's density of states
   rose 8.7% (0.6195 to 0.6736).
 - [Likely] The 0.07% agreement with the reference is partly luck.
-  - On the same grid, the Wannier density of states is 6.2% below the
-    direct one.
-  - With the matrix elements fixed, λ scales with the density of states at
-    E_F. That error alone is many times 0.07%.
+  - λ/N(E_F) held fixed between the two runs above, so an error in N(E_F)
+    passes straight into λ.
+  - The band check finds today's Wannier density of states 6.2% below the
+    direct one. That is the check's Gaussian DOS at the direct
+    calculation's E_F on its 24³ grid, not EPW's own number.
+  - [Speculative] Corrected for that, λ would be about 1.03 (+7%), still
+    inside the band.
+  - The 24³ to 36³ change above does not contradict this. [Likely] It is
+    k-sampling, where the single-delta DOS sum and the double-delta λ sum
+    converge differently; a band error shifts both.
   - The pass means λ is inside the ±15% band, nothing more.
-- The star spread rose although the Wannier functions hardly changed.
+- The star spread rose from 6.2% to 9.5% on the same four stars. The 6.2%
+  is the earlier 6×6×6 run, at 0.1 eV smearing and fine k 24³.
 
   | Star (crystal q) | \|q\| (2π/a) | Members | λ_q mean | Range / mean | σ / mean |
   | --- | --- | --- | --- | --- | --- |
@@ -1632,30 +1649,30 @@ fails on the checks, not on λ. That is what happened.
 
   - The check's 9.5% is a range. Single points differ from their star's
     mean by σ = 1.9 to 3.8%.
-  - [Likely] The spread moves the total λ by a few percent at most. Unlike
-    niobium's, tantalum's λ is 15% from the upper edge and 18% from the
-    lower, so the λ pass does not hang on it.
-
-  - The earlier 6×6×6 run gave 6.2% on the same four stars, at 0.1 eV
-    smearing and fine k 24³.
-  - [Certain] Its Wannier functions, also on 12³ with the same settings,
-    were in nearly the same state:
-    - total spread 22.5 Å² against 22.7 Å² now;
-    - gauge-dependent part 9.0 against 9.2 Å²;
-    - p-like spreads 4.42 to 4.62 against 4.45 to 4.61 Å²;
+  - [Likely] The spread moves the total λ by a few percent at most.
+    Tantalum's λ would have to rise or fall about 15% to leave its band,
+    against niobium's 2.0%, so the λ pass does not hang on it.
+  - [Certain] The two 12³ Wannier sets have nearly the same spreads:
+    - total 22.5 Å² then, 22.7 Å² now;
+    - gauge-dependent part 9.0 and 9.2 Å²;
+    - p-like 4.42 to 4.62 and 4.45 to 4.61 Å²;
     - both stopped at the same caps.
-  - So something else that changed moved the spread by half again. The
-    smearing, the fine k-grid, the phonons and the ground state all
-    changed. [Speculative] The narrower smearing makes the double-delta sum
-    more sensitive to small band errors.
+  - Their band errors are similar too: 95th percentile 54.9 and 52.9 meV on
+    today's check points. But their densities of states at E_F differ by
+    10%, as above.
+  - [Speculative] The rise could come from the smearing, the fine k-grid or
+    the Wannier interpolation itself; this run does not separate them.
   - Both sets are asymmetric, so this does not test the link between
     asymmetric Wannier functions and the star spread.
-- The band check fails narrowly on the errors and clearly on the density of
-  states. The note written before it said a failure would be a fourth
-  consistent case, not proof. It is weak support at best:
-  - On the errors: the 12³ grid cut tantalum's 95th percentile from 104 to
-    110 meV (8³, also asymmetric) to 52.9 meV. The coarse grid therefore
-    matters at least as much as the symmetry.
+- The band check fails narrowly on the errors and on the density of states
+  (6.2% low against 5%; 10.4% low at 0.025 eV). The note written before it
+  said a failure would be a fourth consistent case, not proof. It is weak
+  support at best:
+  - On tantalum, going from 8³ to 12³ halved the 95th percentile with both
+    sets asymmetric (the ground state also changed). On niobium, the
+    symmetric 8³ set beat the asymmetric 12³ set by 2.3×.
+  - [Speculative] Both the grid and the Wannier state matter; no run
+    separates them.
   - On the density of states: niobium's symmetric 8³ set missed it by 6.2%
     too.
 
@@ -1663,42 +1680,69 @@ fails on the checks, not on λ. That is what happened.
   | --- | --- | --- | --- | --- |
   | Niobium, 8³ | yes | 36.8 meV | 1.062 | fail (DOS) |
   | Niobium, 12³ | no | 85.6 meV | 1.015 | fail (95th percentile) |
-  | Tantalum, 8³ | no | 104 to 110 meV (two sets of random points) | 0.96 | fail (95th percentile) |
+  | Tantalum, 8³ | no | 104 to 110 meV (two sets of random points) | 0.96 to 0.99 | fail (95th percentile) |
   | Tantalum, 12³ | no | 52.9 meV | 0.938 | fail (both) |
 
   - [Certain] None of the four band-checked 9-function sets passes today's
     band check.
-  - [Likely] Converged Wannier functions would fix the errors more readily
-    than the density of states.
+  - [Speculative] Converged Wannier functions would fix the errors more
+    readily than the density of states. This rests on one converged set,
+    niobium's 8³.
 
 **What follows.**
 - Stage 1 is not passed on either metal, so the fallback stands.
 - Whether to retry once with converged Wannier functions is still the
   owner's decision (the open question of PR #47). Tantalum adds evidence
   both ways:
-  - For a retry: tantalum is close. λ and ωlog are well inside, and the
-    95th percentile is 6% over its limit. Its coarse-grid coupling files
-    (`ta.epb1` to `ta.epb4`, 3.5 GB) are still on disk, so a tantalum retry
-    starts at the Wannier step: about 4 h of machine time.
-  - Against: no 9-function set has passed today's band check, and the
-    density-of-states part failed with a symmetric set too.
-  - [Speculative] One retry passing all four: about 20% for tantalum and
-    about 15% for niobium. Niobium's λ was 2.0% from its edge, and it would
-    first need its deleted files regenerated (about 1 h more).
+  - For a retry: tantalum is the closer of the two. λ and ωlog are well
+    inside, and the 95th percentile is 6% over its limit.
+    - Its coarse-grid coupling files (`ta.epb1` to `ta.epb4`, 3.5 GB) are
+      still on disk, so a retry starts at the Wannier step.
+    - [Likely] That is about 3 h of machine time, by this run's stage times:
+      validation 52 min, 36³ list 71 min, star test 32 min, band check
+      2 min.
+  - Against a retry, three things:
+    - The symmetry check has never passed in any run. With the current
+      formula it gave tantalum 16%, 6.2% and 9.5%, and niobium 14% and
+      12%. No symmetric Wannier set has been star-tested.
+    - No 9-function set has passed today's band check. Its density-of-states
+      part failed with a symmetric set too.
+    - Two 12³ tantalum sets with nearly the same spreads gave λ 13% apart.
+      So a new set can move λ by more than niobium's 2.0% margin.
+  - [Speculative] One retry passing all four:
+    - tantalum: about 15%. λ and ωlog stay inside about 80%, band check
+      about 40%, symmetry check about 35%, partly correlated;
+    - niobium: under 10%. λ stays inside only about 45%.
+  - Niobium would first need its coupling files regenerated. [Likely] That
+    takes about 40 min: tantalum's chain wrote its own 37 min after its
+    Wannier step.
 
 ### Corrections to earlier sections, 2026-11-15 21:40 UTC (labelled notes; the sections themselves are unchanged)
 
 - **"Tantalum 6×6×6: smearing and symmetry, 2026-11-14"** says: "[Likely]
   The converged value is at or above 1.12, so on λ this pipeline is about
-  15 to 20% above the reference calculation." On the stop rule's grids λ
-  is 0.962, 0.07% above the reference. That statement was wrong.
+  15 to 20% above the reference calculation, which is what the softer PBE
+  phonons (5 to 13% below neutron data) would predict."
+  - On the stop rule's grids λ is 0.962, 0.07% above the reference.
+  - The phonon frequencies are within about 1% of that run's.
+  - Both the value and the phonon explanation were wrong.
+- **"6×6×6 result, 2026-11-14"** says "the remaining 12% is most likely the
+  softer PBE phonons plus the 16% symmetry noise". The phonon part is
+  contradicted for the same reason. On the same phonon grid, λ came down
+  to the reference while the frequencies moved by about 1%.
 - **"Tantalum: the same validation rule"** says the queue's memory guard
-  stops EPW at 13.8 GB. On the day the kernel stopped it first. The outcome
-  was the same: E_F was printed and the coupling file was written.
+  stops EPW at 13.8 GB.
+  - The guard acts when the summed epw.x memory is above 13,800 MiB. The
+    container's memory limit is 13,674 MiB, so the guard could never act.
+  - The kernel's out-of-memory killer stopped EPW at 18:57 UTC, as it would
+    every time.
+  - The outcome was the one expected: E_F was printed and the coupling file
+    was written.
 - **"Niobium on the stop rule's grids"** says a niobium retry can reuse the
-  saved `nb.epb1` to `nb.epb4`. They were deleted at 12:30 UTC for disk
-  space (see above). Regenerating them adds about 1 h, so the niobium retry
-  is about 5 h, not 4 h.
+  saved `nb.epb1` to `nb.epb4`, at about 4 h of machine time.
+  - They were deleted at 12:30 UTC for disk space (see above).
+  - [Likely] Regenerating them takes about 40 min, and the rest about 3 h
+    by this run's stage times. So about 3.5 to 4 h in all.
 - **The same section** expected tantalum to finish around 19:30 UTC. It
   finished at 21:35 UTC. The 18:30 UTC section above already says the
   estimate was low.
