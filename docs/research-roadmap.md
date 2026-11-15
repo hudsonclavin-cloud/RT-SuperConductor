@@ -133,8 +133,9 @@ Steps 1–3 run in parallel this week.
   - The symmetry check fails: median spread 12% against 5%.
   - The rule needs all four, and the limits were fixed before the result.
   - The stop rule's own trigger (λ or ωlog outside the band) did not fire.
-    By the owner's fallback decision, candidates are judged from Bercx et
-    al.'s published calculations (`docs/bercx-published-check.md`).
+  - Because Stage 1 is not passed, the owner's fallback applies unless the
+    owner chooses a retry. Candidates are judged from Bercx et al.'s
+    published calculations (`docs/bercx-published-check.md`).
   - [Likely] The band-check failure comes from Wannier functions that did
     not converge on the 12³ coarse grid. Whether to retry with converged
     ones is the owner's decision.

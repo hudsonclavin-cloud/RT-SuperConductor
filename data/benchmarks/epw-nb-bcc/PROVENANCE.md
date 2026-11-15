@@ -31,9 +31,12 @@ result is never added to training.
 > - The band check fails: 95th percentile 86 meV against 50 meV.
 > - The symmetry check fails: median spread 12% against 5%.
 > - The stop rule's own trigger (λ or ωlog outside the band) did not fire.
-> - [Likely] The band-check failure comes from the Wannier functions: on
->   the 12³ coarse grid they hit both iteration caps and ended
->   asymmetric.
+> - [Likely] The band-check failure comes from the Wannier functions.
+>   - On the 12³ coarse grid they did not converge: when stopped, the
+>     disentanglement change was 1.8 × 10⁻⁵ and the gradient 0.54.
+>   - The symmetric 8³ set, which also ran to both caps, stopped at
+>     2 × 10⁻⁹ and 0.02.
+>   - The 12³ functions ended asymmetric.
 > - The input changes against this package are in `stop-rule-rerun.diff`.
 >   This package's own files are unchanged.
 > - See "Niobium on the stop rule's grids" in `docs/hazel-runbook.md`.

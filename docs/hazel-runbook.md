@@ -1311,14 +1311,19 @@ E_F = 17.819144 eV, agree:
 - The stop rule's own trigger did not fire. It applies when λ or ωlog falls
   outside its band, and both are inside. λ is 2.0% below the upper edge
   (1.406 against 1.435).
-- So candidates stay blocked from this project's EPW runs. By the owner's
-  fallback decision ("if Stage 1 fails"; `docs/bercx-published-check.md`),
-  they are judged from Bercx et al.'s published calculations, which PR #45
-  already joined.
+- Because Stage 1 is not passed, candidates stay blocked from this
+  project's EPW runs.
+  - Not passing counts as "fails" for the owner's fallback decision ("if
+    Stage 1 fails"; `docs/bercx-published-check.md`), unless the owner
+    chooses a retry (see "What follows").
+  - Until then, candidates are judged from Bercx et al.'s published
+    calculations, which PR #45 already joined.
 
-**Against the predictions.** Both sets were written before the result. The
-first set is from 19:27 UTC. The revised set (committed 20:14 UTC) used
-Bercx et al.'s λ of 1.497.
+**Against the predictions.** Both sets were written before the result.
+- The first set is from 19:27 UTC.
+- The revised set used Bercx et al.'s λ of 1.497. λ inside was revised to
+  30% at 20:14 UTC (36a67a5). The full revised set was committed at
+  20:44 UTC (1b7b747).
 
 | Outcome | First set | Revised set | Happened? |
 | --- | --- | --- | --- |
@@ -1327,7 +1332,7 @@ Bercx et al.'s λ of 1.497.
 | λ below 1.061 | 10% | 10% | no |
 | ωlog at least 125.0 K | 70% | — | yes |
 | λ and ωlog both inside | 40% | 27% | yes |
-| Both checks pass, if λ and ωlog are inside | 35% (added 19:50) | 35% | no |
+| Both checks pass, if λ and ωlog are inside | 35% (added 19:50) | not restated (9% / 27% implies 33%) | no |
 | Full pass | 25% (about 14% with the 19:50 addition) | 9% | no |
 
 - The revision moved probability away from what happened.
@@ -1399,8 +1404,9 @@ Bercx et al.'s λ of 1.497.
   - **This run, 12³ coarse grid.**
     - Disentanglement stopped at its 200-iteration cap with fractional
       change 1.8 × 10⁻⁵.
-    - Localization stopped at `num_iter` = 500 with the gradient still 0.54
-      and the spread still falling.
+    - Localization ran its full `num_iter` = 500 steps (its convergence
+      window is off) and stopped with the gradient still 0.54 and the
+      spread still falling.
     - The result is not symmetric. The three p-like functions, which
       symmetry makes equal, have spreads of 4.60, 4.65 and 4.71 Å², and the
       centres are up to 0.048 Å off the atom.
@@ -1410,20 +1416,25 @@ Bercx et al.'s λ of 1.497.
   - **The 4×4×4 run, 8³ coarse grid, same projections and windows.**
     - It reached a symmetric set: three t2g-like functions at 1.066 Å² and
       six equivalent hybrids along the cube axes at 2.01 to 2.03 Å².
-    - Total spread 15.3 Å² (gauge-dependent part 3.3 Å²), with
-      disentanglement change 2 × 10⁻⁹.
+    - Total spread 15.3 Å² (gauge-dependent part 3.3 Å²).
+    - It also ran to both caps, but its remaining changes were tiny:
+      disentanglement change 2 × 10⁻⁹ and gradient 0.02. Reaching a cap is
+      therefore not the difference; how far from converged each run
+      stopped is.
     - On the same 300 test points, its band errors were within the limits
       (mean 12.9, 95th percentile 36.8 meV).
     - But its DOS at 0.05 eV was 6.2% off, so it too would fail today's band
       check.
-  - **Tantalum's earlier 9-function runs**, on 8³ and 12³ coarse grids,
-    also never reached the symmetric hybrid set.
-    - Their total spreads were 20.3 and 22.5 Å², with centres up to 0.09 Å
-      off the atom.
-    - On the 8³ grid, their band check failed (95th percentile 104 to
-      110 meV).
-  - So the only run that reached the symmetric set, niobium on 8³, is also
-    the only one whose band errors met the limits.
+  - **Tantalum's earlier 9-function runs** (two on an 8³ coarse grid, one
+    on 12³) also never reached the symmetric hybrid set.
+    - Their total spreads were 20.3 to 22.5 Å², with centres up to 0.04 to
+      0.09 Å off the atom.
+    - The 8³ band check (95th percentile 104 to 110 meV) was run on the 8³
+      run with total spread 20.5 Å² and centres up to 0.04 Å off.
+  - Three 9-function runs were band-checked. Of these, the only one that
+    reached the symmetric set, niobium on 8³, is also the only one whose
+    band errors met the limits. Niobium's 6×6×6 run and tantalum's 12³ run
+    were not band-checked, so this rests on three cases.
   - Converging the Wannier functions may still not be enough: the 8³ set's
     DOS at 0.05 eV was 6.2% off.
   - That asymmetric Wannier functions cause the star spread is expected,
@@ -1458,12 +1469,17 @@ Bercx et al.'s λ of 1.497.
 - **The 07:40 UTC section** says the phonons finished at 07:20 UTC. They
   finished at 06:22 UTC: `ph.out` was last written at 06:22:15, and the
   chain's EPW stage started at 06:25:42. EPW was killed at about 07:24.
-- **Four headings carry times later than their commits.** Each one's
-  predictions still came before their results: the rerun started after
-  19:35 UTC, and its first result was read at 08:38 UTC on 2026-11-15.
+- **Five headings carry times later than their commits.** The 20:20
+  heading (committed 20:14:05) was corrected earlier and is not listed
+  again. In each one, the predictions still came before their results.
+  - The rerun started after 19:35 UTC, and its first result was read at
+    08:38 UTC on 2026-11-15.
+  - The PBEsol corrections were written after the PBEsol results they
+    correct, as their heading says.
 
   | Section | Heading time | Commit | Committed at |
   | --- | --- | --- | --- |
+  | "Corrections to the three PBEsol sections above" | 18:45 UTC | f2f9034 | 18:43:36 UTC |
   | "No Hazel; Cerqueira et al.'s methods" | 19:30 UTC | ac3ce74 | 19:27:56 UTC |
   | "The electron fine-grid test failed" | 19:40 UTC | 7579d45 | 19:36:41 UTC |
   | "Owner's decision: the checks keep their default limits" | 19:50 UTC | f41a487 | 19:49:26 UTC |
