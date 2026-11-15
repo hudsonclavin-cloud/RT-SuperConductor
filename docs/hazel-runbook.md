@@ -1485,6 +1485,52 @@ E_F = 17.819144 eV, agree:
   | "Owner's decision: the checks keep their default limits" | 19:50 UTC | f41a487 | 19:49:26 UTC |
   | "Machine restored from a snapshot" | 20:00 UTC | 69da139 | 19:57:50 UTC |
 
+### Tantalum's Wannier functions, read before any tantalum λ, band-check or star result, 2026-11-15 18:30 UTC
+
+- [Certain] Tantalum's phonons finished at 18:12 UTC, after 7 h 38 min.
+  - All 16 q-points are done, and no dynamical matrix has a negative
+    frequency.
+  - The estimate of about 5 h was low, so the finish time in the niobium
+    result section (about 19:30 UTC) is wrong too. The EPW stage,
+    validation, list run and checks took 4.2 h for niobium after its
+    phonons. The last tantalum result is therefore expected at about
+    21:00 to 22:30 UTC. [Likely]
+- [Certain] EPW's chain stage has finished the Wannier functions on the 12³
+  coarse grid. No λ, band check or star test exists yet. They end in the
+  same state as niobium's 12³ set:
+  - Disentanglement stopped at its 200-iteration cap with fractional change
+    7.6 × 10⁻⁷ (niobium 12³: 1.8 × 10⁻⁵; niobium 8³: 2 × 10⁻⁹).
+  - Localization ran its full 500 steps with the gradient still 0.31
+    (niobium 12³: 0.54; niobium 8³: 0.02).
+  - The three p-like functions, which symmetry makes equal, have spreads of
+    4.45, 4.53 and 4.61 Å². Centres are up to 0.040 Å off the atom.
+  - Total spread 22.7 Å², of which 9.2 Å² is gauge-dependent (niobium 12³:
+    22.9 and 9.4 Å²; niobium 8³: 15.3 and 3.3 Å²).
+- What the Wannier explanation in the niobium section predicts here:
+  - The band check should fail. That explanation is [Likely] for niobium's
+    band check and rests on three band-checked cases.
+  - A large star spread is expected too. That link is [Speculative].
+- **Labelled revision of tantalum's predictions** [Speculative], made on
+  this Wannier evidence alone. The originals (in the section headed
+  2026-11-14 20:00 UTC) stay on record.
+
+  | Outcome | Original | Revised now |
+  | --- | --- | --- |
+  | λ inside 0.817 to 1.105 | 70% | 70% (unchanged) |
+  | ωlog inside 121.8 to 164.8 K | 90% | 90% (unchanged) |
+  | Band check passes | 35% | 15% |
+  | Symmetry check passes (median ≤ 5%) | 35% | 25% |
+  | All four pass | 10% | 4% |
+
+- How the result bears on the explanation:
+  - If the band check passes with this asymmetric set, the Wannier
+    explanation is weakened. It would be the first unconverged, asymmetric
+    9-function set to pass.
+  - If it fails, that is a fourth consistent case, not proof. Both 12³ runs
+    share every Wannier setting, so a cause common to both, such as the
+    window choice, is not excluded.
+- Tantalum still cannot change the Stage 1 verdict for niobium.
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:
