@@ -21,6 +21,25 @@ result is never added to training.
 > median spread). 38% of λ comes from modes below 10 meV; where the excess
 > comes from is not settled. See "Niobium 6×6×6 result" in
 > `docs/hazel-runbook.md`.
+>
+> **Status, 2026-11-15 10:54 UTC: fails the Stage 1 rule on the stop rule's
+> grids, so Stage 1 is not passed.**
+> - Grids: phonons 6×6×6 at scf k 24³ and 0.01 Ry; EPW fine k 36³ on a
+>   validated near-Fermi list; fine q 18³; `degaussw` 0.05 eV.
+> - λ = 1.406 and ωlog = 153.2 K, both inside the bands. λ is 2.0% below
+>   the upper edge.
+> - The band check fails: 95th percentile 86 meV against 50 meV.
+> - The symmetry check fails: median spread 12% against 5%.
+> - The stop rule's own trigger (λ or ωlog outside the band) did not fire.
+> - [Likely] The band-check failure comes from the Wannier functions.
+>   - On the 12³ coarse grid they did not converge: when stopped, the
+>     disentanglement change was 1.8 × 10⁻⁵ and the gradient 0.54.
+>   - The symmetric 8³ set, which also ran to both caps, stopped at
+>     2 × 10⁻⁹ and 0.02.
+>   - The 12³ functions ended asymmetric.
+> - The input changes against this package are in `stop-rule-rerun.diff`.
+>   This package's own files are unchanged.
+> - See "Niobium on the stop rule's grids" in `docs/hazel-runbook.md`.
 
 The inputs follow the tantalum package (`data/benchmarks/epw-ta-jvasp-1014/`),
 changed only where niobium needs it.

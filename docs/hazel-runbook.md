@@ -1186,6 +1186,305 @@ the session does not go idle again.
 - Bercx et al.'s +20% may come from their 18³ / 0.02 Ry phonon grid rather
   than the method. See the corrections in `docs/bercx-published-check.md`.
 
+### Niobium rerun: phonons done, EPW out of memory at fine k 36³; validation plan written before any result, 2026-11-15 07:40 UTC
+
+**What happened.**
+- [Certain] The phonons finished at 07:20 UTC: all 16 q-points, scf k 24³,
+  0.01 Ry. The dynamical matrices and the Wannier-space coupling file
+  (`nb.epmatwp`, 1.9 GB) are on disk.
+- [Certain] EPW's fine-grid stage (k 36³, q 18³) was killed for lack of
+  memory with 4 processes, and again with 2 processes 30 s into the redo.
+  No λ was computed, so there is no result to read yet.
+- **My fault.** I wrote that 2 processes would need about 10 GB. That
+  assumed most of the memory was a fixed cost per process. I did not
+  measure it.
+- **Measured now, with 1 process** (the first 150 s of a run):
+
+  | Fine k | Points | Memory |
+  | --- | --- | --- |
+  | 18³ | 5,832 | 1.85 GB peak |
+  | 24³ | 13,824 | 4.3 GB, still rising when stopped |
+
+  Together with the 4-process run (about 3.6 GB each when killed), memory
+  is about 0.31 MB per fine k-point, whatever the number of processes. The
+  full 36³ grid (46,656 points) needs about 14 GB. This machine has about
+  15 GB in total. [Likely]
+- The queue stopped as designed: it deleted nothing, and tantalum did not
+  start.
+
+**The workaround, which EPW itself uses elsewhere.**
+- EPW counts only states within `fsthick` (0.4 eV) of E_F in λ. Its own
+  memory saver for this, `etf_mem = 3`, keeps only fine k-points near E_F,
+  but EPW 6.1 refuses it for the phonon self-energy.
+- So the same is done by hand. `scripts/epw_fermi_klist.py` interpolates
+  the bands on EPW's full Γ-centred 36³ grid from `nb_hr.dat` and
+  `nb_wsvec.dat`. It keeps every point with a band within 0.6 eV of
+  E_F = 17.819144 eV, which is EPW's own value from the full 36³ grid in
+  the killed run. Each kept point gets the full grid's weight 1/46,656.
+- That keeps 32,306 of 46,656 points, so about 10 GB.
+- A dropped point's states are at least 0.6 eV from E_F. At `degaussw`
+  0.05 eV their weight in the density of states is below e⁻¹⁴⁴.
+- EPW reads the list through `filkf`, with `efermi_read = .true.` and
+  `fermi_energy = 17.819144`. Every other setting is unchanged.
+
+**Validation rule, written before any EPW result exists.**
+- Run 1: the full 24³ grid. Run 2: the near-E_F list from the same 24³ grid
+  (9,586 of 13,824 points). Both use E_F fixed at 17.819144 eV, so they
+  differ only in the dropped points.
+- The list method counts as validated only if λ agrees within 0.5% and
+  ωlog within 0.5% between runs 1 and 2.
+- If validated, the 36³ list run gives the stop rule's fine k 36³ result.
+  The symmetry star test uses the same list. The band check does not use
+  EPW's fine grid, so it is unchanged.
+- If not validated, the rule's 36³ result cannot be computed on this
+  machine. That is reported as not computable, not as a pass or a miss.
+  Whether a smaller grid that fits (32³ or 34³; Bercx et al. used 34³)
+  should stand in for it is the owner's decision.
+- The niobium predictions above stand unchanged. They were written before
+  any result: λ inside 30%, λ and ωlog both inside 27%, full pass 9%.
+
+### Tantalum: the same validation rule, written before any tantalum result, 2026-11-15 09:54 UTC
+
+- [Certain] Tantalum's rerun has not started. It begins in the same queue
+  after niobium's checks finish.
+- Tantalum's EPW settings match niobium's: 9 Wannier functions, fine k 36³,
+  fine q 18³, `fsthick` 0.4 eV, `degaussw` 0.05 eV. So its chain EPW stage
+  is expected to run out of memory the same way, at about 14 GB. [Likely]
+  The queue's memory guard stops EPW at 13.8 GB.
+- The list method then applies with the same rule:
+  - E_F is EPW's own value from the full 36³ grid, read from the chain
+    run's output. If the chain run never printed it, tantalum is reported
+    as failed to run, not as a pass or a miss.
+  - Validation: the full 24³ grid against the near-E_F list from the same
+    grid, both at that fixed E_F. λ and ωlog must each agree within 0.5%.
+  - If validated, the 36³ list run is tantalum's stop-rule result. The star
+    test uses the same list and tantalum's four stars, and the band check is
+    unchanged.
+  - If not validated, tantalum's 36³ result is "not computable here". Any
+    smaller substitute grid is the owner's decision.
+- Niobium's validation does not carry over: tantalum gets its own.
+- Tantalum's predictions above stand unchanged: λ inside 70%, ωlog inside
+  90%, band check 35%, symmetry check 35%, all four 10%.
+
+### Niobium on the stop rule's grids, 2026-11-15 10:54 UTC: λ and ωlog pass, both checks fail, so Stage 1 is not passed
+
+**Grids:**
+- The stop rule's grids:
+  - phonons 6×6×6 at scf k 24³ and 0.01 Ry;
+  - fine k 36³ at `degaussw` 0.05 eV, on the validated near-E_F list
+    (32,306 of 46,656 points);
+  - fine q 18³ with `mp_mesh_q` (195 symmetry-distinct points).
+- EPW ground state on the same 24³ grid at 0.01 Ry. This was chosen at
+  19:27 UTC to match the phonons; the stop rule does not set it.
+- Everything else as in the package, including 9 Wannier functions on a 12³
+  coarse electron grid.
+
+The input changes against this package are in
+`data/benchmarks/epw-nb-bcc/stop-rule-rerun.diff`.
+
+**The list method passed its validation** under the rule written before any
+result (4ffa25c). The full 24³ grid and its near-E_F list, both at
+E_F = 17.819144 eV, agree:
+
+| Run | λ | ωlog |
+| --- | --- | --- |
+| Full 24³ | 1.4429 | 150.97 K |
+| List 24³ | 1.4429 | 150.97 K |
+
+- The difference is 0.000% for both. [Certain]
+- The coupling at each of the 194 q-points with nonzero coupling is also
+  identical to the printed precision.
+- The two a2F files are byte-identical.
+
+| Check (rule above) | Result | Limit | Verdict |
+| --- | --- | --- | --- |
+| λ | **1.406** (+12.7%) | 1.061 to 1.435 (reference 1.248) | pass |
+| ωlog | **153.2 K** (+4.1%) | 125.0 to 169.2 K (reference 147.1 K) | pass |
+| Band check (9 functions, coarse grid 12³, 300 random k-points) | 174 states within 0.4 eV of E_F: mean error 21.3 meV, **95th percentile 85.6 meV**, worst 168 meV. DOS at E_F: Wannier/direct ratio 1.015 at 0.05 eV smearing | mean ≤ 50 meV, 95th percentile ≤ 50 meV (the smearing), DOS within 5% | **fail** (95th percentile) |
+| Symmetry check (96 points in 5 whole stars, 12³ grid) | **median spread inside a star 12%** (maximum minus minimum, over the star's mean), largest 21%. No negative coupling; frequencies identical inside every star | median ≤ 5% | **fail** |
+| Tc, this pipeline's formula (information only) | 16.4 K at μ* = 0.10, 13.8 K at 0.15. With f1·f2: 18.2 and 15.1 K. Measured: 9.25 K | | |
+
+**Verdict.**
+- [Certain] Stage 1 is not passed. The Stage 1 rule needs all four checks,
+  and the owner fixed the limits before this result. Loosening them now
+  would fit the rule to the result, so they stand.
+- The stop rule's own trigger did not fire. It applies when λ or ωlog falls
+  outside its band, and both are inside. λ is 2.0% below the upper edge
+  (1.406 against 1.435).
+- Because Stage 1 is not passed, candidates stay blocked from this
+  project's EPW runs.
+  - Not passing counts as "fails" for the owner's fallback decision ("if
+    Stage 1 fails"; `docs/bercx-published-check.md`), unless the owner
+    chooses a retry (see "What follows").
+  - Until then, candidates are judged from Bercx et al.'s published
+    calculations, which PR #45 already joined.
+
+**Against the predictions.** Both sets were written before the result.
+- The first set is from 19:27 UTC.
+- The revised set used Bercx et al.'s λ of 1.497. λ inside was revised to
+  30% at 20:14 UTC (36a67a5). The full revised set was committed at
+  20:44 UTC (1b7b747).
+
+| Outcome | First set | Revised set | Happened? |
+| --- | --- | --- | --- |
+| λ inside 1.061 to 1.435 | 45% | 30% | yes |
+| λ above 1.435 | 45% | 60% | no |
+| λ below 1.061 | 10% | 10% | no |
+| ωlog at least 125.0 K | 70% | — | yes |
+| λ and ωlog both inside | 40% | 27% | yes |
+| Both checks pass, if λ and ωlog are inside | 35% (added 19:50) | not restated (9% / 27% implies 33%) | no |
+| Full pass | 25% (about 14% with the 19:50 addition) | 9% | no |
+
+- The revision moved probability away from what happened.
+- Bercx et al.'s phonons were 18³ / 0.02 Ry. This run's denser phonon
+  settings landed closer to the reference.
+- One run says little about calibration.
+
+**What the run shows.**
+- [Certain] λ fell from 1.710 to 1.443 at the same fine k 24³ and fine
+  q 18³.
+  - The earlier run's phonons used scf k 16³ / 0.02 Ry and `degaussw`
+    0.1 eV. This run used 24³ / 0.01 Ry and 0.05 eV.
+  - The phonons, the EPW ground state and the smearing changed together, so
+    this run cannot apportion the drop.
+- [Likely] Most of the drop is the phonons:
+  - The soft transverse mode at Cartesian q = (0, 0, 1/3) (2π/a), crystal
+    (1/6, 1/6, 1/6), stiffens from 31.6 to 41.3 cm⁻¹. At (0, −1/6, 1/6) the
+    lowest mode goes from 28.7 to 40.2 cm⁻¹.
+  - The electronic factor η in λ = η / (M⟨ω²⟩) did not fall. It was
+    7.66 eV/Å² in the earlier run (fine q 12³, `degaussw` 0.1 eV) and is
+    7.96 eV/Å² here at 24³.
+  - Halving `degaussw` raised tantalum's λ by 4.2%. The smaller smearing on
+    its own would push λ up, not down.
+- [Certain] From fine k 24³ to 36³, λ moved −2.5% (1.443 to 1.406) and ωlog
+  +1.5% (150.97 to 153.16 K).
+  - At the same fixed E_F, EPW's own density of states at E_F rose 14%
+    (0.704 to 0.802 states/spin/eV/cell).
+  - So the Fermi-surface sampling at 0.05 eV is not converged at 24³. The
+    small change in λ may hide compensating changes.
+  - The rule calls 36³ converged. That is a definition, not a
+    demonstration. [Likely]
+- [Certain] Phonon frequencies are identical inside every star, so the
+  spread comes from the interpolated electrons or coupling matrix elements.
+  It does not fall steadily with |q|, and the two 6-member stars, on the Γ–H
+  line, are the most uniform:
+
+  | Star (crystal q) | \|q\| (2π/a) | Members | Range / mean | σ / mean |
+  | --- | --- | --- | --- | --- |
+  | (0, 0, 1/12) | 0.118 | 12 | 21% | 6.5% |
+  | (1/12, 1/12, 1/12) | 0.167 | 6 | 6.8% | 2.7% |
+  | (1/12, 1/12, 1/6) | 0.264 | 24 | 19% | 4.0% |
+  | (1/6, 1/6, 1/6) | 0.333 | 6 | 3.3% | 1.4% |
+  | (0, 1/12, 1/3) | 0.425 | 48 | 12% | 2.9% |
+
+- [Likely] The spread moves the total λ by a few percent at most.
+  - The check's 12% is a range. Single points differ from their star's
+    mean by σ = 1.4 to 6.5%.
+  - The total uses one point per star. Suppose `mp_mesh_q` keeps the
+    lexicographically first member of each star. That is an assumption, but
+    it holds for the one star both runs share: at (1/6, 1/6, 1/6), the 18³
+    run's λ_q is 5.664 against the star's mean of 5.680.
+  - On that assumption, the kept point is within −2.4% to +3.4% of its star
+    mean on these five stars.
+  - "A few percent" is about the size of λ's 2.0% margin to 1.435. The λ
+    pass is therefore weak evidence that the method is right for niobium.
+- [Certain] The list method did not cause the spread. This follows from
+  how the list is built:
+  - Every dropped k-point has no state within 0.6 eV of the fixed E_F. For
+    any q, its double-delta weight is below e⁻¹⁴⁴.
+  - EPW interpolates k+q itself, whether or not k+q is on the list.
+  - The 24³ validation shows EPW treats the list exactly as the full grid,
+    q-point by q-point.
+  - The earlier full-grid 6×6×6 run also had a 14% spread. That run's
+    phonons, ground state and smearing differ, so it is consistent with
+    this, not proof of it.
+- The Wannier functions are the most likely source of both failed checks:
+  [Likely] for the band check, [Speculative] for the star spread. Evidence
+  on disk:
+  - **This run, 12³ coarse grid.**
+    - Disentanglement stopped at its 200-iteration cap with fractional
+      change 1.8 × 10⁻⁵.
+    - Localization ran its full `num_iter` = 500 steps (its convergence
+      window is off) and stopped with the gradient still 0.54 and the
+      spread still falling.
+    - The result is not symmetric. The three p-like functions, which
+      symmetry makes equal, have spreads of 4.60, 4.65 and 4.71 Å², and the
+      centres are up to 0.048 Å off the atom.
+    - Total spread 22.9 Å²; its gauge-dependent part is 9.4 Å².
+  - **The 6×6×6 run, also 12³.** It ended in the same asymmetric state
+    (total spread 23.1 Å²) and had a 14% star spread.
+  - **The 4×4×4 run, 8³ coarse grid, same projections and windows.**
+    - It reached a symmetric set: three t2g-like functions at 1.066 Å² and
+      six equivalent hybrids along the cube axes at 2.01 to 2.03 Å².
+    - Total spread 15.3 Å² (gauge-dependent part 3.3 Å²).
+    - It also ran to both caps, but its remaining changes were tiny:
+      disentanglement change 2 × 10⁻⁹ and gradient 0.02. Reaching a cap is
+      therefore not the difference; how far from converged each run
+      stopped is.
+    - On the same 300 test points, its band errors were within the limits
+      (mean 12.9, 95th percentile 36.8 meV).
+    - But its DOS at 0.05 eV was 6.2% off, so it too would fail today's band
+      check.
+  - **Tantalum's earlier 9-function runs** (two on an 8³ coarse grid, one
+    on 12³) also never reached the symmetric hybrid set.
+    - Their total spreads were 20.3 to 22.5 Å², with centres up to 0.04 to
+      0.09 Å off the atom.
+    - The 8³ band check (95th percentile 104 to 110 meV) was run on the 8³
+      run with total spread 20.5 Å² and centres up to 0.04 Å off.
+  - Three 9-function runs were band-checked. Of these, the only one that
+    reached the symmetric set, niobium on 8³, is also the only one whose
+    band errors met the limits. Niobium's 6×6×6 run and tantalum's 12³ run
+    were not band-checked, so this rests on three cases.
+  - Converging the Wannier functions may still not be enough: the 8³ set's
+    DOS at 0.05 eV was 6.2% off.
+  - That asymmetric Wannier functions cause the star spread is expected,
+    but it was not tested here. No star test exists for the symmetric
+    set.
+- [Certain] Tc stays well above the measured 9.25 K. It does so for the
+  reference's own λ and ωlog in this formula too (13.8 K at μ* = 0.10). Tc
+  was never the test.
+
+**What follows.**
+- **Tantalum.** Its rerun started at 10:33:57 UTC, as the owner approved.
+  - It needs about 5 h of phonons, then about 4 h of EPW, validation, list
+    run and checks, so it should finish around 19:30 UTC.
+  - It cannot change this verdict.
+  - It uses the same Wannier settings (9 projections, `num_iter` 500, the
+    default disentanglement cap). [Likely] Its Wannier functions can end in
+    the same asymmetric state.
+- **Testing the Wannier explanation.** [Speculative]
+  - The cheapest test is to converge the Wannier functions on the saved 12³
+    coarse-grid data: more disentanglement and localization iterations, or
+    a start from the symmetric 3 + 6 set that the 8³ run found.
+  - EPW can reuse the saved coarse-grid matrix elements (`nb.epb1` to
+    `nb.epb4`), so this fits in this machine's memory.
+  - Then rerun the 36³ list, the star test and the band check: about 4 h of
+    machine time.
+- **Whether to do that is the owner's decision.** It could count as a retry
+  of Stage 1, with the same limits and a prediction written first, or as
+  new work. The stop rule does not cover it.
+
+### Corrections to earlier sections, 2026-11-15 10:54 UTC (labelled notes; the sections themselves are unchanged)
+
+- **The 07:40 UTC section** says the phonons finished at 07:20 UTC. They
+  finished at 06:22 UTC: `ph.out` was last written at 06:22:15, and the
+  chain's EPW stage started at 06:25:42. EPW was killed at about 07:24.
+- **Five headings carry times later than their commits.** The 20:20
+  heading (committed 20:14:05) was corrected earlier and is not listed
+  again. In each one, the predictions still came before their results.
+  - The rerun started after 19:35 UTC, and its first result was read at
+    08:38 UTC on 2026-11-15.
+  - The PBEsol corrections were written after the PBEsol results they
+    correct, as their heading says.
+
+  | Section | Heading time | Commit | Committed at |
+  | --- | --- | --- | --- |
+  | "Corrections to the three PBEsol sections above" | 18:45 UTC | f2f9034 | 18:43:36 UTC |
+  | "No Hazel; Cerqueira et al.'s methods" | 19:30 UTC | ac3ce74 | 19:27:56 UTC |
+  | "The electron fine-grid test failed" | 19:40 UTC | 7579d45 | 19:36:41 UTC |
+  | "Owner's decision: the checks keep their default limits" | 19:50 UTC | f41a487 | 19:49:26 UTC |
+  | "Machine restored from a snapshot" | 20:00 UTC | 69da139 | 19:57:50 UTC |
+
 ## 8. Candidates: closing the loop
 
 A candidate's `review.json` uses `"role": "candidate"` and `"accept_for_training": true`. Then:

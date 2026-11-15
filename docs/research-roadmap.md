@@ -122,3 +122,23 @@ Steps 1–3 run in parallel this week.
   converged grids, stop candidate runs and use published calculations. The
   first of those tests, a denser fine q-grid (18³), moved λ only to 1.710. See
   "Niobium 6×6×6 result" in `docs/hazel-runbook.md`.
+
+- **Task B, result (15 November 2026, 10:54 UTC): Stage 1 is not passed.**
+  - The grids are the stop rule's: phonons at scf k 24³ / 0.01 Ry; fine
+    k 36³ on the validated near-Fermi list at `degaussw` 0.05 eV; fine q 18³.
+  - Niobium gives λ 1.406 and ωlog 153.2 K. Both are inside the
+    pre-registered bands; λ is 2.0% below the upper edge.
+  - The band check fails: 95th percentile 86 meV against the 50 meV limit,
+    which equals the smearing.
+  - The symmetry check fails: median spread 12% against 5%.
+  - The rule needs all four, and the limits were fixed before the result.
+  - The stop rule's own trigger (λ or ωlog outside the band) did not fire.
+  - Because Stage 1 is not passed, the owner's fallback applies unless the
+    owner chooses a retry. Candidates are judged from Bercx et al.'s
+    published calculations (`docs/bercx-published-check.md`).
+  - [Likely] The band-check failure comes from Wannier functions that did
+    not converge on the 12³ coarse grid. Whether to retry with converged
+    ones is the owner's decision.
+  - The tantalum rerun continues as approved, but it cannot change this
+    verdict.
+  - See "Niobium on the stop rule's grids" in `docs/hazel-runbook.md`.
