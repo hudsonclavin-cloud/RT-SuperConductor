@@ -1,0 +1,86 @@
+# Input changes for the niobium stop-rule rerun (2026-11-14/15), against this package.
+# Apply from the package directory: patch -p1 < stop-rule-rerun.diff
+# The patched epw.in is the chain run's input. Its fine-grid stage ran out of memory at nkf 36.
+# The 36^3 result then came from a restart of that run with these changes to epw.in:
+#   epwread = .true.; epwwrite, epbwrite and wannierize = .false. (reuse the chain's nb.epmatwp);
+#   nkf1-3 removed and filkf = '<list>' added, the list written by
+#   scripts/epw_fermi_klist.py --n 36 --window 0.6;
+#   efermi_read = .true. and fermi_energy = 17.819144 (EPW's own E_F from the full 36^3 grid).
+# See docs/hazel-runbook.md, "Niobium rerun: phonons done, EPW out of memory" and
+# "Niobium on the stop rule's grids".
+--- a/phonons/scf.in
++++ b/phonons/scf.in
+@@ -14,7 +14,7 @@
+     ecutwfc     = 90
+     occupations = 'smearing'
+     smearing    = 'mv'
+-    degauss     = 0.02
++    degauss     = 0.01
+  /
+  &electrons
+     mixing_beta = 0.5
+@@ -25,4 +25,4 @@
+ ATOMIC_POSITIONS crystal
+  Nb 0.000000000 0.000000000 0.000000000
+ K_POINTS automatic
+- 16 16 16 0 0 0
++ 24 24 24 0 0 0
+--- a/epw/scf.in
++++ b/epw/scf.in
+@@ -12,7 +12,7 @@
+     ecutwfc     = 90
+     occupations = 'smearing'
+     smearing    = 'mv'
+-    degauss     = 0.02
++    degauss     = 0.01
+  /
+  &electrons
+     mixing_beta = 0.5
+@@ -23,4 +23,4 @@
+ ATOMIC_POSITIONS crystal
+  Nb 0.000000000 0.000000000 0.000000000
+ K_POINTS automatic
+- 12 12 12 0 0 0
++ 24 24 24 0 0 0
+--- a/epw/nscf.in
++++ b/epw/nscf.in
+@@ -13,7 +13,7 @@
+     nbnd        = 18
+     occupations = 'smearing'
+     smearing    = 'mv'
+-    degauss     = 0.02
++    degauss     = 0.01
+  /
+  &electrons
+     mixing_beta = 0.5
+--- a/epw/epw.in
++++ b/epw/epw.in
+@@ -32,20 +32,20 @@
+ 
+   fsthick     = 0.4 ! eV
+   temps       = 0.075 ! K
+-  degaussw    = 0.1 ! eV
++  degaussw    = 0.05 ! eV
+ 
+   a2f         = .true.
+   mp_mesh_q   = .true. ! one q-point per symmetry star on the fine grid
+ 
+   dvscf_dir   = '../phonons/save'
+ 
+-  nkf1         = 24
+-  nkf2         = 24
+-  nkf3         = 24
+-
+-  nqf1         = 12
+-  nqf2         = 12
+-  nqf3         = 12
++  nkf1         = 36
++  nkf2         = 36
++  nkf3         = 36
++
++  nqf1         = 18
++  nqf2         = 18
++  nqf3         = 18
+ 
+   nk1         = 12
+   nk2         = 12
