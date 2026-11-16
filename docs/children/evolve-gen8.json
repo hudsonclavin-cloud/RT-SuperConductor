@@ -1,0 +1,110 @@
+{
+ "generation": 8,
+ "selection_half_only": true,
+ "baseline_fitness": 0.6708,
+ "children_scored_this_generation": 2,
+ "children_scored_so_far": 18,
+ "this_generation": [
+  {
+   "child": "elements+proxy2+alloy+tc-size+family",
+   "fitness": 0.7322,
+   "gain": 0.0613,
+   "by_fold": {
+    "A": 0.8609,
+    "B": 0.6504,
+    "C": 0.7477,
+    "D": 0.6536,
+    "E": 0.7482
+   }
+  },
+  {
+   "child": "proxy2",
+   "fitness": 0.6527,
+   "gain": -0.0182,
+   "by_fold": {
+    "A": 0.6629,
+    "B": 0.6453,
+    "C": 0.6488,
+    "D": 0.6249,
+    "E": 0.6815
+   }
+  }
+ ],
+ "fittest_so_far": [
+  {
+   "child": "elements+proxy+alloy+tc-size",
+   "fitness": 0.7593,
+   "gain": 0.0884,
+   "gain_95": [
+    0.0505,
+    0.128
+   ],
+   "gain_99": [
+    0.0432,
+    0.1467
+   ]
+  },
+  {
+   "child": "elements+proxy+alloy+tc-size+family",
+   "fitness": 0.7513,
+   "gain": 0.0805,
+   "gain_95": [
+    0.0403,
+    0.1222
+   ],
+   "gain_99": [
+    0.0319,
+    0.1347
+   ]
+  },
+  {
+   "child": "elements+proxy+tc-size+family",
+   "fitness": 0.7464,
+   "gain": 0.0756,
+   "gain_95": [
+    0.0353,
+    0.1144
+   ],
+   "gain_99": [
+    0.0243,
+    0.1252
+   ]
+  }
+ ],
+ "proxy2_p3": {
+  "proxy2_minus_baseline": {
+   "gain": -0.0182,
+   "gain_95": [
+    -0.0489,
+    0.014
+   ],
+   "gain_99": [
+    -0.0583,
+    0.0207
+   ]
+  },
+  "proxy_minus_baseline": {
+   "gain": 0.016,
+   "gain_95": [
+    -0.007,
+    0.0377
+   ],
+   "gain_99": [
+    -0.0118,
+    0.0427
+   ]
+  },
+  "old_champion_with_proxy2_minus_old_champion": {
+   "gain": -0.0191,
+   "gain_95": [
+    -0.0424,
+    0.0067
+   ],
+   "gain_99": [
+    -0.0508,
+    0.0162
+   ]
+  },
+  "passes": false
+ }
+}
