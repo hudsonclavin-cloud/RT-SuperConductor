@@ -108,3 +108,74 @@ The method section says it was written "2026-11-16 05:50 UTC". That time was
 wrong. The file was written and committed at 06:24 UTC (commit `cb9da40`), and
 no bagged model had been trained by then. The method and the rule are
 unchanged.
+
+## Result, 2026-11-16 07:12 UTC
+
+All runs used the cycle 3 table (sha `961fa702...`). Each placebo flipped the
+same four rows for both methods, which the script checks. Outputs:
+`docs/stable-ranking/stab-bag-*.json` and
+`docs/learning-cycles/stab-single-*.json`.
+
+**Stability: top of the unperturbed order still in place after each placebo.**
+
+| Placebo (seed) | Single: top 10 / 50 / 200 kept | Bag: top 10 / 50 / 200 kept |
+| --- | --- | --- |
+| 1 (41) | 6 / 39 / 162 | 8 / 46 / 184 |
+| 2 (42) | 7 / 38 / 156 | 8 / 45 / 181 |
+| 3 (43) | 3 / 38 / 155 | 9 / 45 / 180 |
+| 4 (44) | 7 / 39 / 166 | 7 / 46 / 180 |
+| 5 (45) | 7 / 38 / 167 | 7 / 47 / 184 |
+| **Mean** | 6.0 / **38.4** / 161.2 | 7.8 / **45.8** / 181.8 |
+
+Rank correlation with the unperturbed order: single 0.989 to 0.991, bag 0.998
+to 0.999.
+
+**The rule.**
+
+| Condition | Result | |
+| --- | --- | --- |
+| Bag keeps at least 5 more of the top 50 | +7.4 (45.8 against 38.4) | met |
+| AUC guard: bag's cross-validated AUC at least 0.785 | 0.7884 (single 0.7902) | holds |
+| Tc guard: bag's Tc log-MAE at most 0.396 | **0.4046** (single 0.3863) | **fails** |
+
+**Verdict: steadier but worse. The bag is not adopted**, as the rule says. The
+ranking of record stays the single model.
+
+**Against the predictions:**
+
+| Prediction | Chance | Result |
+| --- | --- | --- |
+| Primary measure met | 55% | yes |
+| Bag's mean top-50 kept at least 42 | 50% | yes (45.8) |
+| AUC guard holds | 85% | yes |
+| Tc guard holds | 85% | **no** |
+| Bag's AUC at least 0.002 above the single model's | 35% | no (−0.0018) |
+| Zr6Ga2Ni's spread across the placebos narrower for the bag | 65% | yes, barely: 18th to 27th (9 places) against 9th to 19th (10) |
+
+**What it shows.**
+- **Averaging works for stability.** [Certain, for these runs] The bag's order
+  moves far less under the same perturbations: about 3 of the top 50 change
+  instead of about 12.
+- **The cost is in Tc, not in ranking.** [Likely] Each bag sees only about
+  63% of the groups, and the Tc regressor suffers most from that. The
+  made-metals order is by rounded probability, with Tc only breaking ties, so
+  the guard that failed matters less to the order than the AUC guard does. The
+  rule was written that way, and it stands.
+- **The individual models disagree a great deal.** Across the 40 bag members,
+  the median 10-to-90 range of a top-50 candidate's rank is 424 places. None
+  of the top 50 keeps its whole range inside the top 100.
+  - [Likely] The data do not pin down the order of the top candidates: models
+    that differ only in which groups they saw rank the same compound anywhere
+    from about 5th to about 400th.
+  - Each member sees less data than the full model, so this overstates the
+    full model's own uncertainty somewhat. It does not overstate it by an
+    order of magnitude.
+- **The bag's own top 10** (ranges in brackets): BaPb3 (2–180), Ba3Pb5
+  (8–146), BaCdBi2 (4–281), SbTe (2–423), Ba2Cd3Bi4 (9–336), Ba(Mo3S4)2
+  (14–262), Ba(RhPb2)3 (5–287), LuNiC2 (4–356), LaIn5Rh (5–367), Sb2Te
+  (5–432). Zr6Ga2Ni is 24th (9–626).
+
+**A follow-up that would need its own rule.** Bag only the classifier, which
+is what orders the list, and keep the single model's Tc regressor. That
+should keep the stability and pass the Tc guard by construction. It is a
+different method, so it would need to be written down and tested afresh.
