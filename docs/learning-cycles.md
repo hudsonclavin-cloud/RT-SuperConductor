@@ -306,3 +306,115 @@ Reasoning:
   with two flips) and widened for four flips.
 - With no real effect, cycle 3 would beat all three placebos one time in four.
   I put it a little higher because the corrections are real.
+
+## Cycle 3: result, 2026-11-16 05:05 UTC
+
+**Applied:** the four rows in the plan above, recorded in
+`data/training/negative_evidence.csv`. Each changed from 0 to 1 against an
+existing development composition (folds 0, 3, 4 and 4). Nothing moved between
+splits. The table now has 11,825 superconductors and 3,702 negatives.
+
+**Runs.** All four runs below change four development labels from the cycle 1
+table and are scored against cycle 1's saved predictions. The paired
+difference is this model minus cycle 1's, both scored on the run's own labels,
+with a 300-resample interval.
+
+| Run (four labels changed) | AUC | Paired difference against cycle 1 | Top 10 kept | Top 50 kept | Top 200 kept | Rank correlation | Zr6Ga2Ni | Ti3SnH |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Cycle 3 (four real corrections)** | **0.790** | **−0.0031 (−0.0074 to +0.0003)** | 7 | 36 | 167 | 0.992 | 18 | 494 |
+| Placebo 1 (seed 31) | 0.787 | −0.0055 (−0.0102 to −0.0009) | 8 | 37 | 148 | 0.991 | 21 | 731 |
+| Placebo 2 (seed 32) | 0.787 | −0.0056 (−0.0101 to −0.0016) | 7 | 38 | 157 | 0.990 | 12 | 708 |
+| Placebo 3 (seed 33) | 0.792 | −0.0012 (−0.0060 to +0.0032) | 8 | 39 | 163 | 0.991 | 8 | 763 |
+
+(Cycle 1 had AUC 0.793, Zr6Ga2Ni 9th and Ti3SnH 1,031st.)
+
+**Against the predictions written before the result:**
+
+| Prediction | Chance given | Result | |
+| --- | --- | --- | --- |
+| AUC changes by less than 0.005 | 85% | 0.793 to 0.790 | yes |
+| Paired difference against cycle 1 includes zero | 80% | −0.0031 (−0.0074 to +0.0003) | yes, by 0.0003 |
+| Top 50 keeps between 30 and 45 | 75% | 36 | yes |
+| Zr6Ga2Ni stays in the top 20 | 85% | 18th | yes |
+| Cycle 3's AUC change is larger than each placebo's | 45% | larger than two of three; placebo 3 changed less | **no** |
+
+**What it shows.**
+- **The real corrections cannot be told apart from placebos.** [Certain, for
+  these runs]
+  - On the paired difference, the real batch ranked first of four runs in
+    cycle 1 and second of four in cycle 3.
+  - If corrections did nothing, the two ranks would add up to 3 or less
+    (first and first, first and second, or second and first) 3 times in 16
+    (19%). That assumes the four runs in each cycle are interchangeable when
+    there is no effect.
+- **Refitting alone moves AUC by about 0.005.**
+  - The four-flip placebos range from −0.0012 to −0.0056, and the two-flip
+    placebos of cycle 1 from −0.000 to −0.004.
+  - [Likely] A batch's effect on pooled AUC has to be well above 0.005 to be
+    seen. A handful of corrections among about 9,400 labelled rows is not.
+  - [Speculative] All six placebos came out at or below zero, and wrong
+    labels should cost a little. So part of the spread may be that cost, not
+    only noise.
+- **The ranking of the made metals is as unstable as in cycle 1.**
+  - Zr6Ga2Ni ranges from 8th to 21st across these four runs, and from 3rd to
+    21st across all eight runs so far.
+  - Ti3SnH ranges from 494th to 763rd here, and from 484th to 1,031st overall.
+  - Ranks quoted to the place still carry no information beyond their range.
+- **Two of the four corrections are in the iron-based family**
+  (Fe1.03Se0.45Te0.55 and Ca(Fe,Co)2As2). The made-metals list leaves that
+  family out, so these two act on the list only through what the models
+  learn from shared features.
+
+**What the triage measured: wrong negatives in the 500 most suspicious rows.**
+
+| Step | Rows | Share of the 500 |
+| --- | --- | --- |
+| Most suspicious development non-cuprate negatives searched | 500 | 100% |
+| With an OpenAlex lead | 196 | 39% |
+| New (not handled in cycles 1 and 2) and screened | 189 | 38% |
+| Screened as likely wrong | 16 | 3.2% |
+| Passed the rule and applied | 4 | 0.8% |
+| Screened as needing a full text | 52 | 10% |
+
+- [Likely] Shown wrong: at least 4 of the 500 (0.8%).
+- [Likely] Wrong on the physics: about 14 (2.8%). That is the 16 minus
+  Eu0.785K0.215Fe2As2 and Nb3Ge.
+- [Speculative] If a third of the 52 full-text rows also turn out wrong, the
+  rate in this slice is about 6%.
+- The 304 rows with no lead are not verified nulls.
+- The less suspicious rows should have fewer errors. [Speculative] So the
+  3,702 negatives probably hold on the order of 100 wrong labels, not
+  thousands.
+- Cost:
+  - 387 OpenAlex searches, about 0.39 USD of a 1 USD daily budget;
+  - screening and checking took 29 agents and about 80 minutes.
+
+**The bottleneck is reading, not finding.**
+- 12 of the 16 likely-wrong rows failed because the deciding page could not be
+  read from here (APS, IOP and a thesis host are blocked), or because the
+  nearest readable sample was too far away.
+- `data/benchmarks/learning-cycles/cycle3-library-requests.csv` lists the
+  papers that could settle the 52 full-text rows and the failed rows, ordered
+  by how many rows each could settle. The first five would cover 22 rows:
+  - Superconductivity and lattice parameters in the Zr–Mo, Zr–W, Hf–Mo and
+    Hf–W systems, doi:10.1016/0022-5088(70)90162-1 (7 rows);
+  - the OSTI report on vanadium in Nb–Zr alloys, OSTI 7297509 (5 rows);
+  - Merriam, Hagen and Luo, Phys. Rev. 154, 424 (1967), In–Tl (4 rows,
+    including cycle 2's TlIn19);
+  - Low-temperature specific heats of Zr–Ti, Zr–Hf and Zr–Sc alloys,
+    Phys. Rev. 168, 715, doi:10.1103/physrev.168.715 (3 rows);
+  - Superconductivity in Cr3Si-type ternary phases with niobium and group VIII
+    metals, Phys. Rev. 137, A1438, doi:10.1103/physrev.137.a1438 (3 rows).
+
+**Open question for the owner (this pull request's one question).**
+- The rule asks that "the paper's own text" state superconductivity with a
+  Tc. The readers here did not count an abstract alone, because an abstract
+  cannot show the sample or its phase purity.
+- Lu2Ni3Si5 failed only on that reading. Its abstract (Phys. Rev. B 50,
+  13879, 1994) states Tc 2.1 K, zero resistance at 2.0 K and a specific-heat
+  jump "which indicates bulk superconducting ordering".
+- **The question:** should an abstract count when it states the Tc and a
+  bulk signature (zero resistance together with a specific-heat jump or
+  near-full shielding) for the exact composition?
+- If yes, Lu2Ni3Si5 enters the next cycle. The other abstract-only rows would
+  still fail, because their abstracts give no Tc for the composition.
