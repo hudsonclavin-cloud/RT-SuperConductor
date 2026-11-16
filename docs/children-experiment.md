@@ -546,3 +546,104 @@ still need its own test under the learning-cycle guards before it is adopted.
 | `alloy` beats the baseline on the primary endpoint | 45% |
 | A champion is declared | 30% |
 | The best generation 7 child is above the baseline on the second look's intermetallics | 60% |
+
+## Generations 6 and 7: results, 2026-11-16 17:16 UTC
+
+**Main result:** the child given all five changes at once is the champion. On
+intermetallics it scores 0.752 against the baseline's 0.696, averaged over the
+four selection folds, and its 99% interval is above zero. This is selection
+evidence, not a blind test; no blind test exists (see the plan above).
+
+**Generation 6: one change each** (mean over the four folds).
+
+| Child | Intermetallics AUC | Gain | 99% interval of the gain | All compositions AUC | Gain |
+| --- | --- | --- | --- | --- | --- |
+| Baseline | 0.696 | | | 0.655 | |
+| `tc-size` | 0.723 | +0.027 | +0.007 to +0.048 | 0.661 | +0.006 |
+| `elements` | 0.711 | +0.014 | −0.015 to +0.047 | 0.665 | +0.011 |
+| `proxy` | 0.704 | +0.008 | −0.015 to +0.029 | 0.662 | +0.007 |
+| `family` | 0.703 | +0.007 | −0.015 to +0.028 | 0.659 | +0.004 |
+| `alloy` | 0.702 | +0.005 | −0.016 to +0.026 | 0.660 | +0.006 |
+
+- All five are above the baseline, so all five went into the breeding.
+- Only `tc-size` is clearly above it on its own. It adds no physics: it lets
+  the model learn how high Tc was, not only whether there was one.
+
+**Generation 7: breeding.**
+
+| Child | Changes | Intermetallics AUC | Gain | 99% interval | All compositions: gain | 99% interval |
+| --- | --- | --- | --- | --- | --- | --- |
+| `best` | tc-size | 0.723 | +0.027 | +0.007 to +0.048 | +0.006 | −0.011 to +0.023 |
+| `best-two` | tc-size, elements | 0.740 | +0.043 | +0.012 to +0.079 | +0.019 | −0.007 to +0.037 |
+| `best-three` | tc-size, elements, proxy | 0.745 | +0.048 | +0.014 to +0.083 | +0.019 | −0.005 to +0.039 |
+| `best-two-bagged` | tc-size, elements, 8 bags | 0.724 | +0.028 | −0.002 to +0.058 | +0.001 | −0.024 to +0.022 |
+| **`all`** | all five | **0.752** | **+0.055** | **+0.022 to +0.091** | **+0.023** | **+0.001 to +0.043** |
+
+- **Champion: `all`,** by the rule (highest primary endpoint, 99% interval
+  above zero). It is ahead of the baseline in every fold.
+- The gains add up: each change alone is small, and together they are about
+  twice the best single one.
+- Bagging did not help here. The bagged child is below the same child
+  unbagged, the opposite of generations 3 to 5.
+
+**By fold, intermetallics AUC.**
+
+| Fold (tested on) | Baseline | `all` |
+| --- | --- | --- |
+| A (1996 to 2000) | 0.793 | 0.874 |
+| B (2001 to 2005) | 0.618 | 0.680 |
+| C (2006 to 2010) | 0.713 | 0.755 |
+| D (2011 to 2015) | 0.661 | 0.698 |
+
+**Second look at 2016 to 2020 (not blind; taken once, after the champion was
+named and committed).**
+
+| | Baseline | `all` | Gain | 99% interval |
+| --- | --- | --- | --- | --- |
+| Intermetallics (386) | 0.756 | 0.844 | +0.088 | +0.031 to +0.165 |
+| All compositions (524) | 0.685 | 0.763 | +0.078 | +0.025 to +0.149 |
+
+**Predictions against results.**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| `elements` beats the baseline on the primary endpoint | 55% | yes (+0.014) |
+| `proxy` beats the baseline | 55% | yes (+0.008) |
+| `alloy` beats the baseline | 45% | yes (+0.005) |
+| A champion is declared | 30% | yes |
+| The best generation 7 child is above the baseline on the second look's intermetallics | 60% | yes (+0.088) |
+
+I gave a champion 30% and was too pessimistic.
+
+**What I take from it.**
+
+- [Likely] Telling the model more works better than tuning it. Three
+  generations of tuning gave about +0.02; two generations of added knowledge
+  gave +0.055 on the same kind of test.
+- [Likely] The improvement is real and not an artifact of picking a winner.
+  - `all` was defined before generation 6 ran and did not depend on its
+    results.
+  - It was the best of only five children, it wins in all four folds, and it
+    wins again, by more, on a slice it was not chosen on.
+- [Certain] That last slice is not blind. I designed these children knowing
+  that a physics input had helped on it. The honest status is "strong
+  selection evidence, awaiting a blind test".
+- [Speculative] Which of the five changes carries the gain is not settled.
+  `tc-size` is the largest alone, but the breeding did not test each change's
+  removal from `all`. That is one more run.
+- [Certain] The absolute level is still modest. 0.75 on intermetallics means
+  the model orders a random superconductor above a random measured null three
+  times in four.
+
+**What it does not change, yet.** The ranking of record is the cycle 3
+boosting model. `all` was trained on NIMS data, which the ranking of record
+does not use. Adopting it needs the learning-cycle guards and, better, a blind
+test.
+
+**Next, in order of value.**
+1. A blind test: superconductor papers from 2021 on, read by low-tier readers
+   into a dated table (measured Tc, and measured nulls). This is the one thing
+   that turns "selection evidence" into a result.
+2. Leave-one-out on `all`: which changes can be dropped.
+3. Score the rung 4 pool with `all` as a second opinion beside the ranking of
+   record.
