@@ -152,7 +152,10 @@ three of them are being checked for stability.
 | 12 | YRhIn5 | 115 type | 0.917 | 90.4 | −23 (flagged) | Unclear: a 2007 abstract implies it was grown. |
 
 - Ranks 7 and 9 were skipped by the caps (two per prototype, two per element
-  system).
+  system). They are NbGaRu2 and VGaRu2, two more Heusler compounds; the two
+  Heusler places had gone to NaMgPb2 and LiMgPb2. Neither has been read by a
+  reader. [Speculative] Both would be far easier for a lab than the
+  lead compounds: every element in them can be arc-melted.
 - **The two models agree on these.** Eight of the ten are in the champion's
   top 5%. Over all 571 the two orderings correlate at 0.71.
 - The force field flags Nb2GeC, which exists, and passes ReIr3, which
