@@ -267,3 +267,21 @@ Ten low-tier readers, one compound each: the five in the top 10 that shortlist
 
 **Note on the ranking of record.** This shortlist was ranked with cycle 3.
 The owner accepted cycle 4 on 2026-11-16; the shortlist is not re-ranked.
+
+### Step 4, second result: LiMgPb2 passes at both points, 2026-11-16 23:33 UTC
+
+| Point | Frequencies (cm⁻¹) | Lowest | Imaginary? |
+| --- | --- | --- | --- |
+| Zone centre | 14.7 (×3), 72.3 (×3), 178.1 (×3), 195.9 (×3) | 14.7 | No |
+| (½ 0 ½), where the force field was softest | 33.3 (×2), 47.8 (×2), 56.7, 65.5, 169.6 (×2), 179.4, 204.6, 204.8 (×2) | 33.3 | No |
+
+- Verdict under the rule: **LiMgPb2 passes the pre-check.** Its package is
+  `data/benchmarks/candidates/limgpb2/`.
+- [Likely] As with NaMgPb2, the lowest triplet at the zone centre is the
+  three translations, shifted up by the missing sum rule.
+- [Certain] NaMgPb2 and LiMgPb2 are the same structure with one element
+  swapped, so they are not two independent successes. If one is run on Hazel,
+  the other adds less.
+- The run was cut by a container restart during the second point and
+  continued from its saved work; the output ends normally.
+- CsIr2P2 is running.
