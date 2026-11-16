@@ -1,0 +1,33 @@
+{
+ "p1_learns_the_calculation": {
+  "compositions": 7027,
+  "tc_above_1k": 2855,
+  "element_systems": 4957,
+  "auc": 0.9069,
+  "interval": {
+   "low": 0.8989,
+   "median": 0.9069,
+   "high": 0.9149,
+   "resamples": 1000
+  },
+  "pass_mark": 0.7,
+  "rank_correlation_lambda": 0.8055,
+  "rank_correlation_omega_log": 0.848,
+  "auc_with_an_f_element": 0.8759,
+  "auc_without": 0.9073,
+  "passes": true
+ },
+ "p1b_agrees_with_bercx": {
+  "bercx_compositions": 3970,
+  "flagged_by_bercx": 1405,
+  "formulas_shared_with_the_new_data_and_left_out_of_training": 725,
+  "auc": 0.6982,
+  "interval": {
+   "low": 0.6792,
+   "median": 0.6985,
+   "high": 0.7167,
+   "resamples": 1000
+  },
+  "first_proxy_within_bercx": 0.8248
+ }
+}

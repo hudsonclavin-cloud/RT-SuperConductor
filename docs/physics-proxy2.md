@@ -107,3 +107,60 @@ would show the new proxy the lockbox.
 - P1, P1b and P2 are unchanged. They use no NIMS fold.
 - Whether the new proxy reaches the lockbox depends on whether evolution
   keeps it.
+
+## Results of P1, P1b and P2, 2026-11-16 19:34 UTC
+
+**Main result:** the new proxy learns the calculations well (P1 passes) and
+carries to experiments better than the first proxy did, but it misses P2's
+pass mark by 0.006. P3 is run inside generation 8 and is reported in
+`docs/children-experiment.md`.
+
+Numbers are from `docs/physics-proxy2/data.json`, `p1.json` and `p2.json`
+(commands: `python scripts/physics_proxy2.py data`, `p1`, `p2`).
+
+**Data.**
+
+| | Count |
+| --- | --- |
+| Alexandria calculation folders downloaded | 8,249 |
+| Alexandria rows kept (46 folders unreadable) | 8,203 |
+| JARVIS rows kept, of 1,058 (432 not marked stable, 3 out of range) | 623 |
+| Distinct compositions after merging | 7,027 |
+| Element systems | 4,957 |
+| Calculated Tc above 1 K | 2,855 |
+
+- Two of the 17 Alexandria archives arrived cut short on the first download
+  (306 and 359 folders of 500). The download script had marked them complete.
+  They were fetched again before anything was trained, and the script now
+  accepts an archive only if the stream ended cleanly.
+
+**Tests.**
+
+| Test | Measure | Result | Pass mark | Verdict |
+| --- | --- | --- | --- | --- |
+| P1 | Cross-fitted AUC, calculated Tc above 1 K (7,027 compositions) | 0.907 (95% 0.899 to 0.915) | 0.70 | Passes |
+| P1 | Rank correlation, predicted with calculated λ | 0.81 | none | |
+| P1b | AUC on Bercx et al.'s flag, 3,970 compositions, shared formulas left out of training | 0.698 (0.679 to 0.717) | none | The first proxy, trained on those rows, scored 0.825 within them |
+| P2 | AUC on 814 made metals (355 superconductors), shared formulas left out | 0.594 (0.550 to 0.634) | 0.60 | Fails by 0.006 |
+| P2 | The same, ranking by predicted λ in place of the Tc flag | 0.622 | none | Reported only |
+| P2 | The first proxy on these rows | 0.531 | | |
+
+**What it shows.**
+
+- [Certain] A formula is enough to predict these calculations across element
+  systems: 0.907, against the first proxy's pass mark of 0.70.
+- [Likely] The calculations disagree between sources. A proxy trained on
+  Alexandria and JARVIS ranks Bercx et al.'s compounds at 0.698, well below
+  what it reaches on its own kind (0.907). This was the plan's biggest risk.
+- [Likely] More and better calculations do carry further towards
+  experiments: 0.594 against 0.531. But the interval reaches down to 0.550,
+  and the pass mark was not met. By the rule the proxy fails P2.
+- [Speculative] Predicted λ ranks experiments a little better than the Tc
+  flag (0.622). That was not the planned measure and is not a pass.
+
+**Predictions.**
+
+| Outcome | Chance given | Result |
+| --- | --- | --- |
+| P1 passes | 75% | Yes (0.907) |
+| P2 passes | 30% | No (0.594, mark 0.60) |
