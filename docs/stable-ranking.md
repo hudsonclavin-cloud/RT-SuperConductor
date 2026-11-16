@@ -179,3 +179,7 @@ ranking of record stays the single model.
 is what orders the list, and keep the single model's Tc regressor. That
 should keep the stability and pass the Tc guard by construction. It is a
 different method, so it would need to be written down and tested afresh.
+
+**Note on commit IDs (2026-11-16 07:15 UTC).** Rebasing onto main (after PR #51) gave
+every commit on this branch a new ID. The correction above cites `cb9da40`.
+That commit is now `1e132b3`, with the same authored time, 06:24:54 UTC.

@@ -255,3 +255,14 @@ in it changes.
 **Correction to that correction (written 07:01 UTC).** Its stamp, "07:02 UTC",
 is also later than its commit (`31a7e6f`, 07:01:14 UTC). It was written at
 07:01 UTC.
+
+**Note on commit IDs (2026-11-16 07:15 UTC).** Rebasing onto main (after PR #51) gave
+every commit here a new ID. The authored times are unchanged:
+
+| Cited above | Now |
+| --- | --- |
+| `6aa4b67` (script, 06:57:41 UTC) | `75ac066` |
+| `63db81d` (results, 07:00:55 UTC) | `423b0ff` |
+| `31a7e6f` (first correction, 07:01:14 UTC) | `798ae2f` |
+
+The plan itself is `37919ec` (06:55:23 UTC).
