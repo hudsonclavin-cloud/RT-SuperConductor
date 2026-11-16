@@ -251,3 +251,7 @@ Step 5's direct calculation on finalists stays the physics check.
 results, 2026-11-16 07:01 UTC" is later than the commit that added it
 (`63db81d`, 07:00:55 UTC). The section was written at 07:00 UTC. Nothing else
 in it changes.
+
+**Correction to that correction (written 07:01 UTC).** Its stamp, "07:02 UTC",
+is also later than its commit (`31a7e6f`, 07:01:14 UTC). It was written at
+07:01 UTC.
