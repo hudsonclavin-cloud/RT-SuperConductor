@@ -164,3 +164,59 @@ Numbers are from `docs/physics-proxy2/data.json`, `p1.json` and `p2.json`
 | --- | --- | --- |
 | P1 passes | 75% | Yes (0.907) |
 | P2 passes | 30% | No (0.594, mark 0.60) |
+
+## Result of P3, and the verdict, 2026-11-16 19:50 UTC
+
+**Main result:** the new proxy fails P3. Adding it lowers the model's score
+on the selection halves. With P2 also failed, the plan's second outcome
+applies: learning a calculation from the formula does not help predict
+experiments, on thirty times the detailed data.
+
+P3 was run inside generation 8, on the selection halves of folds A to E as
+the amendment above requires (`docs/children/evolve-gen8.json`, field
+`proxy2_p3`). Intermetallic AUC, mean of five folds; baseline 0.6708.
+
+| Comparison | Difference | 95% interval | 99% interval |
+| --- | --- | --- | --- |
+| Baseline + new proxy, minus baseline | −0.0182 | −0.0489 to +0.0140 | −0.0583 to +0.0207 |
+| Baseline + first proxy, minus baseline (same halves) | +0.0160 | −0.0070 to +0.0377 | −0.0118 to +0.0427 |
+| Old champion with the new proxy swapped in, minus old champion | −0.0191 | −0.0424 to +0.0067 | −0.0508 to +0.0162 |
+
+- Pass mark: the first row's 99% interval above zero. It is not; the point
+  estimate is negative.
+
+**All tests together.**
+
+| Test | Result | Verdict |
+| --- | --- | --- |
+| P1: learns the calculation | 0.907 | Passes |
+| P2: carries to experiments | 0.594 (mark 0.60) | Fails |
+| P3: helps the model | −0.018 | Fails |
+
+**What it shows.**
+
+- [Certain] The proxy is a good model of the calculations and a poor input
+  for predicting experiments. Both are true at once.
+- [Likely] The reason is the one named under Risks: the proxy's four outputs
+  are functions of the same 155 formula features the model already has. They
+  carry no information the model lacks, and four extra correlated columns
+  give the trees more ways to overfit.
+- [Speculative] The first proxy did a little better (+0.016, not
+  distinguishable from zero) perhaps because it is one column, not four.
+- The proxy is not adopted. The frozen champion and its first proxy are
+  untouched.
+
+**What would be different.** Inputs the formula does not determine: the
+crystal structure, or a calculated quantity for the compound itself (as the
+Hazel runs give for a few candidates). More calculated data of this kind,
+learned from formulas, is not the next step.
+
+**Predictions.**
+
+| Outcome | Chance given | Result |
+| --- | --- | --- |
+| P1 passes | 75% | Yes |
+| P2 passes | 30% | No (0.594) |
+| The new proxy's gain in P3 is larger than the first proxy's | 55% | No (−0.018 against +0.016) |
+| P3 passes | 20% | No |
+| The champion with the new proxy beats the champion | 45% | No (−0.019) |
