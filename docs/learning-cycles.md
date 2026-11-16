@@ -520,3 +520,84 @@ The owner left these two decisions to my discretion on 2026-11-16.
 that the stability test, rung 4 and the five-children experiment use. It is
 recorded here as approved and goes into `data/training/negative_evidence.csv`
 with the next batch of corrections.
+
+## Cycle 4: plan and predictions, written before any cycle 4 result, 2026-11-16 18:48 UTC
+
+**Main idea:** cycles 1 to 3 corrected labels. This cycle adds rows: the
+compositions that the NIMS SuperCon file has and the training table lacks.
+The owner asked for it on 2026-11-16, after the training-data test
+(`docs/training-data-test.md`) passed its rule.
+
+**The assumption I am challenging.** That test's +0.018 does not carry over.
+It trained on 3,035 extra NIMS compositions; only 851 can be added here
+(1,754 are this table's locked rows, 430 are tied to locked or several-fold
+groups). [Likely] 6% more rows of the same kind of data will change the
+ranking's scores by less than can be measured.
+
+**What is added.** New evidence here is a different source's records, not
+readings of papers, so the owner's two-reader rule for corrections does not
+apply and no existing label changes.
+
+- A NIMS composition is added only if it is absent from the whole table.
+- It is tied to the table's groups the way the table ties its own rows: by
+  major elements (5 at.% or more) and by near twins (within 0.02 on every
+  element), chained through other added rows.
+- Tied to a locked group: not added. Tied to groups in more than one fold or
+  split: not added. Tied to one development group: it takes that group's
+  fold. Tied to nothing: it forms a new group and takes a fold from a hash of
+  the group's name.
+- Label: 1 if any NIMS record reports superconductivity, else 0. Tc: the
+  median of the distinct positive values.
+- The 55 shared compositions where the two sources disagree are listed in
+  `docs/learning-cycles/nims-disagreements.csv` for a later correction batch
+  under the two-reader rule. They are not changed here.
+
+**Guards.**
+
+- The table is not rebuilt. Every existing row keeps its label, split and
+  fold; the cycle script's layout check still runs.
+- The added rows are a separate training-only block
+  (`data/processed/learning-cycles/nims-additions.csv.gz`, not committed; its
+  checksum and counts are in `docs/learning-cycles/nims-additions.json`).
+- An added row is fitted only in rounds where its fold is not held out, and
+  never when its group is in that round's early-stopping rows.
+- The locked rows are neither trained on nor scored.
+
+**Two measurements.**
+
+| | Question | Rows scored | How |
+| --- | --- | --- | --- |
+| E1 | Does adding the rows help on new compounds of the kind NIMS has and the table lacks? | The 851 added rows, each scored only by the round that held its fold out | AUC with the other folds' added rows in training, minus AUC without any; 1,000 resamples of groups |
+| E2 | Does it hurt at home? | The development rows, as in every cycle | Cycle 4 minus cycle 3, paired, non-cuprates |
+
+- [Certain] Neither measurement is a blind test. E1's rows come from the
+  same source as what is added, so it is the favourable case.
+
+**Placebos.** The models are deterministic, so a changed seed is no control.
+Three placebos each add 851 randomly chosen development rows a second time
+(seeds 41, 42, 43): a change of the same size that carries no new
+information. They show how much the made-metals order moves from re-weighting
+alone.
+
+**Rule, fixed now.**
+
+| Outcome | Reading |
+| --- | --- |
+| E1's 95% interval is above zero **and** E2's median difference is not below −0.005 | Cycle 4 becomes the ranking of record. Shortlist 2 was ranked with cycle 3 and is not re-ranked in this pull request. |
+| Anything else | Cycle 3 stays the ranking of record. The added-rows file is kept. |
+
+**Run order.**
+1. `python scripts/build_nims_additions.py`
+2. `python scripts/run_learning_cycle.py --name cycle4-placebo-<n> --previous cycle3 --duplicate-rows 851 --placebo-seed <40+n>` for n = 1, 2, 3
+3. `python scripts/run_learning_cycle.py --name cycle4 --previous cycle3 --additions data/processed/learning-cycles/nims-additions.csv.gz`
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| E1's 95% interval is above zero | 40% |
+| E2: non-cuprate AUC changes by less than 0.005 from cycle 3 | 85% |
+| Cycle 4 is adopted under the rule | 35% |
+| The made-metals top 50 keeps between 25 and 45 of cycle 3's 50 | 70% |
+| Zr6Ga2Ni stays in the top 20 | 80% |
+| Cycle 4 keeps fewer of cycle 3's top 50 than each of the three placebos does | 55% |

@@ -35,9 +35,11 @@ from __future__ import annotations
 import argparse
 import csv
 import gzip
+import hashlib
 import json
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -94,18 +96,41 @@ def check_unchanged_layout(comparison: dict) -> None:
 # ---------------------------------------------------------------------------
 # 2. Cross-validation.
 
-def cross_validate(ds: C.Dataset, X: np.ndarray, settings: dict, seed_offset: int = 0
+def cross_validate(ds: C.Dataset, X: np.ndarray, settings: dict, seed_offset: int = 0, extra: dict | None = None
                    ) -> tuple[np.ndarray, tuple, np.ndarray, list]:
-    """Out-of-fold boosting predictions on the development rows; the same folds and seeds as run_scratchnet.py cv."""
+    """Out-of-fold boosting predictions on the development rows; the same folds and seeds as run_scratchnet.py cv.
+
+    ``extra`` is a block of added training rows (``load_additions`` or ``duplicate_rows``). They are fitted, never
+    scored as development rows. Where ``extra["score"]`` is set, each added row is also predicted by the round that
+    held its fold out, with and without the other added rows in training (written into ``extra``).
+    """
     dev = np.flatnonzero(ds.split == "dev")
     position = {int(row): i for i, row in enumerate(dev)}
     p, tc, distance = np.full(len(dev), np.nan), np.full(len(dev), np.nan), np.full(len(dev), np.nan)
     info = []
+    if extra is not None:
+        X_all, arrays_all = extended(ds, X, extra)
+        extra["p_with"], extra["p_without"] = np.full(len(extra["label"]), np.nan), np.full(len(extra["label"]), np.nan)
+        extra["p_dev_without"] = np.full(len(dev), np.nan)
     for fold in sorted(set(ds.fold[dev].tolist())):
         fit, valid, test = fold_rows(ds, fold)
         where = np.array([position[int(row)] for row in test])
-        p_fold, tc_fold, fold_info = C.boosting_predict(X, ds.arrays, fit, valid, X[test], seed=fold + seed_offset,
-                                                        **settings)
+        if extra is None:
+            p_fold, tc_fold, fold_info = C.boosting_predict(X, ds.arrays, fit, valid, X[test],
+                                                            seed=fold + seed_offset, **settings)
+        else:
+            use = added_rows_for(extra, fold, set(ds.arrays.group[valid].tolist()))
+            models, fold_info = C.boosting_fit(X_all, arrays_all, np.concatenate([fit, len(ds.rows) + use]), valid,
+                                               seed=fold + seed_offset, **settings)
+            p_fold, tc_fold = C.boosting_apply(models, X[test])
+            fold_info["added_rows_fitted"] = int(len(use))
+            held = np.flatnonzero(extra["fold"] == fold)
+            if extra["score"]:
+                plain, _ = C.boosting_fit(X, ds.arrays, fit, valid, seed=fold + seed_offset, **settings)
+                extra["p_dev_without"][where] = C.boosting_apply(plain, X[test])[0]
+                if len(held):
+                    extra["p_with"][held] = C.boosting_apply(models, extra["X"][held])[0]
+                    extra["p_without"][held] = C.boosting_apply(plain, extra["X"][held])[0]
         p[where], tc[where] = p_fold, tc_fold
         distance[where] = C.nearest_distance(ds.dense[np.concatenate([fit, valid])], ds.dense[test])[0]
         info.append({"fold": fold, **fold_info})
@@ -133,24 +158,91 @@ def score_with_labels(ds: C.Dataset, rows: np.ndarray, distance: np.ndarray, pre
 # ---------------------------------------------------------------------------
 # 4. Final models and the made-metals order.
 
-def final_models(ds: C.Dataset, X: np.ndarray, settings: dict, model_dir: Path, seed_offset: int = 0
-                 ) -> tuple[list, list]:
+def final_models(ds: C.Dataset, X: np.ndarray, settings: dict, model_dir: Path, seed_offset: int = 0,
+                 extra: dict | None = None) -> tuple[list, list]:
     """One model per development fold held back for early stopping; locked rows are never fitted."""
     import joblib
 
     dev = ds.split == "dev"
     models, info = [], []
     model_dir.mkdir(parents=True, exist_ok=True)
+    X_all, arrays_all = (X, ds.arrays) if extra is None else extended(ds, X, extra)
     for fold in sorted(set(ds.fold[dev].tolist())):
         valid = dev & (ds.fold == fold)
         fit = ((ds.split == "train_only") | dev) & ~valid
         assert not (fit & (ds.split == "lockbox")).any()
-        model, fold_info = C.boosting_fit(X, ds.arrays, np.flatnonzero(fit), np.flatnonzero(valid),
+        fit_rows = np.flatnonzero(fit)
+        if extra is not None:
+            use = added_rows_for(extra, fold, set(ds.arrays.group[valid].tolist()))
+            fit_rows = np.concatenate([fit_rows, len(ds.rows) + use])
+        model, fold_info = C.boosting_fit(X_all, arrays_all, fit_rows, np.flatnonzero(valid),
                                           seed=fold + seed_offset, **settings)
         joblib.dump(model, model_dir / f"boosting-fold{fold}.joblib")
         models.append(model)
-        info.append({"validation_fold": fold, "fit_rows": int(fit.sum()), **fold_info})
+        info.append({"validation_fold": fold, "fit_rows": int(len(fit_rows)), **fold_info})
     return models, info
+
+
+# ---------------------------------------------------------------------------
+# 4b. A block of added training rows (cycle 4): never scored as development rows, never tied to a locked group.
+
+def extended(ds: C.Dataset, X: np.ndarray, extra: dict) -> tuple[np.ndarray, SimpleNamespace]:
+    """The table's rows followed by the added rows: features, and the labels and Tc that boosting reads."""
+    return (np.vstack([X, extra["X"]]),
+            SimpleNamespace(label=np.concatenate([ds.arrays.label, extra["label"]]),
+                            tc_k=np.concatenate([ds.arrays.tc_k, extra["tc_k"]])))
+
+
+def added_rows_for(extra: dict, held_fold: int, validation_groups: set[str]) -> np.ndarray:
+    """Added rows a round may fit: not of the held-out fold, and not tied to a group in its early-stopping rows."""
+    return np.array([i for i, (fold, tied) in enumerate(zip(extra["fold"], extra["tied"]))
+                     if fold != held_fold and not (tied & validation_groups)], dtype=int)
+
+
+def load_additions(path: Path, ds: C.Dataset) -> dict:
+    """The added rows written by ``build_nims_additions.py``, refused if any is in the table or tied to a locked group."""
+    import build_mp_candidates as M
+
+    rows = C.read_table(path)
+    have = {row["composition"] for row in ds.rows}
+    locked = {row["group"] for row in ds.rows if row["split"] == "lockbox"}
+    tied = [set(row["tied_groups"].split(";")) for row in rows]
+    clash = [row["composition"] for row, groups in zip(rows, tied) if row["composition"] in have or groups & locked]
+    if clash:
+        raise SystemExit(f"{len(clash)} added rows are in the table or tied to a locked group, e.g. {clash[:5]}")
+    fractions = [C.fractions_of(row["composition"]) for row in rows]
+    X, _ = C.formula_features([C.formula_text(f) for f in fractions])
+    return {"source": str(path.relative_to(ROOT)), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "keys": [row["composition"] for row in rows], "X": X,
+            "label": np.array([float(row["label"]) for row in rows]),
+            "tc_k": np.array([float(row["tc_k"]) if row["tc_k"] != "" else np.nan for row in rows]),
+            "fold": np.array([int(row["fold"]) for row in rows]), "tied": tied,
+            "group": np.array([row["group"] for row in rows]),
+            "cuprate": np.array([M.family(set(f)) == "Cuprates" for f in fractions]), "score": True}
+
+
+def duplicate_rows(ds: C.Dataset, X: np.ndarray, count: int, seed: int) -> dict:
+    """A placebo block: ``count`` random labelled development rows a second time. Same size, no new information."""
+    pool = np.flatnonzero((ds.split == "dev") & np.isfinite(ds.arrays.label))
+    chosen = np.sort(np.random.default_rng(seed).choice(pool, size=count, replace=False))
+    return {"source": f"placebo: {count} development rows duplicated, seed {seed}", "sha256": None,
+            "keys": [ds.rows[i]["composition"] for i in chosen], "X": X[chosen],
+            "label": ds.arrays.label[chosen].copy(), "tc_k": ds.arrays.tc_k[chosen].copy(),
+            "fold": ds.fold[chosen].astype(int), "tied": [{str(g)} for g in ds.arrays.group[chosen]],
+            "group": ds.arrays.group[chosen], "cuprate": ds.family[chosen] == "Cuprates", "score": False}
+
+
+def score_added_rows(extra: dict, resamples: int = 1000) -> dict:
+    """E1: AUC on the added rows, each predicted by the round that held its fold out, with and without the others."""
+    y, with_, without = extra["label"], extra["p_with"], extra["p_without"]
+    out = {}
+    for name, keep in (("all", np.ones(len(y), bool)), ("not cuprates", ~extra["cuprate"])):
+        yk, a, b, groups = y[keep], with_[keep], without[keep], extra["group"][keep]
+        gap = C.group_bootstrap(groups, lambda s: T.roc_auc(yk[s], a[s]) - T.roc_auc(yk[s], b[s]), resamples)
+        out[name] = {"rows": int(keep.sum()), "superconductors": int((yk == 1).sum()), "nulls": int((yk == 0).sum()),
+                     "auc_with_added_rows": T.roc_auc(yk, a), "auc_without": T.roc_auc(yk, b),
+                     "difference": T.roc_auc(yk, a) - T.roc_auc(yk, b), "difference_interval_95": gap}
+    return out
 
 
 def candidate_pool(path: Path, known_elements: set[str]) -> tuple[list[dict], list[dict[str, float]]]:
@@ -256,7 +348,8 @@ def load_previous(name: str) -> tuple[dict, dict, list[dict]]:
     return state, oof, order
 
 
-def run(name: str, previous: str | None, seed_offset: int = 0, placebo_flips: int = 0, placebo_seed: int = 0) -> dict:
+def run(name: str, previous: str | None, seed_offset: int = 0, placebo_flips: int = 0, placebo_seed: int = 0,
+        additions: Path | None = None, duplicates: int = 0) -> dict:
     import joblib  # noqa: F401  (fail early if missing)
 
     started = time.time()
@@ -277,7 +370,14 @@ def run(name: str, previous: str | None, seed_offset: int = 0, placebo_flips: in
 
     formulas = [C.formula_text(C.fractions_of(row["composition"])) for row in ds.rows]
     X, _ = C.formula_features(formulas, cache=C.WORK / "formula-features.npz")
-    dev, prediction, distance, cv_info = cross_validate(ds, X, settings, seed_offset)
+    extra = None
+    if additions and duplicates:
+        raise SystemExit("--additions and --duplicate-rows are separate runs")
+    if additions:
+        extra = load_additions(additions, ds)
+    elif duplicates:
+        extra = duplicate_rows(ds, X, duplicates, placebo_seed)
+    dev, prediction, distance, cv_info = cross_validate(ds, X, settings, seed_offset, extra)
     keys = [ds.rows[i]["composition"] for i in dev]
     label, tc = ds.arrays.label[dev], ds.arrays.tc_k[dev]
     not_cuprate = ds.family[dev] != "Cuprates"
@@ -303,7 +403,17 @@ def run(name: str, previous: str | None, seed_offset: int = 0, placebo_flips: in
                  "p_this_model": round(float(prediction[0][i]), 4)}
                 for i, k in enumerate(keys) if k in changed]}
 
-    models, final_info = final_models(ds, X, settings, WORK / "models" / name, seed_offset)
+    if extra is not None:
+        report["added_rows"] = {"source": extra["source"], "sha256": extra["sha256"], "rows": len(extra["keys"]),
+                                "superconductors": int((extra["label"] == 1).sum()),
+                                "nulls": int((extra["label"] == 0).sum()),
+                                "scored_as_development_rows": False}
+        if extra["score"]:
+            report["added_rows"]["E1_held_out_added_rows"] = score_added_rows(extra)
+            if previous:                                  # the no-additions models must be the previous cycle's
+                report["added_rows"]["largest_gap_to_previous_cycle_without_added_rows"] = float(
+                    np.nanmax(np.abs(extra["p_dev_without"] - aligned(prev_oof, keys)[0])))
+    models, final_info = final_models(ds, X, settings, WORK / "models" / name, seed_offset, extra)
     rows, compositions = candidate_pool(CANDIDATES, set(ds.table.symbols))
     X_pool, _ = C.formula_features([C.formula_text(c) for c in compositions], cache=C.WORK / "candidate-features.npz")
     applied = [C.boosting_apply(model, X_pool) for model in models]
@@ -341,8 +451,16 @@ def main() -> int:
     parser.add_argument("--seed-offset", type=int, default=0,
                         help="added to every model's random seed; a run on an unchanged table with another offset "
                              "measures how much of a change is training noise")
+    parser.add_argument("--additions", type=Path,
+                        help="a block of added training rows from build_nims_additions.py (cycle 4); the table itself "
+                             "is unchanged and the added rows are never scored as development rows")
+    parser.add_argument("--duplicate-rows", type=int, default=0,
+                        help="a control for --additions: add this many random development rows a second time "
+                             "(--placebo-seed picks them)")
     args = parser.parse_args()
-    run(args.name, args.previous, args.seed_offset, args.placebo_flips, args.placebo_seed)
+    additions = args.additions.resolve() if args.additions else None
+    run(args.name, args.previous, args.seed_offset, args.placebo_flips, args.placebo_seed, additions,
+        args.duplicate_rows)
     return 0
 
 

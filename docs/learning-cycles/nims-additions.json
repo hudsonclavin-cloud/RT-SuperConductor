@@ -1,0 +1,30 @@
+{
+ "nims_compositions": 15496,
+ "already_in_the_table": {
+  "lockbox": 1754,
+  "dev": 8831,
+  "train_only": 3630
+ },
+ "absent_from_the_table": 1281,
+ "placed": {
+  "joins a development group": 482,
+  "new group": 369,
+  "left out: tied to a locked group": 312,
+  "left out: tied to more than one fold": 118
+ },
+ "added_rows": 851,
+ "added_labels": {
+  "1": 666,
+  "0": 185
+ },
+ "added_by_fold": {
+  "0": 135,
+  "1": 176,
+  "2": 221,
+  "3": 182,
+  "4": 137
+ },
+ "label_disagreements_listed": 55,
+ "table_sha256": "961fa70220acd4b93544976d3e43245f04c82ab958f3f39e84c411c3e2861b3a",
+ "additions_sha256": "e7507a3fe14ab2ce88bb4b5bd3c9d72d444fcd0bc1763f99bc5af6e8e8acac74"
+}
