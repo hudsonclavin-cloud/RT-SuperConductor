@@ -1,0 +1,49 @@
+{
+ "sha256": "f599ef0040c18521e386f758ee826fe269f67ef369c1a007656035d03ccdfdf6",
+ "record_counts": {
+  "formula_not_usable": 6055,
+  "no_tc_and_no_null": 2825,
+  "used": 24409,
+  "under_pressure": 13,
+  "no_year": 156
+ },
+ "compositions": 15496,
+ "slices": {
+  "selection": {
+   "train_until": 2010,
+   "first": 2011,
+   "last": 2015,
+   "training_compositions": 13119,
+   "first_seen_in_window": 1598,
+   "not_within_0.02": 1378,
+   "test_new_element_system": 1130,
+   "test_superconductors": 932,
+   "test_not_superconductors": 198,
+   "test_element_systems": 401,
+   "test_families": {
+    "Oxides": 182,
+    "Other": 487,
+    "Ferrites": 457,
+    "Cuprates": 4
+   }
+  },
+  "final": {
+   "train_until": 2015,
+   "first": 2016,
+   "last": 2020,
+   "training_compositions": 14717,
+   "first_seen_in_window": 775,
+   "not_within_0.02": 653,
+   "test_new_element_system": 524,
+   "test_superconductors": 393,
+   "test_not_superconductors": 131,
+   "test_element_systems": 217,
+   "test_families": {
+    "Other": 386,
+    "Oxides": 43,
+    "Ferrites": 76,
+    "Cuprates": 19
+   }
+  }
+ }
+}
