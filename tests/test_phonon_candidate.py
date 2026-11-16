@@ -128,3 +128,14 @@ def test_report_finds_the_package_when_given_a_relative_path(tmp_path, monkeypat
     out = R.report(Path("."))
     assert out["formula"] == "X" and out["mode"] == "smoke"
     assert out["verdict"].startswith("smoke run") and out["headline"]["lambda"] == 2.6031
+
+
+def test_hexagonal_cells_are_written_in_quantum_espresso_s_setting():
+    """SbTe2's relaxed cell as the Materials Project orients it; ph.x refused to label its modes in that setting."""
+    cell = P.qe_orientation([[2.218996908, -3.843414532, 0.0], [2.218996908, 3.843414532, 0.0], [0.0, 0.0, 5.687223496]])
+    a = (2.218996908 ** 2 + 3.843414532 ** 2) ** 0.5
+    assert cell[0] == [pytest.approx(a), 0.0, 0.0]
+    assert cell[1] == [pytest.approx(-a / 2), pytest.approx(a * 3 ** 0.5 / 2), 0.0]
+    assert cell[2] == [0.0, 0.0, pytest.approx(5.687223496)]
+    cubic = [[3.88, 0.0, 0.0], [0.0, 3.88, 0.0], [0.0, 0.0, 3.88]]
+    assert P.qe_orientation(cubic) == cubic

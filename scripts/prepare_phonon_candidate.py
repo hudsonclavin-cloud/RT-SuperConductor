@@ -60,6 +60,28 @@ def from_mp(structure: dict) -> tuple[list[list[float]], list[tuple[str, list[fl
     return cell, sites
 
 
+def qe_orientation(cell):
+    """Turn a hexagonal cell (a = b, 120 degrees, c perpendicular) to Quantum ESPRESSO's own setting.
+
+    The Materials Project draws a1 at -60 degrees from x. pw.x accepts that, but ph.x then stops with
+    "divide_class: Wrong classes for D_3d" when it labels the modes (found on SbTe2). A rigid rotation of the
+    cell changes no crystal coordinate and no physics.
+    """
+    import math
+
+    a1, a2, a3 = cell
+    length = [math.sqrt(sum(x * x for x in v)) for v in cell]
+    dot = lambda u, v: sum(x * y for x, y in zip(u, v))  # noqa: E731
+    hexagonal = (abs(length[0] - length[1]) < 1e-4 * length[0]
+                 and abs(dot(a1, a2) / (length[0] * length[1]) + 0.5) < 1e-4
+                 and abs(dot(a1, a3)) < 1e-4 * length[0] * length[2]
+                 and abs(dot(a2, a3)) < 1e-4 * length[1] * length[2])
+    if not hexagonal:
+        return cell
+    a, c = (length[0] + length[1]) / 2, length[2]
+    return [[a, 0.0, 0.0], [-a / 2, a * math.sqrt(3) / 2, 0.0], [0.0, 0.0, c]]
+
+
 def symmetrise(cell, sites, symprec: float = 1e-2):
     """Put the atoms exactly on their symmetry positions (primitive standard cell).
 
@@ -73,7 +95,7 @@ def symmetrise(cell, sites, symprec: float = 1e-2):
     refined = SpacegroupAnalyzer(structure, symprec=symprec).get_primitive_standard_structure()
     if len(refined) != len(sites):
         raise SystemExit(f"symmetrising changed the atom count: {len(sites)} -> {len(refined)}")
-    return ([[float(x) for x in row] for row in refined.lattice.matrix],
+    return (qe_orientation([[float(x) for x in row] for row in refined.lattice.matrix]),
             [(site.species_string, [snap(float(x) % 1.0) for x in site.frac_coords]) for site in refined])
 
 
@@ -165,6 +187,7 @@ def cmd_relax_input(name: str, directory: Path) -> None:
 def cmd_package(name: str, relax_out: Path) -> None:
     spec = CANDIDATES[name]
     cell, sites = from_relax(relax_out.read_text(encoding="utf-8", errors="replace"))
+    cell = qe_orientation(cell)
     package = OUT / name
     (package / "run").mkdir(parents=True, exist_ok=True)
     fit = tuple(2 * k for k in spec["k"])
