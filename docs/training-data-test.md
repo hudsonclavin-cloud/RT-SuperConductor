@@ -137,3 +137,31 @@ disagreements by hand. It changes training labels, so it needs its own plan
 and pull request under the learning-cycle guards. Its expected size is about
 +0.02 AUC on intermetallics, and there is no unused locked test set left to
 confirm it on.
+
+## Correction to the result section, 2026-11-16 18:47 UTC (original text kept above)
+
+**What was wrong.** The result says "What 'both' adds is the 3,035
+compositions that only NIMS has" and that a change would add those 3,035. That
+count compared NIMS with the 13,644 labelled development and train-only rows.
+Compared with the whole record table it is different:
+
+| NIMS compositions (15,496) | Count |
+| --- | --- |
+| Already a labelled development or train-only row | 12,461 |
+| Already in the record table's **locked** rows | 1,754 |
+| Absent from the record table | 1,281 |
+
+- [Certain] The 1,754 cannot be added to the ranking of record's training:
+  they are its locked test compositions.
+- [Certain] Of the 1,281 absent ones, 312 are tied to a locked group (same
+  major elements, or within 0.02 of a locked row) and 118 are tied to groups
+  in more than one fold. That leaves 851 that can be added without touching
+  any existing row's split: 482 join an existing development group and 369
+  form new groups.
+- [Certain] No locked row of the record table was read or scored in this
+  test. But the "both" model did train on NIMS's own records of those 1,754
+  compositions.
+- [Likely] So the +0.018 overstates what an allowed change can give. The
+  allowed change is 851 rows, about 6% more training data.
+
+Counts are from the table layout only (no model was run to get them).
