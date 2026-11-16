@@ -1,9 +1,9 @@
 {
   "compositions": 15960,
-  "superconductors": 11821,
-  "negatives": 3706,
+  "superconductors": 11825,
+  "negatives": 3702,
   "unlabelled_hosono_only": 433,
-  "mixed_reports": 198,
+  "mixed_reports": 202,
   "element_systems": 4550,
   "major_groups": 3632,
   "groups": 3308,
@@ -64,8 +64,8 @@
     "dev fold 0": {
       "rows": 1719,
       "groups": 502,
-      "superconductors": 1253,
-      "negatives": 392,
+      "superconductors": 1254,
+      "negatives": 391,
       "tc_above_40k": 58,
       "families": {
         "Cuprates": 145,
@@ -103,8 +103,8 @@
     "dev fold 3": {
       "rows": 1968,
       "groups": 532,
-      "superconductors": 1423,
-      "negatives": 483,
+      "superconductors": 1424,
+      "negatives": 482,
       "tc_above_40k": 27,
       "families": {
         "Cuprates": 224,
@@ -116,8 +116,8 @@
     "dev fold 4": {
       "rows": 2166,
       "groups": 596,
-      "superconductors": 1597,
-      "negatives": 485,
+      "superconductors": 1599,
+      "negatives": 483,
       "tc_above_40k": 65,
       "families": {
         "Cuprates": 177,
@@ -135,5 +135,5 @@
     "Rn",
     "Fr"
   ],
-  "output_sha256": "f5e37eb86c5c767664cfc572ce8667b3933b1395d9c1fd3c410775097932d1e1"
+  "output_sha256": "961fa70220acd4b93544976d3e43245f04c82ab958f3f39e84c411c3e2861b3a"
 }
