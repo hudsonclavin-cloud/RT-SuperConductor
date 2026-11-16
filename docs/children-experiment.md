@@ -121,3 +121,21 @@ low-tier reader for the final-slice check.
   are fair.
 - **Why a model is right.** Importance scores describe a model; they are not
   a mechanism.
+
+**Correction (written 2026-11-16 07:48 UTC).** The line "Written 2026-11-16
+07:46 UTC" above is later than the commit that added this file (07:45:56 UTC).
+It was written at 07:45 UTC. Nothing else changes.
+
+## Data assembled, 2026-11-16 07:48 UTC (no child trained yet)
+
+`python scripts/children.py data` reproduces the feasibility counts:
+25,136 pool compositions, 217 with a SuperCon2 record
+(`docs/children/data.json`, `data/benchmarks/children/hits.csv`).
+
+| Slice | Hits | Left out: hydrogen-rich | Left out: pressure-only |
+| --- | --- | --- | --- |
+| Selection (first year before 2016) | 137 | 6 | 5 |
+| Final (2016 to 2021) | 54 | 7 | 8 |
+
+The training table has 13,562 compositions (10,210 superconductors), labelled
+from the 2018 export and 3DSC only, locked rows left out.

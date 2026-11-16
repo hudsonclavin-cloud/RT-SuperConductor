@@ -1,0 +1,218 @@
+mp_id,formula,composition,first_year,slice,status,records,papers,tc_max_k,mp_theoretical,first_doi,first_title
+mp-aaabeuyz,CrGeTe3,Cr:0.200;Ge:0.200;Te:0.600,2016,final,hit,1,1,6.5,False,10.1038/ncomms10616,Supercurrent in van der Waals Josephson junction
+mp-aaaaaflq,KCuF3,Cu:0.200;F:0.600;K:0.200,2016,final,hit,1,1,38.0,False,,
+mp-aaabgjzw,La(AsRu)2,As:0.400;La:0.200;Ru:0.400,2016,final,hit,6,2,7.8,False,10.1007/s11434-016-1080-4,Superconductivity at 7.8 K in the ternary LaRu 2 As 2 compound
+mp-aaacdjlo,LaH3,H:0.750;La:0.250,2016,final,excluded_hydrogen_rich,4,4,260.0,True,10.1063/1.4959154,Note: Novel diamond anvil cell for electrical measurements using boron-doped metallic diamond electrodes
+mp-aaacjjgb,LiNbO3,Li:0.200;Nb:0.200;O:0.600,2016,final,hit,1,1,36.0,False,10.1364/aop.8.000401,Nonlinear light–matter interaction at terahertz frequencies
+mp-aaacqvvu,Nb5SiB2,B:0.250;Nb:0.625;Si:0.125,2016,final,hit,1,1,7.2,True,10.1103/physrevb.93.064507,Superconductivity at 9 K inMo5PB2with evidence for multiple gaps
+mp-aaaaabcv,SmN,N:0.500;Sm:0.500,2016,final,hit,3,1,5.0,False,10.1103/physrevb.94.024106,Superconductivity in the ferromagnetic semiconductor samarium nitride
+mp-aaabggyc,Sr(BiPd)2,Bi:0.400;Pd:0.400;Sr:0.200,2016,final,hit,1,1,2.0,False,10.1209/0295-5075/113/17002,Superconductivity at 3.85 K in BaPd 2 As 2 with the ThCr 2 Si 2 -type structure
+mp-aaaaaluf,Sr3SnO,O:0.200;Sn:0.200;Sr:0.600,2016,final,hit,1,1,5.0,False,10.1038/ncomms13617,Superconductivity in the antiperovskite Dirac-metal oxide Sr3−xSnO
+mp-aaaablrp,AlCl3,Al:0.250;Cl:0.750,2017,final,hit,1,1,1.17,False,10.1103/physrevb.96.064524,Highly anisotropic superconducting gaps and possible evidence of antiferromagnetic order in FeSe single crystals
+mp-aaaaaqsg,CaSn3,Ca:0.250;Sn:0.750,2017,final,hit,2,2,4.2,False,10.1063/1.4984262,Topologically nontrivial electronic states in CaSn3
+mp-aaaaaihp,Ce(SiAg)2,Ag:0.400;Ce:0.200;Si:0.400,2017,final,hit,3,1,1.25,False,10.1016/j.physb.2017.09.120,Heavy-fermion superconductivity in CeAg2Si2 – Interplay of spin and valence fluctuations
+mp-aaaaafhe,Ce(SiRu)2,Ce:0.200;Ru:0.400;Si:0.400,2017,final,hit,1,1,20.0,False,10.1103/physrevb.95.094517,Thermal expansion of the heavy-fermion superconductor PuCoGa5
+mp-aaabfyqp,FeAsS,As:0.333;Fe:0.333;S:0.333,2017,final,hit,1,1,4.3,False,10.1038/s41535-017-0019-6,Spin excitations and the Fermi surface of superconducting FeS
+mp-aaaabwjc,HBr,Br:0.500;H:0.500,2017,final,excluded_hydrogen_rich,1,1,73.0,True,10.1103/physrevb.96.064517,High-temperature superconducting phase of HBr under pressure predicted by first-principles calculations
+mp-aaaaabsy,HfTe5,Hf:0.167;Te:0.833,2017,final,excluded_pressure_only,1,1,4.5,False,10.1038/srep45217,Coexistence of superconductivity and charge-density wave in the quasi-one-dimensional material HfTe3
+mp-aaacktlg,LaIr3,Ir:0.750;La:0.250,2017,final,hit,5,4,3.5,False,10.1088/1361-648x/aa90a8,Ird-band derived superconductivity in the lanthanum-iridium system LaIr3
+mp-aaaaanws,Na(SnAs)2,As:0.400;Na:0.200;Sn:0.400,2017,final,hit,9,5,1.6,False,10.7566/jpsj.86.123701,SnAs-Based Layered Superconductor NaSn2As2
+mp-aaaaadvg,NbB,B:0.500;Nb:0.500,2017,final,hit,2,2,9.6,False,10.1103/physrevmaterials.1.044803,Absence of superconductivity in NbB
+mp-aaacjsth,YH3,H:0.750;Y:0.250,2017,final,excluded_hydrogen_rich,2,2,40.0,True,10.1007/978-3-319-52675-1_2,The Search for Higher Tc in Houston
+mp-aaaaamta,BaSbPt,Ba:0.333;Pt:0.333;Sb:0.333,2018,final,hit,2,1,1.64,False,10.7566/jpsj.87.063702,Superconductivity in BaPtSb with an Ordered Honeycomb Network
+mp-aaaaatkr,CeGe3Rh,Ce:0.200;Ge:0.600;Rh:0.200,2018,final,excluded_pressure_only,1,1,1.3,False,10.1103/physrevb.97.064514,Superconductivity in pressurized CeRhGe3 and related noncentrosymmetric compounds
+mp-aaacflkp,DyBiPd,Bi:0.333;Dy:0.333;Pd:0.333,2018,final,hit,1,1,0.8,False,10.1103/physrevb.98.104514,Singlet-quintet mixing in spin-orbit coupled superconductors with j=32 fermions
+mp-aaacjkuv,FeB4,B:0.800;Fe:0.200,2018,final,hit,2,1,41.0,False,10.1103/physrevb.97.014503,Advanced first-principles theory of superconductivity including both lattice vibrations and spin fluctuations: The case ofFeB4
+mp-aaacrsfr,FeCl4,Cl:0.800;Fe:0.200,2018,final,hit,1,1,8.0,True,10.1016/j.physrep.2018.10.006,From charge- and spin-ordering to superconductivity in the organic charge-transfer solids
+mp-aaacginn,Hf(VGa2)2,Ga:0.571;Hf:0.143;V:0.286,2018,final,hit,4,2,4.1,False,10.1103/physrevb.98.045126,Insights into the unconventional superconductivity in HfV2Ga4 and ScV2Ga4 from first-principles electronic-structure calculations
+mp-aaabgmvn,In5AgSe8,Ag:0.071;In:0.357;Se:0.571,2018,final,excluded_pressure_only,1,1,3.4,False,10.1080/14686996.2018.1548885,Data-driven exploration of new pressure-induced superconductivity in PbBi2Te4
+mp-aaaaaazp,SnSe2,Se:0.667;Sn:0.333,2018,final,hit,7,4,25.0,False,10.1021/acs.nanolett.7b05157,Gate-Induced Interfacial Superconductivity in 1T-SnSe2
+mp-aaacqrtx,TbBiPd,Bi:0.333;Pd:0.333;Tb:0.333,2018,final,hit,5,2,1.75,True,10.1103/physrevb.98.241111,Evidence for unconventional superconductivity in half-Heusler YPdBi and TbPdBi compounds revealed by London penetration depth measurements
+mp-aaacevym,ThCoC2,C:0.500;Co:0.250;Th:0.250,2018,final,hit,4,2,2.5,False,10.1103/physrevlett.122.147001,Evidence of a Nodal Line in the Superconducting Gap Symmetry of Noncentrosymmetric ThCoC2
+mp-aaacevua,TiAu,Au:0.500;Ti:0.500,2018,final,hit,1,1,90.0,False,10.1142/s0217979216420029,Point-contact Andreev reflection spectroscopy on Bi2Se3 single crystals
+mp-aaaaaazq,UTe2,Te:0.667;U:0.333,2018,final,hit,31,12,35.0,False,,Spontaneously polarized half-gapped superconductivity
+mp-aaabevqu,ZrBrN,Br:0.333;N:0.333;Zr:0.333,2018,final,hit,2,1,14.0,False,10.1088/1367-2630/ab00c1,Dominant role of processing temperature in electric field induced superconductivity in layered ZrNBr
+mp-aaaaafvm,ZrSiS,S:0.333;Si:0.333;Zr:0.333,2018,final,hit,2,1,7.5,False,10.1088/1361-648x/ab3b61,Tip-induced superconductivity coexisting with preserved topological properties in line-nodal semimetal ZrSiS
+mp-aaaabpya,CaAsPt,As:0.333;Ca:0.333;Pt:0.333,2019,final,hit,3,2,1.5,False,10.1007/s11433-019-1488-5,CaPtAs: A new noncentrosymmetric superconductor
+mp-aaacjhxa,CaBi2,Bi:0.667;Ca:0.333,2019,final,hit,5,2,2.0,False,10.1103/physrevb.99.104520,Electron-phonon superconductivity in CaBi2 and the role of spin-orbit interaction
+mp-aaaabjcb,CaH2,Ca:0.333;H:0.667,2019,final,excluded_hydrogen_rich,1,1,235.0,False,10.1038/s41586-019-1201-8,Superconductivity at 250 K in lanthanum hydride under high pressures
+mp-aaaabdhv,Co3(SnS)2,Co:0.429;S:0.286;Sn:0.286,2019,final,hit,1,1,177.0,False,10.1103/physrevlett.124.077403,Magnetization-Induced Band Shift in Ferromagnetic Weyl Semimetal Co3Sn2S2
+mp-aaabghzd,HfGeTe4,Ge:0.167;Hf:0.167;Te:0.667,2019,final,excluded_pressure_only,1,1,6.5,False,10.7566/jpsj.88.074704,Study of the Pressure-Induced Second Superconducting Phase of (NH3)yCs0.4FeSe with Double-Dome Superconductivity
+mp-aaaaazyb,Nb5Pt3O,Nb:0.556;O:0.111;Pt:0.333,2019,final,hit,3,1,4.3,False,,Superconductivity in Nb 5 Ir 3−x Pt x O
+mp-aaacksac,NdIr3,Ir:0.750;Nd:0.250,2019,final,hit,1,1,10.6,False,10.1103/physrevb.100.214514,Iridium 5d -electron driven superconductivity in ThIr3
+mp-aaaaagso,TaSnS2,S:0.500;Sn:0.250;Ta:0.250,2019,final,hit,3,2,3.0,False,10.1103/physrevb.100.064516,Superconducting properties in a candidate topological nodal line semimetal SnTaS2 with a centrosymmetric crystal structure
+mp-aaaaayba,Th(SiAu)2,Au:0.400;Si:0.400;Th:0.200,2019,final,hit,1,1,3.88,False,,First Principles Calculations of Superconducting Critical Temperature of ThCr 2 Si 2 -Type Structure
+mp-aaabgrjl,TiGeTe6,Ge:0.125;Te:0.750;Ti:0.125,2019,final,excluded_pressure_only,2,1,8.1,False,10.7566/jpsj.88.074704,Study of the Pressure-Induced Second Superconducting Phase of (NH3)yCs0.4FeSe with Double-Dome Superconductivity
+mp-aaacrfeo,W2N3,N:0.600;W:0.400,2019,final,hit,4,2,22.0,True,10.1126/sciadv.aav3780,Origin of giant negative piezoelectricity in a layered van der Waals ferroelectric
+mp-aaaaaghk,YCoC2,C:0.500;Co:0.250;Y:0.250,2019,final,hit,3,1,4.2,False,10.1063/1.5123222,Topological nodal lines and hybrid Weyl nodes in YCoC2
+mp-aaaaauaw,ZrGeTe4,Ge:0.167;Te:0.667;Zr:0.167,2019,final,excluded_pressure_only,1,1,6.6,False,10.7566/jpsj.88.074704,Study of the Pressure-Induced Second Superconducting Phase of (NH3)yCs0.4FeSe with Double-Dome Superconductivity
+mp-aaacnhux,BaCuS2,Ba:0.250;Cu:0.250;S:0.500,2020,final,hit,1,1,13.0,True,,BaCuS 2 : a superconductor with moderate electron-electron correlation
+mp-aaaaalcf,CaSb2,Ca:0.333;Sb:0.667,2020,final,hit,4,1,3.4,False,,Superconductivity in the nonsymmorphic line-nodal compound CaSb 2
+mp-aaacjjso,EuAs3,As:0.750;Eu:0.250,2020,final,hit,1,1,4.4,False,,Magnetism-induced topological transition in EuAs 3
+mp-aaabjaln,La2Ni5C3,C:0.300;La:0.200;Ni:0.500,2020,final,hit,2,1,1.8,False,,Two-Gap Time Reversal Symmetry Breaking Superconductivity in Non-Centrosymmetric LaNiC 2
+mp-aaacipat,LaNi,La:0.500;Ni:0.500,2020,final,hit,1,1,0.89,False,,Superconductivity in La 2 Ni 2 In
+mp-aaabqyfk,Nb3N5,N:0.625;Nb:0.375,2020,final,hit,1,1,18.0,True,,Microscopic Origin of Structural Disorder in δ − NbN: Correlation of Superconductivity and Electronic Structure
+mp-aaaaabft,RuO2,O:0.667;Ru:0.333,2020,final,hit,5,1,7.0,False,,Strain-stabilized superconductivity
+mp-aaaaabta,SnS2,S:0.667;Sn:0.333,2020,final,hit,1,1,3.5,False,,"Electronic, vibrational, and electron-phonon coupling properties in SnSe 2 and SnS 2 under pressure"
+mp-aaaabfbd,TaPbS2,Pb:0.250;S:0.500;Ta:0.250,2020,final,hit,2,2,2.6,False,10.1021/acs.jpcc.0c00527,Superconducting and Topological Properties in Centrosymmetric PbTaS2 Single Crystals
+mp-aaaabhsp,TlInTe2,In:0.250;Te:0.500;Tl:0.250,2020,final,excluded_pressure_only,1,1,3.8,False,,Origin of superconductivity and giant phonon softening in TlInTe 2 under pressure
+mp-aaacixpm,Y2BiO2,Bi:0.200;O:0.400;Y:0.400,2020,final,hit,1,1,2.0,False,10.1039/c9dt04640b,Tetragonality induced superconductivity in anti-ThCr2Si2-type RE2O2Bi (RE = rare earth) with Bi square nets
+mp-aaaabjkn,AlH3,Al:0.250;H:0.750,2021,final,excluded_hydrogen_rich,1,1,7.0,False,,Strong correlation between bonding network and critical temperature in hydrogen-based superconductors
+mp-aaabgkxn,B2W,B:0.667;W:0.333,2021,final,excluded_pressure_only,3,1,17.0,False,10.1063/1.328869,"Pressure‐induced superconductivity in (Sn, Eu)yMo6S8"
+mp-aaabrskh,BeH2,Be:0.333;H:0.667,2021,final,excluded_hydrogen_rich,1,1,45.0,False,,Strong correlation between bonding network and critical temperature in hydrogen-based superconductors
+mp-aaacjwsw,Ce(AsRh)2,As:0.400;Ce:0.200;Rh:0.400,2021,final,hit,1,1,0.26,False,10.1103/physrevb.98.144518,Robust parity-mixed superconductivity in disordered monolayer transition metal dichalcogenides
+mp-aaaabiat,Ce2BiO2,Bi:0.200;Ce:0.400;O:0.400,2021,final,hit,1,1,0.3,False,,Coexistence of superconductivity and antiferromagentic order in Er 2 O 2 Bi with anti-ThCr 2 Si 2 structure
+mp-aaaabegp,LaInPt,In:0.333;La:0.333;Pt:0.333,2021,final,hit,1,1,0.4,False,,Fully gapped superconductivity with preserved time reversal symmetry in noncentrosymmetric LaPdIn
+mp-aaaaaqgq,NaYbSe2,Na:0.250;Se:0.500;Yb:0.250,2021,final,hit,2,2,25.0,False,10.1103/physrevlett.118.107202,Crystalline Electric-Field Randomness in the Triangular Lattice Spin-Liquid YbMgGaO4
+mp-aaaabjwf,ScH2,H:0.667;Sc:0.333,2021,final,excluded_hydrogen_rich,1,1,38.0,False,,Electron-and hole-doping on ScH 2 and YH 2 : Effects on superconductivity without applied pressure
+mp-aaaaanwt,Sr(SnAs)2,As:0.400;Sn:0.400;Sr:0.200,2021,final,hit,1,1,2.0,False,,Superconductivity in layered Zintl phase LiSn 2 As 2
+mp-aaacpquz,Zr5Pt3,Pt:0.375;Zr:0.625,2021,final,hit,1,1,3.7,False,10.1038/srep12926,Unconventional superconductivity in Y5Rh6Sn18 probed by muon spin relaxation
+mp-aaacfybz,ZrTe2,Te:0.667;Zr:0.333,2021,final,hit,1,1,9.7,False,,Multiband superconductivity and charge density waves in the Ni-doped topological semimetal ZrTe 2
+mp-aaaaaaei,Y,Y:1.000,1996,selection,hit,159,78,164.0,False,10.1103/physrevb.55.r14733,Microwave response ofYBa2Cu3O6.95crystals: Evidence for a multicomponent order parameter
+mp-aaaaabwr,MgO,Mg:0.500;O:0.500,1997,selection,hit,7,6,50.0,False,10.1016/s0040-6090(97)00139-9,Crystallographic orientation and morphology of epitaxial In2O3 thin films grown on MgO(001) single crystal substrates
+mp-aaaaavja,Sr2YRuO6,O:0.600;Ru:0.100;Sr:0.200;Y:0.100,1997,selection,hit,1,1,60.0,False,10.1103/physrevb.56.2556,Electronic structure and magnetism in Ru-based perovskites
+mp-aaaaagsb,SrRuO3,O:0.600;Ru:0.200;Sr:0.200,1997,selection,hit,26,20,165.0,False,10.1103/physrevb.56.2556,Electronic structure and magnetism in Ru-based perovskites
+mp-aaaaaeex,FePd,Fe:0.500;Pd:0.500,1998,selection,hit,1,1,9.0,False,10.1007/s100510050100,Superconducting and magnetic properties of Nb/Pd Fe /Nb triple layers
+mp-aaaaabrz,Al2O3,Al:0.400;O:0.600,2000,selection,hit,18,14,41.8,False,10.1016/s0921-4526(99)02125-0,Effect of proton irradiation on pinning potential of YBa2Cu3O7−x thin epitaxial films
+mp-aaaabfqw,EuO,Eu:0.500;O:0.500,2000,selection,hit,1,1,69.0,False,10.1103/physrevb.62.6545,Microscopic theory of dipole-exchange spin waves in ferromagnetic films: Linear and nonlinear processes
+mp-aaaabelv,EuS,Eu:0.500;S:0.500,2000,selection,hit,4,4,16.9,False,10.1016/s0375-9601(00)00340-6,Spin-polarized tunneling through a thin-film
+mp-aaaabikv,GdCl3,Cl:0.750;Gd:0.250,2000,selection,hit,1,1,2.2,False,10.1103/physrevb.62.6545,Microscopic theory of dipole-exchange spin waves in ferromagnetic films: Linear and nonlinear processes
+mp-aaaabkgm,H2,H:1.000,2000,selection,excluded_hydrogen_rich,15,13,242.0,False,10.1007/978-3-319-44680-6_21,Understanding Novel Superconductors with Ab Initio Calculations
+mp-aaaabjln,KP(HO2)2,H:0.250;K:0.125;O:0.500;P:0.125,2000,selection,hit,5,1,210.0,False,,Hydrostatic pressure influence on dielectric permittivity of KH 2 PO 4 and KD 2 PO 4 in the piezoelectric resonance region
+mp-aaaaacdb,MnSi,Mn:0.500;Si:0.500,2000,selection,hit,6,5,30.0,False,10.1088/0034-4885/66/12/r01,Quantum phase transitions
+mp-aaaaadju,NiS2,Ni:0.333;S:0.667,2000,selection,hit,2,1,30.0,False,10.1143/jpsj.69.1503,Magnetic Phase Diagram and Metal-Insulator Transition of NiS2-xSex
+mp-aaaaairs,Sr3Ru2O7,O:0.583;Ru:0.167;Sr:0.250,2000,selection,hit,10,7,160.0,False,,
+mp-aaaaaaeu,Ag,Ag:1.000,2001,selection,hit,12,9,250.0,False,,Superconducting parameters of MgB 2 obtained on MgB 2 /Ag and MgB 2 /In junctions
+mp-aaaabezr,CaRuO3,Ca:0.200;O:0.600;Ru:0.200,2001,selection,hit,4,3,165.0,False,10.1103/physrevb.65.024421,Metal-to-insulator transition and magnetic ordering inCaRu1−xCuxO3
+mp-aaabitdy,Gd(CoB)2,B:0.400;Co:0.400;Gd:0.200,2001,selection,hit,1,1,26.0,False,,Effective hyperfine temperature in frustrated Gd 2 Sn 2 O 7 : two level model and 155 Gd Mössbauer measurements
+mp-aaabevqt,HfNCl,Cl:0.333;Hf:0.333;N:0.333,2001,selection,hit,6,5,25.5,False,10.1142/s0217984901001707,"ENHANCEMENT OF SUPERCONDUCTIVE CRITICAL TEMPERATURES IN ALMOST EMPTY OR FULL BANDS IN TWO DIMENSIONS: POSSIBLE RELEVANCE TO β-HfNCl, C60 AND MgB2"
+mp-aaaaaaax,Ni,Ni:1.000,2001,selection,hit,25,16,100.0,False,10.1143/jpsj.70.1881,Spin Dynamics near the Superconductor-to-Insulator Transition in Impurity-Doped YBa2Cu4O8
+mp-aaacrhyc,SrNdMn2O6,Mn:0.200;Nd:0.100;O:0.600;Sr:0.100,2001,selection,hit,4,1,250.0,True,,Unusual magnetic relaxation behavior in La
+mp-aaaaabqq,TaB2,B:0.667;Ta:0.333,2001,selection,hit,37,18,10.0,False,,Some comments on superconductivity in diborides
+mp-aaaabdjx,LaCrSb3,Cr:0.200;La:0.200;Sb:0.600,2002,selection,hit,2,1,126.0,False,10.1103/physrevlett.89.107204,Unconventional Metallic Magnetism inLaCrSb3
+mp-aaaabdya,MnGaNi2,Ga:0.250;Mn:0.250;Ni:0.500,2002,selection,hit,2,2,202.0,False,10.1002/1521-396x(200102)183:2<r1::aid-pssa99991>3.0.co;2-b,On Order-Disorder (L21 ? B2?) Phase Transition in Ni2+xMn1?xGa Heusler Alloys
+mp-aaaaaaex,Na,Na:1.000,2002,selection,hit,13,11,29.0,False,10.1103/physrevb.66.165434,"W=0pairing in(N,N)carbon nanotubes away from half filling"
+mp-aaaaaapa,TiO2,O:0.667;Ti:0.333,2002,selection,hit,5,5,300.0,False,10.1016/j.ceramint.2016.01.145,"Structural, optical and conductivity properties of BaTi 1−x Ni x O 3"
+mp-aaaaadel,USe,Se:0.500;U:0.500,2002,selection,hit,1,1,180.0,False,10.1103/physrevb.68.214430,Itinerant ferromagnetism in the periodic Anderson model
+mp-aaaaacyk,ZnO,O:0.500;Zn:0.500,2002,selection,hit,1,1,300.0,False,10.1063/1.1525885,A key to room-temperature ferromagnetism in Fe-doped ZnO: Cu
+mp-aaaaadcm,CePd3,Ce:0.250;Pd:0.750,2003,selection,excluded_pressure_only,1,1,0.175,False,10.1103/physrevb.67.134419,Reduced moment magnetic ordering in a Kondo lattice compound: Ce8Pd24Ga
+mp-aaacfyxi,CeSbPd,Ce:0.333;Pd:0.333;Sb:0.333,2003,selection,hit,1,1,17.5,False,10.1103/physrevb.67.134419,Reduced moment magnetic ordering in a Kondo lattice compound: Ce8Pd24Ga
+mp-aaaaabjm,CoPt3,Co:0.250;Pt:0.750,2003,selection,hit,3,1,300.0,False,10.1103/physrevb.67.224416,Anisotropic superparamagnetism of monodispersive cobalt-platinum nanocrystals
+mp-aaaaaadk,Dy,Dy:1.000,2003,selection,hit,5,4,88.0,False,10.1016/s0921-4534(03)00665-8,Unusual behavior of antiferromagnetic superconductors in low magnetic fields
+mp-aaabnrez,H2O,H:0.667;O:0.333,2003,selection,excluded_hydrogen_rich,3,2,5.0,False,10.1103/physrevlett.91.257006,Possible Spin Triplet Superconductivity inNaxCoO2·yH2O
+mp-aaaaaabz,Li,Li:1.000,2003,selection,hit,33,17,180.0,False,10.1103/physrevlett.91.167001,Superconducting Phase Diagram of Li Metal in Nearly Hydrostatic Pressures up to 67 GPa
+mp-aaacjlcf,Mg(BC)2,B:0.400;C:0.400;Mg:0.200,2003,selection,hit,3,1,22.0,False,10.1016/s0921-4534(03)00722-6,Crystal chemistry of carbon-substituted MgB2
+mp-aaaaaaaz,N2,N:1.000,2003,selection,hit,5,5,77.0,False,10.1063/1.1537460,In situ growth of superconducting MgB2 thin films by molecular-beam epitaxy
+mp-aaaabfcb,EuSe,Eu:0.500;Se:0.500,2004,selection,hit,1,1,66.8,False,10.1007/978-94-007-1007-8_1,Paving the Way for the Success of Magneto-Optics
+mp-aaaaacex,BP,B:0.500;P:0.500,2005,selection,hit,1,1,21.3,False,10.1063/1.2012524,Effect of damage by 2 MeV He ions and annealing on Hc2 in MgB2 thin films
+mp-aaaaabnp,BaF2,Ba:0.333;F:0.667,2005,selection,hit,1,1,91.0,False,10.1103/physrevb.72.134514,Response of fractal penetration of magnetic flux to disorder landscape in superconducting films
+mp-aaaaafrm,BaZrO3,Ba:0.200;O:0.600;Zr:0.200,2005,selection,hit,5,4,88.0,False,10.1007/s00339-004-3014-2,Magneto-transport characterization of Dy123 monodomain superconductors
+mp-aaacezqj,LiC6,C:0.857;Li:0.143,2005,selection,hit,15,10,90.0,False,10.1038/nphys0010,Superconductivity in the intercalated graphite compounds C6Yb and C6Ca
+mp-aaaabfpd,PuGa3,Ga:0.750;Pu:0.250,2005,selection,hit,1,1,3.0,False,10.1103/physrevb.72.045135,Strong electron-phonon coupling inδ-phase stabilized Pu
+mp-aaaaatxz,Ce(GePd)2,Ce:0.200;Ge:0.400;Pd:0.400,2006,selection,hit,1,1,0.07,False,10.1103/physrevb.71.214521,Competition between phonon superconductivity and Kondo screening in mixed valence and heavy fermion compounds
+mp-aaaabdws,CeO2,Ce:0.333;O:0.667,2006,selection,hit,1,1,105.0,False,,
+mp-aaacfaab,InBi,Bi:0.500;In:0.500,2006,selection,hit,1,1,4.0,True,10.1103/physrevlett.98.067003,Bulk Evidence for Single-Gaps-Wave Superconductivity in the Intercalated Graphite SuperconductorC6Yb
+mp-aaaaafja,KTaO3,K:0.200;O:0.600;Ta:0.200,2006,selection,hit,4,3,75.0,False,10.1088/0953-8984/18/11/005,The effect of Pb2+substitution on the quantum paraelectric behaviour of CaTiO3
+mp-aaaaaaet,Nd,Nd:1.000,2006,selection,hit,5,5,95.0,False,10.1103/revmodphys.79.353,Scanning tunneling spectroscopy of high-temperature superconductors
+mp-aaaaagho,SnPS3,P:0.200;S:0.600;Sn:0.200,2006,selection,excluded_pressure_only,1,1,2.2,False,10.1016/j.jmb.2005.12.025,Identification and Analysis of Deleterious Human SNPs
+mp-aaaabrzh,YBRh3,B:0.200;Rh:0.600;Y:0.200,2006,selection,hit,1,1,0.76,False,10.1103/physrevb.73.134522,"Search forSc3XB(X=In,Tl,Ga,Al)perovskites superconductors and proximity of weak ferromagnetism"
+mp-aaaaadck,FeCo,Co:0.500;Fe:0.500,2007,selection,hit,4,3,23.0,False,10.1103/physrevb.75.054521,Superconducting critical temperature and singlet and triplet pair functions of superconductor/normal-metal/ferromagnet trilayers
+mp-aaaabilw,HgBr2,Br:0.667;Hg:0.333,2007,selection,hit,1,1,69.0,False,10.1016/j.physc.2007.03.222,Investigation of the tunneling spectra in HgBr2-intercalated Bi-2212 single crystals below and above Tc
+mp-aaabgjum,MgBIr,B:0.333;Ir:0.333;Mg:0.333,2007,selection,hit,2,1,5.0,True,10.1103/physrevb.76.064527,Possible nodeless superconductivity in the noncentrosymmetric superconductorMg12−δIr19B16
+mp-aaaaaeed,MoN,Mo:0.500;N:0.500,2007,selection,hit,5,3,9.89,False,10.1016/j.ssc.2007.04.041,Room-temperature ferromagnetism in nanoparticles of superconducting materials
+mp-aaaaacse,NdNi5,Nd:0.167;Ni:0.833,2007,selection,hit,3,1,7.7,False,10.1103/physrevb.75.014504,Temperature dependence of transport spin polarization inNdNi5from point-contact Andreev reflection
+mp-aaaaaloo,Ta2CS2,C:0.200;S:0.400;Ta:0.400,2007,selection,hit,4,2,4.6,False,10.1103/physrevb.75.184536,Successive superconducting transitions inTa2S2Cstudied by electrical resistivity and nonlinear ac magnetic susceptibility
+mp-aaagjexi,Ba(FeAs)2,As:0.400;Ba:0.200;Fe:0.400,2008,selection,hit,157,115,170.0,True,10.1088/0256-307x/25/9/083,Superconductivity in Hole-Doped (Sr 1−x K x )Fe 2 As 2
+mp-aaaaaaav,Ca,Ca:1.000,2008,selection,hit,13,9,49.0,False,10.1103/physrevb.72.064512,"Hole redistribution inSr14−xCaxCu24O41(x=0,12)spin ladder compounds:Cu63andO17NMR studies under pressure"
+mp-aaaabbtc,Co3O4,Co:0.429;O:0.571,2008,selection,hit,1,1,33.0,False,10.1103/physrevb.70.144526,Magnetic susceptibility study of hydrated and nonhydratedNaxCoO2·yH2Osingle crystals
+mp-aaaaabkn,CoPt,Co:0.500;Pt:0.500,2008,selection,hit,2,1,15.3,False,,
+mp-aaaabexm,Eu(FeAs)2,As:0.400;Eu:0.200;Fe:0.400,2008,selection,hit,34,26,195.0,False,10.1016/0921-4526(95)00031-4,Interplay between superconductivity and magnetism
+mp-aaaaaafz,Gd,Gd:1.000,2008,selection,hit,4,4,60.0,False,10.1016/j.physc.2007.03.334,Origin of metal–insulator transition in the weak-ferromagnetic superconductor system RuSr2RCu2O8 (R=rare earths)
+mp-aaacfaad,LiB,B:0.500;Li:0.500,2008,selection,hit,4,2,11.0,False,10.1103/physrevb.78.094520,Thermodynamic stabilities of ternary metal borides: Anab initioguide for synthesizing layered superconductors
+mp-aaaaanro,LiBC,B:0.333;C:0.333;Li:0.333,2008,selection,hit,4,4,120.0,False,10.1103/physrevb.67.132502,Electronic and optical properties of LiBC
+mp-aaaaaafp,Lu,Lu:1.000,2008,selection,hit,4,4,88.0,False,10.1103/physrevb.74.184514,"Flux jumps, second magnetization peak anomaly, and the peak effect phenomenon in single crystals ofYNi2B2CandLuNi2B2C"
+mp-aaaaafga,MgAl2O4,Al:0.286;Mg:0.143;O:0.571,2008,selection,hit,3,3,24.0,False,10.1016/j.physc.2009.05.009,Growth and characterization of superconducting spinel oxide thin films
+mp-aaaaaxqk,Mn(CrS2)2,Cr:0.286;Mn:0.143;S:0.571,2008,selection,hit,1,1,80.0,False,10.1103/physrevb.64.100403,Half-metallic antiferromagnets in thiospinels
+mp-aaaabfnt,Mn3GaC,C:0.200;Ga:0.200;Mn:0.600,2008,selection,hit,1,1,250.0,False,10.1103/physrevb.66.020406,Electronic structure of metallic antiperovskite compoundGaCMn3
+mp-aaacfaae,MnGa,Ga:0.500;Mn:0.500,2008,selection,hit,1,1,300.0,False,10.1103/physrevlett.89.107203,"Unconventional Carrier-Mediated Ferromagnetism above Room Temperature in Ion-Implanted (Ga, Mn)P:C"
+mp-aaaabgua,NaFeAs,As:0.333;Fe:0.333;Na:0.333,2008,selection,hit,37,24,140.0,False,10.1088/1367-2630/11/2/025010,Heat capacity measurements on FeAs-based compounds: a thermodynamic probe of electronic and magnetic states
+mp-aaaaaorx,ZrCuSiAs,As:0.250;Cu:0.250;Si:0.250;Zr:0.250,2008,selection,hit,2,2,55.0,False,10.1088/1367-2630/10/6/063026,Pressure effect on superconducting properties of LaO1-xFxFeAs (x=0.11) superconductor
+mp-aaaaadlj,BeCu,Be:0.500;Cu:0.500,2009,selection,excluded_pressure_only,1,1,1.5,False,10.1088/1742-6596/215/1/012034,Pressure-induced superconductivity in europium metal
+mp-aaaaaazw,CdS,Cd:0.500;S:0.500,2009,selection,hit,3,2,1.0,False,10.1007/978-3-540-76672-8_12,Interacting Electrons in Quasi-One-Dimensional Organic Superconductors
+mp-aaaabcjp,CrO2,Cr:0.333;O:0.667,2010,selection,hit,2,2,6.0,False,10.1103/physrevlett.104.035701,Double Percolation Transition in Superconductor-Ferromagnet Nanocomposites
+mp-aaabfyet,F2,F:1.000,2010,selection,hit,7,5,100.0,False,10.1155/2010/250891,Hard-Wired Dopant Networks and the Prediction of High Transition Temperatures in Ceramic Superconductors
+mp-aaaaadhd,FeNi,Fe:0.500;Ni:0.500,2010,selection,hit,1,1,18.0,False,10.1103/physrevb.81.094509,Magneto-optical study ofBa(Fe1−xMx)2As2(M=Coand Ni) single crystals irradiated with heavy ions
+mp-aaaaaeii,LaAlO3,Al:0.200;La:0.200;O:0.600,2010,selection,hit,12,11,88.0,False,10.1103/physrevlett.104.077001,High Upper Critical Fields and Evidence of Weak-Link Behavior in SuperconductingLaFeAsO1−xFxThin Films
+mp-aaaaahnf,Sc3CoC4,C:0.500;Co:0.125;Sc:0.375,2010,selection,hit,5,3,4.5,False,10.1088/1742-6596/273/1/012083,Possible indicators for low dimensional superconductivity in the quasi-1D carbide Sc3CoC4
+mp-aaabeukn,SmSI,I:0.333;S:0.333;Sm:0.333,2010,selection,hit,1,1,15.0,False,10.1103/physrevb.83.014509,Spin and charge fluctuations inα-structure layered nitride superconductors
+mp-aaacribg,SrLaAlO4,Al:0.143;La:0.143;O:0.571;Sr:0.143,2010,selection,hit,3,2,10.0,True,10.1143/jjap.49.023101,Superconductivity of FeSe0.5Te0.5Thin Films Grown by Pulsed Laser Deposition
+mp-aaaabkml,UH3,H:0.750;U:0.250,2010,selection,excluded_hydrogen_rich,1,1,18.5,False,10.1103/physrevb.81.184513,Stripes of increased diamagnetic susceptibility in underdoped superconductingBa(Fe1−xCox)2As2single crystals: Evidence for an enhanced superfluid density at twin boundaries
+mp-aaaaaepe,AlCuO2,Al:0.250;Cu:0.250;O:0.500,2011,selection,hit,13,3,50.0,False,10.1016/j.ssc.2011.10.017,Computational materials design for superconductivity in hole-doped delafossite CuAlO2 : Transparent superconductors
+mp-aaaabfqa,CePRuO,Ce:0.250;O:0.250;P:0.250;Ru:0.250,2011,selection,hit,2,2,15.0,False,10.1088/0953-8984/23/17/175701,CeNiAsO: an antiferromagnetic dense Kondo lattice
+mp-aaaaabdg,FeSe2,Fe:0.333;Se:0.667,2011,selection,hit,1,1,8.0,False,10.1088/1367-2630/13/5/053031,Phase separation in the iron chalcogenide superconductor Fe1+yTexSe1−x
+mp-aaackrwj,YCoGe,Co:0.333;Ge:0.333;Y:0.333,2011,selection,hit,1,1,0.3,False,10.1143/jpsj.80.064711,59Co-Nuclear Quadrupole Resonance and Nuclear Magnetic Resonance Studies on YCoGe –Comparison between YCoGe and UCoGe–
+mp-aaaaaogl,AlAgO2,Ag:0.250;Al:0.250;O:0.500,2012,selection,hit,5,2,50.0,False,10.1016/j.ssc.2012.08.017,"Chemical trend of superconducting transition temperature in hole-doped delafossite of CuAlO2, AgAlO2 and AuAlO2"
+mp-aaaaaalu,B2O3,B:0.400;O:0.600,2012,selection,hit,2,1,1.0,False,10.1016/j.physc.2012.07.006,Effect of boron doping in the microwave surface resistance of neutron irradiated melt-textured Y1.6Ba2.3Cu3.3O7−x samples
+mp-aaabiytj,CsCSN,C:0.250;Cs:0.250;N:0.250;S:0.250,2012,selection,hit,1,1,3.6,False,10.1103/physrevb.86.184510,Large spin-orbit splitting and weakly anisotropic superconductivity revealed with single-crystalline noncentrosymmetric CaIrSi3
+mp-aaaabrhq,CsS,Cs:0.500;S:0.500,2012,selection,hit,1,1,1.1,False,10.1103/physrevb.86.064515,Superconductivity in noncentrosymmetric YPtBi under pressure
+mp-aaaabeaz,InAs,As:0.500;In:0.500,2012,selection,hit,2,2,20.0,False,10.1063/1.4745024,Supercurrent in Nb/InAs-nanowire/Nb Josephson junctions
+mp-aaaaammc,K2Se,K:0.667;Se:0.333,2012,selection,hit,1,1,8.0,False,,Phase relations in K x Fe 2−y Se 2 and the structure of superconducting K x Fe 2 Se 2 via high-resolution synchrotron diffraction
+mp-aaaaagni,La(CoP)2,Co:0.400;La:0.200;P:0.400,2012,selection,hit,1,1,4.0,False,10.1103/physrevb.86.014503,Angle-resolved photoemission spectroscopy of Co-based boride superconductor LaCo1.73Fe0.27B2
+mp-aaackwkm,La3Pt4,La:0.429;Pt:0.571,2012,selection,hit,1,1,0.51,False,,Journal of the Physical Society of Japan DRAFT
+mp-aaaaaafx,Mg,Mg:1.000,2012,selection,hit,5,4,50.0,False,10.1016/j.ssc.2012.01.016,Superconductivity in the metallic–oxidized magnesium interface
+mp-aaaaabma,Si3N4,N:0.571;Si:0.429,2012,selection,hit,1,1,1.4,False,10.1103/physrevb.85.045415,Interplay between topological insulators and superconductors
+mp-aaacdjcj,SiH8,H:0.889;Si:0.111,2012,selection,excluded_hydrogen_rich,1,1,107.0,True,10.1016/j.ssc.2012.10.015,On the critical temperature and the energy gap in dense ()2 at 250GPa
+mp-aaaaalnq,Ti2N,N:0.333;Ti:0.667,2012,selection,hit,3,2,5.6,False,10.1016/j.tsf.2013.07.046,Characterization and in-situ monitoring of sub-stoichiometric adjustable superconducting critical temperature titanium nitride growth
+mp-aaaaazao,Y2Si5Ni3,Ni:0.300;Si:0.500;Y:0.200,2012,selection,hit,1,1,2.0,False,10.1016/j.intermet.2011.08.016,Electronic structure of superconducting Lu2Ni3Si5 and its reference compound Y2Ni3Si5 by ab initio calculations
+mp-aaaaadvt,AlNi3,Al:0.250;Ni:0.750,2013,selection,hit,1,1,72.0,False,10.1142/9789812792150_0017,SPIN EXCITATIONS IN LOCALIZED AND ITINERANT MAGNETS
+mp-aaabgnep,Ba(CrAs)2,As:0.400;Ba:0.200;Cr:0.400,2013,selection,hit,1,1,45.0,False,10.1016/j.jssc.2013.05.010,"Crystals, magnetic and electronic properties of a new ThCr2Si2-type BaMn2Bi2 and K-doped compositions"
+mp-aaaaanrr,Ba(CuAs)2,As:0.400;Ba:0.200;Cu:0.400,2013,selection,hit,1,1,0.6,False,10.1016/j.jssc.2013.05.010,"Crystals, magnetic and electronic properties of a new ThCr2Si2-type BaMn2Bi2 and K-doped compositions"
+mp-aaaaaxci,Ba(MnAs)2,As:0.400;Ba:0.200;Mn:0.400,2013,selection,hit,1,1,2.0,False,10.1103/physrevlett.111.047001,Coexistence of Half-Metallic Itinerant Ferromagnetism with Local-Moment Antiferromagnetism inBa0.60K0.40Mn2As2
+mp-aaaaakzr,Ba(ZnAs)2,As:0.400;Ba:0.200;Zn:0.400,2013,selection,hit,1,1,180.0,False,10.1209/0295-5075/103/67011,"The synthesis and characterization of 1111-type diluted magnetic semiconductors (La 1−x Sr x )(Zn 1−x TM x )AsO (TM = Mn, Fe, Co)"
+mp-aaaaajou,BaNd2ZnO5,Ba:0.111;Nd:0.222;O:0.556;Zn:0.111,2013,selection,hit,1,1,2.4,False,10.1103/physrevb.65.214415,Frustration-induced phase transitions in the spin-Sorthogonal-dimer chain
+mp-aaabgkcn,Ca3(B3Rh4)2,B:0.353;Ca:0.176;Rh:0.471,2013,selection,hit,3,2,4.0,False,10.1209/0295-5075/104/17003,"Superconductivity and physical properties of strongly electron correlated compounds La n Ru 3n−1 B 2n (n = 1, 2, and 3)"
+mp-aaaaabjh,CaC2,C:0.667;Ca:0.333,2013,selection,excluded_pressure_only,1,1,7.9,False,10.1073/pnas.1307384110,Pressure-induced superconductivity in CaC2
+mp-aaaaaebl,CaF2,Ca:0.333;F:0.667,2013,selection,hit,8,6,28.0,False,10.1063/1.4801312,Versatile fluoride substrates for Fe-based superconducting thin films
+mp-aaaabhbj,Ce(GeRu)2,Ce:0.200;Ge:0.400;Ru:0.400,2013,selection,hit,1,1,8.0,False,10.1002/pssb.201300005,Quantum phase transitions in heavy fermion metals and Kondo insulators
+mp-aaaabfby,Ce(NiAs)2,As:0.400;Ce:0.200;Ni:0.400,2013,selection,hit,1,1,4.8,False,,Magnetic property and crystalline electric field effect in ThCr 2 Si 2 -type CeNi 2 As 2
+mp-aaaaaark,CoAs3,As:0.750;Co:0.250,2013,selection,hit,1,1,17.0,False,10.1103/physrevb.80.075114,Electronic structure ofSrPt4Ge12: Combined photoelectron spectroscopy and band structure study
+mp-aaaabdsx,Eu(FeP)2,Eu:0.200;Fe:0.400;P:0.400,2013,selection,hit,2,2,30.0,False,10.1088/0953-8984/26/4/045601,Tunable magnetic orders in CePd2As2−xPx
+mp-aaaaaibc,FeCo2Si,Co:0.500;Fe:0.250;Si:0.250,2013,selection,hit,1,1,11.4,False,10.1063/1.4827259,Giant coercivity enhancement and dimensional crossover of superconductivity in Co2FeSi-NbN nanoscale bilayers
+mp-aaaaachj,Ge2Pt,Ge:0.667;Pt:0.333,2013,selection,hit,1,1,0.4,False,10.1103/physrevb.86.174513,Superconducting parameters of BaPt4−xAuxGe12filled skutterudite
+mp-aaabraim,Hf3N4,Hf:0.429;N:0.571,2013,selection,hit,1,1,25.0,True,10.1103/physrevlett.101.047001,Electron-Hole Symmetry and Magnetic Coupling in Antiferromagnetic LaFeAsO
+mp-aaacfakm,LaPt,La:0.500;Pt:0.500,2013,selection,hit,1,1,0.41,False,10.7566/jpsj.82.065002,Superconductivity in Tetragonal LaPt2-xGe2+x
+mp-aaabfhab,LaZnAsO,As:0.250;La:0.250;O:0.250;Zn:0.250,2013,selection,hit,1,1,40.0,False,10.1209/0295-5075/103/67011,"The synthesis and characterization of 1111-type diluted magnetic semiconductors (La 1−x Sr x )(Zn 1−x TM x )AsO (TM = Mn, Fe, Co)"
+mp-aaaaacba,LiC,C:0.500;Li:0.500,2013,selection,hit,1,1,13.54,False,10.1088/2053-1583/1/2/021005,Superconductivity in graphene-lithium
+mp-aaaaakgg,SiO2,O:0.667;Si:0.333,2013,selection,hit,6,2,9.0,False,10.1116/1.4812698,Fabrication of superconducting tantalum nitride thin films using infrared pulsed laser deposition
+mp-aaaabhay,TaInS2,In:0.250;S:0.500;Ta:0.250,2013,selection,hit,1,1,1.0,False,10.1103/physrevb.89.020505,Noncentrosymmetric superconductor with a bulk three-dimensional Dirac cone gapped by strong spin-orbit coupling
+mp-aaaaabxf,TaN,N:0.500;Ta:0.500,2013,selection,hit,3,3,11.0,False,10.1116/1.4812698,Fabrication of superconducting tantalum nitride thin films using infrared pulsed laser deposition
+mp-aaacjsux,TbTe3,Tb:0.250;Te:0.750,2013,selection,excluded_pressure_only,2,2,4.0,False,10.1103/physrevlett.102.177002,Pressure-Induced Superconducting Phase in the Charge-Density-Wave Compound Terbium Tritelluride
+mp-aaacqqnf,Th2NiC2,C:0.400;Ni:0.200;Th:0.400,2013,selection,hit,3,1,23.0,True,10.1103/physrevb.88.014501,Electronic fine structure in the nickel carbide superconductor Th2NiC2
+mp-aaaaahaa,UGa5Co,Co:0.143;Ga:0.714;U:0.143,2013,selection,hit,2,1,2.3,False,,Electronic Structure and Fermiology of PuCoGa 5
+mp-aaacdhkb,BiS2,Bi:0.333;S:0.667,2014,selection,hit,3,3,10.0,False,10.7566/jpsj.83.063707,Impact of Hydrostatic Pressure on Superconductivity of Sr0.5La0.5FBiS2
+mp-aaaabrih,CaMn7O12,Ca:0.050;Mn:0.350;O:0.600,2014,selection,hit,1,1,90.0,False,10.1103/physrevlett.113.187204,BaFe2Se3: A HighTCMagnetic Multiferroic with Large Ferrielectric Polarization
+mp-aaacfopj,Cs2Se,Cs:0.667;Se:0.333,2014,selection,hit,1,1,57.0,True,10.1134/s0021364014100075,Electronic structure of new iron-based superconductors: From pnictides to chalcogenides and other similar systems
+mp-aaaabeau,EuP,Eu:0.500;P:0.500,2014,selection,hit,1,1,22.7,False,10.1038/srep07754,Coexistence of ferromagnetism and superconductivity in iron based pnictides: a time resolved magnetooptical study
+mp-aaaaacxs,La2O3,La:0.400;O:0.600,2014,selection,hit,1,1,5.9,False,10.1088/0953-8984/20/36/365220,Superconductivity in single crystals of LaFePO
+mp-aaaabcsx,LiFeO2,Fe:0.250;Li:0.250;O:0.500,2014,selection,hit,1,1,43.0,False,10.1103/physrevb.89.020507,Superconductivity in LiFeO2Fe2Se2with anti-PbO-type spacer layers
+mp-aaacqruf,LuBiPd,Bi:0.333;Lu:0.333;Pd:0.333,2014,selection,hit,10,6,1.8,True,10.1038/srep05709,Weak Antilocalization Effect and Noncentrosymmetric Superconductivity in a Topologically Nontrivial Semimetal LuPdBi
+mp-aaaabcfz,NaVO3,Na:0.200;O:0.600;V:0.200,2014,selection,hit,1,1,34.0,False,,Spin-isospin model of NaV 2 O 5
+mp-aaaaadwq,NpO2,Np:0.333;O:0.667,2014,selection,hit,6,1,100.0,False,10.1103/physrevb.71.165102,"Multipole Coulomb interactions with several electrons per crystal site: Crystal and mean fields, symmetry lowering, and loss of magnetic moments"
+mp-aaaaahgq,Pr(SiRu)2,Pr:0.200;Ru:0.400;Si:0.400,2014,selection,hit,1,1,14.0,False,10.1088/0953-8984/12/34/307,Crystal-field interactions in PrRu2Si2
+mp-aaaaadyj,SrSi,Si:0.500;Sr:0.500,2014,selection,hit,1,1,3.1,False,10.7566/jpsj.83.093706,Superconductivity in Noncentrosymmetric Iridium Silicide Li2IrSi3
+mp-aaaaatby,Y2SO2,O:0.400;S:0.200;Y:0.400,2014,selection,hit,1,1,2.0,True,10.1103/physrevb.90.054510,Effect of yttrium substitution on the superconducting properties ofLa1−xYxO0.5F0.5BiS2
+mp-aaaaacsa,YbS,S:0.500;Yb:0.500,2014,selection,hit,1,1,1.5,False,10.1038/nphys3109,"Strain-induced partially flat band, helical snake states and interface superconductivity in topological crystalline insulators"
+mp-aaaaayoz,AlAuO2,Al:0.250;Au:0.250;O:0.500,2015,selection,hit,3,1,50.0,True,10.1016/j.physc.2015.10.007,"Computational materials design of attractive Fermion system with large negative effective Ueff in the hole-doped Delafossite of CuAlO2, AgAlO2 and AuAlO2: Charge-excitation induced Ueff < 0"
+mp-aaabkcbd,BH3,B:0.250;H:0.750,2015,selection,excluded_hydrogen_rich,2,2,147.0,False,10.1016/j.physc.2012.12.002,Study of thermodynamic properties of SiH4(H2)2 superconductor under high pressure
+mp-aaacdqds,Bi2Rh3S2,Bi:0.286;Rh:0.429;S:0.286,2015,selection,hit,4,2,1.7,False,10.1103/physrevb.91.174513,Superconductivity versus structural phase transition in the closely relatedBi2Rh3.5S2andBi2Rh3S2
+mp-aaackiha,BiSe2,Bi:0.333;Se:0.667,2015,selection,hit,1,1,2.5,False,10.1007/s10948-015-3122-6,Anomalous Impact of Hydrostatic Pressure on Superconductivity of Polycrystalline LaO0.5F0.5BiSe2
+mp-aaabgkec,Ca(CoAs)2,As:0.400;Ca:0.200;Co:0.400,2015,selection,hit,1,1,70.0,False,10.1103/physrevb.92.144416,Spin-flop transition and magnetic phase diagram inCaCo2As2revealed by torque measurements
+mp-aaacpfjq,GeH4,Ge:0.200;H:0.800,2015,selection,excluded_hydrogen_rich,1,1,138.0,False,10.1038/srep22873,Superconductivity of novel tin hydrides (SnnHm) under pressure
+mp-aaacfkuu,HoBiPd,Bi:0.333;Ho:0.333;Pd:0.333,2015,selection,hit,1,1,1.0,False,10.1088/0953-8984/27/27/275701,Magnetic and superconducting phase diagram of the half-Heusler topological semimetal HoPdBi
+mp-aaacgcvr,LiC12,C:0.923;Li:0.077,2015,selection,hit,1,1,0.8,False,10.1021/acsnano.5b07848,Superconducting Calcium-Intercalated Bilayer Graphene
+mp-aaaaaxld,Nb5Se4,Nb:0.556;Se:0.444,2015,selection,hit,1,1,1.85,False,10.1016/j.jallcom.2015.06.281,Superconductivity in the niobium-rich compound Nb5Se4
+mp-aaackxdw,NbBRu,B:0.333;Nb:0.333;Ru:0.333,2015,selection,hit,4,2,3.1,False,10.1021/cm504449s,Fragment-Based Design of NbRuB as a New Metal-Rich Boride Superconductor
+mp-aaabgmzj,Sr(CoAs)2,As:0.400;Co:0.400;Sr:0.200,2015,selection,hit,1,1,1.8,False,10.1103/physrevb.92.224103,Pressure-induced collapsed-tetragonal phase inSrCo2As2
+mp-aaaabhwf,XeF2,F:0.667;Xe:0.333,2015,selection,hit,1,1,5.1,False,10.7567/apex.8.023102,"Topotactic synthesis of a new BiS2-based superconductor Bi2(O,F)S2"
+mp-aaacjlqg,Y(NiB)2,B:0.400;Ni:0.400;Y:0.200,2015,selection,hit,1,1,15.3,False,10.1103/physrevb.92.054513,Effect of fluctuations on the NMR relaxation beyond the Abrikosov vortex state
+mp-aaacfkbg,YBiPd,Bi:0.333;Pd:0.333;Y:0.333,2015,selection,hit,5,4,1.6,False,10.1126/sciadv.1500242,Topological RPdBi half-Heusler semimetals: A new family of noncentrosymmetric magnetic superconductors

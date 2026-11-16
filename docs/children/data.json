@@ -1,0 +1,17 @@
+{
+ "supercon2_sha256": "13a18935213c570bb06d1f7ba4aa209abe535b37eaae3c8dafa382b4bb8efc52",
+ "table_sha256": "961fa70220acd4b93544976d3e43245f04c82ab958f3f39e84c411c3e2861b3a",
+ "candidate_table_sha256": "ada3e59209312833a80310fc5aa39ecc72e96dd579f74cd1d762f2128d46f48e",
+ "pool_compositions": 25136,
+ "pool_with_a_supercon2_record": 217,
+ "by_slice_and_status": {
+  "final:excluded_hydrogen_rich": 7,
+  "final:excluded_pressure_only": 8,
+  "final:hit": 54,
+  "selection:excluded_hydrogen_rich": 6,
+  "selection:excluded_pressure_only": 5,
+  "selection:hit": 137
+ },
+ "training_rows": 13562,
+ "training_superconductors": 10210
+}
