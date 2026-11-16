@@ -1,0 +1,6 @@
+name,formula,point,k_mesh,settings,frequencies_cm1,translations_left_out_cm1,lowest_counted_cm1,imaginary
+re3ir,Re3Ir,0 0 0,12x12x12,package scf.in unchanged,"77.9 77.9 77.9 114.4 114.4 114.4 126.6 126.6 126.6","11.8 11.8 11.8",77.9,no
+re3ir,Re3Ir,0.5 0.5 0.5,12x12x12,package scf.in unchanged,"-62.5 84.4 84.4 85.3 85.3 85.3 98.1 98.1 98.1 148.2 148.2 148.2",,-62.5,yes
+sbte2,SbTe2,0 0 0,12x12x8,package scf.in unchanged,"74.0 74.0 92.0 92.0 109.9 141.2","-10.7 -10.7 3.8",74.0,no
+re3ir,Re3Ir,0 0 0,6x6x6,smoke meshes (rehearsal),"-39.0 -39.0 -39.0 111.1 111.1 111.1 115.1 115.1 115.1","11.8 11.8 11.8",-39.0,yes
+re3ir,Re3Ir,0.5 0.5 0.5,6x6x6,smoke meshes (rehearsal),"-88.8 73.3 73.3 73.3 83.5 83.5 95.7 95.7 95.7 136.9 136.9 136.9",,-88.8,yes
