@@ -1,0 +1,623 @@
+{
+ "slice": {
+  "train_until": 2010,
+  "first": 2011,
+  "last": 2015
+ },
+ "test_compositions": 1130,
+ "superconductors": 932,
+ "baseline": {
+  "kind": "boost",
+  "settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 31,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  },
+  "auc": 0.5976
+ },
+ "lineages": {
+  "boost": {
+   "history": [
+    {
+     "generation": 2,
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0
+     },
+     "auc": 0.592
+    },
+    {
+     "generation": 3,
+     "parent_auc": 0.592,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+       },
+       "auc": 0.6
+      },
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 40,
+        "l2_regularization": 1.0
+       },
+       "auc": 0.5987
+      }
+     ],
+     "survivor": "mutant 1",
+     "settings": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0
+     },
+     "auc": 0.6
+    },
+    {
+     "generation": 4,
+     "parent_auc": 0.6,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "l2_regularization": 0.0
+       },
+       "auc": 0.5817
+      },
+      {
+       "settings": {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+       },
+       "auc": 0.602
+      }
+     ],
+     "survivor": "mutant 2",
+     "settings": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0
+     },
+     "auc": 0.602
+    },
+    {
+     "generation": 5,
+     "parent_auc": 0.602,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "l2_regularization": 0.0
+       },
+       "auc": 0.6144
+      },
+      {
+       "settings": {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 15,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+       },
+       "auc": 0.5998
+      }
+     ],
+     "survivor": "mutant 1",
+     "settings": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_samples_leaf": 20,
+      "l2_regularization": 0.0
+     },
+     "auc": 0.6144
+    }
+   ],
+   "final_member": {
+    "learning_rate": 0.1,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "l2_regularization": 0.0
+   }
+  },
+  "bag": {
+   "history": [
+    {
+     "generation": 2,
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 31,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0,
+      "bags": 8
+     },
+     "auc": 0.5995
+    },
+    {
+     "generation": 3,
+     "parent_auc": 0.5995,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.02,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0,
+        "bags": 8
+       },
+       "auc": 0.5968
+      },
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0,
+        "bags": 8
+       },
+       "auc": 0.6161
+      }
+     ],
+     "survivor": "mutant 2",
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0,
+      "bags": 8
+     },
+     "auc": 0.6161
+    },
+    {
+     "generation": 4,
+     "parent_auc": 0.6161,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0,
+        "bags": 8
+       },
+       "auc": 0.6023
+      },
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0,
+        "bags": 16
+       },
+       "auc": 0.6166
+      }
+     ],
+     "survivor": "mutant 2",
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0,
+      "bags": 16
+     },
+     "auc": 0.6166
+    },
+    {
+     "generation": 5,
+     "parent_auc": 0.6166,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0,
+        "bags": 8
+       },
+       "auc": 0.6161
+      },
+      {
+       "settings": {
+        "learning_rate": 0.02,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0,
+        "bags": 16
+       },
+       "auc": 0.6065
+      }
+     ],
+     "survivor": "parent",
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0,
+      "bags": 16
+     },
+     "auc": 0.6166
+    }
+   ],
+   "final_member": {
+    "learning_rate": 0.05,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 20,
+    "l2_regularization": 1.0,
+    "bags": 16
+   }
+  },
+  "knn": {
+   "history": [
+    {
+     "generation": 2,
+     "settings": {
+      "k": 15,
+      "weights": "distance",
+      "p": 2
+     },
+     "auc": 0.5664
+    },
+    {
+     "generation": 3,
+     "parent_auc": 0.5664,
+     "mutants": [
+      {
+       "settings": {
+        "k": 15,
+        "weights": "uniform",
+        "p": 2
+       },
+       "auc": 0.5533
+      },
+      {
+       "settings": {
+        "k": 30,
+        "weights": "distance",
+        "p": 2
+       },
+       "auc": 0.5554
+      }
+     ],
+     "survivor": "parent",
+     "settings": {
+      "k": 15,
+      "weights": "distance",
+      "p": 2
+     },
+     "auc": 0.5664
+    },
+    {
+     "generation": 4,
+     "parent_auc": 0.5664,
+     "mutants": [
+      {
+       "settings": {
+        "k": 15,
+        "weights": "distance",
+        "p": 1
+       },
+       "auc": 0.5821
+      },
+      {
+       "settings": {
+        "k": 15,
+        "weights": "distance",
+        "p": 1
+       },
+       "auc": 0.5821
+      }
+     ],
+     "survivor": "mutant 1",
+     "settings": {
+      "k": 15,
+      "weights": "distance",
+      "p": 1
+     },
+     "auc": 0.5821
+    },
+    {
+     "generation": 5,
+     "parent_auc": 0.5821,
+     "mutants": [
+      {
+       "settings": {
+        "k": 15,
+        "weights": "distance",
+        "p": 2
+       },
+       "auc": 0.5664
+      },
+      {
+       "settings": {
+        "k": 10,
+        "weights": "distance",
+        "p": 1
+       },
+       "auc": 0.5822
+      }
+     ],
+     "survivor": "mutant 2",
+     "settings": {
+      "k": 10,
+      "weights": "distance",
+      "p": 1
+     },
+     "auc": 0.5822
+    }
+   ],
+   "final_member": {
+    "k": 10,
+    "weights": "distance",
+    "p": 1
+   }
+  },
+  "mlp": {
+   "history": [
+    {
+     "generation": 2,
+     "settings": {
+      "layers": [
+       128,
+       64
+      ],
+      "alpha": 0.0001,
+      "learning_rate_init": 0.001
+     },
+     "auc": 0.5953
+    },
+    {
+     "generation": 3,
+     "parent_auc": 0.5953,
+     "mutants": [
+      {
+       "settings": {
+        "layers": [
+         128,
+         64
+        ],
+        "alpha": 0.0001,
+        "learning_rate_init": 0.0003
+       },
+       "auc": 0.6045
+      },
+      {
+       "settings": {
+        "layers": [
+         256,
+         128
+        ],
+        "alpha": 0.0001,
+        "learning_rate_init": 0.001
+       },
+       "auc": 0.6005
+      }
+     ],
+     "survivor": "mutant 1",
+     "settings": {
+      "layers": [
+       128,
+       64
+      ],
+      "alpha": 0.0001,
+      "learning_rate_init": 0.0003
+     },
+     "auc": 0.6045
+    },
+    {
+     "generation": 4,
+     "parent_auc": 0.6045,
+     "mutants": [
+      {
+       "settings": {
+        "layers": [
+         128,
+         64
+        ],
+        "alpha": 0.001,
+        "learning_rate_init": 0.0003
+       },
+       "auc": 0.6043
+      },
+      {
+       "settings": {
+        "layers": [
+         128,
+         64
+        ],
+        "alpha": 0.0001,
+        "learning_rate_init": 0.001
+       },
+       "auc": 0.5953
+      }
+     ],
+     "survivor": "parent",
+     "settings": {
+      "layers": [
+       128,
+       64
+      ],
+      "alpha": 0.0001,
+      "learning_rate_init": 0.0003
+     },
+     "auc": 0.6045
+    },
+    {
+     "generation": 5,
+     "parent_auc": 0.6045,
+     "mutants": [
+      {
+       "settings": {
+        "layers": [
+         128,
+         64
+        ],
+        "alpha": 0.0001,
+        "learning_rate_init": 0.001
+       },
+       "auc": 0.5953
+      },
+      {
+       "settings": {
+        "layers": [
+         128,
+         64
+        ],
+        "alpha": 0.0001,
+        "learning_rate_init": 0.001
+       },
+       "auc": 0.5953
+      }
+     ],
+     "survivor": "parent",
+     "settings": {
+      "layers": [
+       128,
+       64
+      ],
+      "alpha": 0.0001,
+      "learning_rate_init": 0.0003
+     },
+     "auc": 0.6045
+    }
+   ],
+   "final_member": {
+    "layers": [
+     128,
+     64
+    ],
+    "alpha": 0.0001,
+    "learning_rate_init": 0.0003
+   }
+  },
+  "physics": {
+   "history": [
+    {
+     "generation": 2,
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 31,
+      "min_samples_leaf": 20,
+      "l2_regularization": 1.0
+     },
+     "auc": 0.5973
+    },
+    {
+     "generation": 3,
+     "parent_auc": 0.5973,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "l2_regularization": 10.0
+       },
+       "auc": 0.6148
+      },
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 15,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+       },
+       "auc": 0.6138
+      }
+     ],
+     "survivor": "mutant 1",
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 31,
+      "min_samples_leaf": 20,
+      "l2_regularization": 10.0
+     },
+     "auc": 0.6148
+    },
+    {
+     "generation": 4,
+     "parent_auc": 0.6148,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 10,
+        "l2_regularization": 10.0
+       },
+       "auc": 0.6063
+      },
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 40,
+        "l2_regularization": 10.0
+       },
+       "auc": 0.6181
+      }
+     ],
+     "survivor": "mutant 2",
+     "settings": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 31,
+      "min_samples_leaf": 40,
+      "l2_regularization": 10.0
+     },
+     "auc": 0.6181
+    },
+    {
+     "generation": 5,
+     "parent_auc": 0.6181,
+     "mutants": [
+      {
+       "settings": {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 40,
+        "l2_regularization": 10.0
+       },
+       "auc": 0.6231
+      },
+      {
+       "settings": {
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "l2_regularization": 10.0
+       },
+       "auc": 0.6148
+      }
+     ],
+     "survivor": "mutant 1",
+     "settings": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_samples_leaf": 40,
+      "l2_regularization": 10.0
+     },
+     "auc": 0.6231
+    }
+   ],
+   "final_member": {
+    "learning_rate": 0.1,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 40,
+    "l2_regularization": 10.0
+   }
+  }
+ }
+}
