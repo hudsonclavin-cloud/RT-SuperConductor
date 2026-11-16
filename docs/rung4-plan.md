@@ -246,3 +246,8 @@ indistinguishable from chance.
 0.797 on these rows) is still the only signal that ranks experiments outside
 the calculated set. "Understanding physics" in the sense of T2 is not shown.
 Step 5's direct calculation on finalists stays the physics check.
+
+**Correction to the heading above (2026-11-16 07:02 UTC).** "Steps 1 and 2:
+results, 2026-11-16 07:01 UTC" is later than the commit that added it
+(`63db81d`, 07:00:55 UTC). The section was written at 07:00 UTC. Nothing else
+in it changes.
