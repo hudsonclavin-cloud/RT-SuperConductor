@@ -48,9 +48,15 @@ def load_structure(mp_id: str) -> dict:
     raise SystemExit(f"{mp_id} is not in {STRUCTURES}")
 
 
+def snap(x: float) -> float:
+    """Put a coordinate that is within 1e-5 of a multiple of 1/24 exactly on it, so no symmetry is lost to rounding."""
+    nearest = round(x * 24) / 24
+    return nearest % 1.0 if abs(x - nearest) < 1e-5 else x
+
+
 def from_mp(structure: dict) -> tuple[list[list[float]], list[tuple[str, list[float]]]]:
     cell = structure["lattice"]["matrix"]
-    sites = [(site["species"][0]["element"], [x % 1.0 for x in site["abc"]]) for site in structure["sites"]]
+    sites = [(site["species"][0]["element"], [snap(x % 1.0) for x in site["abc"]]) for site in structure["sites"]]
     return cell, sites
 
 
@@ -70,7 +76,8 @@ def from_relax(text: str) -> tuple[list[list[float]], list[tuple[str, list[float
         raise SystemExit(f"unexpected cell unit: {unit}")
     cell = [[float(x) * scale for x in line.split()] for line in header.group(2).strip().splitlines()]
     block = re.search(r"ATOMIC_POSITIONS\s*\(crystal\)\s*\n((?:\s*[A-Z][a-z]?\s+[-\d.Ee+]+\s+[-\d.Ee+]+\s+[-\d.Ee+]+.*\n)+)", final)
-    sites = [(line.split()[0], [float(x) for x in line.split()[1:4]]) for line in block.group(1).strip().splitlines()]
+    sites = [(line.split()[0], [snap(float(x)) for x in line.split()[1:4]])
+             for line in block.group(1).strip().splitlines()]
     return cell, sites
 
 

@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 're3ir.dyn'
+    flfrc  = 're3ir.fc'
+    la2F   = .true.
+ /

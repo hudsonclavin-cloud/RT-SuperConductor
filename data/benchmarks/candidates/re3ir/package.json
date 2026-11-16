@@ -1,0 +1,46 @@
+{
+ "name": "re3ir",
+ "formula": "Re3Ir",
+ "mp_id": "mp-aaacpnuc",
+ "atoms": 4,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  12,
+  12,
+  12
+ ],
+ "fit_k_mesh": [
+  24,
+  24,
+  24
+ ],
+ "q_mesh": [
+  4,
+  4,
+  4
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   3.894081614,
+   -0.0,
+   -0.0
+  ],
+  [
+   0.0,
+   3.894081614,
+   -0.0
+  ],
+  [
+   0.0,
+   0.0,
+   3.894081614
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Ir_ONCV_PBE_sr.upf": "93302cc5592571d9bb6a0e87dcf7dbf0f9b178e6b06ca7f77dc271dccd2b846a",
+  "Re_ONCV_PBE_sr.upf": "39682af3f236a3bab38c206f8c70cb9638c78c740d708f67dcae1af14b97f866"
+ },
+ "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"
+}
