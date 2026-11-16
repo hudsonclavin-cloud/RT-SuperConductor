@@ -15,7 +15,7 @@ has run on Hazel. The chain was rehearsed on this session's machine only
 | Folder in `data/benchmarks/candidates/` | Compound | Role | Structure | Atoms | Status |
 | --- | --- | --- | --- | --- | --- |
 | `zr6ga2ni` | Zr6Ga2Ni | Benchmark: Bercx et al. calculated λ = 0.70, isotropic Tc 5.5 K (`docs/bercx-published-check.md`) | P-62m | 9 | ready |
-| `re3ir` | Re3Ir | Rung 4 candidate, pool rank 19 | Pm-3m (Cu3Au type) | 4 | **failed the pre-check on 2026-11-16 (see the last section); do not submit a full run** |
+| `re3ir` | Re3Ir | Rung 4 candidate, pool rank 19 | Pm-3m (Cu3Au type) | 4 | ready. **Update 2026-11-16 15:07 UTC: failed the pre-check (see the last section); do not submit a full run** |
 | `sbte2` | SbTe2 | Rung 4 candidate, pool rank 39 | P-3m1 (CdI2 type) | 3 | ready |
 
 Each folder holds:
@@ -133,10 +133,10 @@ environment, the hello-world job). Then, on the login node:
    ```bash
    CHAIN_MODE=full scripts/hpc/submit_phonon_chain.sh data/benchmarks/candidates/zr6ga2ni /share/<group>/<unity_id>/rtsc/zr6ga2ni-full compute normal 16
    ```
-7. If the benchmark passes rule 1, run the candidates the same way, with the
-   candidate's folder in place of `zr6ga2ni`. (Updated 2026-11-16: that is
-   now `sbte2` only. Re3Ir failed its pre-check, and the job script refuses a
-   full run of it.)
+7. If the benchmark passes rule 1, run the two candidates the same way, with
+   `re3ir` and `sbte2` in place of `zr6ga2ni`.
+   - **Update 2026-11-16 15:07 UTC:** run `sbte2` only. Re3Ir failed its
+     pre-check, and the job script refuses a full run of it.
 8. Copy each `report.json` (and `run/lambda`, `run/*.dyn*`, `run/scf.out`) back
    into the repository under `results/<name>/`. The work area is wiped after
    about 30 days.
