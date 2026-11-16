@@ -88,3 +88,16 @@ def test_scoring_refuses_a_second_run(tmp_path, monkeypatch):
     (tmp_path / "score.json").write_text("{}", encoding="utf-8")
     with pytest.raises(SystemExit, match="scored once"):
         B.cmd_score()
+
+
+def test_interval_is_positive_for_a_better_model_and_zero_for_a_copy():
+    import numpy as np
+
+    rng = np.random.default_rng(0)
+    y = rng.integers(0, 2, 300)
+    noise = rng.normal(size=300)
+    groups = np.array([f"s{i // 3}" for i in range(300)])
+    better = B.interval(y, groups, y * 2.0 + noise, y * 0.3 + noise, resamples=200)
+    assert better["gain_95"][0] > 0 and better["gain_99"][0] > 0
+    same = B.interval(y, groups, y * 0.3 + noise, y * 0.3 + noise, resamples=200)
+    assert same == {"gain_95": [0.0, 0.0], "gain_99": [0.0, 0.0]}

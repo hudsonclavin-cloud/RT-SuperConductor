@@ -236,14 +236,14 @@ def cmd_table() -> dict:
     return summary
 
 
-def interval(y, groups, family, a, b, which, resamples: int = 1000, seed: int = 0) -> dict:
-    """Gain of scores ``a`` over ``b`` in AUC, with intervals from resampling element systems."""
+def interval(y, groups, a, b, resamples: int = 1000, seed: int = 0) -> dict:
+    """Gain of scores ``a`` over ``b`` in AUC on these rows, with intervals from resampling element systems."""
     import children_knowledge as G
 
-    fold = {"blind": {"y": y, "groups": groups, "family": family, "scores": {"baseline": b, "model": a}}}
+    fold = {"blind": {"y": y, "groups": groups, "family": np.full(len(y), G.PRIMARY_FAMILY),
+                      "scores": {"baseline": b, "model": a}}}
     out = G.fold_bootstrap(fold, ["baseline", "model"], resamples=resamples, seed=seed)["model"]
-    name = "primary" if which == G.PRIMARY_FAMILY else "all"
-    return {"gain_95": out[f"{name}_gain_95"], "gain_99": out[f"{name}_gain_99"]}
+    return {"gain_95": out["all_gain_95"], "gain_99": out["all_gain_99"]}
 
 
 def cmd_score() -> dict:
@@ -282,8 +282,7 @@ def cmd_score() -> dict:
                          "champion": round(G.N.auc(y[mask], champion[mask]), 4),
                          "ranking_of_record": round(G.N.auc(y[mask], record[mask]), 4)}}
         entry["champion_minus_baseline"] = round(entry["auc"]["champion"] - entry["auc"]["baseline"], 4)
-        everything = np.full(int(mask.sum()), "x")
-        entry.update(interval(y[mask], groups[mask], everything, champion[mask], baseline[mask], None))
+        entry.update(interval(y[mask], groups[mask], champion[mask], baseline[mask]))
         return entry
 
     other = family == G.PRIMARY_FAMILY
