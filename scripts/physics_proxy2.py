@@ -15,6 +15,7 @@ import argparse
 import csv
 import json
 import math
+import os
 import re
 import zipfile
 from collections import Counter, defaultdict
@@ -294,15 +295,29 @@ def cmd_p2() -> dict:
     return report
 
 
+def nims_features() -> np.ndarray:
+    """The proxy's four outputs for every composition of the NIMS table (row order of ``table.json``), cached."""
+    import children_knowledge as G
+
+    cache = WORK / "nims-proxy2.npz"
+    if not cache.is_file():
+        nims = json.loads((G.WORK / "table.json").read_text(encoding="utf-8"))["keys"]
+        np.savez_compressed(cache, proxy2=proxy_features([C.fractions_of(k) for k in nims]))
+    with np.load(cache) as saved:
+        return saved["proxy2"]
+
+
+def cmd_features() -> None:
+    print(json.dumps({"nims_rows": int(len(nims_features())), "columns": list(TARGETS)}))
+
+
 def cmd_p3() -> dict:
     import children_knowledge as G
 
-    nims = json.loads((G.WORK / "table.json").read_text(encoding="utf-8"))["keys"]
-    cache = WORK / "nims-proxy2.npz"
-    if not cache.is_file():
-        np.savez_compressed(cache, proxy2=proxy_features([C.fractions_of(k) for k in nims]))
-    with np.load(cache) as saved:
-        proxy2 = saved["proxy2"]
+    if not os.environ.get("PROXY2_WHOLE_FOLDS"):
+        raise SystemExit("superseded (see the amendment in docs/physics-proxy2.md): P3 is scored on the selection "
+                         "halves inside `children_evolve.py gen8`, so that the lockbox halves stay unseen.")
+    proxy2 = nims_features()
     children = {"proxy": (("proxy",), False), "proxy2": (("proxy",), True),
                 "all": (G.CHANGES, False), "all2": (G.CHANGES, True)}
     folds, report = {}, {"folds": {}, "children": {}}
@@ -347,8 +362,8 @@ def cmd_p3() -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("command", choices=("data", "p1", "p2", "p3"))
-    {"data": cmd_data, "p1": cmd_p1, "p2": cmd_p2, "p3": cmd_p3}[parser.parse_args().command]()
+    parser.add_argument("command", choices=("data", "p1", "p2", "features", "p3"))
+    {"data": cmd_data, "p1": cmd_p1, "p2": cmd_p2, "features": cmd_features, "p3": cmd_p3}[parser.parse_args().command]()
     return 0
 
 

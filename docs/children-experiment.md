@@ -647,3 +647,85 @@ test.
 2. Leave-one-out on `all`: which changes can be dropped.
 3. Score the rung 4 pool with `all` as a second opinion beside the ranking of
    record.
+
+## Generations 8, 9 and 10: plan, 2026-11-16 18:35 UTC, before any run
+
+**Main idea:** the blind test showed that a gain on the selection folds can
+vanish on new data. More generations chosen the same way would repeat that.
+So these three generations select on half of the data and are judged, once,
+on the other half, which no choice in them ever sees.
+
+**The assumption I am challenging.** More generations do not make a better
+model by themselves. Generations 3 to 5 gained +0.02 that was not
+distinguishable from zero; generations 6 and 7 gained +0.055 in selection and
+−0.012 on blind data. [Likely] What limits the model is information and
+honest testing, not the number of rounds.
+
+**Data.** Five time folds of the NIMS file: A to D as before, and E, the
+2016 to 2020 slice (trained on papers to 2015). E was a final test and a
+second look; it is an ordinary fold now.
+
+**The split.** Within each fold's test set, every element system goes to one
+half by a fixed hash of its name.
+
+| Fold | Selection half (intermetallics / nulls) | Lockbox half (intermetallics / nulls) |
+| --- | --- | --- |
+| A | 155 / 30 | 200 / 24 |
+| B | 223 / 39 | 268 / 40 |
+| C | 148 / 39 | 134 / 32 |
+| D | 233 / 52 | 254 / 52 |
+| E | 199 / 49 | 187 / 52 |
+| All | 958 / 209 | 1,043 / 200 |
+
+- The lockbox has 200 intermetallic nulls, against 18 in the blind table.
+- **It is a lockbox, not a blind test.** Its rows were inside the totals that
+  chose generation 7's champion and inside the looks at 2016 to 2020. No
+  choice in generations 8 to 10 sees them. For a child built from the old
+  champion's changes it is therefore less clean than for a new change.
+
+**Genes.** A child is a set of genes on the fixed learner.
+
+| Gene | What it does | New? |
+| --- | --- | --- |
+| `elements`, `alloy`, `tc-size`, `family` | As in generation 6 | no |
+| `proxy` | The first physics proxy | no |
+| `proxy2` | The second physics proxy (`docs/physics-proxy2.md`), in place of the first | yes |
+| `bag` | Average of 8 group-bootstrap bags | no |
+| `balance` | Training rows weighted so nulls and superconductors count equally | yes |
+| `recent` | Training rows weighted by recency: a paper 15 years before the cut-off counts 1/e as much | yes |
+| `leaves63` | A larger tree (63 leaves in place of 31) | from generation 2 |
+
+- `proxy` and `proxy2` never appear together.
+
+**The three generations.** Fitness is the intermetallic AUC on the selection
+halves, averaged over the five folds.
+
+| Generation | Children |
+| --- | --- |
+| 8 | Every single gene added to the baseline, and every single gene removed from the old champion (`elements` + `proxy` + `alloy` + `tc-size` + `family`). The removals answer which of its five changes it needs. |
+| 9 | From the three fittest so far: each with one more gene added, and each pair merged. |
+| 10 | The same step again from the three fittest so far. |
+
+- A child already scored is not scored again. The fittest child over all
+  three generations is the champion.
+
+**The one lockbox run.** The champion, the baseline and the old champion,
+each scored on the lockbox halves of the five folds. Intervals from 1,000
+resamples of element systems within folds. The command refuses a second run.
+
+| Outcome on the lockbox | Reading |
+| --- | --- |
+| Champion minus baseline has a 95% interval above zero | Confirmed on held-out data. It becomes the model to beat, and the next blind data is its test. |
+| Positive, interval includes zero | Not confirmed. The baseline stands. |
+| Zero or negative | Selection found noise again. The baseline stands. |
+
+**Predictions [Speculative].**
+
+| Outcome | Chance |
+| --- | --- |
+| The champion's selection fitness is at least 0.04 above the baseline's | 85% |
+| The champion's gain on the lockbox is above zero | 65% |
+| Its 95% interval on the lockbox is above zero | 35% |
+| The lockbox gain is less than half the selection gain | 65% |
+| The old champion beats the baseline on the lockbox (any margin) | 60% |
+| `tc-size` is in the champion | 60% |
