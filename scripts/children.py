@@ -441,10 +441,71 @@ def cmd_final() -> dict:
     return report
 
 
+def feature_group(name: str) -> str:
+    """'magpie__MagpieData mean Electronegativity' -> 'Electronegativity'; shell and Lewis counts -> 'shell filling'."""
+    if name.startswith("magpie__"):
+        return name.split(" ", 2)[2]
+    return "shell filling"
+
+
+def cmd_explain() -> dict:
+    """Descriptions of the champion (never used to choose anything): which inputs it leans on, and its neighbours.
+
+    Also one exploratory split of the final result: the same hits against metallic pool compounds only.
+    """
+    gen2 = json.loads((DOCS / "gen2.json").read_text(encoding="utf-8"))
+    tables = load_tables()
+    X, P, y, groups, names = tables["X"], tables["P"], tables["y"], tables["groups"], tables["names"]
+    overrides = VARIANTS[gen2["parent"]][1] if gen2["champion"] == "gen2-variant_b" else {}
+    if gen2["parent"] != "boost" or gen2["champion"] not in ("gen1-boost", "gen2-variant_a", "gen2-variant_b"):
+        raise SystemExit("explain is written for a boosting champion")
+    if gen2["champion"] == "gen2-variant_a":
+        overrides = VARIANTS["boost"][0]
+    model = fit_boost(X, y, groups, np.arange(len(y)), 0, overrides)
+    scores = model.predict_proba(P)[:, 1]
+    assert np.allclose(scores, load_scores(gen2["champion"]))
+    hits, negatives = slice_rows(tables["pool"], "selection", confirmed_hits(SELECTION_CHECK)[0])
+    base = percentiles(scores, hits, negatives).mean()
+    rng = np.random.default_rng(0)
+    by_group = defaultdict(list)
+    for column, name in enumerate(names):
+        by_group[feature_group(name)].append(column)
+    drops = {}
+    for group, columns in by_group.items():
+        shuffled = P.copy()
+        shuffled[:, columns] = P[rng.permutation(len(P))][:, columns]
+        drops[group] = round(float(base - percentiles(model.predict_proba(shuffled)[:, 1], hits, negatives).mean()), 4)
+    Xs, Ps = standardise(X, P)
+    top = np.argsort(-scores)[:10]
+    neighbours = []
+    for i in top:
+        distance = np.sqrt(((Xs - Ps[i]) ** 2).sum(axis=1))
+        nearest = np.argsort(distance)[:3]
+        neighbours.append({"pool_compound": tables["pool"][i]["formula"], "score": round(float(scores[i]), 3),
+                           "nearest_training_compounds": [
+                               {"formula": C.formula_text(C.fractions_of(tables["train"][j]["composition"])),
+                                "superconductor": int(y[j])} for j in nearest]})
+    with gzip.open(CANDIDATES, "rt", encoding="utf-8", newline="") as handle:
+        metal = {row["mp_id"]: row["is_metal"] == "True" for row in csv.DictReader(handle)}
+    final_hits, _ = slice_rows(tables["pool"], "final", confirmed_hits()[0])
+    metal_negatives = np.array([i for i in negatives if metal.get(tables["pool"][i]["mp_id"])], int)
+    baseline = load_scores("gen1-boost")
+    report = {"champion": gen2["champion"], "selection_hits": int(len(hits)),
+              "auc_drop_when_an_input_group_is_shuffled": dict(sorted(drops.items(), key=lambda kv: -kv[1])),
+              "top_10_pool_compounds_and_their_nearest_training_compounds": neighbours,
+              "exploratory_final_hits_against_metallic_pool_only": {
+                  "metallic_negatives": int(len(metal_negatives)), "all_negatives": int(len(negatives)),
+                  "baseline": summarise(baseline, final_hits, metal_negatives),
+                  "champion": summarise(scores, final_hits, metal_negatives)}}
+    (DOCS / "explain.json").write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=1))
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("step", choices=["data", "gen1", "gen2", "final"])
-    {"data": cmd_data, "gen1": cmd_gen1, "gen2": cmd_gen2, "final": cmd_final}[parser.parse_args().step]()
+    parser.add_argument("step", choices=["data", "gen1", "gen2", "final", "explain"])
+    {"data": cmd_data, "gen1": cmd_gen1, "gen2": cmd_gen2, "final": cmd_final, "explain": cmd_explain}[parser.parse_args().step]()
     return 0
 
 

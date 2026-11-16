@@ -158,3 +158,118 @@ already gives the final slice: one low-tier reader per hit, from the paper's
 title and abstract, blind to every model score. **Children are chosen on the
 confirmed selection hits.** The raw-slice scores are reported beside them.
 Nothing else in the design changes, and the final slice is still unscored.
+
+## Results, written 2026-11-16 07:58 UTC
+
+Files: `docs/children/gen1-raw-selection.json`, `gen1.json`, `gen2.json`,
+`final.json`, `explain.json`; reader checks in `data/benchmarks/children/`.
+
+**Reader checks** (one low-tier reader per hit, from the title and abstract,
+blind to model scores). "Not confirmed" means the checked paper does not
+report superconductivity in that compound at ambient pressure. Some of those
+compounds are real superconductors measured in another paper (the reader's
+notes name CaSn3, CaBi2 and HfV2Ga4 as "treated as known"). They are left out
+of the hits, and they are not counted as negatives either.
+
+| Slice | Raw hits | Confirmed | Not confirmed | Unclear |
+| --- | --- | --- | --- | --- |
+| Selection (before 2016) | 137 | **7** | 123 | 7 |
+| Final (2016 to 2021) | 54 | **11** | 35 | 8 |
+
+**Generation 1** (AUC = mean percentile of the hits in the 25,136-compound pool):
+
+| Child | On the 7 confirmed selection hits | On all 137 raw hits |
+| --- | --- | --- |
+| `boost` (baseline) | **0.812** | 0.453 |
+| `physics` | 0.755 | 0.442 |
+| `bag` | 0.716 | 0.439 |
+| `mlp` | 0.712 | 0.497 |
+| `knn` (memory) | 0.547 | 0.469 |
+
+Winner `boost`, runner-up `physics`.
+
+**Generation 2** (offspring of `boost`, same 7 hits):
+
+| Child | AUC | Against the parent |
+| --- | --- | --- |
+| `elite` (boost unchanged) | 0.812 | |
+| `variant_a` (smaller trees, 15 leaves) | 0.791 | −0.021 (−0.070 to +0.019) |
+| `variant_b` (larger trees, 63 leaves) | **0.857** | **+0.045 (+0.023 to +0.066)** |
+| `cross2` (boost + physics) | 0.789 | −0.023 (−0.062 to +0.007) |
+| `cross3` (boost + physics + bag) | 0.770 | −0.042 (−0.069 to −0.013) |
+
+By the promotion rule, `variant_b` is the champion. A bootstrap over 7 hits
+understates the uncertainty, so I would not trust this promotion on its own.
+
+**Final test, scored once** (later discoveries, 2016 to 2021):
+
+| | Champion (`variant_b`) | Baseline (`boost`) | Champion minus baseline |
+| --- | --- | --- | --- |
+| 11 confirmed hits: AUC | 0.784 | **0.766** | +0.018 (−0.007 to +0.047) |
+| 11 confirmed hits: in the top 5% of the pool | 4 | 4 | |
+| 11 confirmed hits: in the top 1% | 1 | 1 | |
+| All 54 raw hits: AUC | 0.680 | 0.662 | +0.019 (−0.002 to +0.040) |
+
+- The baseline's AUC is above chance by 0.27 (interval 0.08 to 0.40).
+- By the baseline's percentile, the confirmed hits rank: ThCoC2 99.9,
+  Nb5Pt3O 98.3, NaSn2As2 97.3, PbTaS2 97.3, SnTaS2 94.7, BaPtSb 91.0,
+  LaIr3 83.5, CaSb2 78.2, TbPdBi 48.6, Sr3SnO 32.8, UTe2 20.8.
+
+**Against the predictions:**
+
+| Prediction | Chance | Result |
+| --- | --- | --- |
+| `boost` ranks the selection hits at 0.70 or more | 60% | yes on confirmed hits (0.812); no on the raw slice (0.453), the one the prediction was written for |
+| Generation 1 winner is `boost` or `bag` | 55% | yes (`boost`) |
+| `knn` within 0.03 of `boost` | 40% | no (0.547 against 0.812) |
+| `physics` beats `boost` | 30% | no |
+| Generation 2 promotes a child | 20% | yes |
+| Champion beats `boost` on the final slice, interval above zero | 10% | no |
+| `boost` ranks the confirmed final hits at 0.65 or more | 55% | yes (0.766) |
+
+**What it shows.**
+- [Likely] **The baseline does rank real later discoveries.** Trained only on
+  what a 2018 database held, it put 11 confirmed superconductors first
+  reported in 2016 to 2021 at a median of the 91st percentile of 25,136
+  candidates. Four of the 11 were in its top 5%; chance gives about half of
+  one.
+  - It is not only telling metals from insulators. Against the 16,415
+    metallic pool compounds alone, the AUC is 0.782 (exploratory; computed
+    after the final score).
+  - Eleven hits is a small test. The interval for the AUC is roughly 0.58 to
+    0.90.
+- **Its misses are the unconventional ones.** UTe2 (a spin-triplet uranium
+  compound), Sr3SnO and TbPdBi rank at or below the middle. [Likely] A model
+  that learned from mostly conventional superconductors does not see those
+  coming.
+- **Two generations of selection found nothing that holds.** The promoted
+  child is +0.018 on the final slice, with an interval that includes zero.
+  With 7 selection hits, selection is choosing on noise.
+- **Pure memory does poorly** (`knn`, 0.547 on the confirmed selection hits).
+  [Speculative] The boosted model is doing more than finding the nearest
+  known compound.
+- **The physics input did not help** (0.755 against 0.812), in line with rung
+  4's result that the calculated set covers too little chemistry.
+
+**How the champion works, as description only** (`explain.json`, 7 hits, so
+rough):
+- Shuffling the count of unfilled f-electron states costs the most (AUC
+  −0.21), then melting temperature (−0.10) and valence-electron count (−0.06).
+- Its ten best-ranked pool compounds each sit next to known superconductors of
+  a familiar family: SrCaPb6 next to CaPb3, V6GaGe next to V3Ga-type alloys,
+  TaB2Mo3C2 next to Mo2BC, Zr2SN2 next to ZrNCl. It proposes relatives of what
+  it knows.
+
+**Where I went wrong.**
+- The selection slice as first designed was mostly extraction errors. I found
+  that only after generation 1 had run on it, and amended the design.
+- The amendment left 7 selection hits, too few to choose between children.
+- The readers were single, low-tier and strict. The "not confirmed" pile holds
+  real superconductors, so the hit lists are clean but incomplete.
+
+**What a real version needs.**
+- The NIMS SuperCon datasheet with reference years (`mdr.nims.go.jp`). It
+  would give thousands of dated, curated first reports and a true date cutoff
+  with three time slices.
+- A second reader on the "not confirmed" pile here would roughly double the
+  confirmed hits at small cost.

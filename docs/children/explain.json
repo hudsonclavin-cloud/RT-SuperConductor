@@ -1,0 +1,229 @@
+{
+ "champion": "gen2-variant_b",
+ "selection_hits": 7,
+ "auc_drop_when_an_input_group_is_shuffled": {
+  "NfUnfilled": 0.2121,
+  "MeltingT": 0.0965,
+  "NValence": 0.0625,
+  "Column": 0.0345,
+  "SpaceGroupNumber": 0.0267,
+  "Row": 0.0246,
+  "NUnfilled": 0.0151,
+  "NpUnfilled": 0.0143,
+  "Number": 0.0135,
+  "shell filling": 0.013,
+  "NdValence": 0.0123,
+  "GSmagmom": 0.0112,
+  "GSbandgap": 0.0081,
+  "NpValence": 0.0042,
+  "NfValence": 0.0036,
+  "GSvolume_pa": 0.0029,
+  "MendeleevNumber": 0.0022,
+  "NdUnfilled": -0.0015,
+  "NsValence": -0.0063,
+  "NsUnfilled": -0.0072,
+  "CovalentRadius": -0.0123,
+  "Electronegativity": -0.019,
+  "AtomicWeight": -0.0242
+ },
+ "top_10_pool_compounds_and_their_nearest_training_compounds": [
+  {
+   "pool_compound": "SrCaPb6",
+   "score": 0.984,
+   "nearest_training_compounds": [
+    {
+     "formula": "Ca0.250Pb0.750",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ca0.250Pb0.562Tl0.188",
+     "superconductor": 1
+    },
+    {
+     "formula": "Pb0.750Sr0.250",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "Ac",
+   "score": 0.978,
+   "nearest_training_compounds": [
+    {
+     "formula": "Th1.000",
+     "superconductor": 1
+    },
+    {
+     "formula": "La0.050Th0.950",
+     "superconductor": 1
+    },
+    {
+     "formula": "La0.100Th0.900",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "CsGaSe3",
+   "score": 0.977,
+   "nearest_training_compounds": [
+    {
+     "formula": "Cs0.190Fe0.367Se0.442",
+     "superconductor": 1
+    },
+    {
+     "formula": "Cs0.178Fe0.378Se0.444",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ba0.125Nb0.250Se0.625",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "BaTl3Au",
+   "score": 0.977,
+   "nearest_training_compounds": [
+    {
+     "formula": "La0.150Pb0.650Rh0.200",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ba0.025Pb0.750Sr0.225",
+     "superconductor": 1
+    },
+    {
+     "formula": "Pb0.750Sr0.250",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "LaThPb6",
+   "score": 0.977,
+   "nearest_training_compounds": [
+    {
+     "formula": "La0.190Pb0.750Th0.060",
+     "superconductor": 1
+    },
+    {
+     "formula": "La0.015Pb0.750Th0.235",
+     "superconductor": 1
+    },
+    {
+     "formula": "La0.250Pb0.750",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "V6GaGe",
+   "score": 0.977,
+   "nearest_training_compounds": [
+    {
+     "formula": "Ga0.200Ge0.050V0.750",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ga0.239Ge0.011V0.750",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ga0.250Mn0.025V0.725",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "TaB2Mo3C2",
+   "score": 0.976,
+   "nearest_training_compounds": [
+    {
+     "formula": "B0.250C0.250Mo0.425Ta0.075",
+     "superconductor": 1
+    },
+    {
+     "formula": "B0.250C0.250Mo0.465Ta0.035",
+     "superconductor": 1
+    },
+    {
+     "formula": "B0.250C0.250Hf0.024Mo0.476",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "Sr3(AlGe2)2",
+   "score": 0.976,
+   "nearest_training_compounds": [
+    {
+     "formula": "Ba0.250Ge0.750",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ca0.250Ge0.750",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ba0.333Ge0.667",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "Zr2SN2",
+   "score": 0.976,
+   "nearest_training_compounds": [
+    {
+     "formula": "Cl0.259N0.370Zr0.370",
+     "superconductor": 1
+    },
+    {
+     "formula": "Cl0.333N0.333Zr0.333",
+     "superconductor": 1
+    },
+    {
+     "formula": "N0.500Zr0.500",
+     "superconductor": 1
+    }
+   ]
+  },
+  {
+   "pool_compound": "BaSrCa2Tl(CuO3)3",
+   "score": 0.975,
+   "nearest_training_compounds": [
+    {
+     "formula": "Ba0.074Ca0.148Cu0.185Hg0.037O0.519Tl0.037",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ba0.118Bi0.012Ca0.118Cu0.176O0.529Tl0.047",
+     "superconductor": 1
+    },
+    {
+     "formula": "Ba0.087Ca0.130Cu0.174Hg0.043O0.523Tl0.043",
+     "superconductor": 1
+    }
+   ]
+  }
+ ],
+ "exploratory_final_hits_against_metallic_pool_only": {
+  "metallic_negatives": 16415,
+  "all_negatives": 24919,
+  "baseline": {
+   "hits": 11,
+   "auc": 0.7821,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 4,
+   "median_percentile": 0.9163
+  },
+  "champion": {
+   "hits": 11,
+   "auc": 0.7979,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 4,
+   "median_percentile": 0.9094
+  }
+ }
+}

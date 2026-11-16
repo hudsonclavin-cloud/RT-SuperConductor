@@ -62,3 +62,8 @@ def test_bag_rows_keeps_whole_groups():
 
 def test_every_generation_1_kind_has_two_variants():
     assert set(K.VARIANTS) == set(K.GEN1) and all(len(v) == 2 for v in K.VARIANTS.values())
+
+
+def test_feature_group_names_the_property():
+    assert K.feature_group("magpie__MagpieData mean Electronegativity") == "Electronegativity"
+    assert K.feature_group("shell__descriptor_shell_3_electrons") == "shell filling"
