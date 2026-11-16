@@ -27,6 +27,8 @@ RAW = ROOT / "data/raw/blind-2021"
 OUT = ROOT / "data/benchmarks/blind"
 DOCS = ROOT / "docs/blind"
 YEARS, THEMES = range(2021, 2027), range(1, 6)
+EXTENSION_THEMES = (6, 7)            # two more null themes, added before any score (the plan's amendment)
+FIRST_HARVEST_BATCHES = 8
 NULL_AT_MOST_K = 2.0
 STRICT_NULL_K = 0.5
 BATCH = 30
@@ -85,8 +87,10 @@ def cmd_collect() -> dict:
     valid = set(C.load_dataset().table.symbols)
     records, dropped, per_cell, seen = [], Counter(), {}, set()
     evidence = {}
-    for year in YEARS:
-        for theme in THEMES:
+    cells = [(year, theme) for year in YEARS for theme in THEMES]
+    cells += [(year, theme) for year in YEARS for theme in EXTENSION_THEMES]      # after, so earlier ids do not move
+    for year, theme in cells:
+        if True:
             cell = f"y{year}-t{theme}"
             path = RAW / "readers" / f"{cell}.tsv"
             if not path.is_file():
@@ -116,19 +120,24 @@ def cmd_collect() -> dict:
         writer.writerows(records)
     batches = RAW / "verify-in"
     batches.mkdir(parents=True, exist_ok=True)
-    order = np.random.default_rng(0).permutation(len(records))          # mix years and themes within a batch
-    for number, start in enumerate(range(0, len(records), BATCH), start=1):
+    first = [r for r in records if int(r["cell"].split("-t")[1]) in THEMES]
+    later = [r for r in records if int(r["cell"].split("-t")[1]) in EXTENSION_THEMES]
+    order = np.random.default_rng(0).permutation(len(first))            # mix years and themes within a batch
+    groups = [[first[i] for i in order[start:start + BATCH]] for start in range(0, len(first), BATCH)]
+    if len(groups) != FIRST_HARVEST_BATCHES:
+        raise SystemExit("the first harvest's batches have changed; its records must stay as verified")
+    groups += [later[start:start + BATCH] for start in range(0, len(later), BATCH)]
+    for number, group in enumerate(groups, start=1):
         with open(batches / f"batch-{number:02d}.tsv", "w", newline="", encoding="utf-8") as handle:
             writer = csv.writer(handle, delimiter="\t")
             writer.writerow(["record_id", "identifier", "formula", "claimed_class", "claimed_temperature_k", "claimed_year"])
-            for index in order[start:start + BATCH]:
-                r = records[index]
+            for r in group:
                 writer.writerow([r["record_id"], r["identifier"], r["formula"], r["class"], r["temperature_k"], r["year"]])
     with open(RAW / "evidence.json", "w", encoding="utf-8") as handle:
         json.dump(evidence, handle, indent=0)
     summary = {"reader_lines": sum(c["lines"] for c in per_cell.values()), "records": len(records),
                "by_class": dict(Counter(r["class"] for r in records)), "dropped": dict(dropped),
-               "papers": len({r["identifier"] for r in records}), "verifier_batches": math.ceil(len(records) / BATCH),
+               "papers": len({r["identifier"] for r in records}), "verifier_batches": len(groups),
                "per_cell": per_cell}
     DOCS.mkdir(parents=True, exist_ok=True)
     (DOCS / "collect.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")

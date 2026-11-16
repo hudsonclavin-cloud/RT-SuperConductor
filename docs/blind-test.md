@@ -111,3 +111,48 @@ once and reported, and no claim is made either way.
   for decades. The element-system rule keeps the models honest (they have not
   seen it), and the first-report sensitivity check shows whether it matters.
 - **Opportunity cost:** about 40 low-tier reader runs.
+
+## Amendment: a second harvest for nulls, 2026-11-16 18:05 UTC, before any score
+
+**Where the first harvest ended.**
+
+| Step | Count |
+| --- | --- |
+| Lines the 30 readers wrote | 265 |
+| Records after checks and removing duplicates | 211 (175 superconductors, 36 nulls), from 168 papers |
+| Confirmed by the second reader | 198 (6% rejected) |
+| Compositions | 176 |
+| In an element system the NIMS data never held | 99 |
+| Of those, intermetallic | 95: 77 superconductors, **18 nulls** |
+
+- **The power rule is not met:** 18 nulls against the 25 required.
+- The second readers rejected 13 records. Three were papers whose first
+  preprint appeared in late 2020, which the first readers had missed.
+- My own checks: 20 random identifiers are all registered with Crossref under
+  titles naming the right compound, and I read 4 confirmed nulls' abstracts
+  myself; all 4 say what the readers recorded.
+
+**The change.** Twelve more low-tier readers, two new null themes for each of
+the six years, then second readers on their records as before.
+
+| Theme | What the reader searches for |
+| --- | --- |
+| 6 | A paper that reports superconductivity in one compound and says a sister compound does not superconduct down to a stated temperature |
+| 7 | Searches for superconductivity that came up empty: heavy-fermion, Kondo and magnetic intermetallics, and new metallic compounds, measured to 2 K or below |
+
+**Why this is allowed, and what it risks.**
+- [Certain] No model has scored any collected compound. I decided this from
+  the table's size alone.
+- Scoring 18 nulls would use the test up and, by the plan's own rule, allow no
+  claim.
+- [Likely] The new themes pull in a different kind of null: sister compounds
+  of superconductors (hard cases) and f-electron magnets (easy cases, and far
+  from the rung 4 pool). So the first-harvest table is also scored as a third
+  sensitivity check, fixed here: intermetallics from themes 1 to 5 only.
+- Nothing else changes: the record rules, the element-system rule, the
+  endpoint, the intervals, and one scoring run.
+- If the table still has fewer than 25 intermetallic nulls after this, there
+  is no third harvest. It is scored once and reported as underpowered.
+
+**Prediction [Speculative].** The power rule is met after the second harvest:
+55%.
