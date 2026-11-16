@@ -729,3 +729,130 @@ resamples of element systems within folds. The command refuses a second run.
 | The lockbox gain is less than half the selection gain | 65% |
 | The old champion beats the baseline on the lockbox (any margin) | 60% |
 | `tc-size` is in the champion | 60% |
+
+## Generations 8, 9 and 10: result, 2026-11-16 22:16 UTC
+
+**Main result:** three more generations found nothing better than what
+generations 6 and 7 already had. The champion is the old champion with one
+gene removed. On the lockbox halves it beats the baseline by +0.043 (95%
+interval +0.011 to +0.074), which is about half its gain on the selection
+halves. By the rule that is "confirmed on held-out data". The lockbox is not
+independent for this champion, so the blind test's verdict still stands
+beside it.
+
+Numbers are from `docs/children/evolve-gen8.json`, `evolve-gen9.json`,
+`evolve-gen10.json` and `evolve-lockbox.json` (commands:
+`python scripts/children_evolve.py gen8`, `gen9`, `gen10`, `lockbox`).
+Fitness is the intermetallic AUC on the selection halves, mean of five folds.
+The baseline's is 0.6708.
+
+**Generation 8: single genes added to the baseline.**
+
+| Gene | Fitness | Gain |
+| --- | --- | --- |
+| `tc-size` | 0.7084 | +0.038 |
+| `family` | 0.6983 | +0.028 |
+| `proxy` | 0.6868 | +0.016 |
+| `elements` | 0.6839 | +0.013 |
+| `alloy` | 0.6770 | +0.006 |
+| `leaves63` | 0.6759 | +0.005 |
+| `balance` | 0.6747 | +0.004 |
+| `bag` | 0.6669 | −0.004 |
+| `proxy2` | 0.6527 | −0.018 |
+| `recent` | 0.6486 | −0.022 |
+
+**Generation 8: single genes removed from the old champion (0.7513).**
+
+| Removed | Fitness | Change |
+| --- | --- | --- |
+| `family` | 0.7593 | +0.008 |
+| `alloy` | 0.7464 | −0.005 |
+| `elements` | 0.7456 | −0.006 |
+| `proxy`, replaced by `proxy2` | 0.7322 | −0.019 |
+| `proxy` | 0.7289 | −0.022 |
+| `tc-size` | 0.7272 | −0.024 |
+
+**Generations 9 and 10.** 18 new children: each of the three fittest with
+one more gene. The best was the generation 8 leader plus `leaves63`
+(0.7562). None beat 0.7593. Every child with `bag`, `balance`, `recent` or
+`proxy2` scored below its parent. 36 children were scored in all.
+
+**The champion:** `elements` + `proxy` + `alloy` + `tc-size`, from
+generation 8.
+
+**The one lockbox run.** Intermetallic AUC on the lockbox halves, mean of
+five folds (1,043 compositions, 200 nulls).
+
+| Model | AUC | Gain over baseline | 95% interval | 99% interval |
+| --- | --- | --- | --- | --- |
+| Baseline | 0.7423 | | | |
+| Champion | 0.7849 | +0.0426 | +0.0107 to +0.0739 | +0.0033 to +0.0850 |
+| Old champion (with `family`) | 0.7935 | +0.0512 | +0.0193 to +0.0843 | +0.0123 to +0.0961 |
+
+- The champion's gain is positive in each of the five folds (+0.023 to
+  +0.059).
+- Rule: the champion's 95% interval is above zero, so "confirmed on held-out
+  data". The command refuses a second run.
+
+**What it shows.**
+
+- [Certain] Selection inflates the gain by about half here: +0.088 on the
+  halves that chose the champion, +0.043 on the halves that did not.
+- [Certain] Removing `family` was noise. Selection preferred it by 0.008;
+  the lockbox prefers the old champion by 0.009. The two are not
+  distinguishable.
+- [Likely] The gain comes from two genes: the size of Tc as a second target
+  and the first physics proxy. Removing either costs about 0.02 on the
+  selection halves.
+- [Likely] The training genes do not help. Weighting recent papers more and
+  the second proxy both lower the score; bagging, class balance and larger
+  trees change it by less than 0.01 alone and never improve a strong child.
+- [Likely] The model is limited by what its inputs say, not by how it is
+  trained. Three generations of training changes added nothing.
+
+**The strongest argument against "confirmed".**
+
+- [Certain] The plan said it before the run: the lockbox is not a blind
+  test. Its rows in folds A to D were part of the whole folds that chose
+  generation 7's champion, and this champion is four of that champion's five
+  genes. Only fold E (2016 to 2020) was outside that choice; there the gain
+  is +0.031 on 187 compositions.
+- [Certain] The only fully independent test, the post-2020 blind table, gave
+  −0.012 for the old champion (95% −0.080 to +0.060) with 18 nulls.
+- [Likely] The two results agree with a true gain between zero and about
+  +0.05. They do not agree with the +0.09 that selection showed.
+
+**Reading.** By the rule the champion is the model to beat, and the next
+blind data is its test. It is not the ranking of record and nothing in the
+ranking of record changes here.
+
+**A fault in the run, found and corrected before the lockbox was opened.**
+
+- Generation 9 hit its time limit after 5 children. When resumed, the script
+  ranked those 5 among the parents. So it bred from one of generation 9's own
+  children, skipped the 5 children of the proper third parent, and left
+  generation 10 with nothing new to score.
+- Fix: parents are the fittest of earlier generations only; a child scored
+  outside the rule is set aside until the rule breeds it. Generations 9 and
+  10 were then rerun. The 4 children scored early turned out to be
+  generation 10's own, so no child stayed outside the rule.
+- Only selection halves were involved. Fits are deterministic, and every
+  earlier score was reused unchanged (a fresh fit matched its cached scores
+  exactly).
+- Two other changes after the first run, both to how the script runs and not
+  to any score: reports list all of a generation's children, and the five
+  folds are fitted in parallel processes.
+
+**Predictions.**
+
+| Outcome | Chance given | Result |
+| --- | --- | --- |
+| The champion's selection fitness is at least 0.04 above the baseline's | 85% | Yes (+0.088) |
+| The champion's gain on the lockbox is above zero | 65% | Yes (+0.043) |
+| Its 95% interval on the lockbox is above zero | 35% | Yes |
+| The lockbox gain is less than half the selection gain | 65% | Yes, just (0.0426 against half of 0.0884) |
+| The old champion beats the baseline on the lockbox | 60% | Yes (+0.051) |
+| `tc-size` is in the champion | 60% | Yes |
+
+- All six came out as the more likely side, except the 35% one. I was too
+  cautious about the interval and about right on the shrinkage.

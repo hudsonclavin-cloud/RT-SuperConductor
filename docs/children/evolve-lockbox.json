@@ -1,0 +1,61 @@
+{
+ "champion": "elements+proxy+alloy+tc-size",
+ "champion_selection_fitness": 0.7593,
+ "baseline_selection_fitness": 0.6708,
+ "selection_gain": 0.0884,
+ "children_scored": 36,
+ "lockbox": {
+  "baseline": {
+   "genes": "baseline",
+   "auc": 0.7423,
+   "by_fold": {
+    "A": 0.8165,
+    "B": 0.6066,
+    "C": 0.7523,
+    "D": 0.6974,
+    "E": 0.8387
+   }
+  },
+  "champion": {
+   "genes": "elements+proxy+alloy+tc-size",
+   "auc": 0.7849,
+   "by_fold": {
+    "A": 0.8752,
+    "B": 0.6635,
+    "C": 0.7751,
+    "D": 0.7407,
+    "E": 0.87
+   },
+   "gain": 0.0426,
+   "gain_95": [
+    0.0107,
+    0.0739
+   ],
+   "gain_99": [
+    0.0033,
+    0.085
+   ]
+  },
+  "old_champion": {
+   "genes": "elements+proxy+alloy+tc-size+family",
+   "auc": 0.7935,
+   "by_fold": {
+    "A": 0.8866,
+    "B": 0.6846,
+    "C": 0.782,
+    "D": 0.7379,
+    "E": 0.8765
+   },
+   "gain": 0.0512,
+   "gain_95": [
+    0.0193,
+    0.0843
+   ],
+   "gain_99": [
+    0.0123,
+    0.0961
+   ]
+  }
+ },
+ "reading": "confirmed on held-out data"
+}
