@@ -1,0 +1,37 @@
+ &control
+    calculation = 'scf'
+    prefix      = 'namgpb2'
+    pseudo_dir  = '../pp/'
+    outdir      = './tmp'
+    tprnfor     = .true.
+    tstress     = .true.
+ /
+ &system
+    ibrav       = 0
+    nat         = 4
+    ntyp        = 3
+    ecutwfc     = 90
+    occupations = 'smearing'
+    smearing    = 'mv'
+    degauss     = 0.02
+    la2F        = .true.
+ /
+ &electrons
+    mixing_beta = 0.4
+    conv_thr    = 1.0d-12
+ /
+ATOMIC_SPECIES
+ Mg 24.30500 Mg_ONCV_PBE_sr.upf
+ Na 22.98977 Na_ONCV_PBE_sr.upf
+ Pb 207.20000 Pb_ONCV_PBE_sr.upf
+CELL_PARAMETERS angstrom
+ 0.000000000 3.795185125 3.795185125
+ 3.795185125 0.000000000 3.795185125
+ 3.795185125 3.795185125 -0.000000000
+ATOMIC_POSITIONS crystal
+ Na 0.000000000 0.000000000 0.000000000
+ Mg 0.500000000 0.500000000 0.500000000
+ Pb 0.250000000 0.250000000 0.250000000
+ Pb 0.750000000 0.750000000 0.750000000
+K_POINTS automatic
+ 16 16 16 0 0 0

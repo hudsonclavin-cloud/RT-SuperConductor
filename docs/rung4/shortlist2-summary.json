@@ -1,0 +1,12 @@
+{
+ "ranked": 571,
+ "screen_used_as_filter": false,
+ "shortlist": 10,
+ "shortlist_prototypes": 7,
+ "shortlist_p_range": [
+  0.917,
+  0.952
+ ],
+ "ranked_median_p": 0.737,
+ "shortlist_flagged_by_screen": 5
+}

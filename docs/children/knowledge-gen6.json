@@ -1,0 +1,264 @@
+{
+ "learner": {
+  "learning_rate": 0.05,
+  "max_leaf_nodes": 31,
+  "min_samples_leaf": 20,
+  "l2_regularization": 1.0
+ },
+ "children": {
+  "baseline": {
+   "primary": 0.6963,
+   "all": 0.6548
+  },
+  "elements": {
+   "primary": 0.7106,
+   "all": 0.6654,
+   "changes": [
+    "elements"
+   ],
+   "bags": 0,
+   "primary_gain_95": [
+    -0.01,
+    0.0385
+   ],
+   "primary_gain_99": [
+    -0.0154,
+    0.0471
+   ],
+   "all_gain_95": [
+    -0.0053,
+    0.027
+   ],
+   "all_gain_99": [
+    -0.0111,
+    0.0318
+   ],
+   "primary_gain": 0.0143,
+   "all_gain": 0.0106
+  },
+  "proxy": {
+   "primary": 0.7042,
+   "all": 0.6619,
+   "changes": [
+    "proxy"
+   ],
+   "bags": 0,
+   "primary_gain_95": [
+    -0.0092,
+    0.0228
+   ],
+   "primary_gain_99": [
+    -0.0153,
+    0.0286
+   ],
+   "all_gain_95": [
+    -0.0034,
+    0.0174
+   ],
+   "all_gain_99": [
+    -0.0063,
+    0.0225
+   ],
+   "primary_gain": 0.0079,
+   "all_gain": 0.0071
+  },
+  "alloy": {
+   "primary": 0.7016,
+   "all": 0.6603,
+   "changes": [
+    "alloy"
+   ],
+   "bags": 0,
+   "primary_gain_95": [
+    -0.0099,
+    0.0217
+   ],
+   "primary_gain_99": [
+    -0.016,
+    0.0264
+   ],
+   "all_gain_95": [
+    -0.0036,
+    0.0149
+   ],
+   "all_gain_99": [
+    -0.0068,
+    0.0167
+   ],
+   "primary_gain": 0.0053,
+   "all_gain": 0.0055
+  },
+  "tc-size": {
+   "primary": 0.7234,
+   "all": 0.661,
+   "changes": [
+    "tc-size"
+   ],
+   "bags": 0,
+   "primary_gain_95": [
+    0.0113,
+    0.044
+   ],
+   "primary_gain_99": [
+    0.0067,
+    0.0483
+   ],
+   "all_gain_95": [
+    -0.0065,
+    0.0176
+   ],
+   "all_gain_99": [
+    -0.0108,
+    0.0225
+   ],
+   "primary_gain": 0.0271,
+   "all_gain": 0.0062
+  },
+  "family": {
+   "primary": 0.7028,
+   "all": 0.6592,
+   "changes": [
+    "family"
+   ],
+   "bags": 0,
+   "primary_gain_95": [
+    -0.0083,
+    0.0229
+   ],
+   "primary_gain_99": [
+    -0.0153,
+    0.0279
+   ],
+   "all_gain_95": [
+    -0.0058,
+    0.0152
+   ],
+   "all_gain_99": [
+    -0.0077,
+    0.0184
+   ],
+   "primary_gain": 0.0065,
+   "all_gain": 0.0044
+  }
+ },
+ "folds": {
+  "A": {
+   "baseline": {
+    "primary": 0.7927,
+    "all": 0.7987
+   },
+   "elements": {
+    "primary": 0.8231,
+    "all": 0.8164
+   },
+   "proxy": {
+    "primary": 0.7669,
+    "all": 0.7947
+   },
+   "alloy": {
+    "primary": 0.789,
+    "all": 0.7961
+   },
+   "tc-size": {
+    "primary": 0.8498,
+    "all": 0.8
+   },
+   "family": {
+    "primary": 0.8282,
+    "all": 0.8198
+   }
+  },
+  "B": {
+   "baseline": {
+    "primary": 0.6184,
+    "all": 0.6743
+   },
+   "elements": {
+    "primary": 0.648,
+    "all": 0.7029
+   },
+   "proxy": {
+    "primary": 0.6523,
+    "all": 0.6958
+   },
+   "alloy": {
+    "primary": 0.6542,
+    "all": 0.6919
+   },
+   "tc-size": {
+    "primary": 0.648,
+    "all": 0.6504
+   },
+   "family": {
+    "primary": 0.62,
+    "all": 0.6798
+   }
+  },
+  "C": {
+   "baseline": {
+    "primary": 0.7134,
+    "all": 0.5488
+   },
+   "elements": {
+    "primary": 0.7098,
+    "all": 0.5315
+   },
+   "proxy": {
+    "primary": 0.733,
+    "all": 0.5599
+   },
+   "alloy": {
+    "primary": 0.7192,
+    "all": 0.5516
+   },
+   "tc-size": {
+    "primary": 0.7329,
+    "all": 0.5743
+   },
+   "family": {
+    "primary": 0.713,
+    "all": 0.5381
+   }
+  },
+  "D": {
+   "baseline": {
+    "primary": 0.6608,
+    "all": 0.5976
+   },
+   "elements": {
+    "primary": 0.6614,
+    "all": 0.6107
+   },
+   "proxy": {
+    "primary": 0.6647,
+    "all": 0.5973
+   },
+   "alloy": {
+    "primary": 0.6438,
+    "all": 0.6018
+   },
+   "tc-size": {
+    "primary": 0.6629,
+    "all": 0.6192
+   },
+   "family": {
+    "primary": 0.6501,
+    "all": 0.599
+   }
+  }
+ },
+ "order": [
+  "tc-size",
+  "elements",
+  "proxy",
+  "family",
+  "alloy"
+ ],
+ "above_baseline": [
+  "tc-size",
+  "elements",
+  "proxy",
+  "family",
+  "alloy"
+ ]
+}

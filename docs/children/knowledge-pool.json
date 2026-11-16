@@ -1,0 +1,14 @@
+{
+ "child": "all",
+ "changes": [
+  "elements",
+  "proxy",
+  "alloy",
+  "tc-size",
+  "family"
+ ],
+ "scored": 571,
+ "training_compositions": 15496,
+ "pool_compositions_already_in_nims": 1,
+ "rank_correlation_with_nims_baseline": 0.752
+}

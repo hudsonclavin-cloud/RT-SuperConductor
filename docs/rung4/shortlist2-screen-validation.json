@@ -1,0 +1,15 @@
+{
+ "eligible_made_compounds": 1230,
+ "screened": 60,
+ "errors": 0,
+ "flagged_unstable": 17,
+ "flagged_fraction": 0.283,
+ "pass_if_at_most": 0.2,
+ "passes": false,
+ "lowest_cm1_quartiles": [
+  -23.0,
+  19.2,
+  32.5
+ ],
+ "flagged_at_zone_centre": 5
+}

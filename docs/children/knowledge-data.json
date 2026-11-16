@@ -1,0 +1,136 @@
+{
+ "compositions": 15496,
+ "folds": {
+  "A": {
+   "train_until": 1995,
+   "first": 1996,
+   "last": 2000,
+   "training_compositions": 8498,
+   "test_compositions": 902,
+   "test_families": {
+    "Other": 355,
+    "Cuprates": 509,
+    "Ferrites": 1,
+    "Oxides": 37
+   }
+  },
+  "B": {
+   "train_until": 2000,
+   "first": 2001,
+   "last": 2005,
+   "training_compositions": 10369,
+   "test_compositions": 835,
+   "test_families": {
+    "Oxides": 91,
+    "Other": 491,
+    "Cuprates": 244,
+    "Ferrites": 9
+   }
+  },
+  "C": {
+   "train_until": 2005,
+   "first": 2006,
+   "last": 2010,
+   "training_compositions": 11771,
+   "test_compositions": 1039,
+   "test_families": {
+    "Oxides": 34,
+    "Ferrites": 662,
+    "Other": 282,
+    "Cuprates": 61
+   }
+  },
+  "D": {
+   "train_until": 2010,
+   "first": 2011,
+   "last": 2015,
+   "training_compositions": 13119,
+   "test_compositions": 1130,
+   "test_families": {
+    "Oxides": 182,
+    "Other": 487,
+    "Ferrites": 457,
+    "Cuprates": 4
+   }
+  },
+  "second-look": {
+   "train_until": 2015,
+   "first": 2016,
+   "last": 2020,
+   "training_compositions": 14717,
+   "test_compositions": 524,
+   "test_families": {
+    "Other": 386,
+    "Oxides": 43,
+    "Ferrites": 76,
+    "Cuprates": 19
+   }
+  }
+ },
+ "columns": {
+  "formula": 155,
+  "elements": 44,
+  "alloy": 5,
+  "proxy": 1,
+  "family": 4
+ },
+ "coverage": {
+  "elements_any_value": 1.0,
+  "alloy_miedema": 1.0,
+  "alloy_yang": 1.0,
+  "proxy": 1.0
+ },
+ "element_columns": [
+  "superconduction_temperature:mean",
+  "superconduction_temperature:min",
+  "superconduction_temperature:max",
+  "superconduction_temperature:range",
+  "superconduction_temperature:spread",
+  "bulk_modulus:mean",
+  "bulk_modulus:min",
+  "bulk_modulus:max",
+  "bulk_modulus:range",
+  "bulk_modulus:spread",
+  "velocity_of_sound:mean",
+  "velocity_of_sound:min",
+  "velocity_of_sound:max",
+  "velocity_of_sound:range",
+  "velocity_of_sound:spread",
+  "molar_volume:mean",
+  "molar_volume:min",
+  "molar_volume:max",
+  "molar_volume:range",
+  "molar_volume:spread",
+  "electrical_resistivity:mean",
+  "electrical_resistivity:min",
+  "electrical_resistivity:max",
+  "electrical_resistivity:range",
+  "electrical_resistivity:spread",
+  "thermal_conductivity:mean",
+  "thermal_conductivity:min",
+  "thermal_conductivity:max",
+  "thermal_conductivity:range",
+  "thermal_conductivity:spread",
+  "coefficient_of_linear_thermal_expansion:mean",
+  "coefficient_of_linear_thermal_expansion:min",
+  "coefficient_of_linear_thermal_expansion:max",
+  "coefficient_of_linear_thermal_expansion:range",
+  "coefficient_of_linear_thermal_expansion:spread",
+  "debye_estimate:mean",
+  "debye_estimate:min",
+  "debye_estimate:max",
+  "debye_estimate:range",
+  "debye_estimate:spread",
+  "inverse_root_mass:mean",
+  "valence_electrons:mean",
+  "valence_electrons:distance_from_4.7",
+  "valence_electrons:distance_from_6.5"
+ ],
+ "alloy_columns": [
+  "Miedema_deltaH_inter",
+  "Miedema_deltaH_amor",
+  "Miedema_deltaH_ss_min",
+  "Yang omega",
+  "Yang delta"
+ ]
+}

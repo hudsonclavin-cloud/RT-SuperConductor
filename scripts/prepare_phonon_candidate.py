@@ -36,6 +36,13 @@ CANDIDATES = {
               "smoke_k": (6, 6, 6), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 24), "ph_time": "12:00:00"},
     "sbte2": {"mp_id": "mp-aaacrjyk", "formula": "SbTe2", "k": (12, 12, 8), "q": (4, 4, 2),
               "smoke_k": (6, 6, 4), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 16), "ph_time": "12:00:00"},
+    # Shortlist 2 (docs/rung4-shortlist2.md): the best-ranked compounds not found as made, six atoms or fewer.
+    "namgpb2": {"mp_id": "mp-aaabxftj", "formula": "NaMgPb2", "k": (8, 8, 8), "q": (4, 4, 4),
+                "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
+    "limgpb2": {"mp_id": "mp-aaacplni", "formula": "LiMgPb2", "k": (8, 8, 8), "q": (4, 4, 4),
+                "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
+    "csir2p2": {"mp_id": "mp-aaacqsbd", "formula": "CsIr2P2", "k": (8, 8, 8), "q": (4, 4, 4),
+                "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
 }
 
 

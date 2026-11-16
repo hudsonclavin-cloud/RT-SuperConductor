@@ -1,0 +1,42 @@
+{
+ "not_blind": "the 2016-2020 slice was the final test of generations 3 to 5; this decides nothing",
+ "child": "all",
+ "is_champion": true,
+ "changes": [
+  "elements",
+  "proxy",
+  "alloy",
+  "tc-size",
+  "family"
+ ],
+ "bags": 0,
+ "test_compositions": 524,
+ "scores": {
+  "baseline": {
+   "primary": 0.7561,
+   "all": 0.6847
+  },
+  "all": {
+   "primary": 0.8443,
+   "all": 0.7629
+  }
+ },
+ "gain_intervals": {
+  "primary_gain_95": [
+   0.0425,
+   0.1394
+  ],
+  "primary_gain_99": [
+   0.0312,
+   0.1649
+  ],
+  "all_gain_95": [
+   0.0341,
+   0.1285
+  ],
+  "all_gain_99": [
+   0.025,
+   0.1494
+  ]
+ }
+}
