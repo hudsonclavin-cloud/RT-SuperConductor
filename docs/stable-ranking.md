@@ -101,3 +101,10 @@ about 38 for it here.
 - Five placebos have a wide margin: the primary threshold of 5 is about three
   times the spread of the single model's kept counts, so a real difference of
   that size should show, but a smaller one will not.
+
+## Correction to the time stamp above (2026-11-16 06:26 UTC)
+
+The method section says it was written "2026-11-16 05:50 UTC". That time was
+wrong. The file was written and committed at 06:24 UTC (commit `cb9da40`), and
+no bagged model had been trained by then. The method and the rule are
+unchanged.
