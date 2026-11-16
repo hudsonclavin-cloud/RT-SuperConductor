@@ -114,8 +114,16 @@ def chgnet_model():
     return _MODEL
 
 
-def chgnet_forces(structures: list) -> list[np.ndarray]:
-    return [np.asarray(row["f"]) for row in chgnet_model().predict_structure(structures, task="ef", batch_size=8)]
+def chgnet_forces(structures: list, chunk: int = 8) -> list[np.ndarray]:
+    """Forces for each structure, a few at a time: building every graph at once ran a 12-atom cell out of memory."""
+    import gc
+
+    out = []
+    for start in range(0, len(structures), chunk):
+        rows = chgnet_model().predict_structure(structures[start:start + chunk], task="ef", batch_size=chunk)
+        out += [np.array(row["f"], dtype=float) for row in rows]
+        gc.collect()
+    return out
 
 
 def chgnet_relax(structure, fmax: float = 0.005, steps: int = 500):

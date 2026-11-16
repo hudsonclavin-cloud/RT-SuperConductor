@@ -29,6 +29,7 @@ OUT = ROOT / "data/benchmarks/rung4"
 DOCS = ROOT / "docs/rung4"
 STRUCTURES = ROOT / "data/raw/mp-structures/structures.jsonl.gz"
 PP_LIST = ROOT / "data/benchmarks/candidates/pp-available.txt"
+CACHE = ROOT / "data/processed/rung4/forcefield-screen.jsonl"
 RADIOACTIVE = {"Tc", "Pm", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu"}
 OPEN_4F = {"Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb"}
 TOXIC = {"Be", "Cd", "Hg", "Tl", "As", "Os"}
@@ -119,13 +120,23 @@ def run_screen(rows: list[dict]) -> list[dict]:
     import forcefield_screen as F
 
     cells, out = structures({r["mp_id"] for r in rows}), []
+    CACHE.parent.mkdir(parents=True, exist_ok=True)
+    done = {}
+    if CACHE.is_file():                                     # a stopped run picks up where it left off
+        done = {r["mp_id"]: r["result"] for r in map(json.loads, CACHE.read_text(encoding="utf-8").splitlines())}
     for number, row in enumerate(rows, start=1):
         began = time.time()
-        try:
-            result = F.screen(cells[row["mp_id"]])
-        except Exception as error:  # noqa: BLE001 - one bad structure must not stop the screen
-            result = {"error": f"{type(error).__name__}: {error}"[:200]}
-        out.append({**row, **result, "seconds": round(time.time() - began, 1)})
+        if row["mp_id"] in done:
+            result = done[row["mp_id"]]
+        else:
+            try:
+                result = F.screen(cells[row["mp_id"]])
+            except Exception as error:  # noqa: BLE001 - one bad structure must not stop the screen
+                result = {"error": f"{type(error).__name__}: {error}"[:200]}
+            result["seconds"] = round(time.time() - began, 1)
+            with open(CACHE, "a", encoding="utf-8") as handle:
+                handle.write(json.dumps({"mp_id": row["mp_id"], "result": result}) + "\n")
+        out.append({**row, **result})
         print(number, len(rows), row["formula"], result.get("lowest_cm1"), result.get("unstable"), flush=True)
     return out
 
