@@ -194,3 +194,20 @@ def test_a_full_run_of_a_candidate_that_failed_its_pre_check_is_refused(tmp_path
     assert refused.returncode == 6 and "failed its stability pre-check" in refused.stderr
     assert run(CHAIN_MODE="full", ALLOW_FAILED="1").returncode == 0
     assert run(CHAIN_MODE="smoke").returncode == 0
+
+
+def test_memory_is_requested_only_when_asked(tmp_path):
+    import subprocess
+
+    script = ROOT / "scripts/hpc/submit_phonon_chain.sh"
+    package = ROOT / "data/benchmarks/candidates/sbte2"
+
+    def run(**extra):
+        env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path / "home"), "DRY_RUN": "1", **extra}
+        return subprocess.run([str(script), str(package), str(tmp_path / "run"), "compute_partners", "short", "16"],
+                              env=env, capture_output=True, text=True)
+
+    plain, asked = run(), run(MEM="16G")
+    assert plain.returncode == 0 and "--mem" not in plain.stderr
+    assert asked.returncode == 0 and asked.stderr.count("--mem=16G") == 6
+    assert "--partition=compute_partners --qos=short" in asked.stderr
