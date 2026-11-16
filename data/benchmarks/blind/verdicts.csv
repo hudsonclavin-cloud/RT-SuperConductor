@@ -210,3 +210,57 @@ r208,confirmed,NaAg2: no superconducting transition down to 2 K stated
 r209,confirmed,No superconductivity or magnetic order down to 20 mK in CeCoGe2 single crystals
 r210,confirmed,TbNi2B2C: no superconductivity above 300 mK stated
 r211,confirmed,LuGa2: no superconducting transition down to 340 mK stated
+r212,confirmed,No SC down to 50 mK at ambient pressure for HfTe3 single crystal; SC appears only under pressure
+r213,confirmed,Tc = 0.26 K stated for CeRh2As2 (phase I at T0 ~0.4 K preempts SC); single crystals
+r214,confirmed,"Bulk Tc = 2.3 K stated for CeCoIn5; gap seen by planar tunnelling, Tc quoted as bulk"
+r215,confirmed,Bulk SC below 3.36 K stated for beta-ThRhGe at ambient pressure; 8.36 K only under pressure
+r216,confirmed,"Alpha-ThRhGe normal metallic down to 1.8 K stated (other polymorph, same composition)"
+r217,confirmed,Optimal Tc = 2 K stated for UTe2 single crystals
+r218,confirmed,BCS superconductor with Tc = 0.36 K stated for synthesized BaGa2
+r219,confirmed,Tc = 0.28 K stated for LaRh2As2 single crystals
+r220,confirmed,Tc = 2.35 K stated for AuSn4 (STM and ARPES study)
+r221,confirmed,Type-II bulk superconductor with Tc ~3.0 K stated for YRu3Si2
+r222,confirmed,"Tc = 0.26 K stated for CeRh2As2; thermal conductivity on single crystal, Tc quoted in abstract"
+r223,confirmed,Tc = 0.57 K stated for PtTe crystals at ambient pressure
+r224,confirmed,Tc = 1.20 K stated for RbNi2Se2 single crystals
+r225,confirmed,Tc = 0.28 K stated for LaRh2As2 single crystals
+r226,confirmed,Two phases with Tc+ ~0.75 K and Tc- ~0.45 K stated; 0.75 K matches high-Tc phase
+r227,confirmed,Tc = 2.6 K stated for MoBe22 at ambient pressure (multiphase samples)
+r228,confirmed,Tc = 4.1 K stated for WBe22 at ambient pressure (multiphase samples)
+r229,confirmed,No superconductivity down to 1.8 K stated for CeCrAsO polycrystals
+r230,confirmed,No superconductivity above 30 mK stated for ThCrAsN and its O-doped variants
+r231,confirmed,Tc ~4.1 K stated for NiBi3 single crystals
+r232,confirmed,Superconductivity at 2.4 K stated for SrAuBi single crystals
+r233,confirmed,Highest Tc = 4.7 K stated for Sc6FeTe2 in polycrystalline bulk family
+r234,confirmed,Tc = 2.35 K stated for AuSn4
+r235,confirmed,Bulk superconductivity with Tc = 0.76 K stated for Zr6FeTe2
+r236,confirmed,Zero resistivity due to superconductivity below 0.13 K stated for Zr6CoTe2
+r237,confirmed,Bulk Tc = 4.9 K stated for Zr6RuBi2 polycrystals
+r238,confirmed,Bulk Tc = 1.4 K stated for Zr6FeBi2 polycrystals
+r239,confirmed,Sharp superconducting transition above 6.1 K stated for ZrRe2
+r240,confirmed,Tc = 8.3 K stated for Cu2Mo6S8 Chevrel phase (XRD phase fraction 67%)
+r241,confirmed,Bulk superconductivity at ~0.8 K stated for Bi2PdPt polycrystals
+r242,confirmed,"Tc 0.39(1) K stated for LaRhGe3 (bulk transport, specific heat, muSR)"
+r243,confirmed,Abstract: superconducting below Tc ~1 K for Ta1.6Te quasicrystal
+r244,confirmed,Tc 3.2 +/- 0.3 K stated for SrHg11
+r245,confirmed,Tc 3.0 +/- 0.1 K stated for SrHg8
+r246,confirmed,Tc 2.2 +/- 0.25 K stated for Sr10Hg55
+r247,confirmed,Tc 2.5 K stated for ScRuSi
+r248,confirmed,Abstract cites CeIr2 Tc ~0.3 K as reported; Hc2 0.23 T measured to 30 mK
+r249,confirmed,"Max Tc 3.1 K at x=0.4 in (RuRhPdIr)1-xPtxSb, i.e. the claimed composition"
+r250,confirmed,No superconductivity down to T = 0.5 K stated for La3Cu4P4O2
+r251,confirmed,Abstract states La3Ni4P4O2 is a superconductor with Tc = 2.2 K
+r252,not_in_abstract,"Abstract (arXiv 2506.19252, RhGe) says no superconductivity with Ge variation; gives no null temperature"
+r253,confirmed,Abstract gives LaRh2As2 Tc around 0.3 K
+r254,confirmed,Abstract states CeRh2As2 superconducting state Tc = 0.3 K
+r255,confirmed,Onset of superconductivity around Tc = 0.8 K stated for SrAl8Rh2 single crystal
+r256,confirmed,Bulk superconductivity below Tc = 1.1 K stated for Zr6RuTe2
+r257,confirmed,Tc ~1.2 K stated for BiPt single crystal
+r258,confirmed,Tc ~6.2 K stated for W3Re2C
+r259,confirmed,Tc = 5.1 K stated for TaIr2B2
+r260,confirmed,Abstract gives OsB2 Tc ~2.1 K (paper argues type-I)
+r261,confirmed,Tc = 5.95 K stated for bulk LaN0.94
+r262,confirmed,Tc = 0.63 K stated for YRu3B2 polycrystal
+r263,confirmed,Bulk type-II superconductor with Tc = 3.54 K stated for V2Ga5
+r264,confirmed,Tc = 1.35 K stated for (Ta0.7Nb0.3)1.6Te single grain
+r265,confirmed,Tc ~3.04 K stated for (PbS)1.16TaS2 bulk

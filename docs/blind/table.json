@@ -1,33 +1,35 @@
 {
  "steps": {
-  "records": 211,
-  "confirmed_by_the_second_reader": 198,
-  "nulls_measured_to_2_k_or_lower": 197,
-  "compositions": 176,
-  "in_a_new_element_system": 99
+  "records": 265,
+  "confirmed_by_the_second_reader": 251,
+  "nulls_measured_to_2_k_or_lower": 250,
+  "compositions": 212,
+  "in_a_new_element_system": 114
  },
  "verdicts": {
-  "confirmed": 198,
-  "not_in_abstract": 6,
+  "confirmed": 251,
+  "not_in_abstract": 7,
   "not_found": 4,
   "wrong_year": 3
  },
- "rejected_fraction": 0.062,
+ "rejected_fraction": 0.053,
  "table": {
-  "compositions": 99,
-  "superconductors": 81,
-  "nulls": 18,
+  "compositions": 114,
+  "superconductors": 94,
+  "nulls": 20,
   "families": {
-   "Other": 95,
-   "Oxides": 2,
+   "Other": 108,
+   "Oxides": 3,
+   "Cuprates": 1,
    "Ferrites": 2
   },
-  "element_systems": 95
+  "element_systems": 108
  },
  "intermetallics": {
-  "compositions": 95,
-  "superconductors": 77,
-  "nulls": 18
+  "compositions": 108,
+  "superconductors": 90,
+  "nulls": 18,
+  "nulls_from_the_first_harvest": 18
  },
  "power_rule": {
   "needs_compositions": 80,
