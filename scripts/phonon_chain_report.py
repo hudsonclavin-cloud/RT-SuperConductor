@@ -4,7 +4,8 @@
     python3 scripts/phonon_chain_report.py <run_dir>/run > report.json
 
 Standard library only, so it runs on a compute node. It reads:
-- ``<prefix>.dyn*``: the phonon frequencies at every calculated q-point (imaginary modes show as negative);
+- ``<prefix>.dyn*``: the phonon frequencies at every calculated q-point (imaginary modes show as negative). The
+  three whole-crystal translations at the zone centre are left out: they are zero by symmetry;
 - ``lambda``: matdyn.x's table of lambda and omega_log for each of the ten broadenings;
 - ``scf.out``: the residual pressure and the largest force at the relaxed geometry.
 
@@ -31,9 +32,59 @@ def allen_dynes(lam: float, omega_log_k: float, mu_star: float) -> float:
     return omega_log_k / 1.2 * math.exp(-1.04 * (1.0 + lam) / denominator)
 
 
+MODE = re.compile(r"freq\s*\(\s*\d+\)\s*=\s*[-\d.]+\s*\[THz\]\s*=\s*([-\d.]+)\s*\[cm-1\]")
+Q_POINT = re.compile(r"q\s*=\s*\(\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*\)")
+VECTOR = re.compile(r"^\s*\(\s*([-\d.]+)\s+[-\d.]+\s+([-\d.]+)\s+[-\d.]+\s+([-\d.]+)\s+[-\d.]+\s*\)\s*$")
+
+
+def is_translation(vectors: list[tuple[float, float, float]]) -> bool:
+    """True if every atom moves the same way: the crystal sliding as a whole, which costs no energy."""
+    if len(vectors) < 2:
+        return False
+    first = vectors[0]
+    size = math.sqrt(sum(x * x for x in first))
+    if size == 0:
+        return False
+    for other in vectors[1:]:
+        other_size = math.sqrt(sum(x * x for x in other))
+        if other_size == 0 or not 0.9 < other_size / size < 1.1:
+            return False
+        if sum(a * b for a, b in zip(first, other)) / (size * other_size) < 0.99:
+            return False
+    return True
+
+
+def modes(text: str) -> list[dict]:
+    """Every mode in one .dyn file: its frequency in cm-1 and whether it is a whole-crystal translation at q = 0.
+
+    The three translations at the zone centre have zero frequency by symmetry. ph.x does not impose that, so the
+    raw file shows them a few cm-1 either side of zero (-10.7 for SbTe2 in the pre-check). They are numerical
+    noise, not an instability; q2r.x and matdyn.x set them to zero with the acoustic sum rule.
+    """
+    found: list[dict] = []
+    at_gamma = False
+    current: dict | None = None
+    for line in text.splitlines():
+        q = Q_POINT.search(line)
+        if q:
+            at_gamma = all(abs(float(x)) < 1e-8 for x in q.groups())
+            continue
+        mode = MODE.search(line)
+        if mode:
+            current = {"cm1": float(mode.group(1)), "at_gamma": at_gamma, "vectors": []}
+            found.append(current)
+            continue
+        vector = VECTOR.match(line)
+        if vector and current is not None:
+            current["vectors"].append(tuple(float(x) for x in vector.groups()))
+    for item in found:
+        item["translation"] = item["at_gamma"] and is_translation(item.pop("vectors"))
+    return found
+
+
 def frequencies(text: str) -> list[float]:
-    """Mode frequencies in cm-1 from one .dyn file (every q-point in it)."""
-    return [float(x) for x in re.findall(r"freq\s*\(\s*\d+\)\s*=\s*[-\d.]+\s*\[THz\]\s*=\s*([-\d.]+)\s*\[cm-1\]", text)]
+    """Mode frequencies in cm-1 from one .dyn file, without the zone-centre translations."""
+    return [item["cm1"] for item in modes(text) if not item["translation"]]
 
 
 def lambda_table(text: str) -> list[dict]:
@@ -53,12 +104,16 @@ def report(run: Path) -> dict:
     out: dict = {"name": prefix, "formula": package.get("formula"), "mode": mode.split("=")[-1]}
     lowest = None
     q_files = sorted(p for p in run.glob(f"{prefix}.dyn*") if not p.name.endswith("dyn0"))
+    translations: list[float] = []
     for path in q_files:
-        values = frequencies(path.read_text(encoding="utf-8", errors="replace"))
+        found = modes(path.read_text(encoding="utf-8", errors="replace"))
+        translations += [item["cm1"] for item in found if item["translation"]]
+        values = [item["cm1"] for item in found if not item["translation"]]
         if values:
             lowest = min(values) if lowest is None else min(lowest, min(values))
     out["q_point_files"] = len(q_files)
     out["lowest_frequency_cm1"] = lowest
+    out["zone_centre_translations_cm1"] = translations  # should be near zero; not counted as modes
     out["imaginary_mode"] = None if lowest is None else bool(lowest < IMAGINARY_BELOW_CM1)
     table = lambda_table((run / "lambda").read_text(encoding="utf-8")) if (run / "lambda").is_file() else []
     out["lambda_by_broadening"] = table

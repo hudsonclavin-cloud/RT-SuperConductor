@@ -139,3 +139,39 @@ def test_hexagonal_cells_are_written_in_quantum_espresso_s_setting():
     assert cell[2] == [0.0, 0.0, pytest.approx(5.687223496)]
     cubic = [[3.88, 0.0, 0.0], [0.0, 3.88, 0.0], [0.0, 0.0, 3.88]]
     assert P.qe_orientation(cubic) == cubic
+
+
+GAMMA_DYN = """
+     Diagonalizing the dynamical matrix
+
+     q = (    0.000000000   0.000000000   0.000000000 )
+
+ **************************************************************************
+     freq (    1) =      -0.320745 [THz] =     -10.698889 [cm-1]
+ (  0.574290  0.000000 -0.000025  0.000000  0.000000  0.000000 )
+ (  0.578874  0.000000 -0.000025  0.000000  0.000000  0.000000 )
+ (  0.578874  0.000000 -0.000025  0.000000  0.000000  0.000000 )
+     freq (    2) =       2.217168 [THz] =      73.956764 [cm-1]
+ (  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000 )
+ (  0.707107  0.000000  0.000000  0.000000  0.000000  0.000000 )
+ ( -0.707107  0.000000  0.000000  0.000000  0.000000  0.000000 )
+ **************************************************************************
+"""
+
+
+def test_zone_centre_translations_are_not_counted_as_imaginary_modes():
+    """Lines from SbTe2's zone-centre file: the -10.7 cm-1 mode is the whole crystal sliding, zero by symmetry."""
+    found = R.modes(GAMMA_DYN)
+    assert [item["translation"] for item in found] == [True, False]
+    assert R.frequencies(GAMMA_DYN) == [73.956764]
+
+
+def test_the_same_pattern_away_from_the_zone_centre_still_counts():
+    """A soft mode is only excused at q = 0. Anywhere else, atoms moving together is a real (acoustic) mode."""
+    elsewhere = GAMMA_DYN.replace("0.000000000   0.000000000   0.000000000 )", "0.000000000   0.000000000   0.500000000 )")
+    assert R.frequencies(elsewhere) == [-10.698889, 73.956764]
+
+
+def test_a_soft_optical_mode_at_the_zone_centre_still_counts():
+    soft = GAMMA_DYN.replace("2.217168 [THz] =      73.956764", "-1.169600 [THz] =     -39.013358")
+    assert R.frequencies(soft) == [-39.013358]

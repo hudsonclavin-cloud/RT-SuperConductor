@@ -247,3 +247,43 @@ For Re3Ir also the zone corner (½ ½ ½), where the smoke run was softest.
 **Prediction [Speculative].** Re3Ir imaginary at one of its two points: 60%.
 SbTe2 imaginary at the zone centre: 20% (instabilities in layered compounds
 are more often away from the centre).
+
+## Pre-check at the zone centre: results, and a correction to the rule, 2026-11-16 14:44 UTC
+
+Written while Re3Ir's zone-corner run was still going, so that result is not
+known here. The correction below cannot affect it: it applies at the zone
+centre only.
+
+**Results at full ground-state settings (cm⁻¹).**
+
+| Compound | Raw output from `ph.x` | With the acoustic sum rule (`dynmat.x`) | Unstable at the centre? |
+| --- | --- | --- | --- |
+| Re3Ir | 11.8 (×3), 77.9 (×3), 114.4 (×3), 126.6 (×3) | 0 (×3), 76.9 (×3), 113.8 (×3), 126.1 (×3) | No |
+| SbTe2 | −10.7 (×2), 3.8, 74.0 (×2), 92.0 (×2), 109.9, 141.2 | 0 (×3), 74.6 (×2), 92.7 (×2), 109.7, 141.3 | No |
+
+- **Re3Ir.** The threefold mode that sat at −39 cm⁻¹ on the smoke meshes is at
+  +78 cm⁻¹ on the full mesh. It was an artifact of the coarse mesh, as
+  niobium's was.
+- **SbTe2.** No optical mode is soft. Predicted 20% unstable here; it is not.
+
+**Correction to the rule (made after seeing SbTe2's numbers; labelled so).**
+
+- The rule said "a mode below −5 cm⁻¹ fails". Read literally, SbTe2's −10.7
+  cm⁻¹ fails it. That reading is wrong, and the rule was badly written.
+- [Certain] Those three modes are the whole crystal sliding in one direction.
+  In the output file every atom moves the same way by the same amount (0.574
+  to 0.579). Sliding a crystal costs no energy, so their true frequency is
+  exactly zero. `ph.x` does not impose this; the later steps do.
+- The rule now reads: **a mode below −5 cm⁻¹ fails, except the three
+  whole-crystal translations at the zone centre.** A soft mode of any other
+  kind at the centre still fails, and so does any soft mode away from it.
+- `scripts/phonon_chain_report.py` had the same fault and would have marked
+  SbTe2 as failed on Hazel. It now leaves those three modes out, lists them
+  under `zone_centre_translations_cm1`, and has tests for both directions
+  (a translation is excused; a soft optical mode at the centre is not).
+- Changing a rule after a result is what the rules are meant to prevent. The
+  owner can veto this one. The evidence is the atom displacements above and
+  the `dynmat.x` column, both from files in this session's scratch space.
+
+**What this does not show.** One point per compound. Neither result says the
+compound is stable elsewhere in the zone.
