@@ -291,3 +291,51 @@ final boosting models, averaged as for the made metals.
 **Prediction** [Speculative]: the 20 will be dominated by two or three
 element families the model already favours (lead, bismuth and barium
 compounds, and transition-metal borides or carbides): 70%.
+
+## Why T2 failed: the calculated set has no f-elements (exploratory, written 2026-11-16 07:53 UTC)
+
+The owner asked whether real experiments can be ranked. This looks at where
+the physics proxy fails. It was chosen after T2's result, so it is a lead, not
+a test (`scripts/rung4_t2_diagnosis.py`).
+
+| T2 rows (experimental metals outside Table B) | Rows | Superconductors | Proxy AUC |
+| --- | --- | --- | --- |
+| All | 882 | 398 | 0.531 |
+| With a lanthanide or actinide | 587 | 254 | 0.508 |
+| Without one | 295 | 144 | 0.571 |
+| Every element seen at least 100 times in Table B | 199 | 111 | **0.646** |
+| Rarest element seen fewer than 30 times in Table B | 599 | 255 | 0.507 |
+
+- [Certain] **Bercx et al.'s Table B holds no lanthanide or actinide compound**
+  (0 of 4,366). Two thirds of the T2 rows contain one. The proxy has never
+  seen those elements, and on those rows it is at chance.
+- My earlier check for magnetism missed this: Materials Project marks most of
+  these compounds non-magnetic.
+- [Likely] **Where the chemistry is covered, the proxy does rank real
+  experiments**: AUC 0.646 on the 199 rows whose elements are all common in
+  Table B, and 0.763 inside Table B itself (reported above).
+- The rest of the failure is physics the calculation does not cover. The
+  proxy's worst misses among labelled superconductors are cuprates
+  (Ba2YCu3O7 and relatives) and elements that superconduct only under
+  pressure (Cs, Rb, Ba, Sr), which the table labels as superconductors.
+  Electron-phonon calculations at ambient pressure are right to score those
+  low.
+
+**For rung 4.**
+- 2,360 of the 4,014 pool compounds contain an f-element (998 of those on
+  the hull do not). Five of the 20 shortlisted do (CaYbPb2, Ac, AcYbTl2,
+  NaYbPb2, La3Pb).
+- [Speculative] The proxy may be worth using on the part of the pool with
+  covered chemistry. That needs its own test, written first, on compounds not
+  used here. It does not change step 3, which is done.
+
+**The shortlist against step 3's prediction.** I predicted lead, bismuth and
+barium compounds and borides or carbides would dominate (70%). **Wrong.**
+Seven of the 20 are ordered alloys of rhenium, osmium, ruthenium, rhodium,
+iridium and technetium; three are lead compounds; one is a carbide.
+- Four contain a radioactive element (Tc3Ru, ReTc, Ac, AcYbTl2) and are not
+  practical for a university lab. The plan had no such filter. The next
+  version should, along with whatever a lab partner can make.
+- [Likely] Several of the transition-metal entries are ordered versions of
+  solid solutions that are already known. The literature check (step 4) is
+  there to test that.
