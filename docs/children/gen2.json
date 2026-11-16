@@ -1,0 +1,82 @@
+{
+ "parent": "boost",
+ "variant_a": {
+  "max_leaf_nodes": 15
+ },
+ "variant_b": {
+  "max_leaf_nodes": 63
+ },
+ "cross2": [
+  "boost",
+  "physics"
+ ],
+ "cross3": [
+  "boost",
+  "physics",
+  "bag"
+ ],
+ "children": {
+  "elite": {
+   "hits": 7,
+   "auc": 0.8123,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 1,
+   "median_percentile": 0.8694
+  },
+  "variant_a": {
+   "hits": 7,
+   "auc": 0.7913,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 2,
+   "median_percentile": 0.8971,
+   "against_parent": {
+    "difference": -0.021,
+    "low": -0.0701,
+    "high": 0.019,
+    "resamples": 1000
+   }
+  },
+  "variant_b": {
+   "hits": 7,
+   "auc": 0.8574,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 3,
+   "median_percentile": 0.8791,
+   "against_parent": {
+    "difference": 0.0451,
+    "low": 0.0233,
+    "high": 0.0658,
+    "resamples": 1000
+   }
+  },
+  "cross2": {
+   "hits": 7,
+   "auc": 0.7894,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 1,
+   "median_percentile": 0.8475,
+   "against_parent": {
+    "difference": -0.0229,
+    "low": -0.0622,
+    "high": 0.0073,
+    "resamples": 1000
+   }
+  },
+  "cross3": {
+   "hits": 7,
+   "auc": 0.7703,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 0,
+   "median_percentile": 0.8478,
+   "against_parent": {
+    "difference": -0.042,
+    "low": -0.0688,
+    "high": -0.013,
+    "resamples": 1000
+   }
+  }
+ },
+ "best_offspring": "variant_b",
+ "promoted": true,
+ "champion": "gen2-variant_b"
+}

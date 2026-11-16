@@ -1,0 +1,138 @@
+mp_id,formula,confirmed,source_read,note
+mp-aaaaaaei,Y,no,abstract,"Abstract reports multicomponent superconductivity in YBa2Cu3O6.95 crystals; the Tc belongs to that cuprate, not elemental Y."
+mp-aaaaabwr,MgO,no,title_only,Title is about In2O3 films on MgO substrates; MgO is only the substrate.
+mp-aaaaavja,Sr2YRuO6,no,abstract,Abstract covers magnetism and the insulating state of Sr2YRuO6 from band calculations; no superconductivity.
+mp-aaaaagsb,SrRuO3,no,abstract,Same paper; SrRuO3 magnetic states from Stoner-theory calculations; no superconductivity mentioned.
+mp-aaaaaeex,FePd,no,title_only,Title is about Nb/PdFe/Nb triple layers; superconductivity is in the Nb layers and PdFe is a magnetic interlayer.
+mp-aaaaabrz,Al2O3,no,title_only,Title is about proton irradiation of YBCO films; Al2O3 is not the superconductor.
+mp-aaaabfqw,EuO,no,abstract,Abstract is about dipole-exchange spin waves in ferromagnetic films; no superconductivity.
+mp-aaaabelv,EuS,no,title_only,Title is about spin-polarized tunneling through a thin film; no superconductivity indicated.
+mp-aaaabikv,GdCl3,no,abstract,Same spin-wave paper; GdCl3 appears only as a parameter set; no superconductivity.
+mp-aaaabjln,KP(HO2)2,no,title_only,Title is about pressure effects on dielectric permittivity of KH2PO4 and KD2PO4; not superconducting.
+mp-aaaaacdb,MnSi,no,abstract,Quantum phase transition review; MnSi is not shown to superconduct and cuprates are only an example.
+mp-aaaaadju,NiS2,no,abstract,Abstract is the magnetic phase diagram and metal-insulator transition of NiS2-xSex; no superconductivity.
+mp-aaaaairs,Sr3Ru2O7,unclear,none,"Record has no title or DOI; a related search hit says pure Sr3Ru2O7 shows no superconductivity, but the source paper is unidentified."
+mp-aaaaaaeu,Ag,no,title_only,"Title is about MgB2 junctions on Ag and In electrodes; Ag is an electrode, not the superconductor."
+mp-aaaabezr,CaRuO3,no,abstract,Abstract covers metal-insulator transition and magnetic ordering in CaRu1-xCuxO3; no superconductivity.
+mp-aaabitdy,Gd(CoB)2,no,title_only,Title is about Gd2Sn2O7 Mossbauer hyperfine temperature; no superconductivity in the title.
+mp-aaabevqt,HfNCl,no,abstract,Abstract is a 2D BCS theory calculation; HfNCl is cited only as a comparison and is not measured here.
+mp-aaaaaaax,Ni,no,abstract,Abstract is about Ni-doped YBa2Cu4O8 spin dynamics; Ni is a dopant and the superconductor is the cuprate.
+mp-aaacrhyc,SrNdMn2O6,no,title_only,Truncated title is about magnetic relaxation in manganites; no superconductivity indicated.
+mp-aaaaabqq,TaB2,unclear,abstract,Abstract is a short discussion of why reported diboride superconductivity is not always confirmed; TaB2 is not named.
+mp-aaaabdjx,LaCrSb3,no,abstract,Neutron diffraction shows coexisting ferromagnetic and antiferromagnetic order in LaCrSb3 below 126 K; no superconductivity.
+mp-aaaabdya,MnGaNi2,no,title_only,Title is about the order-disorder transition in Ni2+xMn1-xGa Heusler alloys; no superconductivity indicated.
+mp-aaaaaaex,Na,no,abstract,Abstract is a Hubbard-model study of W=0 pairs in carbon nanotubes; sodium is not the subject.
+mp-aaaaaapa,TiO2,no,title_only,"Title is about structure, optics and conductivity of BaTi1-xNixO3; TiO2 is not superconducting in it."
+mp-aaaaadel,USe,no,abstract,Abstract is a theory of itinerant ferromagnetism in the periodic Anderson model; USe is only a listed example.
+mp-aaaaacyk,ZnO,no,abstract,Abstract reports room-temperature ferromagnetism in Zn1-xFexO with Cu added; no superconductivity.
+mp-aaacfyxi,CeSbPd,no,abstract,"Abstract is about magnetic order in Ce8Pd24Ga, a Kondo antiferromagnet; not CeSbPd and not superconducting."
+mp-aaaaabjm,CoPt3,no,abstract,Abstract covers superparamagnetism of CoPt3 nanocrystals; no superconductivity.
+mp-aaaaaadk,Dy,no,title_only,Title concerns antiferromagnetic superconductors in low fields; nothing indicates elemental Dy is the superconductor.
+mp-aaaaaabz,Li,no,abstract,Abstract reports superconductivity in Li only under pressures of about 20 to 67 GPa.
+mp-aaacjlcf,Mg(BC)2,unclear,none,No abstract retrieved; title is about crystal chemistry of carbon-substituted MgB2 and does not state a measured Tc.
+mp-aaaaaaaz,N2,no,title_only,Title is about MgB2 thin films grown by molecular-beam epitaxy; nitrogen is not the superconductor.
+mp-aaaabfcb,EuSe,no,title_only,Title is a general magneto-optics title; no superconductivity indicated.
+mp-aaaaacex,BP,no,title_only,Title is about Hc2 in MgB2 thin films; BP is not the superconductor.
+mp-aaaaabnp,BaF2,no,title_only,Title is about flux penetration in superconducting films; BaF2 is not the superconductor.
+mp-aaaaafrm,BaZrO3,no,title_only,Title is about Dy123 monodomain superconductors; BaZrO3 is not the superconductor.
+mp-aaacezqj,LiC6,no,title_only,Title names C6Yb and C6Ca; Li-intercalated graphite is not the subject.
+mp-aaaabfpd,PuGa3,no,abstract,Abstract is a heat-capacity study of Pu0.95Al0.05 with electron-phonon coupling; no superconductivity measured.
+mp-aaaaatxz,Ce(GePd)2,no,abstract,Abstract is a theory of Kondo versus phonon superconductivity in mixed-valence and heavy-fermion compounds; not measured in CePd2Ge2.
+mp-aaaabdws,CeO2,unclear,none,Record has no title or DOI and search found no CeO2 superconductivity paper; source unidentified.
+mp-aaacfaab,InBi,no,abstract,Abstract is about the intercalated graphite superconductor C6Yb; InBi is not the superconductor.
+mp-aaaaafja,KTaO3,no,abstract,Abstract is about Pb-substituted CaTiO3 dielectric behaviour; no superconductivity.
+mp-aaaaaaet,Nd,no,abstract,Abstract reviews scanning tunneling spectroscopy of cuprate superconductors; elemental Nd is not discussed as a superconductor.
+mp-aaaabrzh,YBRh3,no,abstract,Abstract is a calculation proposing Sc3XB superconductors; YBRh3 is only a comparison and was not measured superconducting here.
+mp-aaaaadck,FeCo,no,abstract,Abstract is a theory of Tc in superconductor/normal-metal/ferromagnet trilayers; FeCo is a ferromagnetic layer.
+mp-aaaabilw,HgBr2,no,title_only,"Title is about tunneling in HgBr2-intercalated Bi-2212; the superconductor is Bi-2212, not HgBr2."
+mp-aaabgjum,MgBIr,no,abstract,"Abstract reports superconductivity (Tc 5.7 K) in Mg12-dIr19B16, a different stoichiometry from the record's 1:1:1 MgBIr."
+mp-aaaaaeed,MoN,no,abstract,Same-titled paper (alphaXiv abstract) is about ferromagnetism in YBCO nanoparticles; MoN is not the superconductor studied.
+mp-aaaaacse,NdNi5,no,abstract,Abstract uses Nb-tip Andreev reflection on ferromagnetic NdNi5; NdNi5 is not reported as a superconductor.
+mp-aaaaaloo,Ta2CS2,yes,abstract,Abstract reports successive superconducting transitions at about 3.6 and 9.0 K in Ta2S2C from resistivity and ac susceptibility.
+mp-aaagjexi,Ba(FeAs)2,no,abstract,Abstract reports superconductivity (about 38 K) in hole-doped Sr1-xKxFe2As2; the parent BaFe2As2 is not studied.
+mp-aaaaaaav,Ca,no,abstract,"Abstract is NMR on Sr14-xCaxCu24O41 ladders under pressure; the superconductor is that compound, not elemental Ca."
+mp-aaaabbtc,Co3O4,no,abstract,Abstract is magnetic susceptibility of NaxCoO2 and hydrated crystals; no superconductivity.
+mp-aaaaabkn,CoPt,unclear,none,"Record has no title or DOI; a related NbN-CoPt bilayer paper reports Tc 15.3 K for NbN, but the source paper is unidentified."
+mp-aaaabexm,Eu(FeAs)2,unclear,none,No abstract retrieved; the generic 1995 title does not name EuFe2As2 or settle superconductivity.
+mp-aaaaaafz,Gd,no,title_only,Title is about metal-insulator transition in RuSr2RCu2O8 with rare-earth R; elemental Gd is not the superconductor.
+mp-aaacfaad,LiB,no,abstract,Abstract is a DFT screening study proposing layered Li-M-B superconductors; no measured superconductivity in LiB.
+mp-aaaaanro,LiBC,no,abstract,Abstract reports LiBC as a semiconductor from optical and dielectric measurements; no superconductivity.
+mp-aaaaaafp,Lu,no,title_only,Title is about flux jumps in YNi2B2C and LuNi2B2C crystals; elemental Lu is not the subject.
+mp-aaaaafga,MgAl2O4,no,title_only,"Title is about spinel oxide superconducting thin films; a film paper, not MgAl2O4 as a superconductor."
+mp-aaaaaxqk,Mn(CrS2)2,no,abstract,Abstract is a theory of half-metallic antiferromagnets in thiospinels; no superconductivity.
+mp-aaaabfnt,Mn3GaC,no,abstract,Abstract is electronic structure and antiferromagnetic nesting in GaCMn3; no superconductivity.
+mp-aaacfaae,MnGa,no,abstract,"Abstract is ferromagnetism in ion-implanted (Ga,Mn)P:C; no superconductivity."
+mp-aaaabgua,NaFeAs,no,abstract,"Abstract is heat capacity of SmFeAsO, NdFeAsO, LaFeAsO and LiFeAs; NaFeAs is not reported."
+mp-aaaaaorx,ZrCuSiAs,no,abstract,Abstract reports pressure effect on LaO0.89F0.11FeAs; the structure label is not the measured compound.
+mp-aaaaaazw,CdS,no,title_only,Title is a book chapter on quasi-one-dimensional organic superconductors; CdS is not the subject.
+mp-aaaabcjp,CrO2,no,abstract,Abstract is percolation in MgB2 and CrO2 nanocomposites; CrO2 is not superconducting.
+mp-aaabfyet,F2,no,abstract,Abstract is a review of a dopant-network model of ceramic Tc; fluorine is not a superconductor here.
+mp-aaaaadhd,FeNi,no,abstract,Abstract is magneto-optics of heavy-ion irradiated Ba(Fe1-xMx)2As2; FeNi is not the superconductor.
+mp-aaaaaeii,LaAlO3,no,abstract,Paper studies LaFeAsO1-xFx superconducting films grown on LaAlO3; LaAlO3 is only the substrate.
+mp-aaaaahnf,Sc3CoC4,yes,abstract,Polycrystalline Sc3CoC4 becomes superconducting below about 4.5 K and is classed as a type II superconductor.
+mp-aaabeukn,SmSI,no,abstract,Calculations on spin and charge fluctuations in TiNCl-type layered nitrides; SmSI is not the subject.
+mp-aaacribg,SrLaAlO4,no,abstract,FeSe0.5Te0.5 films grown on LaSrAlO4 substrate; the substrate is not the superconductor.
+mp-aaaaaepe,AlCuO2,no,title_only,"Title describes a computational design of superconductivity in hole-doped CuAlO2, not a measured result."
+mp-aaaabfqa,CePRuO,no,abstract,"Paper is on CeNiAsO, an antiferromagnetic Kondo lattice with no superconductivity down to 30 mK."
+mp-aaaaabdg,FeSe2,no,abstract,"Paper is on phase separation in Fe1+yTexSe1-x; the superconductivity belongs to that phase, not FeSe2."
+mp-aaackrwj,YCoGe,no,abstract,NQR and NMR on YCoGe show conventional metallic behavior with no superconducting transition down to 0.3 K.
+mp-aaaaaogl,AlAgO2,no,abstract,"First-principles calculations of Tc for hole-doped AgAlO2, CuAlO2 and AuAlO2; a computed prediction, not a measurement."
+mp-aaaaaalu,B2O3,no,title_only,Paper concerns boron doping of melt-textured YBa2Cu3O7 samples; B2O3 is not a superconductor.
+mp-aaabiytj,CsCSN,no,title_only,"Paper concerns CaIrSi3 single crystals, a different compound."
+mp-aaaabrhq,CsS,no,title_only,"Paper concerns YPtBi superconductivity under pressure, a different compound."
+mp-aaaabeaz,InAs,no,title_only,"Paper studies supercurrent in Nb/InAs-nanowire Josephson junctions, an induced junction effect rather than bulk InAs superconductivity."
+mp-aaaaammc,K2Se,no,title_only,"Paper is about phase relations and structure of KxFe2-ySe2, not K2Se."
+mp-aaaaagni,La(CoP)2,no,title_only,"Paper is ARPES on LaCo1.73Fe0.27B2, a boride, not this compound."
+mp-aaackwkm,La3Pt4,yes,abstract,"Abstract reports superconductivity of intermetallic La3Pt4 below 0.51 K, found while searching for Pt-substituted LaNiC2."
+mp-aaaaaafx,Mg,no,title_only,"Title describes superconductivity at a metal-oxidized magnesium interface, not bulk Mg."
+mp-aaaaabma,Si3N4,no,title_only,Theory paper on interplay of topological insulators and superconductors; not about Si3N4 superconductivity.
+mp-aaaaalnq,Ti2N,no,title_only,"Title is about titanium nitride film growth with tunable Tc; the compound is TiN-type, not Ti2N."
+mp-aaaaazao,Y2Si5Ni3,no,title_only,Ab initio study of superconducting Lu2Ni3Si5 with Y2Ni3Si5 as its reference compound.
+mp-aaaaadvt,AlNi3,no,title_only,"Title is about spin excitations in localized and itinerant magnets, not superconductivity."
+mp-aaabgnep,Ba(CrAs)2,no,title_only,"Paper concerns BaMn2Bi2 and K-doped compositions, not BaCr2As2."
+mp-aaaaanrr,Ba(CuAs)2,no,title_only,"Paper concerns BaMn2Bi2 and K-doped compositions, not BaCu2As2."
+mp-aaaaaxci,Ba(MnAs)2,no,abstract,Ba0.60K0.40Mn2As2 shows coexisting itinerant ferromagnetism and antiferromagnetism; no superconductivity is reported.
+mp-aaaaakzr,Ba(ZnAs)2,no,title_only,"Paper is on diluted magnetic semiconductors (La,Sr)(Zn,TM)AsO, not superconductivity in BaZn2As2."
+mp-aaaaajou,BaNd2ZnO5,no,title_only,"Title is about frustration-induced phase transitions in a spin-S orthogonal-dimer chain, not superconductivity."
+mp-aaabgkcn,Ca3(B3Rh4)2,no,title_only,"Paper is on LanRu3n-1B2n superconductors, not a calcium rhodium boride."
+mp-aaaaaebl,CaF2,no,title_only,Paper treats CaF2 as a substrate for Fe-based superconducting films.
+mp-aaaabhbj,Ce(GeRu)2,no,abstract,Review of quantum phase transitions in antiferromagnetic heavy fermion metals and Kondo insulators; no CeRu2Ge2 superconductivity is reported.
+mp-aaaabfby,Ce(NiAs)2,no,title_only,"Title is about magnetic properties and crystal-field effects in CeNi2As2, not superconductivity."
+mp-aaaaaark,CoAs3,no,title_only,"Paper is a photoelectron study of SrPt4Ge12, a different compound."
+mp-aaaabdsx,Eu(FeP)2,no,title_only,Paper is on magnetic orders in CePd2As2-xPx.
+mp-aaaaaibc,FeCo2Si,no,title_only,"Paper is on Co2FeSi-NbN nanoscale bilayers, not this compound."
+mp-aaaaachj,Ge2Pt,no,title_only,"Paper is on superconducting parameters of BaPt4-xAuxGe12 skutterudite, a different compound."
+mp-aaabraim,Hf3N4,no,title_only,Paper is on electron-hole symmetry and magnetic coupling in antiferromagnetic LaFeAsO.
+mp-aaacfakm,LaPt,no,title_only,"Paper is on tetragonal LaPt2-xGe2+x, a different stoichiometry from LaPt."
+mp-aaabfhab,LaZnAsO,no,title_only,Paper is on 1111-type diluted magnetic semiconductors; the LaZnAsO parent is not reported as superconducting.
+mp-aaaaacba,LiC,no,abstract,First-principles calculation of electron-phonon coupling in graphene-lithium layers; a computed Tc for intercalated systems.
+mp-aaaaakgg,SiO2,no,title_only,Paper is on TaN thin films; SiO2 is only a substrate.
+mp-aaaabhay,TaInS2,no,abstract,"Abstract describes superconductivity in PbTaSe2, a different compound."
+mp-aaaaabxf,TaN,no,abstract,"Superconducting TaN films deposited by laser ablation; the superconductivity is reported in films, not bulk."
+mp-aaacqqnf,Th2NiC2,no,abstract,First-principles electronic structure of Th2NiC2 only; this paper reports no measured superconductivity.
+mp-aaaaahaa,UGa5Co,no,title_only,"Paper is on the electronic structure of PuCoGa5, a different compound."
+mp-aaacdhkb,BiS2,no,title_only,"Paper studies hydrostatic pressure effects on Sr0.5La0.5FBiS2, a different compound and pressure-only."
+mp-aaaabrih,CaMn7O12,no,title_only,"Paper is on BaFe2Se3 multiferroicity, not CaMn7O12."
+mp-aaacfopj,Cs2Se,no,title_only,"Title is a review of electronic structure of iron-based superconductors, not Cs2Se."
+mp-aaaabeau,EuP,no,title_only,"Paper is on coexistence of ferromagnetism and superconductivity in iron pnictides, not EuP."
+mp-aaaaacxs,La2O3,no,title_only,"Paper is on LaFePO single crystals, not La2O3."
+mp-aaaabcsx,LiFeO2,no,title_only,Paper is on superconductivity in (LiFeO2)Fe2Se2 with anti-PbO spacer layers; LiFeO2 is only the spacer block.
+mp-aaacqruf,LuBiPd,yes,abstract,Abstract reports a bulk superconducting transition near 1.7 K in the noncentrosymmetric semimetal LuPdBi.
+mp-aaaabcfz,NaVO3,no,title_only,Paper is a spin-isospin model of NaV2O5.
+mp-aaaaadwq,NpO2,no,title_only,Paper is on multipole Coulomb interactions and loss of magnetic moments in NpO2; not superconductivity.
+mp-aaaaahgq,Pr(SiRu)2,no,title_only,"Paper is on crystal-field interactions in PrRu2Si2, a magnetic study."
+mp-aaaaadyj,SrSi,no,title_only,"Paper is on superconductivity in noncentrosymmetric Li2IrSi3, a different compound."
+mp-aaaaatby,Y2SO2,no,title_only,Paper is on yttrium substitution in La1-xYxO0.5F0.5BiS2.
+mp-aaaaacsa,YbS,no,title_only,"Title describes interface superconductivity in strained topological crystalline insulators, not bulk YbS."
+mp-aaaaayoz,AlAuO2,no,title_only,Title describes a computational design of an attractive Fermion system in hole-doped delafossites.
+mp-aaacdqds,Bi2Rh3S2,no,abstract,Bi2Rh3S2 shows a structural transition near 165 K and no superconductivity down to 0.5 K; bulk superconductivity is in Bi2Rh3.5S2.
+mp-aaackiha,BiSe2,no,title_only,"Paper studies hydrostatic pressure effects on LaO0.5F0.5BiSe2, a different compound."
+mp-aaabgkec,Ca(CoAs)2,no,title_only,Paper is on spin-flop transition and magnetism in CaCo2As2.
+mp-aaacfkuu,HoBiPd,yes,abstract,"Abstract reports bulk superconductivity below about 0.75 K, with onset near 1.9 K, in the antiferromagnetic phase of HoPdBi."
+mp-aaacgcvr,LiC12,no,title_only,"Title describes calcium-intercalated bilayer graphene, an intercalation system, not LiC12."
+mp-aaaaaxld,Nb5Se4,yes,title_only,Title states superconductivity in the niobium-rich compound Nb5Se4; the abstract was not retrieved.
+mp-aaackxdw,NbBRu,yes,abstract,arXiv preprint abstract reports BCS-like superconductivity in orthorhombic NbRuB with Tc of 3.1 K.
+mp-aaabgmzj,Sr(CoAs)2,no,title_only,"Paper is on a pressure-induced collapsed-tetragonal phase in SrCo2As2, not ambient-pressure superconductivity."
+mp-aaaabhwf,XeF2,no,title_only,"Paper is on Bi2(O,F)S2 superconductors; XeF2 is not the compound studied."
+mp-aaacjlqg,Y(NiB)2,no,abstract,Theory of NMR relaxation from superconducting fluctuations in two-dimensional superconductors; no specific compound is measured.
+mp-aaacfkbg,YBiPd,unclear,abstract,Abstract reports superconductivity across the RPdBi half-Heusler family with R a rare earth; YPdBi itself is not named.
