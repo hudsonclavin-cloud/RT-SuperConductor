@@ -1,0 +1,15 @@
+{
+ "pool": 4014,
+ "on_hull": 2399,
+ "shortlist": 20,
+ "controls": 20,
+ "controls_with_matched_prototype": 20,
+ "shortlist_prototypes": 10,
+ "shortlist_p_range": [
+  0.917,
+  0.966
+ ],
+ "controls_median_p": 0.489,
+ "pool_median_p": 0.5219077570623729,
+ "proxy_used": false
+}

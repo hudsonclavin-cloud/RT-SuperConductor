@@ -1,0 +1,121 @@
+{
+ "slice": "selection: pre-2016 SuperCon2 hits absent from the 2018 export, confirmed by a reader",
+ "reader_check": {
+  "no": 123,
+  "unclear": 7,
+  "yes": 7
+ },
+ "children": {
+  "boost": {
+   "hits": 7,
+   "auc": 0.8123,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 1,
+   "median_percentile": 0.8694,
+   "raw_slice": {
+    "hits": 137,
+    "auc": 0.4534,
+    "hits_in_top_1_percent": 1,
+    "hits_in_top_5_percent": 7,
+    "median_percentile": 0.4438
+   }
+  },
+  "bag": {
+   "hits": 7,
+   "auc": 0.7162,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 1,
+   "median_percentile": 0.7752,
+   "raw_slice": {
+    "hits": 137,
+    "auc": 0.4394,
+    "hits_in_top_1_percent": 1,
+    "hits_in_top_5_percent": 5,
+    "median_percentile": 0.4021
+   }
+  },
+  "knn": {
+   "hits": 7,
+   "auc": 0.5468,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 0,
+   "median_percentile": 0.5494,
+   "raw_slice": {
+    "hits": 137,
+    "auc": 0.4685,
+    "hits_in_top_1_percent": 0,
+    "hits_in_top_5_percent": 8,
+    "median_percentile": 0.4717
+   }
+  },
+  "mlp": {
+   "hits": 7,
+   "auc": 0.7122,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 0,
+   "median_percentile": 0.7359,
+   "raw_slice": {
+    "hits": 137,
+    "auc": 0.4968,
+    "hits_in_top_1_percent": 5,
+    "hits_in_top_5_percent": 7,
+    "median_percentile": 0.5109
+   }
+  },
+  "physics": {
+   "hits": 7,
+   "auc": 0.7549,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 1,
+   "median_percentile": 0.8027,
+   "raw_slice": {
+    "hits": 137,
+    "auc": 0.442,
+    "hits_in_top_1_percent": 1,
+    "hits_in_top_5_percent": 6,
+    "median_percentile": 0.4564
+   }
+  }
+ },
+ "order": [
+  "boost",
+  "physics",
+  "bag",
+  "mlp",
+  "knn"
+ ],
+ "winner": "boost",
+ "runner_up": "physics",
+ "against_boost": {
+  "bag": {
+   "difference": -0.0961,
+   "low": -0.1557,
+   "high": -0.0354,
+   "resamples": 1000
+  },
+  "knn": {
+   "difference": -0.2655,
+   "low": -0.386,
+   "high": -0.1071,
+   "resamples": 1000
+  },
+  "mlp": {
+   "difference": -0.1001,
+   "low": -0.2356,
+   "high": 0.0411,
+   "resamples": 1000
+  },
+  "physics": {
+   "difference": -0.0574,
+   "low": -0.1344,
+   "high": 0.0036,
+   "resamples": 1000
+  }
+ },
+ "boost_auc_minus_chance": {
+  "difference": 0.3123,
+  "low": 0.1872,
+  "high": 0.4134,
+  "resamples": 1000
+ }
+}

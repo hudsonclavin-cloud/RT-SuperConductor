@@ -3,6 +3,7 @@
 
     python scripts/rung4.py pool     # step 1: freeze the never-made pool
     python scripts/rung4.py proxy    # step 2: the physics proxy and tests T1 and T2
+    python scripts/rung4.py shortlist  # step 3: 20 from the pool by the ranking of record, and 20 random controls
 
 Step 1 reads the committed candidate table only. Step 2 also needs Bercx et al.'s Tables B and C
 (``python scripts/bercx_published.py download`` puts them in ``data/raw/bercx-2025/``, which git ignores) and
@@ -300,11 +301,86 @@ def cmd_proxy() -> dict:
     return report
 
 
+# ------------------------------------------------------------------------------------------------ step 3
+
+MODELS = ROOT / "data/processed/learning-cycles/models/cycle3"
+PER_SYSTEM, PER_PROTOTYPE, SHORTLIST, CONTROL_SEED = 2, 3, 20, 2026
+
+
+def capped_head(rows: list[dict], size: int = SHORTLIST) -> list[dict]:
+    """The first ``size`` rows in order, at most PER_SYSTEM per element system and PER_PROTOTYPE per prototype."""
+    systems, prototypes, kept = Counter(), Counter(), []
+    for row in rows:
+        if systems[row["element_system"]] >= PER_SYSTEM or prototypes[row["prototype"]] >= PER_PROTOTYPE:
+            continue
+        systems[row["element_system"]] += 1
+        prototypes[row["prototype"]] += 1
+        kept.append(row)
+        if len(kept) == size:
+            break
+    return kept
+
+
+def matched_controls(shortlist: list[dict], eligible: list[dict], seed: int = CONTROL_SEED) -> list[dict]:
+    """One random eligible compound per shortlist row: same prototype where one is left, else any; new systems only."""
+    rng = np.random.default_rng(seed)
+    taken = {row["mp_id"] for row in shortlist}
+    systems = {row["element_system"] for row in shortlist}
+    controls = []
+    for row in shortlist:
+        free = [r for r in eligible if r["mp_id"] not in taken and r["element_system"] not in systems]
+        same = [r for r in free if r["prototype"] == row["prototype"]]
+        choice = (same or free)[int(rng.integers(0, len(same or free)))]
+        taken.add(choice["mp_id"])
+        systems.add(choice["element_system"])
+        controls.append({**choice, "matched_prototype": bool(same)})
+    return controls
+
+
+def cmd_shortlist() -> dict:
+    """Step 3 with the ranking of record alone (cycle 3's final models); the physics proxy is not used (T2 failed)."""
+    import joblib
+
+    with open(OUT / "pool.csv", newline="", encoding="utf-8") as handle:
+        pool = list(csv.DictReader(handle))
+    X, _ = C.formula_features([C.formula_text(fractions(r["formula"])) for r in pool])
+    applied = [C.boosting_apply(joblib.load(path), X) for path in sorted(MODELS.glob("boosting-fold*.joblib"))]
+    if len(applied) != 5:
+        raise SystemExit(f"expected cycle 3's five final models under {MODELS}")
+    p = np.mean([a[0] for a in applied], axis=0)
+    tc = C.log_mean_tc([a[1] for a in applied])
+    for row, p_i, tc_i in zip(pool, p, tc):
+        row.update(p_superconductor=round(float(p_i), 3), tc_if_superconductor_k=round(float(tc_i), 2),
+                   _tie=float(p_i * tc_i))
+    order = sorted(pool, key=lambda r: (-r["p_superconductor"], -r["_tie"]))
+    for rank, row in enumerate(order, start=1):
+        row["pool_rank"] = rank
+    eligible = [r for r in order if r["on_hull"] == "True"]
+    shortlist = capped_head(eligible)
+    controls = matched_controls(shortlist, eligible)
+    fields = ["mp_id", "formula", "element_system", "prototype", "known_superconductors_in_prototype",
+              "pool_rank", "p_superconductor", "tc_if_superconductor_k"]
+    for name, rows, extra in (("shortlist", shortlist, []), ("controls", controls, ["matched_prototype"])):
+        with open(OUT / f"{name}.csv", "w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields + extra, extrasaction="ignore")
+            writer.writeheader()
+            writer.writerows(rows)
+    summary = {"pool": len(pool), "on_hull": len(eligible), "shortlist": len(shortlist), "controls": len(controls),
+               "controls_with_matched_prototype": int(sum(c["matched_prototype"] for c in controls)),
+               "shortlist_prototypes": len({r["prototype"] for r in shortlist}),
+               "shortlist_p_range": [shortlist[-1]["p_superconductor"], shortlist[0]["p_superconductor"]],
+               "controls_median_p": float(np.median([c["p_superconductor"] for c in controls])),
+               "pool_median_p": float(np.median(p)), "proxy_used": False}
+    (DOCS / "shortlist-summary.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(summary, indent=1))
+    return summary
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("step", choices=["pool", "proxy"])
+    parser.add_argument("step", choices=["pool", "proxy", "shortlist"])
     args = parser.parse_args()
-    {"pool": cmd_pool, "proxy": cmd_proxy}[args.step]()
+    {"pool": cmd_pool, "proxy": cmd_proxy, "shortlist": cmd_shortlist}[args.step]()
     return 0
 
 

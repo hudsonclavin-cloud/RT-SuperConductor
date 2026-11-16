@@ -266,3 +266,128 @@ every commit here a new ID. The authored times are unchanged:
 | `31a7e6f` (first correction, 07:01:14 UTC) | `798ae2f` |
 
 The plan itself is `37919ec` (06:55:23 UTC).
+
+## Step 3: decision and method, written 2026-11-16 07:49 UTC, before the pool was scored
+
+**Decision.** The owner left this to my discretion on 2026-11-16. **The
+physics proxy is not used in step 3**: T2 failed, and adding the proxy
+lowered experimental AUC by 0.069. The shortlist uses the ranking of record
+alone. This follows the plan's "Risks" section and departs from the wording
+of its step 3.
+
+**Ranking.** The stability test (`docs/stable-ranking.md`) did not support
+the bagged ranking, so the pool is scored by the single model: cycle 3's five
+final boosting models, averaged as for the made metals.
+
+**Rules, as in the plan and made exact here** (`scripts/rung4.py shortlist`):
+- Order the 4,014 by rounded probability, ties by probability times Tc.
+- Keep those on the hull (2,399).
+- Walk down the order, taking at most 2 per element system and 3 per
+  prototype, until 20 are taken.
+- Controls: for each shortlisted compound, one compound drawn at random
+  (seed 2026) from the on-hull pool, of the same prototype where one is left,
+  from an element system not already used.
+
+**Prediction** [Speculative]: the 20 will be dominated by two or three
+element families the model already favours (lead, bismuth and barium
+compounds, and transition-metal borides or carbides): 70%.
+
+## Why T2 failed: the calculated set has no f-elements (exploratory, written 2026-11-16 07:53 UTC)
+
+The owner asked whether real experiments can be ranked. This looks at where
+the physics proxy fails. It was chosen after T2's result, so it is a lead, not
+a test (`scripts/rung4_t2_diagnosis.py`).
+
+| T2 rows (experimental metals outside Table B) | Rows | Superconductors | Proxy AUC |
+| --- | --- | --- | --- |
+| All | 882 | 398 | 0.531 |
+| With a lanthanide or actinide | 587 | 254 | 0.508 |
+| Without one | 295 | 144 | 0.571 |
+| Every element seen at least 100 times in Table B | 199 | 111 | **0.646** |
+| Rarest element seen fewer than 30 times in Table B | 599 | 255 | 0.507 |
+
+- [Certain] **Bercx et al.'s Table B holds no lanthanide or actinide compound**
+  (0 of 4,366). Two thirds of the T2 rows contain one. The proxy has never
+  seen those elements, and on those rows it is at chance.
+- My earlier check for magnetism missed this: Materials Project marks most of
+  these compounds non-magnetic.
+- [Likely] **Where the chemistry is covered, the proxy does rank real
+  experiments**: AUC 0.646 on the 199 rows whose elements are all common in
+  Table B, and 0.763 inside Table B itself (reported above).
+- The rest of the failure is physics the calculation does not cover. The
+  proxy's worst misses among labelled superconductors are cuprates
+  (Ba2YCu3O7 and relatives) and elements that superconduct only under
+  pressure (Cs, Rb, Ba, Sr), which the table labels as superconductors.
+  Electron-phonon calculations at ambient pressure are right to score those
+  low.
+
+**For rung 4.**
+- 2,360 of the 4,014 pool compounds contain an f-element (998 of those on
+  the hull do not). Five of the 20 shortlisted do (CaYbPb2, Ac, AcYbTl2,
+  NaYbPb2, La3Pb).
+- [Speculative] The proxy may be worth using on the part of the pool with
+  covered chemistry. That needs its own test, written first, on compounds not
+  used here. It does not change step 3, which is done.
+
+**The shortlist against step 3's prediction.** I predicted lead, bismuth and
+barium compounds and borides or carbides would dominate (70%). **Wrong.**
+Seven of the 20 are ordered alloys of rhenium, osmium, ruthenium, rhodium,
+iridium and technetium; three are lead compounds; one is a carbide.
+- Four contain a radioactive element (Tc3Ru, ReTc, Ac, AcYbTl2) and are not
+  practical for a university lab. The plan had no such filter. The next
+  version should, along with whatever a lab partner can make.
+- [Likely] Several of the transition-metal entries are ordered versions of
+  solid solutions that are already known. The literature check (step 4) is
+  there to test that.
+
+## Step 4: literature check of the 40, written 2026-11-16 07:56 UTC
+
+**How it was done, and where it departs from the plan.** The plan called for
+two readers and a verifier per compound. The owner asked for low cost, so each
+compound had **one low-tier reader**, blind to which group it was in, who had
+to give a Crossref-verified DOI for any claim that a compound exists. I
+checked one DOI myself (Nb2GeC, below). Treat single verdicts as leads.
+Results: `data/benchmarks/rung4/literature-check.csv`.
+
+| Verdict | Shortlist (20) | Controls (20) |
+| --- | --- | --- |
+| Made, reported superconducting | 1 | 0 |
+| Made, no low-temperature data found | 5 | 2 |
+| Known only as an alloy or in another structure | 3 | 1 |
+| Not found as made | 6 | 13 |
+| Unclear | 5 | 4 |
+
+**Against the predictions:**
+- "At least 5 of the 20 shortlisted were already synthesized" (40%): **yes**,
+  6 made and 3 more known as alloys.
+- "Shortlisted compounds are found synthesized more often than controls"
+  (50%): **yes in direction**, 9 of 20 against 3 of 20; two-sided Fisher
+  p = 0.08, so not established.
+
+**What it shows.**
+- [Certain] **"Never made" in the database is wrong for at least 6 of the
+  top 20.** SrPtTl2, Ti2AlNb, ScTaN2, CsIr2As2, CsCo2As2 and Nb2GeC have
+  synthesis papers.
+- **One shortlisted compound is a reported superconductor the databases
+  missed.** Nb2GeC: Bortolozo et al., "Superconducting evidence of a processed
+  Nb2GeC compound under a microwave heating", Mater. Chem. Phys. 194, 219
+  (2017), doi:10.1016/j.matchemphys.2017.03.037. I confirmed that the DOI is
+  registered with that title; nobody here has read the abstract or the
+  paper. The title says "evidence", so read it as a claim to check, not as an
+  established superconductor.
+  - [Speculative] One in 20 against none in 20 controls is what a useful
+    ranking would produce, and also what chance produces fairly often.
+- [Likely] The model's top picks lean toward compounds that chemists have
+  in fact made: 9 of 20 against 3 of 20. That fits a model that has learned
+  what real intermetallics look like. It also means the "never made" pool
+  needs a literature filter before ranking, as the plan's last section said.
+- **Five made compounds with no low-temperature data found** are, in effect,
+  rung 3 candidates: SrPtTl2, Ti2AlNb, CsIr2As2 and CsCo2As2. (ScTaN2 is
+  reported as a small-gap semiconductor, so it is not a candidate.)
+- **Six shortlisted compounds were not found as made:** SbTe2, NaYbPb2,
+  AcYbTl2, La3Pb, CaYbPb2 and Re3Ir. AcYbTl2 is radioactive. The rest are the
+  only true rung 4 candidates this round produced.
+
+**Next for rung 4** (not started): a second reader on the six not-found
+compounds and on Nb2GeC's paper, then step 5's calculation on Hazel for the
+ones that survive.
