@@ -1,0 +1,219 @@
+{
+ "name": "cycle0",
+ "previous": null,
+ "data_sha256": "cdc480abd88aace9f80bb1f0931b5d58298233da592d6d8c7070170b9771e74a",
+ "boosting_settings": {
+  "classifier_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 31,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  },
+  "regressor_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 63,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  }
+ },
+ "locked_rows": "neither trained on nor scored",
+ "cross_validation": {
+  "development_rows": 9765,
+  "labelled_rows": 9399,
+  "superconductors": 7103,
+  "folds": [
+   {
+    "fold": 0,
+    "classifier_trees": 200,
+    "regressor_trees": 360
+   },
+   {
+    "fold": 1,
+    "classifier_trees": 209,
+    "regressor_trees": 356
+   },
+   {
+    "fold": 2,
+    "classifier_trees": 204,
+    "regressor_trees": 400
+   },
+   {
+    "fold": 3,
+    "classifier_trees": 492,
+    "regressor_trees": 352
+   },
+   {
+    "fold": 4,
+    "classifier_trees": 359,
+    "regressor_trees": 616
+   }
+  ],
+  "scores": {
+   "all": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7103,
+    "auc": 0.79,
+    "brier": 0.1445,
+    "tc_mae_k": 3.9127,
+    "tc_log_mae": 0.3877,
+    "tc_spearman": 0.8344,
+    "expected_tc_spearman": 0.6387,
+    "top_decile_recall": 0.6755
+   },
+   "not cuprates": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6620,
+    "auc": 0.789,
+    "brier": 0.1397,
+    "tc_mae_k": 3.3438,
+    "tc_log_mae": 0.3889,
+    "tc_spearman": 0.8101,
+    "expected_tc_spearman": 0.6808,
+    "top_decile_recall": 0.707
+   }
+  },
+  "intervals": {
+   "all": {
+    "auc": {
+     "low": 0.7685,
+     "median": 0.79,
+     "high": 0.8097,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.3679,
+     "median": 0.3881,
+     "high": 0.4089,
+     "resamples": 300
+    }
+   },
+   "not cuprates": {
+    "auc": {
+     "low": 0.7685,
+     "median": 0.7887,
+     "high": 0.808,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.3695,
+     "median": 0.3894,
+     "high": 0.4103,
+     "resamples": 300
+    }
+   }
+  }
+ },
+ "final_models": [
+  {
+   "validation_fold": 0,
+   "fit_rows": 12291,
+   "classifier_trees": 258,
+   "regressor_trees": 173
+  },
+  {
+   "validation_fold": 1,
+   "fit_rows": 12156,
+   "classifier_trees": 435,
+   "regressor_trees": 954
+  },
+  {
+   "validation_fold": 2,
+   "fit_rows": 11952,
+   "classifier_trees": 243,
+   "regressor_trees": 735
+  },
+  {
+   "validation_fold": 3,
+   "fit_rows": 12042,
+   "classifier_trees": 243,
+   "regressor_trees": 1041
+  },
+  {
+   "validation_fold": 4,
+   "fit_rows": 11844,
+   "classifier_trees": 287,
+   "regressor_trees": 373
+  }
+ ],
+ "made_metals": {
+  "untested_made_metals": 7693,
+  "top_10": [
+   {
+    "rank": 1,
+    "formula": "BaPb3",
+    "p_superconductor": 0.964,
+    "tc_if_superconductor_k": 3.33
+   },
+   {
+    "rank": 2,
+    "formula": "BaCdBi2",
+    "p_superconductor": 0.963,
+    "tc_if_superconductor_k": 3.44
+   },
+   {
+    "rank": 3,
+    "formula": "Ba3Pb5",
+    "p_superconductor": 0.96,
+    "tc_if_superconductor_k": 4.64
+   },
+   {
+    "rank": 4,
+    "formula": "LuNiC2",
+    "p_superconductor": 0.96,
+    "tc_if_superconductor_k": 3.58
+   },
+   {
+    "rank": 5,
+    "formula": "BiTe",
+    "p_superconductor": 0.959,
+    "tc_if_superconductor_k": 3.54
+   },
+   {
+    "rank": 6,
+    "formula": "Ba2Cd3Bi4",
+    "p_superconductor": 0.959,
+    "tc_if_superconductor_k": 2.98
+   },
+   {
+    "rank": 7,
+    "formula": "SbTe",
+    "p_superconductor": 0.959,
+    "tc_if_superconductor_k": 2.82
+   },
+   {
+    "rank": 8,
+    "formula": "SrZnBi2",
+    "p_superconductor": 0.956,
+    "tc_if_superconductor_k": 3.3
+   },
+   {
+    "rank": 9,
+    "formula": "Zr6Ga2Ni",
+    "p_superconductor": 0.955,
+    "tc_if_superconductor_k": 4.4
+   },
+   {
+    "rank": 10,
+    "formula": "SrCdBi2",
+    "p_superconductor": 0.955,
+    "tc_if_superconductor_k": 3.1
+   }
+  ],
+  "watched": {
+   "Zr6Ga2Ni": 9,
+   "Zr6Ga2Co": 11,
+   "Hf6Ga2Co": 98,
+   "Ti3SnH": 511,
+   "ZrSbRu": 1002,
+   "TiAlPt": 1055,
+   "Y2B3C2": 1658,
+   "ZrS": 2028,
+   "NbCoSb": 2105,
+   "Ti2Ga": 5992,
+   "PtPb3Bi": null
+  }
+ },
+ "minutes": 1.6
+}
