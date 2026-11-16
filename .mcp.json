@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "materials-project": {
+      "command": "uvx",
+      "args": ["--from", "mp-api[mcp]", "mpmcp"],
+      "env": { "MP_API_KEY": "${MP_API_KEY}" }
+    },
+    "openalex": {
+      "type": "http",
+      "url": "https://mcp.openalex.org/mcp"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
