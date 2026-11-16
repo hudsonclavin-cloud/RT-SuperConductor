@@ -53,6 +53,18 @@ else
   launcher="${LAUNCHER:-srun}"
 fi
 
+# A package that failed its stability pre-check carries PRECHECK_FAILED.txt
+# (docs/hazel-candidates.md). A full run of it is refused unless ALLOW_FAILED=1.
+if [ -f "$package/PRECHECK_FAILED.txt" ]; then
+  if [ "$mode" = full ] && [ "${ALLOW_FAILED:-0}" != 1 ]; then
+    echo "refusing: this candidate failed its stability pre-check:" >&2
+    sed 's/^/  /' "$package/PRECHECK_FAILED.txt" >&2
+    echo "set ALLOW_FAILED=1 to run it anyway" >&2
+    exit 6
+  fi
+  echo "note: this candidate failed its stability pre-check (see PRECHECK_FAILED.txt)" >&2
+fi
+
 case "$run_dir" in
   "$HOME"|"$HOME"/*) echo "refusing: run_dir is under \$HOME; use the work area" >&2; exit 3 ;;
 esac

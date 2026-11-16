@@ -1,4 +1,5 @@
 """The Hazel candidate packages: input generation, relaxed-cell parsing and the chain report."""
+import os
 import sys
 from pathlib import Path
 
@@ -175,3 +176,21 @@ def test_the_same_pattern_away_from_the_zone_centre_still_counts():
 def test_a_soft_optical_mode_at_the_zone_centre_still_counts():
     soft = GAMMA_DYN.replace("2.217168 [THz] =      73.956764", "-1.169600 [THz] =     -39.013358")
     assert R.frequencies(soft) == [-39.013358]
+
+
+def test_a_full_run_of_a_candidate_that_failed_its_pre_check_is_refused(tmp_path):
+    import subprocess
+
+    script = ROOT / "scripts/hpc/submit_phonon_chain.sh"
+    package = ROOT / "data/benchmarks/candidates/re3ir"
+    assert (package / "PRECHECK_FAILED.txt").is_file()
+
+    def run(**extra):
+        env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path / "home"), "DRY_RUN": "1", **extra}
+        return subprocess.run([str(script), str(package), str(tmp_path / "run"), "compute", "normal", "4"],
+                              env=env, capture_output=True, text=True)
+
+    refused = run(CHAIN_MODE="full")
+    assert refused.returncode == 6 and "failed its stability pre-check" in refused.stderr
+    assert run(CHAIN_MODE="full", ALLOW_FAILED="1").returncode == 0
+    assert run(CHAIN_MODE="smoke").returncode == 0

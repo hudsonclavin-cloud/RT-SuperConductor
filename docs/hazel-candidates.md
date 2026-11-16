@@ -15,7 +15,7 @@ has run on Hazel. The chain was rehearsed on this session's machine only
 | Folder in `data/benchmarks/candidates/` | Compound | Role | Structure | Atoms | Status |
 | --- | --- | --- | --- | --- | --- |
 | `zr6ga2ni` | Zr6Ga2Ni | Benchmark: Bercx et al. calculated λ = 0.70, isotropic Tc 5.5 K (`docs/bercx-published-check.md`) | P-62m | 9 | ready |
-| `re3ir` | Re3Ir | Rung 4 candidate, pool rank 19 | Pm-3m (Cu3Au type) | 4 | ready |
+| `re3ir` | Re3Ir | Rung 4 candidate, pool rank 19 | Pm-3m (Cu3Au type) | 4 | **failed the pre-check on 2026-11-16 (see the last section); do not submit a full run** |
 | `sbte2` | SbTe2 | Rung 4 candidate, pool rank 39 | P-3m1 (CdI2 type) | 3 | ready |
 
 Each folder holds:
@@ -133,8 +133,10 @@ environment, the hello-world job). Then, on the login node:
    ```bash
    CHAIN_MODE=full scripts/hpc/submit_phonon_chain.sh data/benchmarks/candidates/zr6ga2ni /share/<group>/<unity_id>/rtsc/zr6ga2ni-full compute normal 16
    ```
-7. If the benchmark passes rule 1, run the two candidates the same way, with
-   `re3ir` and `sbte2` in place of `zr6ga2ni`.
+7. If the benchmark passes rule 1, run the candidates the same way, with the
+   candidate's folder in place of `zr6ga2ni`. (Updated 2026-11-16: that is
+   now `sbte2` only. Re3Ir failed its pre-check, and the job script refuses a
+   full run of it.)
 8. Copy each `report.json` (and `run/lambda`, `run/*.dyn*`, `run/scf.out`) back
    into the repository under `results/<name>/`. The work area is wiped after
    about 30 days.
@@ -287,3 +289,49 @@ centre only.
 
 **What this does not show.** One point per compound. Neither result says the
 compound is stable elsewhere in the zone.
+
+## Pre-check at Re3Ir's zone corner: it fails, 2026-11-16 15:07 UTC
+
+**Result.** At the zone corner (½ ½ ½), with the package's own ground-state
+settings, Re3Ir has one mode at **−62.5 cm⁻¹**. The other eleven are between
+84 and 148 cm⁻¹. All the numbers are in
+`data/benchmarks/candidates/precheck.csv`.
+
+| Point | Smoke meshes (k 6³) | Full settings (k 12³) |
+| --- | --- | --- |
+| Zone centre, lowest mode that counts | −39.0 | +77.9 |
+| Zone corner, lowest mode | −88.8 | −62.5 |
+
+**Verdict under the rule: Re3Ir fails the candidate rule.** The prediction
+gave 60% to an imaginary mode at one of the two points.
+
+- In the unstable mode the three rhenium atoms move and the iridium atom
+  stays still. This is not a translation and it is not at the zone centre,
+  so the correction in the section above does not touch it.
+- [Likely] The instability is real at these settings. It means ordered Re3Ir
+  in this structure would distort into a larger cell. Together with the second
+  reader's finding (rhenium and iridium form disordered alloys), it says this
+  structure is probably not what forms.
+- [Speculative] It might not survive a denser k mesh. The zone-centre mode
+  moved by 117 cm⁻¹ between the two meshes, and this one moved by 26 in the
+  stable direction. I put about 25% on a denser mesh removing it. That was
+  not tested: one more point at k 18³ is about five hours on this machine.
+
+**What changed in the repository.**
+
+- `data/benchmarks/candidates/re3ir/PRECHECK_FAILED.txt` records the result.
+  The package itself is unchanged.
+- `scripts/hpc/submit_phonon_chain.sh` refuses a full run of a package that
+  carries that file, unless `ALLOW_FAILED=1` is set. A smoke run still
+  works, because Re3Ir is the one package rehearsed end to end.
+
+**Where rung 4 stands.**
+
+- Of six never-made shortlist compounds, four could not be calculated, one
+  has failed, and one (SbTe2) is still open after a single point.
+- The prediction "at least one of the two candidates passes the candidate
+  rule" was 25%. [Speculative] With Re3Ir out it is about 15%.
+- [Likely] The next shortlist needs two filters before ranking, not after: a
+  stability check like this one, and what a lab can make (no radioactive
+  elements, and a phase diagram that shows a compound and not a solid
+  solution).

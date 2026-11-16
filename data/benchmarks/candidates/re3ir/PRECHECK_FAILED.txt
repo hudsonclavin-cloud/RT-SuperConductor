@@ -1,0 +1,4 @@
+Re3Ir, 2026-11-16: imaginary phonon mode at the zone corner (1/2 1/2 1/2), -62.5 cm-1,
+calculated with this package's own ground-state settings (k 12x12x12, 90 Ry, smearing 0.02 Ry).
+The rhenium atoms move and the iridium atom does not. Fails the candidate rule in
+docs/hazel-candidates.md. Not checked on a denser k mesh.
