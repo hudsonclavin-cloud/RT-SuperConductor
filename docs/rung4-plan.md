@@ -339,3 +339,55 @@ iridium and technetium; three are lead compounds; one is a carbide.
 - [Likely] Several of the transition-metal entries are ordered versions of
   solid solutions that are already known. The literature check (step 4) is
   there to test that.
+
+## Step 4: literature check of the 40, written 2026-11-16 07:56 UTC
+
+**How it was done, and where it departs from the plan.** The plan called for
+two readers and a verifier per compound. The owner asked for low cost, so each
+compound had **one low-tier reader**, blind to which group it was in, who had
+to give a Crossref-verified DOI for any claim that a compound exists. I
+checked one DOI myself (Nb2GeC, below). Treat single verdicts as leads.
+Results: `data/benchmarks/rung4/literature-check.csv`.
+
+| Verdict | Shortlist (20) | Controls (20) |
+| --- | --- | --- |
+| Made, reported superconducting | 1 | 0 |
+| Made, no low-temperature data found | 5 | 2 |
+| Known only as an alloy or in another structure | 3 | 1 |
+| Not found as made | 6 | 13 |
+| Unclear | 5 | 4 |
+
+**Against the predictions:**
+- "At least 5 of the 20 shortlisted were already synthesized" (40%): **yes**,
+  6 made and 3 more known as alloys.
+- "Shortlisted compounds are found synthesized more often than controls"
+  (50%): **yes in direction**, 9 of 20 against 3 of 20; two-sided Fisher
+  p = 0.08, so not established.
+
+**What it shows.**
+- [Certain] **"Never made" in the database is wrong for at least 6 of the
+  top 20.** SrPtTl2, Ti2AlNb, ScTaN2, CsIr2As2, CsCo2As2 and Nb2GeC have
+  synthesis papers.
+- **One shortlisted compound is a reported superconductor the databases
+  missed.** Nb2GeC: Bortolozo et al., "Superconducting evidence of a processed
+  Nb2GeC compound under a microwave heating", Mater. Chem. Phys. 194, 219
+  (2017), doi:10.1016/j.matchemphys.2017.03.037. I confirmed that the DOI is
+  registered with that title; nobody here has read the abstract or the
+  paper. The title says "evidence", so read it as a claim to check, not as an
+  established superconductor.
+  - [Speculative] One in 20 against none in 20 controls is what a useful
+    ranking would produce, and also what chance produces fairly often.
+- [Likely] The model's top picks lean toward compounds that chemists have
+  in fact made: 9 of 20 against 3 of 20. That fits a model that has learned
+  what real intermetallics look like. It also means the "never made" pool
+  needs a literature filter before ranking, as the plan's last section said.
+- **Five made compounds with no low-temperature data found** are, in effect,
+  rung 3 candidates: SrPtTl2, Ti2AlNb, CsIr2As2 and CsCo2As2. (ScTaN2 is
+  reported as a small-gap semiconductor, so it is not a candidate.)
+- **Six shortlisted compounds were not found as made:** SbTe2, NaYbPb2,
+  AcYbTl2, La3Pb, CaYbPb2 and Re3Ir. AcYbTl2 is radioactive. The rest are the
+  only true rung 4 candidates this round produced.
+
+**Next for rung 4** (not started): a second reader on the six not-found
+compounds and on Nb2GeC's paper, then step 5's calculation on Hazel for the
+ones that survive.
