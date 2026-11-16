@@ -273,3 +273,88 @@ rough):
   with three time slices.
 - A second reader on the "not confirmed" pile here would roughly double the
   confirmed hits at small cost.
+
+## Generations 3 to 5 on dated NIMS data: plan, written 2026-11-16 08:13 UTC, before any model was trained on it
+
+**The owner's instruction (2026-11-16):** run three more generations, because
+"some AIs take a very long time to bloom". He also approved access to the NIMS
+host.
+
+**The new data.** The MDR SuperCon Datasheet, version 240322
+(doi:10.48505/nims.4487, CC BY 4.0, National Institute for Materials Science).
+It has 33,459 curated records, each with a publication year, a Tc or a "not
+superconducting down to" temperature. It is not committed;
+`scripts/children_nims.py data` downloads it to `data/raw/nims-supercon/`.
+
+Counted while writing this, from the data alone (no model):
+- 24,409 records are usable (a year, a parseable formula of known elements,
+  a Tc or a measured null, no applied pressure): 15,496 compositions.
+- A composition is a superconductor if any record gives a Tc above 0, and a
+  non-superconductor if its records only say "not superconducting down to".
+
+| Slice | Trained on | New compositions, in element systems the training years never held | Superconductors | Not | Element systems |
+| --- | --- | --- | --- | --- | --- |
+| Selection | first seen up to 2010 | first seen 2011 to 2015: 1,130 | 932 | 198 | 401 |
+| Final | first seen up to 2015 | first seen 2016 to 2020: 524 | 393 | 131 | 217 |
+
+This is a true date cutoff with measured negatives, about a hundred times the
+confirmed hits the first two generations had.
+
+**Why this is "generations 3 to 5" and also a fresh start.** Generations 1
+and 2 chose on 7 hits. Their one robust result (the baseline ranks later
+discoveries) does not depend on that choice. Here every lineage is retrained
+on the dated data, and the earlier choice only sets where the boost lineage
+starts.
+
+**Design: five lineages, so that a slow starter can bloom.** The first
+experiment let only the winner have offspring. The owner's hypothesis is that
+a kind of model that starts behind may overtake with more generations. So
+each of the five kinds keeps its own lineage:
+- Starting member: `boost` starts from generation 2's promoted setting (63
+  leaves); `bag`, `knn`, `mlp` and `physics` start from their generation 1
+  settings.
+- Each generation (3, 4, 5), every lineage's current member has **two
+  mutants**. A mutant moves one setting, chosen at random, one step up or
+  down a fixed ladder (`LADDERS` in the script; the random seed is fixed by
+  lineage, generation and mutant number).
+- The best of parent and two mutants on the selection slice survives.
+- Selection score: AUC of superconductors against measured
+  non-superconductors, on the selection slice, model trained on compositions
+  first seen up to 2010.
+
+**Final test, once.** Each lineage's generation 5 member, and the baseline
+(`boost` with generation 1's settings), are retrained on compositions first
+seen up to 2015 and scored on the final slice. Six models, one scoring.
+- Primary: each lineage's AUC minus the baseline's, with an interval from
+  1,000 resamples of whole element systems. With five comparisons, a
+  difference counts only if its 99% interval lies above zero.
+- "Bloomed late" means: a lineage that was below `boost` at the start of
+  generation 3 beats the baseline on the final slice by that standard.
+- Also reported: AUC by family (iron-based, oxides, other), and each
+  lineage's selection AUC by generation.
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| Baseline's final AUC is 0.70 or more | 55% |
+| `boost` or `bag` has the best final AUC | 65% |
+| Any lineage beats the baseline on the final slice by the standard above | 15% |
+| A lineage that started behind "blooms late" by the definition above | 7% |
+| Every lineage's selection AUC rises from generation 3 to 5 (it cannot fall, by construction), by a median of at least 0.01 | 50% |
+| `knn` final AUC is at least 0.10 below the baseline | 45% |
+
+**My view, stated before the run.** More generations add no information; more
+data does. Three generations of two mutants each is a small search around
+each starting point, and the selection score is noisy even with 1,130
+compositions. I expect small gains on the selection slice that mostly do not
+carry to the final slice. The NIMS data is the real improvement here.
+
+**What this cannot show.**
+- "First seen" is the year of the reference NIMS entered, which can lag the
+  discovery. A compound first seen in 2012 may have been known in 2009.
+- New compositions in new element systems still include members of known
+  families (a new iron arsenide in 2012). The by-family table shows how much
+  of the score comes from those.
+- The physics input comes from calculations published in 2025 on structures
+  known by then, so the `physics` lineage sees a little of the future.
