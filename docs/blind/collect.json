@@ -1,0 +1,136 @@
+{
+ "reader_lines": 265,
+ "records": 211,
+ "by_class": {
+  "superconductor": 175,
+  "null": 36
+ },
+ "dropped": {
+  "duplicate_of_another_reader_s_record": 52,
+  "formula_not_usable": 2
+ },
+ "papers": 168,
+ "verifier_batches": 8,
+ "per_cell": {
+  "y2021-t1": {
+   "lines": 25,
+   "kept": 25
+  },
+  "y2021-t2": {
+   "lines": 18,
+   "kept": 12
+  },
+  "y2021-t3": {
+   "lines": 17,
+   "kept": 7
+  },
+  "y2021-t4": {
+   "lines": 6,
+   "kept": 2
+  },
+  "y2021-t5": {
+   "lines": 8,
+   "kept": 8
+  },
+  "y2022-t1": {
+   "lines": 13,
+   "kept": 13
+  },
+  "y2022-t2": {
+   "lines": 7,
+   "kept": 3
+  },
+  "y2022-t3": {
+   "lines": 6,
+   "kept": 5
+  },
+  "y2022-t4": {
+   "lines": 8,
+   "kept": 8
+  },
+  "y2022-t5": {
+   "lines": 11,
+   "kept": 6
+  },
+  "y2023-t1": {
+   "lines": 10,
+   "kept": 10
+  },
+  "y2023-t2": {
+   "lines": 10,
+   "kept": 8
+  },
+  "y2023-t3": {
+   "lines": 8,
+   "kept": 8
+  },
+  "y2023-t4": {
+   "lines": 1,
+   "kept": 1
+  },
+  "y2023-t5": {
+   "lines": 4,
+   "kept": 3
+  },
+  "y2024-t1": {
+   "lines": 9,
+   "kept": 9
+  },
+  "y2024-t2": {
+   "lines": 8,
+   "kept": 8
+  },
+  "y2024-t3": {
+   "lines": 7,
+   "kept": 5
+  },
+  "y2024-t4": {
+   "lines": 2,
+   "kept": 2
+  },
+  "y2024-t5": {
+   "lines": 1,
+   "kept": 1
+  },
+  "y2025-t1": {
+   "lines": 14,
+   "kept": 14
+  },
+  "y2025-t2": {
+   "lines": 11,
+   "kept": 6
+  },
+  "y2025-t3": {
+   "lines": 8,
+   "kept": 4
+  },
+  "y2025-t4": {
+   "lines": 2,
+   "kept": 1
+  },
+  "y2025-t5": {
+   "lines": 2,
+   "kept": 1
+  },
+  "y2026-t1": {
+   "lines": 11,
+   "kept": 11
+  },
+  "y2026-t2": {
+   "lines": 16,
+   "kept": 13
+  },
+  "y2026-t3": {
+   "lines": 15,
+   "kept": 12
+  },
+  "y2026-t4": {
+   "lines": 4,
+   "kept": 4
+  },
+  "y2026-t5": {
+   "lines": 3,
+   "kept": 1
+  }
+ }
+}
