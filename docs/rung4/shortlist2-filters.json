@@ -1,0 +1,63 @@
+{
+ "steps": {
+  "pool": 4014,
+  "1_on_hull": 2399,
+  "2_not_radioactive_no_open_4f": 1032,
+  "3_no_toxic_element": 703,
+  "4_pseudopotentials_available": 624,
+  "5_formation_energy": 589,
+  "6_cell_size": 571
+ },
+ "prototypes_left": 31,
+ "element_systems_left": 540,
+ "most_common_elements": [
+  [
+   "Rh",
+   111
+  ],
+  [
+   "Li",
+   104
+  ],
+  [
+   "Ru",
+   101
+  ],
+  [
+   "Zn",
+   92
+  ],
+  [
+   "Mg",
+   87
+  ],
+  [
+   "Ir",
+   76
+  ],
+  [
+   "Ti",
+   71
+  ],
+  [
+   "Sc",
+   68
+  ],
+  [
+   "Pd",
+   60
+  ],
+  [
+   "Al",
+   59
+  ],
+  [
+   "Ga",
+   57
+  ],
+  [
+   "Mn",
+   53
+  ]
+ ]
+}
