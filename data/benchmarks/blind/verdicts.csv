@@ -1,0 +1,266 @@
+record_id,verdict,note
+r001,confirmed,Abstract: NbIr2B2 superconducting transition at 7.2 K
+r002,wrong_year,"TaIr2B2 Tc 5.2 K stated, but the journal version (Adv Funct Mater) appeared in 2020; arXiv copy 2021"
+r003,confirmed,ThMo2Si2C bulk superconductivity at 2.2 K stated (arXiv abstract)
+r004,confirmed,NbReSi bulk superconductivity Tc = 6.5 K stated
+r005,confirmed,"YRe2SiC superconductivity with Tc ~5.9 K stated, bulk per heat capacity"
+r006,confirmed,Tc 1.3 K stated for Y4RuGe8
+r007,confirmed,"Abstract: superconductivity at 4.1 K in Hf3Pt4Ge2O, bulk resistivity, susceptibility, specific heat"
+r008,confirmed,"MgPd2Sb superconducts, Tc = 2.2 K stated"
+r009,confirmed,"Tc 1.6 K stated for LaPdIn; bulk superconductivity from resistivity, specific heat, ac susceptibility"
+r010,confirmed,LuPdIn no superconductivity stated down to 0.4 K in LaPdIn abstract
+r011,confirmed,"LaPtIn: no superconductivity down to 0.4 K (isostructural mention, same paper)"
+r012,confirmed,"Re7B3 Tc 3.2 K stated, polycrystalline samples"
+r013,wrong_year,"Abstract Tc 5.19 K matches, but first preprint arXiv 2011.13463 is Nov 2020, before 2021"
+r014,confirmed,Tc 5.32 K stated for TaReSi
+r015,confirmed,TaRuSi Tc 3.91 K stated
+r016,confirmed,Ba3Rh4Ge16 Tc 7.0 K stated
+r017,not_in_abstract,"ThIrGe abstract reports synthesis and characterization only, no Tc"
+r018,confirmed,"Abstract: noncentrosymmetric ThIrP type-II superconductor, Tc = 5.07 K"
+r019,not_found,Abstract not returned by FastTrack or SciSpace; web search found no abstract
+r020,confirmed,Mo5GeB2 type-II superconductor Tc = 5.4 K stated
+r021,confirmed,Nb2Pd3Te5 polycrystalline bulk superconducting transition at 3.3 K stated
+r022,wrong_year,"Abstract Tc 0.93 K matches, but first preprint arXiv 2012.09097 is Dec 2020, before 2021"
+r023,confirmed,K2Cr3As3 superconducts at Tc 6.5 K stated (one-line abstract)
+r024,not_in_abstract,Abstract states superconductivity below a value that is not readable in the record; no numeric Tc given
+r025,confirmed,"Abstract: ZrRuAs bulk superconductivity, Tc = 7.9(1) K; arXiv 2101 (Jan 2021)"
+r026,confirmed,"Abstract: SrIr2 superconductivity with Tc = 6.07 K, bulk measurements"
+r027,confirmed,Abstract: SrRh2 Tc = 5.41 K
+r028,confirmed,LiGa2Ir bulk superconductivity Tc = 2.94 K stated
+r029,confirmed,Ti4Co2O Tc 2.7 K stated
+r030,confirmed,Ti4Rh2O Tc 2.8 K stated
+r031,confirmed,"Ti4Ir2O Tc 5.4 K stated, bulk type-II superconductor"
+r032,confirmed,LaPd3P Tc 0.28 K stated
+r033,confirmed,"Abstract: Mo2B superconductor, Tc = 6.0 K, weakly coupled"
+r034,confirmed,"TaC single crystals, Tc 10.3 K stated"
+r035,confirmed,RbV3Sb5 single crystals superconducting at Tc ~0.92 K stated
+r036,confirmed,Tc 2.5 K stated for CsV3Sb5 (NQR/NMR study)
+r037,confirmed,Abstract: 3R-NbS2 not superconducting above 1.75 K (2H polytype is superconducting)
+r038,confirmed,Re3B bulk superconductivity with Tc 5.1 K stated
+r039,confirmed,Re7B3 bulk superconductivity Tc 3.3 K stated
+r040,confirmed,Tc 7.4 K stated for Zr2Ir
+r041,confirmed,ThMo2Si2C bulk superconductivity at 2.2 K (preprint abstract arXiv:2104.09822; DOI record has no abstract)
+r042,confirmed,Abstract: Ti67Zr19Nb11.5Sn2.5 superconducting transition at 4.65 K
+r043,confirmed,ZrRuAs bulk superconductivity below Tc 7.9 K stated
+r044,confirmed,Tc 2.0-2.1 K stated for single-crystal NbGe2 (point-contact spectroscopy study)
+r045,confirmed,CuCo2S3.7 not superconducting down to 1.8 K stated; SC at 4.2 K only for sulfurized CuCo2S4
+r046,confirmed,Abstract: bulk superconductivity at 4.2 K in nearly stoichiometric CuCo2S4 (2021)
+r047,confirmed,Ca3Pt23Ge11: no superconductivity above 1.8 K stated
+r048,confirmed,Sr-containing M3Pt23Ge11 not superconducting above 1.8 K stated
+r049,confirmed,Ba3Pt23Ge11 abstract: none of the M3Pt23Ge11 phases superconducting above 1.8 K
+r050,confirmed,Abstract: M3Pt23Ge11 phases incl. Eu variant not superconducting above 1.8 K
+r051,confirmed,CuCo2S3.7 not superconducting down to 1.8 K stated
+r052,confirmed,"Abstract: CuCo2S4 bulk superconductivity at 4.2 K (arXiv 2107, 2021)"
+r053,confirmed,CsV6Sb6: no superconductivity above 2 K stated
+r054,confirmed,CsV8Sb12 no superconductivity stated above 2 K
+r055,confirmed,Abstract: Mo5Si2As superconductivity with Tc 7.7 K
+r056,confirmed,ZrPd2Sn bulk superconductivity Tc ~1.2 K stated
+r057,confirmed,"HfPd2Sn bulk superconductivity, Tc 1.3 K stated"
+r058,confirmed,LaIr3Ga2 superconductivity below 5.2 K stated
+r059,confirmed,"LaHg6.4 superconducting, Tc = 2.4 K stated"
+r060,confirmed,"HfNiAl superconducts, Tc 1.0 K stated"
+r061,confirmed,Abstract: ZrNiAl superconducting transition at 1.0 K
+r062,confirmed,Abstract: ZrNiGa superconducting transition at 0.42 K
+r063,confirmed,Abstract: HfPtAl superconducting at 0.58 K
+r064,confirmed,Abstract: ScAu2Al Tc = 5.12 K
+r065,confirmed,Mo3ReRuC bulk type-II superconductor below 7.7 K stated
+r066,confirmed,"Abstract: La2Rh3+dSb4 (d about 1/8, same as Rh3.125) single crystals, onset Tc about 0.8 K"
+r067,not_found,"Crossref/FastTrack record found but no abstract retrievable; secondary sites mention 2.8 K, not read"
+r068,confirmed,Abstract: Cr3Ru A15 phase Tc 3.37 K (bcc phase 2.77 K)
+r069,confirmed,"Abstract: ZrIr2 type-II superconductor, transition temperature 4.0 K"
+r070,confirmed,"Mo5Si2As superconductivity, Tc 7.7 K stated"
+r071,confirmed,"Abstract: bcc HfMoNbTiZr type-II superconductor, Tc = 4.1 K"
+r072,confirmed,"Abstract: (NbTa)0.67(MoHfW)0.33 type-II superconductor, Tc about 4.3 K"
+r073,confirmed,"(Fe,Co,Ni,Cu,Ga)Zr2 Tc 2.9 K stated, bulk superconductivity confirmed"
+r074,confirmed,Mo0.11W0.11V0.11Re0.34B0.33 bulk Tc = 4.0 K stated
+r075,confirmed,Tc 5.7 K stated for Nb60Re10Zr10Hf10Ti10 (same composition as claimed)
+r076,confirmed,No superconductivity or charge order down to 0.4 K for any RV6Sn6 incl. Tb
+r077,confirmed,DyV6Sn6 in RV6Sn6 family: no superconductivity down to 0.4 K stated
+r078,confirmed,HoV6Sn6 in RV6Sn6 family: no superconductivity down to 0.4 K stated
+r079,confirmed,ErV6Sn6 in RV6Sn6 family: no superconductivity down to 0.4 K stated
+r080,confirmed,RV6Sn6 (R=Tb-Tm) incl. TmV6Sn6: no superconductivity down to 0.4 K stated
+r081,confirmed,Ca3Pd4Bi8 no superconductivity stated down to 2 K
+r082,confirmed,Ca3Pt4Bi8: no indications for superconductivity down to 2 K stated
+r083,confirmed,Zr2NiP2: no transition down to 1.8 K stated (preprint abstract; journal record had no abstract)
+r084,confirmed,Y3Ni5Al19 nonsuperconducting down to 1.8 K per abstract
+r085,confirmed,"Abstract: Ti4Ir2O Tc 5.1-5.7 K, claimed 5.7 K is the top of the range"
+r086,confirmed,"La2Rh3+dSb4 (delta ~1/8, i.e. 3.125) superconducting onset Tc ~0.8 K stated"
+r087,confirmed,Abstract: Ta3Sb Tc ~0.67 K
+r088,confirmed,Abstract: beta-ThRhGe superconducting transition below 3.36 K at ambient
+r089,confirmed,ThRh1-xIrxGe at x=0.5 maximum Tc 6.88 K stated
+r090,confirmed,Bulk superconductivity below 0.9 K stated for ScPdGe
+r091,confirmed,ScPdSi bulk superconductivity below 1.7 K stated
+r092,confirmed,"2H-BaGaGe Tc 2.1 K stated, bulk at ambient pressure"
+r093,confirmed,Abstract: Th2Cu4As5 bulk superconducting transition at 4.2 K
+r094,confirmed,"Abstract: Sc6MTe2 series, highest Tc 4.7 K in Sc6FeTe2, bulk"
+r095,confirmed,Abstract: LuScSi filamentary superconductivity onset at TC about 4.2 K
+r096,confirmed,"Abstract: Ta2V3.1Si0.9 superconductivity, Tc 7.5 K at ambient pressure; type-II superconductor. Matches claim 7.5 K, 2023."
+r097,not_found,Full abstract not retrieved; search excerpt gives no Tc; 6.75 K appears only in other papers
+r098,confirmed,Abstract: LaOs4As12 bulk superconductivity with TC = 3.2 K by heat capacity
+r099,confirmed,"Abstract: 1T-RhSeTe type-II superconductivity, transition at 4.72 K"
+r100,confirmed,o-NbS Tc 6.0 K stated
+r101,confirmed,"TaReSi Tc 5.5 K stated (muSR, resistivity, susceptibility)"
+r102,confirmed,"Abstract: ScOs2 bulk superconductivity, Tc = 5.36 K"
+r103,confirmed,Tc 4.55 K stated for YOs2 with bulk superconductivity
+r104,confirmed,LuOs2 bulk superconductivity with Tc 3.47 K stated
+r105,confirmed,LaPt0.88Si1.12 single crystal Tc 2.02 K stated
+r106,confirmed,"Tc 1.1 K stated for high-quality single crystal gamma-PtBi2, ambient pressure"
+r107,confirmed,Mo3ReRuC bulk superconductivity below 7.7 K stated
+r108,not_found,Record found but abstract not retrievable; Tc 7.99 K not confirmed from any abstract read
+r109,confirmed,TiHfNbTaMo bulk superconductivity Tc = 3.42 K stated
+r110,confirmed,TiHfNbTa Tc ~6.75 K stated
+r111,confirmed,TiVNbTa bulk superconducting transition at about 4.65 K stated
+r112,confirmed,Ti0.2Zr0.2Nb0.2Mo0.2Ta0.2C (x=1) bulk Tc about 4.00 K stated (journal abstract)
+r113,confirmed,"Abstract: Ti0.2Zr0.2Nb0.2Mo0.2Ta0.2C0.8 bulk superconductivity, Tc 2.65 K"
+r114,confirmed,ScPdGe bulk superconductivity below 0.9 K stated
+r115,confirmed,ScPdSi bulk superconductivity below 1.7 K stated
+r116,confirmed,ThCrAsN: no superconductivity above 30 mK stated
+r117,confirmed,ThNi6Si6 no superconducting transition stated down to 2 K
+r118,confirmed,Abstract: UNi6Si6 no superconducting transition from 2 K to 300 K
+r119,not_in_abstract,Abstract covers YbV3Sb4/EuV3Sb4 kagome metals; no superconductivity or null temperature stated
+r120,confirmed,Mg4Pd7As6 Tc 5.45 K stated
+r121,confirmed,"Zr6FeTe2 bulk superconductivity, Tc 0.76 K stated"
+r122,confirmed,Ta1.6Te bulk superconductivity at about 1 K stated
+r123,confirmed,Abstract: LaZn1.5Sn2 sharp superconducting transition at Tc = 5.5 K
+r124,confirmed,Tc 5.4 K stated for synthetic Rh17S15
+r125,confirmed,"Ca3(Ir1-xRhx)4Sn13 at x=0 gives Tc 7 K stated, single crystals at ambient pressure"
+r126,confirmed,Abstract: Th2Cu4As5 bulk superconducting transition at 4.2 K
+r127,confirmed,Tc 8.7 K stated for Nb5Ir3N
+r128,confirmed,ScVTiHfNb Tc 4.17 K stated
+r129,confirmed,"Abstract: LiPd2Si superconducting, Tc = 1.3 K"
+r130,confirmed,"Tc 2.90 K stated for ZrOs2 (C14 Laves, bulk)"
+r131,confirmed,"HfOs2 Tc 2.69(6) K stated, bulk type-II superconductivity"
+r132,confirmed,Abstract: ZrRe2 sharp superconducting transition above 6.1 K
+r133,confirmed,Tc about 2.0-2.1 K stated for NbGe2 polycrystals
+r134,confirmed,Hf(V0.95Al0.05)2 superconducting below Tc = 7.6(1) K stated
+r135,confirmed,"Abstract: Zr(V0.875Al0.125)2 superconducting, TC = 4.17(1) K"
+r136,confirmed,"Abstract: Ni2NbSn superconductivity, Tc = 3.00 K"
+r137,confirmed,V4Ti2W Tc roughly 5.0 K stated
+r138,confirmed,Nb2TiW Tc 4.86 K stated
+r139,confirmed,"Nb2TiMo arc-melted MEA: Tc 3.22 K stated (resistivity, magnetization, specific heat)"
+r140,confirmed,LaPtSi (x=1.0 in LaPtxSi2-x) Tc 3.9 K stated
+r141,confirmed,"Trigonal PtBi2 Tc 1.1 K stated, single crystal, ambient pressure"
+r142,confirmed,eps-NbN shows no superconductivity above 2 K; delta-NbN is SC (same paper)
+r143,confirmed,delta-NbN superconducting with Tc about 16 K (same paper)
+r144,confirmed,KAlGe: no superconductivity above 1.8 K stated
+r145,confirmed,"Abstract: bulk TiNbTaN3 nitride, Tc of 10 K at ambient pressure"
+r146,confirmed,Nb5Si2Al superconductor Tc = 2.6 K stated
+r147,confirmed,"Abstract: CsTi3Bi5 single crystals, Tc ~4.9 K first transition"
+r148,confirmed,Zr6RuTe2 bulk superconductivity with Tc 1.1 K stated
+r149,confirmed,"Abstract: ZrIrGe bulk type-II superconductivity, Tc 2.84 K"
+r150,confirmed,TiIrGe bulk superconductor with Tc 2.24(5) K stated
+r151,confirmed,HfIrGe bulk type-II superconductor Tc 5.64(4) K stated
+r152,confirmed,NbRuSi bulk superconductivity below Tc ~3 K stated
+r153,confirmed,Abstract: TaRuSi bulk superconductivity below about 4 K
+r154,confirmed,"Abstract: superconducting cubic La3Al, Tc ~6.32 K, bulk type-II"
+r155,confirmed,Abstract reports superconductivity in PtPb3Bi with Tc about 3 K (arXiv abstract)
+r156,confirmed,LuOs3B2 superconductivity at Tc ~4.63 K stated
+r157,confirmed,YRu3Si2 bulk superconductivity below Tc 3.4 K stated
+r158,confirmed,Sc-Ti-V-Nb-Cu HEA Tc 7.21(3) K stated
+r159,confirmed,"Abstract: Th2Mo2Rh2Si4C bulk superconductor, Tc = 2.1 K"
+r160,confirmed,Tc 3.4 K stated for Th2Mo2Ir2Si4C
+r161,confirmed,"Bulk Tc 0.7 K stated for YRu3B2 (0.71 K magnetization, 0.73 K specific heat)"
+r162,confirmed,"Bulk type-II superconductivity, Tc 2.84(7) K stated for ZrIrGe"
+r163,confirmed,"RhGe single crystals: no superconductivity observed, transport 2-300 K"
+r164,confirmed,Abstract: YCo3B2 nonsuperconducting above 1.8 K
+r165,confirmed,Tc 4.63 K stated for equiatomic hexagonal NbMoRuReIr
+r166,confirmed,Tc onset 6.19 K stated for Ta0.2Nb0.2V0.2Ti0.2Zr0.2 (Zr sample)
+r167,confirmed,Hf variant of Ta0.2Nb0.2V0.2Ti0.2X0.2 onset Tc 5 K stated
+r168,confirmed,Nb0.25Ta0.25Ti0.25Zr0.25 Tc = 8 K stated
+r169,confirmed,Abstract: Mg1+eps Co4B4 (eps ~0.272) no superconductivity down to 5 K
+r170,not_in_abstract,RuO2 abstract reports no magnetic order to about 2 K; no superconductivity statement
+r171,confirmed,Zr2Ru3Si4 single crystals Tc 5.0 K stated
+r172,confirmed,Th2Mo2Ru2Si4C bulk superconductivity with Tc about 6.0 K stated
+r173,confirmed,Bulk superconductivity with Tc ~1.3 K of ScAu2In stated
+r174,confirmed,YRu3B2 bulk superconductivity with Tc 0.81 K stated
+r175,confirmed,LuRu3B2 bulk superconductivity Tc = 0.95 K stated
+r176,confirmed,NiBi2.8Pb0.2 bulk Tc ~4.1 K stated; abstract centres on surface SC (onset 8.1 K)
+r177,confirmed,"LiNbO2 bulk crystals, Tc onset 14.4 K stated"
+r178,confirmed,RuB2 crystals not superconducting down to 1.8 K
+r179,confirmed,ScAu2Al Tc close to 5 K stated (preprint abstract)
+r180,confirmed,NiBi3 Tc ~4.0 K stated
+r181,confirmed,"Abstract: noncentrosymmetric YPt2Si2 single crystals, Tc = 1.67 K"
+r182,confirmed,Tc 3.1 K stated for noncentrosymmetric Na11Hg52
+r183,confirmed,Sc6RuSb2 Tc 3.95 K stated
+r184,confirmed,Ru7B3 single crystal Tc ~2.68(1) K stated
+r185,confirmed,YRu3B2 bulk Tc 0.7 K stated
+r186,not_in_abstract,"Abstract read is truncated before any Tc; SciSpace summary gives 2.4 K for PtBi2-xTex, x=0.04 not seen"
+r187,confirmed,"Au2Pb0.914P2 Tc 1.52 K stated (electrochemically deintercalated polar metal, preprint)"
+r188,confirmed,Bulk Tc 1.1(2) K stated for Ag2Pd3S
+r189,confirmed,Zr3ScRe8 Tc 6.5 K stated as experimentally verified (preprint abstract)
+r190,confirmed,Tc 5.9 K stated for experimentally synthesized HfZrRe4
+r191,confirmed,"Abstract: Zr4VRe7 experimentally verified superconductor, Tc = 3.5 K"
+r192,not_in_abstract,SciSpace abstract excerpt (truncated) has no Hf21Re25 or 2.5 K; claim only in body summary
+r193,confirmed,Pd2ZrIn bulk type-II superconductivity with Tc about 2.2 K stated (arXiv abstract)
+r194,confirmed,"Abstract: polycrystalline In2Bi, Tc ~6 K"
+r195,confirmed,TaNb2HfZrTi bulk Tc = 7.8 K stated
+r196,confirmed,TaNbHfZrAl bulk type-II superconductor with Tc 5.5 K stated
+r197,confirmed,Tc 3.2 K stated for TiHfNbTaAl
+r198,confirmed,Tc approx 6.1 K stated for YNbTiZrHf bulk alloy
+r199,confirmed,NbTaTiZrNi Tc ~7.1 K stated
+r200,confirmed,Max Tc 9.93 K stated for Hf5Nb45Sc10Ti5Zr35 annealed at 800 C
+r201,confirmed,"Cr-V-Ti-Nb-Ta bulk superconductivity, Tc 2.33 K stated"
+r202,confirmed,Tc near 5.2 K stated for Al-substituted Ti0.5(ZrNbTaHf)0.5 bulk polycrystal
+r203,confirmed,Tc near 5.2 K stated for Sc-substituted Ti0.5(ZrNbTaHf)0.5 bulk polycrystal
+r204,confirmed,"Abstract: W3Re2C superconducting, Tc about 6.2 K, bulk type-II"
+r205,confirmed,"Abstract: Nb0.45Ta0.25Ti0.15Hf0.15 type-II, Tc onset ~7.8 K"
+r206,confirmed,Rh1-xPtxSb Tc maximum 4.25 K stated at x=0.4
+r207,confirmed,Abstract: Th2Ni5As3N2 no superconductivity detected down to 0.4 K
+r208,confirmed,NaAg2: no superconducting transition down to 2 K stated
+r209,confirmed,No superconductivity or magnetic order down to 20 mK in CeCoGe2 single crystals
+r210,confirmed,TbNi2B2C: no superconductivity above 300 mK stated
+r211,confirmed,LuGa2: no superconducting transition down to 340 mK stated
+r212,confirmed,No SC down to 50 mK at ambient pressure for HfTe3 single crystal; SC appears only under pressure
+r213,confirmed,Tc = 0.26 K stated for CeRh2As2 (phase I at T0 ~0.4 K preempts SC); single crystals
+r214,confirmed,"Bulk Tc = 2.3 K stated for CeCoIn5; gap seen by planar tunnelling, Tc quoted as bulk"
+r215,confirmed,Bulk SC below 3.36 K stated for beta-ThRhGe at ambient pressure; 8.36 K only under pressure
+r216,confirmed,"Alpha-ThRhGe normal metallic down to 1.8 K stated (other polymorph, same composition)"
+r217,confirmed,Optimal Tc = 2 K stated for UTe2 single crystals
+r218,confirmed,BCS superconductor with Tc = 0.36 K stated for synthesized BaGa2
+r219,confirmed,Tc = 0.28 K stated for LaRh2As2 single crystals
+r220,confirmed,Tc = 2.35 K stated for AuSn4 (STM and ARPES study)
+r221,confirmed,Type-II bulk superconductor with Tc ~3.0 K stated for YRu3Si2
+r222,confirmed,"Tc = 0.26 K stated for CeRh2As2; thermal conductivity on single crystal, Tc quoted in abstract"
+r223,confirmed,Tc = 0.57 K stated for PtTe crystals at ambient pressure
+r224,confirmed,Tc = 1.20 K stated for RbNi2Se2 single crystals
+r225,confirmed,Tc = 0.28 K stated for LaRh2As2 single crystals
+r226,confirmed,Two phases with Tc+ ~0.75 K and Tc- ~0.45 K stated; 0.75 K matches high-Tc phase
+r227,confirmed,Tc = 2.6 K stated for MoBe22 at ambient pressure (multiphase samples)
+r228,confirmed,Tc = 4.1 K stated for WBe22 at ambient pressure (multiphase samples)
+r229,confirmed,No superconductivity down to 1.8 K stated for CeCrAsO polycrystals
+r230,confirmed,No superconductivity above 30 mK stated for ThCrAsN and its O-doped variants
+r231,confirmed,Tc ~4.1 K stated for NiBi3 single crystals
+r232,confirmed,Superconductivity at 2.4 K stated for SrAuBi single crystals
+r233,confirmed,Highest Tc = 4.7 K stated for Sc6FeTe2 in polycrystalline bulk family
+r234,confirmed,Tc = 2.35 K stated for AuSn4
+r235,confirmed,Bulk superconductivity with Tc = 0.76 K stated for Zr6FeTe2
+r236,confirmed,Zero resistivity due to superconductivity below 0.13 K stated for Zr6CoTe2
+r237,confirmed,Bulk Tc = 4.9 K stated for Zr6RuBi2 polycrystals
+r238,confirmed,Bulk Tc = 1.4 K stated for Zr6FeBi2 polycrystals
+r239,confirmed,Sharp superconducting transition above 6.1 K stated for ZrRe2
+r240,confirmed,Tc = 8.3 K stated for Cu2Mo6S8 Chevrel phase (XRD phase fraction 67%)
+r241,confirmed,Bulk superconductivity at ~0.8 K stated for Bi2PdPt polycrystals
+r242,confirmed,"Tc 0.39(1) K stated for LaRhGe3 (bulk transport, specific heat, muSR)"
+r243,confirmed,Abstract: superconducting below Tc ~1 K for Ta1.6Te quasicrystal
+r244,confirmed,Tc 3.2 +/- 0.3 K stated for SrHg11
+r245,confirmed,Tc 3.0 +/- 0.1 K stated for SrHg8
+r246,confirmed,Tc 2.2 +/- 0.25 K stated for Sr10Hg55
+r247,confirmed,Tc 2.5 K stated for ScRuSi
+r248,confirmed,Abstract cites CeIr2 Tc ~0.3 K as reported; Hc2 0.23 T measured to 30 mK
+r249,confirmed,"Max Tc 3.1 K at x=0.4 in (RuRhPdIr)1-xPtxSb, i.e. the claimed composition"
+r250,confirmed,No superconductivity down to T = 0.5 K stated for La3Cu4P4O2
+r251,confirmed,Abstract states La3Ni4P4O2 is a superconductor with Tc = 2.2 K
+r252,not_in_abstract,"Abstract (arXiv 2506.19252, RhGe) says no superconductivity with Ge variation; gives no null temperature"
+r253,confirmed,Abstract gives LaRh2As2 Tc around 0.3 K
+r254,confirmed,Abstract states CeRh2As2 superconducting state Tc = 0.3 K
+r255,confirmed,Onset of superconductivity around Tc = 0.8 K stated for SrAl8Rh2 single crystal
+r256,confirmed,Bulk superconductivity below Tc = 1.1 K stated for Zr6RuTe2
+r257,confirmed,Tc ~1.2 K stated for BiPt single crystal
+r258,confirmed,Tc ~6.2 K stated for W3Re2C
+r259,confirmed,Tc = 5.1 K stated for TaIr2B2
+r260,confirmed,Abstract gives OsB2 Tc ~2.1 K (paper argues type-I)
+r261,confirmed,Tc = 5.95 K stated for bulk LaN0.94
+r262,confirmed,Tc = 0.63 K stated for YRu3B2 polycrystal
+r263,confirmed,Bulk type-II superconductor with Tc = 3.54 K stated for V2Ga5
+r264,confirmed,Tc = 1.35 K stated for (Ta0.7Nb0.3)1.6Te single grain
+r265,confirmed,Tc ~3.04 K stated for (PbS)1.16TaS2 bulk
