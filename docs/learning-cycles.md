@@ -336,25 +336,37 @@ with a 300-resample interval.
 | Paired difference against cycle 1 includes zero | 80% | −0.0031 (−0.0074 to +0.0003) | yes, by 0.0003 |
 | Top 50 keeps between 30 and 45 | 75% | 36 | yes |
 | Zr6Ga2Ni stays in the top 20 | 85% | 18th | yes |
-| Cycle 3's AUC change is larger than each placebo's | 45% | larger than two of three; placebo 3 changed less | **no** |
+| Cycle 3's AUC change is larger than each placebo's | 45% | larger than placebos 1 and 2; placebo 3's was larger (−0.0012 against −0.0031) | **no** |
 
 **What it shows.**
 - **The real corrections cannot be told apart from placebos.** [Certain, for
   these runs]
   - On the paired difference, the real batch ranked first of four runs in
-    cycle 1 and second of four in cycle 3.
-  - If corrections did nothing, the two ranks would add up to 3 or less
-    (first and first, first and second, or second and first) 3 times in 16
-    (19%). That assumes the four runs in each cycle are interchangeable when
-    there is no effect.
-- **Refitting alone moves AUC by about 0.005.**
-  - The four-flip placebos range from −0.0012 to −0.0056, and the two-flip
-    placebos of cycle 1 from −0.000 to −0.004.
-  - [Likely] A batch's effect on pooled AUC has to be well above 0.005 to be
-    seen. A handful of corrections among about 9,400 labelled rows is not.
-  - [Speculative] All six placebos came out at or below zero, and wrong
-    labels should cost a little. So part of the spread may be that cost, not
-    only noise.
+    cycle 1 (+0.0031 against −0.0004, −0.0013 and −0.0043) and second of four
+    in cycle 3.
+  - If the corrections were no better than four random flips, the two ranks
+    would add up to 3 or less (first and first, first and second, or second
+    and first) 3 times in 16 (19%).
+  - That assumes the four runs in each cycle are interchangeable. They may
+    not be: the real rows came from the 500 negatives the model rated most
+    likely to superconduct, while the placebo rows were drawn at random.
+  - The test has almost no power. Even first place in both cycles would
+    happen 1 time in 16 (6%) by chance, so this design can only rule out a
+    large effect. Reaching 5% in one cycle would take about 19 placebos.
+- **Any small label change, real or random, moves AUC by up to about 0.006.**
+  - Refitting on an unchanged table moves it by exactly 0
+    (`docs/learning-cycles/control-seed100.json`). The models are
+    deterministic.
+  - The four-flip placebos moved it by −0.0012 to −0.0056, and the two-flip
+    placebos of cycle 1 by −0.0004 to −0.0043.
+  - [Likely] A batch's effect on pooled AUC has to be well above that spread
+    to be seen. A handful of corrections among about 9,400 labelled rows is
+    not.
+  - The sign says little. All six placebos came out below zero, and so did
+    the real cycle 3 batch (−0.0031). [Likely] Part of that is regression to
+    the mean: cycle 1's 0.793 was the highest of the five runs in cycles 0
+    and 1, and round 2 chose these settings as the best of its grid. So any later refit
+    is expected to score a little below it.
 - **The ranking of the made metals is as unstable as in cycle 1.**
   - Zr6Ga2Ni ranges from 8th to 21st across these four runs, and from 3rd to
     21st across all eight runs so far.
@@ -382,39 +394,105 @@ with a 300-resample interval.
 - [Speculative] If a third of the 52 full-text rows also turn out wrong, the
   rate in this slice is about 6%.
 - The 304 rows with no lead are not verified nulls.
-- The less suspicious rows should have fewer errors. [Speculative] So the
-  3,702 negatives probably hold on the order of 100 wrong labels, not
-  thousands.
+- [Speculative] Among the 1,976 development non-cuprate negatives, that
+  suggests tens to about a hundred wrong labels, if the less suspicious rows
+  have fewer errors.
+  - That premise is untested. Cycle 1's two confirmed errors had
+    out-of-fold p 0.60 and 0.67, below this triage's cutoff of 0.77.
+  - The 1,372 cuprate negatives and the 358 locked or train-only non-cuprate
+    negatives were not sampled at all.
 - Cost:
-  - 387 OpenAlex searches, about 0.39 USD of a 1 USD daily budget;
+  - 387 OpenAlex searches for 367 element systems (a system whose rows
+    include both compounds and alloys got one query of each kind), about
+    0.39 USD of a 1 USD daily budget;
   - screening and checking took 29 agents and about 80 minutes.
 
-**The bottleneck is reading, not finding.**
-- 12 of the 16 likely-wrong rows failed because the deciding page could not be
-  read from here (APS, IOP and a thesis host are blocked), or because the
-  nearest readable sample was too far away.
-- `data/benchmarks/learning-cycles/cycle3-library-requests.csv` lists the
-  papers that could settle the 52 full-text rows and the failed rows, ordered
-  by how many rows each could settle. The first five would cover 22 rows:
-  - Superconductivity and lattice parameters in the Zr–Mo, Zr–W, Hf–Mo and
-    Hf–W systems, doi:10.1016/0022-5088(70)90162-1 (7 rows);
-  - the OSTI report on vanadium in Nb–Zr alloys, OSTI 7297509 (5 rows);
-  - Merriam, Hagen and Luo, Phys. Rev. 154, 424 (1967), In–Tl (4 rows,
-    including cycle 2's TlIn19);
-  - Low-temperature specific heats of Zr–Ti, Zr–Hf and Zr–Sc alloys,
-    Phys. Rev. 168, 715, doi:10.1103/physrev.168.715 (3 rows);
-  - Superconductivity in Cr3Si-type ternary phases with niobium and group VIII
-    metals, Phys. Rev. 137, A1438, doi:10.1103/physrev.137.a1438 (3 rows).
+**The bottleneck is mostly reading, not finding.** Of the twelve rows that
+failed:
+- seven because the deciding text could not be read from here (APS, IOP and a
+  thesis host are blocked, or only the abstract was read):
+  (V0.93Cr0.07)3Si, In0.9Tl0.1, In0.83Tl0.17, the two Pb–Bi rows,
+  LaPt1.7Au0.3B2C and Lu2Ni3Si5;
+- three because no readable sample was close enough, or none had a stated Tc:
+  In0.75Tl0.25, Nb0.4Ti0.6 and Ti0.60Nb0.36Ta0.04;
+- two on the evidence itself:
+  - Eu0.785K0.215Fe2As2 was read in full. A crystal 0.1 at.% away is judged
+    by its own authors not to be a bulk superconductor.
+  - For Nb3Ge, the bulk A15 phase does not reach 25 at.% Ge, and
+    stoichiometric Nb3Ge exists only as films.
+
+`data/benchmarks/learning-cycles/cycle3-library-requests.csv` lists the papers
+that could settle the 52 full-text rows and ten of the twelve failed rows,
+ordered by how many rows each could settle. The first five would cover 22
+rows:
+- Superconductivity and lattice parameters in the Zr–Mo, Zr–W, Hf–Mo and Hf–W
+  systems, doi:10.1016/0022-5088(70)90162-1 (7 rows);
+- Savitskii, Baron and Efimov, on vanadium in Nb–Zr alloys, Izv. Akad. Nauk
+  SSSR, Metally 3 (1966). It is in Russian, has no DOI, and OSTI 7297509 holds
+  only its bibliographic record (5 rows);
+- Merriam, Hagen and Luo, Phys. Rev. 154, 424 (1967), In–Tl (4 rows,
+  including cycle 2's TlIn19);
+- Low-temperature specific heats of Zr–Ti, Zr–Hf and Zr–Sc alloys, Phys. Rev.
+  168, 715, doi:10.1103/physrev.168.715 (3 rows);
+- Superconductivity in Cr3Si-type ternary phases with niobium and group VIII
+  metals, Phys. Rev. 137, A1438, doi:10.1103/physrev.137.a1438 (3 rows).
+
+**Corrections to the plan section above (found by an independent review
+before this pull request; the plan's text is left as written):**
+- "one query per element system": it was one query per element system and
+  kind, 387 queries for 367 systems.
+- "They fail because the deciding page cannot be read from here": true of
+  seven of the twelve. See the breakdown above.
+- Pb–Bi row: "the nearest readable series points are 2.5 and 0.5 at.% away".
+  The 0.5 at.% point (Gandhi et al., 2017) is on the same blocked IOP host and
+  was not read. The nearest point that was read (5 at.% Bi, Aegerter et al.)
+  is 2.5 at.% from Pb0.925Bi0.075 and 4.4 at.% from Pb0.906Bi0.094.
+- LaPt1.7Au0.3B2C and Lu2Ni3Si5 rows: **both readers confirmed both rows from
+  the abstract.** Only the verifier refused them, because the instructions I
+  gave the verifier listed an abstract-only reading as grounds to refuse.
+  - The owner's rule does not contain that condition.
+  - The verifier did not refute either row on the physics.
+  - Phase purity, given as a reason in the plan, is not a condition of the
+    rule's first route.
+  - See the open question below.
+- Fe1.03Se0.45Te0.55 row: the text states bulk superconductivity for x = 0.45
+  but prints no Tc for it. The 13 K is the verifier's reading of Fig. 4(g),
+  checked against the value printed for x = 0.5. The rule allows a figure.
+- Ca(Fe,Co)2As2 row:
+  - The table's zero comes from the source row Ca1Fe1.936Co0.064As2
+    (SuperCon, Tc 0). The paper's crystal, CaFe1.94Co0.06As2, is 0.08 at.%
+    from it, and is already a separate superconducting row in the table at
+    15.4 K.
+  - A Sn-flux crystal at this row's own composition (x_EDX = 0.032,
+    Abdel-Hafiez et al.) keeps the SDW. So the zero may be a measured null
+    for that sample.
+  - The correction passes the rule. It is also the one most open to a veto.
+  - The evidence file now records the source formula rather than an
+    equivalent spelling of it.
 
 **Open question for the owner (this pull request's one question).**
-- The rule asks that "the paper's own text" state superconductivity with a
-  Tc. The readers here did not count an abstract alone, because an abstract
-  cannot show the sample or its phase purity.
-- Lu2Ni3Si5 failed only on that reading. Its abstract (Phys. Rev. B 50,
-  13879, 1994) states Tc 2.1 K, zero resistance at 2.0 K and a specific-heat
-  jump "which indicates bulk superconducting ordering".
-- **The question:** should an abstract count when it states the Tc and a
-  bulk signature (zero resistance together with a specific-heat jump or
-  near-full shielding) for the exact composition?
-- If yes, Lu2Ni3Si5 enters the next cycle. The other abstract-only rows would
-  still fail, because their abstracts give no Tc for the composition.
+- The rule asks two readers to confirm "from the paper itself, with the DOI
+  and the page, table or figure recorded". It does not exclude abstracts. My
+  instructions to the verifier did.
+- Two rows hang on that difference. In both, both readers confirmed from the
+  abstract, the DOI is registered, the composition is exact, and the
+  verifier found no physical refutation:
+  - **Lu2Ni3Si5** (Phys. Rev. B 50, 13879, 1994, p. 13879): Tc 2.1 K, zero
+    resistance at 2.0 K, and a specific-heat jump "which indicates bulk
+    superconducting ordering".
+  - **LaPt1.7Au0.3B2C** (Phys. Rev. B 50, 4216, 1994, p. 4216): Tc 10.2 K
+    from heat capacity, with no resistivity or shielding in the abstract.
+    Related papers describe the phase as non-stoichiometric.
+- **The question:** should the verifier's refusal of abstract-only readings
+  stand?
+  - If not, both rows enter the next cycle.
+  - If you want a middle line (for example, an abstract counts only with a
+    bulk signature), note that this cycle's four full-text corrections were
+    each accepted on one or two kinds of evidence:
+    - (PbSe)1.14NbSe2: resistive only;
+    - Nb0.67(HfZrTi)0.33: magnetization only;
+    - Fe1.03Se0.45Te0.55: susceptibility and muon data;
+    - Ca(Fe,Co)2As2: zero resistance and partial shielding.
+  - The other abstract-only failures ((V0.93Cr0.07)3Si, In0.9Tl0.1 and the
+    two Pb–Bi rows) fail either way: their abstracts give no Tc for the
+    composition.
