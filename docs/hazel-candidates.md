@@ -175,3 +175,60 @@ only.
   is weak evidence, and neither reader checked a phase-diagram database.
 - [Likely] For Re3Ir the more important finding is the solid solution. The
   ordered structure the calculation assumes may not be what forms.
+
+## Rehearsal on this machine, 2026-11-16 10:48 UTC
+
+The Re3Ir package ran through all six steps in smoke mode on 2 cores, with
+the same job script and `LOCAL=1` in place of the scheduler.
+
+| Step | Result |
+| --- | --- |
+| Dense ground state, ground state | Finished in about 4 and 1 minutes. |
+| Phonons (4 points, coarse meshes) | About 2 hours 10 minutes in total. The job was cut off at this machine's 2-hour limit and resumed with `START_AT=ph`; it continued at the fourth point and did not start over. |
+| Force constants, a2F and λ, report | 2, 32 and 2 seconds. |
+
+**What the rehearsal fixed.**
+
+- **The report lost the package.** The job runs it from inside `run/` with the
+  path `.`, and it then looked for `package.json` in the wrong folder, so the
+  formula was missing and a smoke run was not labelled as one. Fixed, with a
+  test.
+- **The report's reading of the λ table** was written from the documentation.
+  It matches what `matdyn.x` really writes. The test now uses real lines.
+- **Zr6Ga2Ni had lost its symmetry.** The Materials Project's rounded
+  coordinates gave 2 symmetry operations instead of 12, which makes every
+  step several times more expensive. The generator now symmetrises a
+  structure before relaxing it.
+
+**What the smoke numbers show, and do not.** Re3Ir on the coarse meshes has
+imaginary modes at two of its four points: −39 cm⁻¹ (threefold) at the zone
+centre and −89 cm⁻¹ at the zone corner. Its λ of 2.6 comes from those soft
+modes and means nothing. [Speculative] Two points agreeing makes a real
+instability more likely than the single point I had seen when I wrote the
+prediction, but rule 3 stands: no verdict from a smoke run.
+
+**Not rehearsed:** the Slurm path itself (`sbatch`, job dependencies). The
+EPW chain uses the same submit function and has not run on Hazel either. The
+dry run in step 2 above is the first check of it.
+
+## Stability pre-check at single points, planned 2026-11-16 10:48 UTC, before any result
+
+**Why.** Hazel time is better spent on candidates that are not already known
+to be unstable. One phonon point at full ground-state settings is cheap enough
+to run here.
+
+**What.** For Re3Ir and SbTe2: the package's own `scf.in` unchanged (full
+k mesh), then `ph.x` at the zone centre only, with no electron-phonon step.
+For Re3Ir also the zone corner (½ ½ ½), where the smoke run was softest.
+
+**Rule.**
+
+- A mode below −5 cm⁻¹ at full settings means the candidate fails the
+  candidate rule now. It is still left in the package, marked as failed, and
+  not submitted.
+- No imaginary mode at these points proves nothing about the other points.
+  The candidate stays in the queue for Hazel.
+
+**Prediction [Speculative].** Re3Ir imaginary at one of its two points: 60%.
+SbTe2 imaginary at the zone centre: 20% (instabilities in layered compounds
+are more often away from the centre).
