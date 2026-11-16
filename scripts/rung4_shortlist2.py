@@ -37,6 +37,7 @@ FORMATION_AT_MOST = -0.10            # eV per atom
 ATOMS_AT_MOST = 12
 VALIDATION_SIZE, VALIDATION_SEED, VALIDATION_PASS = 60, 20261116, 0.20
 SHORTLIST, PER_SYSTEM, PER_PROTOTYPE = 10, 2, 2
+COLUMN_ONLY_TOP = 40
 FIELDS = ["mp_id", "formula", "element_system", "prototype", "known_superconductors_in_prototype",
           "spacegroup_number", "num_sites", "formation_energy_ev_per_atom"]
 
@@ -187,16 +188,42 @@ def cmd_validate() -> dict:
     return summary
 
 
-def cmd_screen() -> dict:
+def read_filtered() -> list[dict]:
     with open(OUT / "shortlist2-filtered.csv", newline="", encoding="utf-8") as handle:
-        rows = list(csv.DictReader(handle))
+        return list(csv.DictReader(handle))
+
+
+def ranked(rows: list[dict]) -> list[dict]:
+    """The rows in the ranking of record's order (cycle 3's five final models), best first."""
+    import joblib
+
+    X, _ = C.formula_features([C.formula_text(R.fractions(r["formula"])) for r in rows])
+    applied = [C.boosting_apply(joblib.load(path), X) for path in sorted(R.MODELS.glob("boosting-fold*.joblib"))]
+    if len(applied) != 5:
+        raise SystemExit(f"expected cycle 3's five final models under {R.MODELS}")
+    p, tc = np.mean([a[0] for a in applied], axis=0), C.log_mean_tc([a[1] for a in applied])
+    for row, p_i, tc_i in zip(rows, p, tc):
+        row.update(p_superconductor=round(float(p_i), 3), tc_if_superconductor_k=round(float(tc_i), 2))
+    order = sorted(rows, key=lambda r: (-r["p_superconductor"], -r["p_superconductor"] * r["tc_if_superconductor_k"]))
+    for rank, row in enumerate(order, start=1):
+        row["rank_after_filters"] = rank
+    return order
+
+
+def cmd_screen() -> dict:
+    """Step 7. A filter on every survivor if the validation passed; otherwise a column for the best-ranked only.
+
+    When it filters nothing, screening all the survivors would only cost time, so it covers the first
+    ``COLUMN_ONLY_TOP`` of the ranking: enough for the shortlist and the rows just below it.
+    """
     validation = json.loads((DOCS / "shortlist2-screen-validation.json").read_text(encoding="utf-8"))
+    rows = read_filtered() if validation["passes"] else ranked(read_filtered())[:COLUMN_ONLY_TOP]
     results = run_screen(rows)
     write(OUT / "shortlist2-screened.csv", results, [*FIELDS, *SCREEN_FIELDS])
     done = [r for r in results if "error" not in r]
     summary = {"screened": len(done), "errors": len(results) - len(done),
-               "flagged_unstable": int(sum(r["unstable"] for r in done)),
-               "used_as_filter": validation["passes"]}
+               "flagged_unstable": int(sum(r["unstable"] for r in done)), "used_as_filter": validation["passes"],
+               "covers": "every survivor" if validation["passes"] else f"the best-ranked {COLUMN_ONLY_TOP}"}
     (DOCS / "shortlist2-screen.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=1))
     return summary
@@ -218,37 +245,37 @@ def capped_head(rows: list[dict], size: int = SHORTLIST) -> list[dict]:
 
 
 def cmd_shortlist() -> dict:
-    import joblib
-
     screen = json.loads((DOCS / "shortlist2-screen.json").read_text(encoding="utf-8"))
     with open(OUT / "shortlist2-screened.csv", newline="", encoding="utf-8") as handle:
-        rows = list(csv.DictReader(handle))
+        screened = {r["mp_id"]: r for r in csv.DictReader(handle)}
+    rows = read_filtered()
     if screen["used_as_filter"]:
-        rows = [r for r in rows if r["unstable"] == "False"]
-    X, _ = C.formula_features([C.formula_text(R.fractions(r["formula"])) for r in rows])
-    applied = [C.boosting_apply(joblib.load(path), X) for path in sorted(R.MODELS.glob("boosting-fold*.joblib"))]
-    if len(applied) != 5:
-        raise SystemExit(f"expected cycle 3's five final models under {R.MODELS}")
-    p, tc = np.mean([a[0] for a in applied], axis=0), C.log_mean_tc([a[1] for a in applied])
-    for row, p_i, tc_i in zip(rows, p, tc):
-        row.update(p_superconductor=round(float(p_i), 3), tc_if_superconductor_k=round(float(tc_i), 2))
-    order = sorted(rows, key=lambda r: (-r["p_superconductor"], -r["p_superconductor"] * r["tc_if_superconductor_k"]))
-    for rank, row in enumerate(order, start=1):
-        row["rank_after_filters"] = rank
+        rows = [r for r in rows if screened[r["mp_id"]]["unstable"] == "False"]
+    order = ranked(rows)
+    for row in order:
+        row.update({name: screened.get(row["mp_id"], {}).get(name, "") for name in ("lowest_cm1", "at", "unstable")})
+    second = OUT / "shortlist2-second-opinion.csv"
+    if second.is_file():                                   # the generation 7 champion's view; it orders nothing here
+        with open(second, newline="", encoding="utf-8") as handle:
+            opinion = {r["mp_id"]: r["champion_percentile"] for r in csv.DictReader(handle)}
+        for row in order:
+            row["champion_percentile"] = opinion.get(row["mp_id"], "")
     shortlist = capped_head(order)
-    fields = [*FIELDS, "rank_after_filters", "p_superconductor", "tc_if_superconductor_k", "lowest_cm1", "at", "unstable"]
+    fields = [*FIELDS, "rank_after_filters", "p_superconductor", "tc_if_superconductor_k", "champion_percentile",
+              "lowest_cm1", "at", "unstable"]
     write(OUT / "shortlist2.csv", shortlist, fields)
     write(OUT / "shortlist2-ranked.csv", order, fields)
     summary = {"ranked": len(order), "screen_used_as_filter": screen["used_as_filter"], "shortlist": len(shortlist),
                "shortlist_prototypes": len({r["prototype"] for r in shortlist}),
                "shortlist_p_range": [shortlist[-1]["p_superconductor"], shortlist[0]["p_superconductor"]],
-               "ranked_median_p": float(np.median(p)),
+               "ranked_median_p": float(np.median([r["p_superconductor"] for r in order])),
                "shortlist_flagged_by_screen": int(sum(r["unstable"] == "True" for r in shortlist))}
     (DOCS / "shortlist2-summary.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=1))
     for row in shortlist:
         print(row["rank_after_filters"], row["formula"], row["prototype"], row["p_superconductor"],
-              row["tc_if_superconductor_k"], row["formation_energy_ev_per_atom"], row["lowest_cm1"], row["unstable"])
+              row["tc_if_superconductor_k"], row["formation_energy_ev_per_atom"], row.get("champion_percentile"),
+              row["lowest_cm1"], row["unstable"])
     return summary
 
 
