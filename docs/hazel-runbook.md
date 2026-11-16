@@ -1766,6 +1766,14 @@ python scripts/train_physics_targets.py --extra-records data/training/hazel-epw-
 
 The retrained models now include the new calculation. See `docs/pipeline-loop.md` for the full loop and its remaining gap.
 
+### Candidate packages without Wannier functions (added 2026-11-16)
+
+Ready-to-submit packages for the rung 4 candidates and one benchmark are in
+`data/benchmarks/candidates/`. They use `ph.x`, `q2r.x` and `matdyn.x` only,
+through `scripts/hpc/submit_phonon_chain.sh`. The commands, the pass rules and
+the rehearsal are in `docs/hazel-candidates.md`. Sections 3 to 5 above still
+come first.
+
 ## 9. Later: Globus Compute
 
 Globus Compute lets a program outside Hazel, such as a GitHub Actions workflow, submit work to Hazel and collect the results. In outline:

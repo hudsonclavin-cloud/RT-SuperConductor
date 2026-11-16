@@ -1,0 +1,47 @@
+{
+ "name": "zr6ga2ni",
+ "formula": "Zr6Ga2Ni",
+ "mp_id": "mp-aaacjlsl",
+ "atoms": 9,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  6,
+  6,
+  12
+ ],
+ "fit_k_mesh": [
+  12,
+  12,
+  24
+ ],
+ "q_mesh": [
+  2,
+  2,
+  4
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   7.841309434191758,
+   0.0,
+   0.0
+  ],
+  [
+   -3.920654717095879,
+   6.790773168944645,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   3.385389428
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Ga_ONCV_PBE_sr.upf": "3d7223874277e7dfdf5dab4b3acbc5da916b43b16051d10ecc2535daab87d700",
+  "Ni_ONCV_PBE_sr.upf": "6df515fe6354fd73deb0cdc617d7632bee379b9c1ae00284469a80e406381b3a",
+  "Zr_ONCV_PBE_sr.upf": "9aecf0e70c2c92bafb227dedcdbcbc9567cabefbf58f4fd0fdf6620f9465e5f4"
+ },
+ "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"
+}

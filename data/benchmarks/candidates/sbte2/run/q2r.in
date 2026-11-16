@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'sbte2.dyn'
+    flfrc  = 'sbte2.fc'
+    la2F   = .true.
+ /

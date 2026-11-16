@@ -1,0 +1,77 @@
+{
+ "note": "second look at slices already scored once; not used to choose any model",
+ "added_by_second_reader": {
+  "final": [
+   "CaAsPt",
+   "CaBi2",
+   "Ce(AsRh)2",
+   "La(AsRu)2",
+   "Sr(BiPd)2",
+   "Zr5Pt3"
+  ],
+  "selection": [
+   "CaSn3",
+   "Eu(FeAs)2",
+   "FeB4",
+   "Li",
+   "Th2NiC2",
+   "YBiPd"
+  ]
+ },
+ "selection": {
+  "baseline": {
+   "hits": 13,
+   "auc": 0.7131,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 3,
+   "median_percentile": 0.8694
+  },
+  "champion": {
+   "hits": 13,
+   "auc": 0.7505,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 3,
+   "median_percentile": 0.8791
+  },
+  "baseline_auc_minus_chance": {
+   "difference": 0.2131,
+   "low": 0.0611,
+   "high": 0.3591,
+   "resamples": 1000
+  },
+  "champion_minus_baseline": {
+   "difference": 0.0374,
+   "low": 0.0081,
+   "high": 0.0749,
+   "resamples": 1000
+  }
+ },
+ "final": {
+  "baseline": {
+   "hits": 17,
+   "auc": 0.7887,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 6,
+   "median_percentile": 0.8771
+  },
+  "champion": {
+   "hits": 17,
+   "auc": 0.8009,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 6,
+   "median_percentile": 0.9062
+  },
+  "baseline_auc_minus_chance": {
+   "difference": 0.2887,
+   "low": 0.1634,
+   "high": 0.3973,
+   "resamples": 1000
+  },
+  "champion_minus_baseline": {
+   "difference": 0.0121,
+   "low": -0.0154,
+   "high": 0.0389,
+   "resamples": 1000
+  }
+ }
+}

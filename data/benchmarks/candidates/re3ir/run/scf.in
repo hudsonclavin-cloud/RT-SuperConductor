@@ -1,0 +1,36 @@
+ &control
+    calculation = 'scf'
+    prefix      = 're3ir'
+    pseudo_dir  = '../pp/'
+    outdir      = './tmp'
+    tprnfor     = .true.
+    tstress     = .true.
+ /
+ &system
+    ibrav       = 0
+    nat         = 4
+    ntyp        = 2
+    ecutwfc     = 90
+    occupations = 'smearing'
+    smearing    = 'mv'
+    degauss     = 0.02
+    la2F        = .true.
+ /
+ &electrons
+    mixing_beta = 0.4
+    conv_thr    = 1.0d-12
+ /
+ATOMIC_SPECIES
+ Ir 192.21700 Ir_ONCV_PBE_sr.upf
+ Re 186.20700 Re_ONCV_PBE_sr.upf
+CELL_PARAMETERS angstrom
+ 3.894081614 -0.000000000 -0.000000000
+ 0.000000000 3.894081614 -0.000000000
+ 0.000000000 0.000000000 3.894081614
+ATOMIC_POSITIONS crystal
+ Re 0.000000000 0.500000000 0.500000000
+ Re 0.500000000 0.000000000 0.500000000
+ Re 0.500000000 0.500000000 0.000000000
+ Ir 0.000000000 0.000000000 0.000000000
+K_POINTS automatic
+ 12 12 12 0 0 0

@@ -273,3 +273,189 @@ rough):
   with three time slices.
 - A second reader on the "not confirmed" pile here would roughly double the
   confirmed hits at small cost.
+
+## Generations 3 to 5 on dated NIMS data: plan, written 2026-11-16 08:13 UTC, before any model was trained on it
+
+**The owner's instruction (2026-11-16):** run three more generations, because
+"some AIs take a very long time to bloom". He also approved access to the NIMS
+host.
+
+**The new data.** The MDR SuperCon Datasheet, version 240322
+(doi:10.48505/nims.4487, CC BY 4.0, National Institute for Materials Science).
+It has 33,459 curated records, each with a publication year, a Tc or a "not
+superconducting down to" temperature. It is not committed;
+`scripts/children_nims.py data` downloads it to `data/raw/nims-supercon/`.
+
+Counted while writing this, from the data alone (no model):
+- 24,409 records are usable (a year, a parseable formula of known elements,
+  a Tc or a measured null, no applied pressure): 15,496 compositions.
+- A composition is a superconductor if any record gives a Tc above 0, and a
+  non-superconductor if its records only say "not superconducting down to".
+
+| Slice | Trained on | New compositions, in element systems the training years never held | Superconductors | Not | Element systems |
+| --- | --- | --- | --- | --- | --- |
+| Selection | first seen up to 2010 | first seen 2011 to 2015: 1,130 | 932 | 198 | 401 |
+| Final | first seen up to 2015 | first seen 2016 to 2020: 524 | 393 | 131 | 217 |
+
+This is a true date cutoff with measured negatives, about a hundred times the
+confirmed hits the first two generations had.
+
+**Why this is "generations 3 to 5" and also a fresh start.** Generations 1
+and 2 chose on 7 hits. Their one robust result (the baseline ranks later
+discoveries) does not depend on that choice. Here every lineage is retrained
+on the dated data, and the earlier choice only sets where the boost lineage
+starts.
+
+**Design: five lineages, so that a slow starter can bloom.** The first
+experiment let only the winner have offspring. The owner's hypothesis is that
+a kind of model that starts behind may overtake with more generations. So
+each of the five kinds keeps its own lineage:
+- Starting member: `boost` starts from generation 2's promoted setting (63
+  leaves); `bag`, `knn`, `mlp` and `physics` start from their generation 1
+  settings.
+- Each generation (3, 4, 5), every lineage's current member has **two
+  mutants**. A mutant moves one setting, chosen at random, one step up or
+  down a fixed ladder (`LADDERS` in the script; the random seed is fixed by
+  lineage, generation and mutant number).
+- The best of parent and two mutants on the selection slice survives.
+- Selection score: AUC of superconductors against measured
+  non-superconductors, on the selection slice, model trained on compositions
+  first seen up to 2010.
+
+**Final test, once.** Each lineage's generation 5 member, and the baseline
+(`boost` with generation 1's settings), are retrained on compositions first
+seen up to 2015 and scored on the final slice. Six models, one scoring.
+- Primary: each lineage's AUC minus the baseline's, with an interval from
+  1,000 resamples of whole element systems. With five comparisons, a
+  difference counts only if its 99% interval lies above zero.
+- "Bloomed late" means: a lineage that was below `boost` at the start of
+  generation 3 beats the baseline on the final slice by that standard.
+- Also reported: AUC by family (iron-based, oxides, other), and each
+  lineage's selection AUC by generation.
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| Baseline's final AUC is 0.70 or more | 55% |
+| `boost` or `bag` has the best final AUC | 65% |
+| Any lineage beats the baseline on the final slice by the standard above | 15% |
+| A lineage that started behind "blooms late" by the definition above | 7% |
+| Every lineage's selection AUC rises from generation 3 to 5 (it cannot fall, by construction), by a median of at least 0.01 | 50% |
+| `knn` final AUC is at least 0.10 below the baseline | 45% |
+
+**My view, stated before the run.** More generations add no information; more
+data does. Three generations of two mutants each is a small search around
+each starting point, and the selection score is noisy even with 1,130
+compositions. I expect small gains on the selection slice that mostly do not
+carry to the final slice. The NIMS data is the real improvement here.
+
+**What this cannot show.**
+- "First seen" is the year of the reference NIMS entered, which can lag the
+  discovery. A compound first seen in 2012 may have been known in 2009.
+- New compositions in new element systems still include members of known
+  families (a new iron arsenide in 2012). The by-family table shows how much
+  of the score comes from those.
+- The physics input comes from calculations published in 2025 on structures
+  known by then, so the `physics` lineage sees a little of the future.
+
+## Generations 3 to 5 and the second reader: results, written 2026-11-16 08:23 UTC
+
+Files: `docs/children/nims-data.json`, `nims-evolve.json`, `nims-final.json`,
+`second-look.json`; `data/benchmarks/children/second-read.csv`.
+
+**The data came out as counted in the plan:** 1,130 selection compositions and
+524 final ones, all in element systems the training years never held.
+
+**Selection slice by generation** (AUC, superconductors against measured
+non-superconductors, first seen 2011 to 2015; model trained on data up to 2010):
+
+| Lineage | Start | Gen 3 | Gen 4 | Gen 5 | What changed |
+| --- | --- | --- | --- | --- | --- |
+| `boost` | 0.592 | 0.600 | 0.602 | 0.614 | faster learning rate, back to 31 leaves, no L2 penalty |
+| `bag` | 0.600 | 0.616 | 0.617 | 0.617 | 63 leaves, 16 bags |
+| `knn` | 0.566 | 0.566 | 0.582 | 0.582 | 10 neighbours, city-block distance |
+| `mlp` | 0.595 | 0.605 | 0.605 | 0.605 | slower learning rate |
+| `physics` | 0.597 | 0.615 | 0.618 | 0.623 | faster learning rate, larger leaves, stronger L2 penalty |
+
+The baseline (generation 1's `boost` settings) scores 0.598 on this slice.
+
+**Final test, scored once** (524 compositions first seen 2016 to 2020, 393
+superconductors, 217 element systems; models trained on data up to 2015):
+
+| Model | AUC (95% interval) | Minus baseline (95%; 99%) | Beats baseline by the rule |
+| --- | --- | --- | --- |
+| Baseline | 0.685 (0.605 to 0.768) | | |
+| `boost` | 0.704 (0.628 to 0.773) | +0.019 (−0.016 to +0.050; −0.029 to +0.058) | no |
+| `bag` | **0.720** (0.649 to 0.792) | **+0.035** (+0.008 to +0.062; +0.001 to +0.070) | **yes, barely** |
+| `knn` | 0.560 (0.477 to 0.649) | −0.125 (−0.215 to −0.043; −0.241 to −0.025) | no (worse) |
+| `mlp` | 0.689 (0.612 to 0.763) | +0.005 (−0.045 to +0.047; −0.063 to +0.068) | no |
+| `physics` | **0.720** (0.638 to 0.798) | +0.036 (−0.007 to +0.073; −0.021 to +0.082) | no |
+
+**Final AUC by family:**
+
+| Family | Compositions | Superconductors | Baseline | `boost` | `bag` | `knn` | `mlp` | `physics` |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Other (mostly intermetallics) | 386 | 285 | 0.756 | 0.759 | 0.773 | 0.615 | 0.759 | **0.800** |
+| Iron-based | 76 | 58 | 0.399 | 0.543 | 0.523 | 0.399 | 0.466 | 0.475 |
+| Oxides | 43 | 33 | 0.521 | 0.479 | 0.549 | 0.311 | 0.491 | 0.412 |
+| Cuprates | 19 | 17 | 0.677 | 0.677 | 0.765 | 0.677 | 0.853 | 0.735 |
+
+**Against the predictions:**
+
+| Prediction | Chance | Result |
+| --- | --- | --- |
+| Baseline's final AUC is 0.70 or more | 55% | no (0.685) |
+| `boost` or `bag` has the best final AUC | 65% | no, by 0.0008: `physics` 0.7204, `bag` 0.7196 |
+| Any lineage beats the baseline by the rule | 15% | **yes** (`bag`) |
+| A lineage that started behind blooms late | 7% | no |
+| Selection AUC rises by a median of at least 0.01 | 50% | yes (median +0.017 from start to generation 5) |
+| `knn` is at least 0.10 below the baseline | 45% | yes (−0.125) |
+
+**What it shows.**
+- [Certain, for this test] **On truly dated data the models are much weaker
+  than cross-validation suggested.** The baseline scores 0.685 on compounds
+  first reported after its training years, against 0.79 in grouped
+  cross-validation.
+- **Nearly all of that skill is in conventional intermetallics.** In "Other"
+  the baseline scores 0.756. For iron-based compounds and oxides it is at or
+  below chance. [Likely] A formula model cannot tell which new iron arsenide
+  or oxide will superconduct; that depends on doping and structure it does
+  not see.
+- **Averaging many models helped a little.** `bag` is +0.035 over the
+  baseline, and its 99% interval just clears zero.
+  - This is the one comparison of five that passed. With five tries, one
+    marginal pass is weak evidence.
+  - It does not show that evolution helped. The starting `bag` was never
+    scored on the final slice, so the gain may come from bagging itself.
+- **No late bloomer.** `knn` started last and finished last; `mlp` stayed
+  level with the baseline. `physics` improved most on the selection slice and
+  ties for best on the final one, but its interval includes zero.
+  - [Speculative] `physics` at 0.800 on the intermetallics is the most
+    interesting number here. It was picked after seeing the table, so it needs
+    its own test.
+- **Three generations bought about +0.02 on the selection slice.** On the
+  final slice the evolved `boost` is +0.019 over the baseline, not
+  distinguishable from zero. My view before the run stands: the data mattered,
+  the generations did not much.
+
+**The second reader on the first experiment's unconfirmed records.** Four
+low-tier readers searched the literature for the 173 unconfirmed SuperCon2
+compounds. They confirmed 12 more as bulk, ambient-pressure superconductors,
+each with a Crossref-verified DOI: 6 first reported in 2016 or later, and 6
+earlier.
+- A labelled second look, with no model chosen on it: on the 17 confirmed
+  2016-to-2021 discoveries the baseline's AUC is 0.789 (was 0.766 on 11), with
+  6 in the top 5% of the pool.
+- Two of the twelve look doubtful to me and are kept as the readers gave them:
+  EuFe2As2 (superconducting only in samples made under pressure, per the
+  note) and FeB4 (disputed).
+
+**How the two experiments fit together.** They ask different questions.
+- The pool test (first experiment): among 25,000 mostly untested compounds,
+  do later-discovered superconductors rank high? Yes, about the 80th to 90th
+  percentile. That is the question that matters for choosing what to study.
+- The dated test (this one): of new compounds that somebody did measure, can
+  the model tell which ones superconduct? Only moderately, 0.69 overall and
+  0.76 for intermetallics. Chemists had already chosen those compounds as
+  promising, so this is the harder question.

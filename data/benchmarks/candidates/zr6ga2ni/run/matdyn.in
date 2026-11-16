@@ -1,0 +1,12 @@
+ &input
+    asr    = 'simple'
+    flfrc  = 'zr6ga2ni.fc'
+    flfrq  = 'zr6ga2ni.freq'
+    dos    = .true.
+    fldos  = 'zr6ga2ni.phdos'
+    nk1 = 12
+    nk2 = 12
+    nk3 = 24
+    ndos   = 500
+    la2F   = .true.
+ /

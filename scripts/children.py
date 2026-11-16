@@ -502,10 +502,46 @@ def cmd_explain() -> dict:
     return report
 
 
+def cmd_second_look() -> dict:
+    """A labelled second look, after a second reader searched the literature for the unconfirmed records.
+
+    No model is chosen here. The baseline and the generation 2 champion, already scored once, are re-scored on the
+    hits both readers support, re-sliced by the year of first report the second reader found.
+    """
+    with gzip.open(WORK / "pool.json.gz", "rt", encoding="utf-8") as handle:
+        pool = json.load(handle)
+    row_of = {p["mp_id"]: i for i, p in enumerate(pool)}
+    first = {"selection": confirmed_hits(SELECTION_CHECK)[0], "final": confirmed_hits()[0]}
+    hits = {"selection": [row_of[m] for m in first["selection"]], "final": [row_of[m] for m in first["final"]]}
+    added = defaultdict(list)
+    with open(BENCH / "second-read.csv", newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row["superconductor"] == "yes" and row["first_report_year"].strip().isdigit():
+                which = slice_of(int(row["first_report_year"]))
+                hits[which].append(row_of[row["mp_id"]])
+                added[which].append(row["formula"])
+    negatives = np.array([i for i, p in enumerate(pool) if p["status"] == "negative"], int)
+    gen2 = json.loads((DOCS / "gen2.json").read_text(encoding="utf-8"))
+    models = {"baseline": load_scores("gen1-boost"), "champion": load_scores(gen2["champion"])}
+    report = {"note": "second look at slices already scored once; not used to choose any model",
+              "added_by_second_reader": {k: sorted(v) for k, v in added.items()}}
+    for which in ("selection", "final"):
+        rows = np.array(sorted(set(hits[which])), int)
+        entry = {name: summarise(scores, rows, negatives) for name, scores in models.items()}
+        entry["baseline_auc_minus_chance"] = paired_interval(percentiles(models["baseline"], rows, negatives),
+                                                             np.full(len(rows), 0.5))
+        entry["champion_minus_baseline"] = paired_interval(percentiles(models["champion"], rows, negatives),
+                                                           percentiles(models["baseline"], rows, negatives))
+        report[which] = entry
+    (DOCS / "second-look.json").write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=1))
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("step", choices=["data", "gen1", "gen2", "final", "explain"])
-    {"data": cmd_data, "gen1": cmd_gen1, "gen2": cmd_gen2, "final": cmd_final, "explain": cmd_explain}[parser.parse_args().step]()
+    parser.add_argument("step", choices=["data", "gen1", "gen2", "final", "explain", "second-look"])
+    {"data": cmd_data, "gen1": cmd_gen1, "gen2": cmd_gen2, "final": cmd_final, "explain": cmd_explain, "second-look": cmd_second_look}[parser.parse_args().step]()
     return 0
 
 
