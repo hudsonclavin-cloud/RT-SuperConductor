@@ -138,3 +138,19 @@ def test_warming_the_cache_skips_children_already_scored(tmp_path, monkeypatch):
     assert called == []
     assert E.cache_file(children[0], "A") != E.cache_file(children[1], "A")
     assert E.cache_file(children[0], "A") != E.cache_file(children[0], "B")
+
+
+def test_parents_come_from_earlier_generations_only():
+    state = {"fitness": {"baseline": 0.60, "alloy": 0.70, "bag": 0.65, "alloy+leaves63": 0.72, "tc-size": 0.90},
+             "born": {"baseline": 8, "alloy": 8, "bag": 8, "alloy+leaves63": 9, "tc-size": E.EXTRA}}
+    assert set(E.eligible(state, 8)) == {frozenset(), frozenset({"alloy"}), frozenset({"bag"})}
+    assert E.rank(E.eligible(state, 8))[0] == frozenset({"alloy"})
+    assert E.rank(E.eligible(state))[0] == frozenset({"alloy", "leaves63"})       # a stray never ranks
+    assert frozenset({"tc-size"}) not in E.eligible(state)
+
+
+def test_children_scored_outside_the_rule_are_set_aside_and_can_be_bred_later():
+    born = {"alloy": 8, "alloy+bag": 9, "alloy+bag+recent": 9}
+    assert E.relabel(born, 9, proper={"alloy+bag"}) == ["alloy+bag+recent"]
+    assert born == {"alloy": 8, "alloy+bag": 9, "alloy+bag+recent": E.EXTRA}
+    assert E.relabel(born, 9, proper={"alloy+bag"}) == []                         # running it again changes nothing
