@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 
 import numpy as np
 
@@ -176,13 +177,37 @@ def score_child(genes: frozenset, data: dict) -> np.ndarray:
 
 def scores_for(genes: frozenset, fold: str, data: dict) -> np.ndarray:
     """A child's scores for every test row of a fold, from the cache or freshly fitted."""
-    cache = WORK / "scores" / f"{fold}-{hashlib.sha256(name_of(genes).encode()).hexdigest()[:16]}.npy"
+    cache = cache_file(genes, fold)
     if cache.is_file():
         return np.load(cache)
     scores = score_child(genes, data)
     cache.parent.mkdir(parents=True, exist_ok=True)
     np.save(cache, scores)
     return scores
+
+
+def cache_file(genes: frozenset, fold: str):
+    return WORK / "scores" / f"{fold}-{hashlib.sha256(name_of(genes).encode()).hexdigest()[:16]}.npy"
+
+
+def _warm_fold(fold: str, names: list[str]) -> int:
+    """One worker process: fit and cache these children's scores for one fold."""
+    data = load(fold)
+    for name in names:
+        scores_for(frozenset(name.split("+")) if name != "baseline" else BASELINE, fold, data)
+        print(f"  cached {fold} {name}", flush=True)
+    return len(names)
+
+
+def warm(children: list[frozenset], jobs: int) -> None:
+    """Fit the children whose scores are not cached yet, one process per fold. The scores are the same as when
+    fitted one after another; this only uses the processors better."""
+    from joblib import Parallel, delayed
+
+    todo = {fold: [name_of(c) for c in children if not cache_file(c, fold).is_file()] for fold in FOLDS}
+    todo = {fold: names for fold, names in todo.items() if names}
+    if todo and jobs > 1:
+        Parallel(n_jobs=min(jobs, len(todo)))(delayed(_warm_fold)(fold, names) for fold, names in todo.items())
 
 
 def auc_on(data: dict, scores: np.ndarray, which: str) -> float:
@@ -227,6 +252,7 @@ def run_generation(number: int) -> dict:
                 raise SystemExit(f"this script's {name_of(genes)} differs from generation 7's on fold A")
     # Which generation first scored a child. A state written before this field existed holds generation 8 only.
     born = state.setdefault("born", {name: 8 for name in state["fitness"]})
+    warm([c for c in unique(children) if c not in fitness], int(os.environ.get("EVOLVE_JOBS", "1")))
     for child in unique(children):
         if child in fitness:
             continue

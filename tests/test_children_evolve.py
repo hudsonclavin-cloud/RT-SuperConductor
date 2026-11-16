@@ -123,3 +123,18 @@ def test_fitness_reads_the_selection_half_only():
     scores = np.array([0.9, 0.1, 0.8, 0.2, 0.9, 0.1, 0.8, 0.2])
     assert E.auc_on(data, scores, "selection") == 1.0
     assert E.auc_on(data, scores, "lockbox") == 0.0
+
+
+def test_warming_the_cache_skips_children_already_scored(tmp_path, monkeypatch):
+    monkeypatch.setattr(E, "WORK", tmp_path)
+    children = [frozenset({"alloy"}), frozenset({"bag", "alloy"})]
+    for child in children:
+        for fold in E.FOLDS:
+            E.cache_file(child, fold).parent.mkdir(parents=True, exist_ok=True)
+            np.save(E.cache_file(child, fold), np.zeros(3))
+    called = []
+    monkeypatch.setattr(E, "_warm_fold", lambda fold, names: called.append((fold, names)))
+    E.warm(children, jobs=4)                                   # everything cached: no worker starts
+    assert called == []
+    assert E.cache_file(children[0], "A") != E.cache_file(children[1], "A")
+    assert E.cache_file(children[0], "A") != E.cache_file(children[0], "B")
