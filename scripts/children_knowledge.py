@@ -5,6 +5,7 @@
     python scripts/children_knowledge.py gen6          # five children, one change each, on the four selection folds
     python scripts/children_knowledge.py gen7          # breed generation 6's changes; name a champion or none
     python scripts/children_knowledge.py second-look   # champion (or best) and baseline on the spent 2016-2020 slice
+    python scripts/children_knowledge.py pool          # second opinion: the champion scores rung 4's shortlist 2 survivors
 
 The plan, rules and predictions are in ``docs/children-experiment.md`` ("Generations 6 and 7"). The learner is fixed:
 the ranking of record's boosting settings. Each child adds knowledge, not tuning.
@@ -432,10 +433,62 @@ def cmd_second_look() -> dict:
     return report
 
 
+def cmd_pool() -> dict:
+    """A second opinion for rung 4: the champion, trained on every NIMS composition, scores shortlist 2's survivors.
+
+    Added after generation 7 (not in the plan). It ranks nothing by itself: ``rung4_shortlist2.py`` still orders the
+    shortlist with the ranking of record, and this is a column beside it.
+    """
+    import build_mp_candidates as M
+    import build_scratchnet_data as B
+    import rung4 as R
+
+    gen7 = json.loads((DOCS / "knowledge-gen7.json").read_text(encoding="utf-8"))
+    spec = gen7["children"][gen7["champion"] or gen7["best"]]
+    with open(ROOT / "data/benchmarks/rung4/shortlist2-filtered.csv", newline="", encoding="utf-8") as handle:
+        pool = list(csv.DictReader(handle))
+    fractions = [R.fractions(r["formula"]) for r in pool]
+    keys = [B.composition_key(f) for f in fractions]
+    table = json.loads((WORK / "table.json").read_text(encoding="utf-8"))
+    with np.load(WORK / "blocks.npz", allow_pickle=False) as saved:
+        blocks = {name: saved[name] for name in saved.files}
+    X, _ = C.formula_features([C.formula_text(f) for f in fractions])
+    elements_table = element_table()
+    families = np.array([M.family(set(f)) for f in fractions])
+    extra = {"X": X, "elements": np.array([element_features(f, elements_table) for f in fractions], dtype=float),
+             "alloy": alloy_features(fractions)[0], "proxy": K.physics_feature(keys)[:, None],
+             "family": np.array([[float(f == name) for name in FAMILIES] for f in families]),
+             "family_name": families, "system": np.array(["-".join(sorted(f)) for f in fractions])}
+    joined = {name: np.concatenate([blocks[name], extra[name]]) for name in blocks}
+    count = len(table["keys"])
+    known = [known_at(table["records"][k], 2024) for k in table["keys"]]
+    train, test = np.arange(count), count + np.arange(len(pool))
+    data = {"blocks": joined, "train": train, "test": test, "y": np.array([k[0] for k in known]),
+            "tc": np.array([k[1] for k in known]), "groups": joined["system"][train],
+            "family": joined["family_name"][train], "test_family": joined["family_name"][test]}
+    champion = score_child(tuple(spec["changes"]), data, spec["bags"])
+    baseline = score_child((), data)
+    measured = set(table["keys"])
+    out = ROOT / "data/benchmarks/rung4/shortlist2-second-opinion.csv"
+    with open(out, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["mp_id", "formula", "champion_percentile", "nims_baseline_percentile", "composition_in_nims"])
+        for row, key, c, b in zip(pool, keys, ranks(champion), ranks(baseline)):
+            writer.writerow([row["mp_id"], row["formula"], round(100 * float(c), 1), round(100 * float(b), 1),
+                             key in measured])
+    summary = {"child": gen7["champion"] or gen7["best"], "changes": spec["changes"], "scored": len(pool),
+               "training_compositions": count, "pool_compositions_already_in_nims": int(sum(k in measured for k in keys)),
+               "rank_correlation_with_nims_baseline": round(float(np.corrcoef(ranks(champion), ranks(baseline))[0, 1]), 3)}
+    (DOCS / "knowledge-pool.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(summary, indent=1))
+    return summary
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("command", choices=("data", "gen6", "gen7", "second-look"))
-    {"data": cmd_data, "gen6": cmd_gen6, "gen7": cmd_gen7, "second-look": cmd_second_look}[parser.parse_args().command]()
+    parser.add_argument("command", choices=("data", "gen6", "gen7", "second-look", "pool"))
+    {"data": cmd_data, "gen6": cmd_gen6, "gen7": cmd_gen7, "second-look": cmd_second_look,
+     "pool": cmd_pool}[parser.parse_args().command]()
     return 0
 
 
