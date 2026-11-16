@@ -1,0 +1,64 @@
+{
+ "t1_learns_the_calculation": {
+  "rows": 4366,
+  "positives": 1549,
+  "element_systems": 2593,
+  "auc": 0.8248,
+  "interval": {
+   "low": 0.8114,
+   "median": 0.8253,
+   "high": 0.8378,
+   "resamples": 1000
+  },
+  "pass_mark": 0.7,
+  "passes": true
+ },
+ "t2_carries_to_experiments": {
+  "rows": 882,
+  "superconductors": 398,
+  "element_systems": 692,
+  "auc": 0.5309,
+  "interval": {
+   "low": 0.4906,
+   "median": 0.5313,
+   "high": 0.5728,
+   "resamples": 1000
+  },
+  "pass_mark": 0.6,
+  "passes": false,
+  "exploratory_formula_not_in_table_b": {
+   "rows": 816,
+   "superconductors": 363,
+   "auc": 0.5265
+  }
+ },
+ "adding_the_proxy_to_the_ranking_of_record": {
+  "rows": 739,
+  "superconductors": 323,
+  "auc_proxy": 0.537,
+  "auc_ranking_of_record": 0.7973,
+  "auc_combined": 0.7278,
+  "combined_minus_ranking_interval": {
+   "low": -0.0989,
+   "median": -0.0691,
+   "high": -0.0367,
+   "resamples": 1000
+  },
+  "gain_counts": false
+ },
+ "boosting_settings": {
+  "classifier_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 31,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  },
+  "regressor_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 63,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  }
+ },
+ "note": "The proxy never sees an experimental label. Bercx et al.'s target is a coarse calculated Allen-Dynes Tc above 1 K (Table C) among their Table B metals."
+}

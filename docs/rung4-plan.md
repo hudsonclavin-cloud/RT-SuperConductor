@@ -183,3 +183,66 @@ decides what is feasible.
 - If the literature check finds most of the shortlist already made, the
   "never made" pool needs a second filter (OpenAlex or other synthesis
   literature) before scoring.
+
+## Steps 1 and 2: results, 2026-11-16 07:01 UTC
+
+The script (`scripts/rung4.py`, with its implementation choices in the
+docstring) was committed at 06:57 UTC (`6aa4b67`), before either step was run.
+
+**Step 1: the pool is frozen.** `data/benchmarks/rung4/pool.csv` holds 4,014
+compounds; `docs/rung4/pool-summary.json` has the counts. They match the plan
+exactly: 8,780, then 4,370, then 4,217, then 4,014, with 2,399 on the hull.
+The pool spans 61 of the 81 prototypes and 3,426 element systems.
+
+**Step 2: the physics proxy** (`docs/rung4/proxy.json`). The proxy is trained
+only on Bercx et al.'s calculations: 4,366 distinct Table B entries, 1,549 of
+them in Table C.
+
+| Test | Result | Pass mark | |
+| --- | --- | --- | --- |
+| T1: learns the calculation (grouped CV AUC on Table B) | **0.825** (0.811 to 0.838) | 0.70 | passes |
+| T2: carries over to experiments (AUC on 882 experimental metals not in Table B) | **0.531** (0.491 to 0.573) | 0.60 | **fails** |
+| Adding the proxy to the ranking of record (739 of those rows) | 0.797 alone, 0.728 combined: **−0.069** (−0.099 to −0.037) | interval above 0 | **fails: it hurts** |
+
+Against the predictions: T1 passing (60%) came true. T2 passing (45%) did
+not. A gain from adding the proxy (20%) did not happen either: the proxy
+made the ranking worse.
+
+[Certain] **On the pre-registered test, the model trained on calculations does
+not rank experimental superconductors.** Its AUC on the T2 rows is
+indistinguishable from chance.
+
+**Exploratory checks** (chosen after T2 failed, so read them as leads:
+`scripts/rung4_explore.py`, `docs/rung4/proxy-exploratory.json`):
+- **Inside Bercx et al.'s own set the transfer works.** On the 712
+  experimental metals that are in Table B, the proxy's out-of-fold score
+  (trained on other element systems) ranks the experimental labels at AUC
+  0.763.
+- **Bercx et al.'s coarse calculation itself predicts experiment.** At AUC
+  0.713, 79% of compounds with a calculated Tc above 1 K are superconductors,
+  against 35% of the rest. [Likely] So the calculation carries real physics
+  signal, and the proxy learns it.
+- **Outside that set it does not.** The failure is not explained by family
+  (conventional lane only: 0.538), cell size or magnetism (12 sites or fewer
+  and non-magnetic: 0.496; larger or magnetic: 0.604). The reason is not
+  known.
+  - [Speculative] The candidates are that Bercx et al. excluded some of these
+    compounds for reasons that also matter to superconductivity, or that a
+    structure in this table and theirs share a formula but differ in some way
+    a space group alone does not capture.
+
+**What it means for rung 4.**
+- Every pool compound is calculated but never made, so all of them are
+  outside Bercx et al.'s set of experimentally known structures. On the
+  evidence above, the proxy should not be trusted on them.
+- **The plan contradicts itself here.** Step 3 says to use the proxy as a
+  filter if T1 passes, and T1 passed. But "Risks" says that if T2 fails,
+  step 3 uses the ranking of record alone.
+- I recommend the second reading: the proxy is **not** used in step 3,
+  because T2 failed and combining it lowered experimental AUC by 0.069. Which
+  reading holds is the owner's decision.
+
+**Rung 4 status.** Pattern-matching on formulas (the ranking of record, AUC
+0.797 on these rows) is still the only signal that ranks experiments outside
+the calculated set. "Understanding physics" in the sense of T2 is not shown.
+Step 5's direct calculation on finalists stays the physics check.
