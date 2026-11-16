@@ -1,0 +1,11 @@
+{
+ "status": "exploratory: chosen after test T2 failed, not pre-registered",
+ "script": "scripts/rung4_explore.py",
+ "a_experimental_metals_inside_bercx_table_b": {"rows": 712, "superconductors": 383, "proxy_out_of_fold_auc": 0.7627},
+ "b_bercx_coarse_calculation_itself_against_experiment": {"rows": 712, "auc": 0.7134, "share_superconducting_if_calc_tc_above_1k": 0.788, "share_superconducting_otherwise": 0.354},
+ "c_t2_rows_conventional_lane_only": {"rows": 827, "superconductors": 372, "auc": 0.5384},
+ "d_t2_rows_by_cell_and_magnetism": {"12_sites_or_fewer_and_non_magnetic": {"rows": 556, "superconductors": 241, "auc": 0.496}, "larger_or_magnetic": {"rows": 326, "superconductors": 157, "auc": 0.6041}},
+ "e_inside_table_b_scored_by_the_final_model_trained_on_them": {"auc": 0.7857},
+ "t2_family_mix": {"Other": 802, "Oxides": 42, "Ferrites": 15, "Cuprates": 23},
+ "pool_with_12_sites_or_fewer": 3956
+}

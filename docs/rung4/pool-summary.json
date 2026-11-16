@@ -1,0 +1,14 @@
+{
+ "candidate_table_sha256": "ada3e59209312833a80310fc5aa39ecc72e96dd579f74cd1d762f2128d46f48e",
+ "known_superconductor_prototypes": 81,
+ "known_superconductors_in_them": 711,
+ "steps": {
+  "never_made_untested_metals": 8780,
+  "in_known_superconductor_prototype": 4370,
+  "not_magnetic": 4217,
+  "no_copper": 4014,
+  "on_hull": 2399
+ },
+ "pool_prototypes": 61,
+ "pool_element_systems": 3426
+}
