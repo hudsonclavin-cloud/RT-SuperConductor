@@ -91,3 +91,19 @@ compounds, and 587 of the 882 experimental rows do.
   al. (different functionals and grids), so pooling them blurs the target.
   P1b measures this.
 - **Opportunity cost:** small. It is local computation, with no reader runs.
+
+## Amendment to test P3, 2026-11-16 18:35 UTC, before anything was trained
+
+**The change.** P3 as written scores the new proxy on the whole of the four
+selection folds. Generations 8 to 10 (`docs/children-experiment.md`) now keep
+half of each fold as a lockbox that no choice may see. P3 on whole folds
+would show the new proxy the lockbox.
+
+- P3 is therefore run as part of generation 8, on the **selection halves** of
+  five folds (A to E): the baseline with the new proxy added, and the old
+  champion with the new proxy swapped in for the first.
+- Its pass mark is unchanged in kind: a gain over the baseline with a 99%
+  interval above zero, now on the selection halves.
+- P1, P1b and P2 are unchanged. They use no NIMS fold.
+- Whether the new proxy reaches the lockbox depends on whether evolution
+  keeps it.
