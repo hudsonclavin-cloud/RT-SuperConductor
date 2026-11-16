@@ -1,0 +1,46 @@
+{
+ "name": "sbte2",
+ "formula": "SbTe2",
+ "mp_id": "mp-aaacrjyk",
+ "atoms": 3,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  12,
+  12,
+  8
+ ],
+ "fit_k_mesh": [
+  24,
+  24,
+  16
+ ],
+ "q_mesh": [
+  4,
+  4,
+  2
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   2.218996908,
+   -3.843414532,
+   -0.0
+  ],
+  [
+   2.218996908,
+   3.843414532,
+   0.0
+  ],
+  [
+   0.0,
+   -0.0,
+   5.687223496
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Sb_ONCV_PBE_sr.upf": "4501b62537dde9245fff0e1b3f781902a0236a87c20d6119d248187b6a8fa8f9",
+  "Te_ONCV_PBE_sr.upf": "777067911311dab492e06d797fe0e7ee0faaa862e4e5518ec4e259b6937ace2b"
+ },
+ "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"
+}

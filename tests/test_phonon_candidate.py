@@ -74,3 +74,26 @@ def test_report_reads_frequencies_and_flags_imaginary_modes(tmp_path):
     out = R.report(run)
     assert out["lowest_frequency_cm1"] == -50.03 and out["imaginary_mode"] is True
     assert out["verdict"].startswith("incomplete") or out["verdict"].startswith("fails")
+
+
+def test_symmetrise_restores_the_symmetry_rounding_lost():
+    """Zr6Ga2Ni's Materials Project coordinates, as stored: 2 operations before, the 12 of P-62m after."""
+    pytest.importorskip("pymatgen")
+    from pymatgen.core import Lattice, Structure
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+    cell = [[3.90878567, -6.77034521, -0.00000008], [3.90883824, 6.77037573, 0.00000004], [-0.00000002, 0.00000003, 3.3873679]]
+    sites = [("Zr", [0.25264019, 0.99999461, 0.50000002]), ("Zr", [0.99999866, 0.25264437, 0.50000003]),
+             ("Zr", [0.74735709, 0.74735842, 0.50000002]), ("Zr", [0.59502954, 0.99998575, 0.99999997]),
+             ("Zr", [0.9999927, 0.5950267, 0.99999997]), ("Zr", [0.40495731, 0.40495211, 0.0]),
+             ("Ga", [0.33331795, 0.66666693, 0.49999999]), ("Ga", [0.66668244, 0.33333046, 0.5]),
+             ("Ni", [0.00002413, 0.00004066, 0.00000001])]
+
+    def operations(c, s):
+        structure = Structure(Lattice(c), [e for e, _ in s], [x for _, x in s])
+        return len(SpacegroupAnalyzer(structure, symprec=1e-5).get_symmetry_operations())
+
+    assert operations(cell, sites) == 2
+    new_cell, new_sites = P.symmetrise(cell, sites)
+    assert operations(new_cell, new_sites) == 12
+    assert sorted(e for e, _ in new_sites) == sorted(e for e, _ in sites)

@@ -1,0 +1,8 @@
+# Smoke-mode edits: file, text to find, replacement (tab-separated). Coarser meshes; tools check only.
+run/scf_fit.in	 24 24 16 0 0 0	 12 12 8 0 0 0
+run/scf.in	 12 12 8 0 0 0	 6 6 4 0 0 0
+run/ph.in	nq1 = 4	nq1 = 2
+run/ph.in	nq2 = 4	nq2 = 2
+run/matdyn.in	nk1 = 24	nk1 = 12
+run/matdyn.in	nk2 = 24	nk2 = 12
+run/matdyn.in	nk3 = 16	nk3 = 8

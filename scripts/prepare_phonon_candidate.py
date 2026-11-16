@@ -60,6 +60,23 @@ def from_mp(structure: dict) -> tuple[list[list[float]], list[tuple[str, list[fl
     return cell, sites
 
 
+def symmetrise(cell, sites, symprec: float = 1e-2):
+    """Put the atoms exactly on their symmetry positions (primitive standard cell).
+
+    Materials Project coordinates are rounded, and some are off by more than ``snap`` can repair: Zr6Ga2Ni came out
+    with 2 symmetry operations instead of the 12 of P-62m, which multiplies the cost of every later step.
+    """
+    from pymatgen.core import Lattice, Structure
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+    structure = Structure(Lattice(cell), [element for element, _ in sites], [xyz for _, xyz in sites])
+    refined = SpacegroupAnalyzer(structure, symprec=symprec).get_primitive_standard_structure()
+    if len(refined) != len(sites):
+        raise SystemExit(f"symmetrising changed the atom count: {len(sites)} -> {len(refined)}")
+    return ([[float(x) for x in row] for row in refined.lattice.matrix],
+            [(site.species_string, [snap(float(x) % 1.0) for x in site.frac_coords]) for site in refined])
+
+
 def from_relax(text: str) -> tuple[list[list[float]], list[tuple[str, list[float]]]]:
     """The final cell (angstrom) and crystal positions from a vc-relax output."""
     if "End final coordinates" not in text:
@@ -138,7 +155,7 @@ def cif_text(formula: str, cell, sites) -> str:
 
 def cmd_relax_input(name: str, directory: Path) -> None:
     spec = CANDIDATES[name]
-    cell, sites = from_mp(load_structure(spec["mp_id"]))
+    cell, sites = symmetrise(*from_mp(load_structure(spec["mp_id"])))
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "relax.in").write_text(pw_input(name, "vc-relax", cell, sites, spec["k"], la2f=False,
                                                  pseudo_dir=str(PP_SOURCE) + "/"), encoding="utf-8")
