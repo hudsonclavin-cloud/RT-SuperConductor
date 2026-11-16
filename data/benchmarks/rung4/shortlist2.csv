@@ -1,0 +1,11 @@
+mp_id,formula,element_system,prototype,known_superconductors_in_prototype,spacegroup_number,num_sites,formation_energy_ev_per_atom,rank_after_filters,p_superconductor,tc_if_superconductor_k,champion_percentile,lowest_cm1,at,unstable
+mp-aaacpnuc,Re3Ir,Ir-Re,0.750-0.250|sg221,28,221,4,-0.1049,1,0.952,2.24,98.6,-69.3,"[0.0, 0.0, 0.0]",True
+mp-aaacrglh,Ti2NbAl,Al-Nb-Ti,0.500-0.250-0.250|sg63,3,63,8,-0.3046,2,0.944,6.35,98.4,51.8,"[0.5, 0.5, 0.0]",False
+mp-aaabxftj,NaMgPb2,Mg-Na-Pb,0.500-0.250-0.250|sg225,19,225,4,-0.111,3,0.944,4.79,99.8,-28.1,"[0.5, 0.5, 0.0]",True
+mp-aaacrjyk,SbTe2,Sb-Te,0.667-0.333|sg164,8,164,3,-0.3265,4,0.941,2.79,100.0,-19.9,"[0.0, 0.0, 0.5]",False
+mp-aaabxjsq,ReIr3,Ir-Re,0.750-0.250|sg194,8,194,8,-0.1362,5,0.94,0.81,71.3,42.8,"[0.5, 0.0, 0.0]",False
+mp-aaacplni,LiMgPb2,Li-Mg-Pb,0.500-0.250-0.250|sg225,19,225,4,-0.1689,6,0.938,4.86,98.9,-15.1,"[0.5, 0.0, 0.5]",False
+mp-aaacquke,ScTaN2,N-Sc-Ta,0.500-0.250-0.250|sg194,7,194,8,-1.8211,8,0.921,8.44,99.6,36.0,"[0.0, 0.0, 0.5]",False
+mp-aaacpnux,Re3Rh,Re-Rh,0.750-0.250|sg194,8,194,8,-0.1645,10,0.918,2.36,99.1,-34.7,"[0.0, 0.0, 0.0]",True
+mp-aaacjjwt,Nb2GeC,C-Ge-Nb,0.500-0.250-0.250|sg194,7,194,8,-0.5088,11,0.917,5.67,98.8,-29.3,"[0.5, 0.5, 0.0]",True
+mp-aaacqqjy,YIn5Rh,In-Rh-Y,0.714-0.143-0.143|sg123,3,123,7,-0.398,12,0.917,2.56,90.4,-23.1,"[0.5, 0.5, 0.5]",True
