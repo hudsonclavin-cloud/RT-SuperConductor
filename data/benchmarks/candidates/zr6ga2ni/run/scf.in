@@ -1,0 +1,42 @@
+ &control
+    calculation = 'scf'
+    prefix      = 'zr6ga2ni'
+    pseudo_dir  = '../pp/'
+    outdir      = './tmp'
+    tprnfor     = .true.
+    tstress     = .true.
+ /
+ &system
+    ibrav       = 0
+    nat         = 9
+    ntyp        = 3
+    ecutwfc     = 90
+    occupations = 'smearing'
+    smearing    = 'mv'
+    degauss     = 0.02
+    la2F        = .true.
+ /
+ &electrons
+    mixing_beta = 0.4
+    conv_thr    = 1.0d-12
+ /
+ATOMIC_SPECIES
+ Ga 69.72300 Ga_ONCV_PBE_sr.upf
+ Ni 58.69340 Ni_ONCV_PBE_sr.upf
+ Zr 91.22400 Zr_ONCV_PBE_sr.upf
+CELL_PARAMETERS angstrom
+ 7.841309434 0.000000000 0.000000000
+ -3.920654717 6.790773169 0.000000000
+ 0.000000000 0.000000000 3.385389428
+ATOMIC_POSITIONS crystal
+ Zr 0.254654268 0.000000000 0.500000000
+ Zr 0.000000000 0.254654268 0.500000000
+ Zr 0.745345732 0.745345732 0.500000000
+ Zr 0.595627767 0.000000000 0.000000000
+ Zr 0.000000000 0.595627767 0.000000000
+ Zr 0.404372234 0.404372234 0.000000000
+ Ga 0.333333333 0.666666667 0.500000000
+ Ga 0.666666667 0.333333333 0.500000000
+ Ni 0.000000000 0.000000000 0.000000000
+K_POINTS automatic
+ 6 6 12 0 0 0

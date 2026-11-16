@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'zr6ga2ni.dyn'
+    flfrc  = 'zr6ga2ni.fc'
+    la2F   = .true.
+ /

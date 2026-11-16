@@ -1,0 +1,17 @@
+phonons and electron-phonon coupling
+ &inputph
+    prefix   = 'zr6ga2ni'
+    outdir   = './tmp'
+    fildyn   = 'zr6ga2ni.dyn'
+    fildvscf = 'dvscf'
+    ldisp    = .true.
+    nq1 = 2
+    nq2 = 2
+    nq3 = 4
+    tr2_ph   = 1.0d-14
+    trans    = .true.
+    electron_phonon = 'interpolated'
+    el_ph_sigma  = 0.005
+    el_ph_nsigma = 10
+    recover  = .true.
+ /

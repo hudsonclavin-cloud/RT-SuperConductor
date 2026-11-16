@@ -14,7 +14,7 @@ has run on Hazel. The chain was rehearsed on this session's machine only
 
 | Folder in `data/benchmarks/candidates/` | Compound | Role | Structure | Atoms | Status |
 | --- | --- | --- | --- | --- | --- |
-| `zr6ga2ni` | Zr6Ga2Ni | Benchmark: Bercx et al. calculated λ = 0.70, isotropic Tc 5.5 K (`docs/bercx-published-check.md`) | P-62m | 9 | see "Rehearsal" |
+| `zr6ga2ni` | Zr6Ga2Ni | Benchmark: Bercx et al. calculated λ = 0.70, isotropic Tc 5.5 K (`docs/bercx-published-check.md`) | P-62m | 9 | ready |
 | `re3ir` | Re3Ir | Rung 4 candidate, pool rank 19 | Pm-3m (Cu3Au type) | 4 | ready |
 | `sbte2` | SbTe2 | Rung 4 candidate, pool rank 39 | P-3m1 (CdI2 type) | 3 | ready |
 
@@ -213,6 +213,12 @@ centre and −89 cm⁻¹ at the zone corner. Its λ of 2.6 comes from those soft
 modes and means nothing. [Speculative] Two points agreeing makes a real
 instability more likely than the single point I had seen when I wrote the
 prediction, but rule 3 stands: no verdict from a smoke run.
+
+**Rehearsed end to end: Re3Ir only.** For Zr6Ga2Ni and SbTe2 the ground
+state and the start of the phonon step (where `ph.x` checks the symmetry) were
+run here; the later steps were not. Zr6Ga2Ni's relaxation finished at 13:05
+UTC with 12 symmetry operations, zero residual pressure and a largest force of
+0.00007 Ry/bohr.
 
 **Not rehearsed:** the Slurm path itself (`sbatch`, job dependencies). The
 EPW chain uses the same submit function and has not run on Hazel either. The
