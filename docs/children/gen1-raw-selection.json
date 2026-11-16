@@ -1,0 +1,75 @@
+{
+ "slice": "selection (pre-2016 SuperCon2 hits absent from the 2018 export)",
+ "children": {
+  "boost": {
+   "hits": 137,
+   "auc": 0.4534,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 7,
+   "median_percentile": 0.4438
+  },
+  "bag": {
+   "hits": 137,
+   "auc": 0.4394,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 5,
+   "median_percentile": 0.4021
+  },
+  "knn": {
+   "hits": 137,
+   "auc": 0.4685,
+   "hits_in_top_1_percent": 0,
+   "hits_in_top_5_percent": 8,
+   "median_percentile": 0.4717
+  },
+  "mlp": {
+   "hits": 137,
+   "auc": 0.4968,
+   "hits_in_top_1_percent": 5,
+   "hits_in_top_5_percent": 7,
+   "median_percentile": 0.5109
+  },
+  "physics": {
+   "hits": 137,
+   "auc": 0.442,
+   "hits_in_top_1_percent": 1,
+   "hits_in_top_5_percent": 6,
+   "median_percentile": 0.4564
+  }
+ },
+ "order": [
+  "mlp",
+  "knn",
+  "boost",
+  "physics",
+  "bag"
+ ],
+ "winner": "mlp",
+ "runner_up": "knn",
+ "against_boost": {
+  "bag": {
+   "difference": -0.0139,
+   "low": -0.0352,
+   "high": 0.0084,
+   "resamples": 1000
+  },
+  "knn": {
+   "difference": 0.0151,
+   "low": -0.0272,
+   "high": 0.0549,
+   "resamples": 1000
+  },
+  "mlp": {
+   "difference": 0.0435,
+   "low": 0.0111,
+   "high": 0.0779,
+   "resamples": 1000
+  },
+  "physics": {
+   "difference": -0.0114,
+   "low": -0.0276,
+   "high": 0.005,
+   "resamples": 1000
+  }
+ }
+}

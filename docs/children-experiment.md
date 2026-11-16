@@ -139,3 +139,22 @@ It was written at 07:45 UTC. Nothing else changes.
 
 The training table has 13,562 compositions (10,210 superconductors), labelled
 from the 2018 export and 3DSC only, locked rows left out.
+
+## Amendment to the selection slice, written 2026-11-16 07:51 UTC
+
+**What was seen first.** Generation 1 was running. Four children had been
+scored on the raw selection slice, all at or below chance (AUC 0.44 to 0.50).
+I had not looked at any child's score for any single compound.
+
+**What is wrong with the slice.** A look at 30 of the 137 selection hits shows
+most are not superconductors at all. They are substrates and reagents (MgO,
+SiO2, LaAlO3, XeF2) and magnets whose Curie temperature was extracted as a Tc
+(SrRuO3 at 165 K). [Likely] A compound with a pre-2016 arXiv record that
+NIMS's curated export still lacks is, more often than not, an extraction
+error. I should have foreseen that selection effect in the design.
+
+**The change.** The selection slice gets the same reader check the plan
+already gives the final slice: one low-tier reader per hit, from the paper's
+title and abstract, blind to every model score. **Children are chosen on the
+confirmed selection hits.** The raw-slice scores are reported beside them.
+Nothing else in the design changes, and the final slice is still unscored.
