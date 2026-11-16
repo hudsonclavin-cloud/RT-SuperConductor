@@ -216,9 +216,11 @@ prediction, but rule 3 stands: no verdict from a smoke run.
 
 **Rehearsed end to end: Re3Ir only.** For Zr6Ga2Ni and SbTe2 the ground
 state and the start of the phonon step (where `ph.x` checks the symmetry) were
-run here; the later steps were not. Zr6Ga2Ni's relaxation finished at 13:05
-UTC with 12 symmetry operations, zero residual pressure and a largest force of
-0.00007 Ry/bohr.
+run here; the later steps were not. Zr6Ga2Ni's relaxation converged at 13:12
+UTC with 12 symmetry operations, zero residual pressure and a total force of
+0.00007 Ry/bohr. Its last step, saving the wavefunctions, failed because this
+machine's disk was full; the relaxed cell and the final pressure were already
+written, and the package needs nothing else from it.
 
 **Not rehearsed:** the Slurm path itself (`sbatch`, job dependencies). The
 EPW chain uses the same submit function and has not run on Hazel either. The
