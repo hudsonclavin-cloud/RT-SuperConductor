@@ -177,9 +177,9 @@ honest summary is that the gain seen in selection did not show up.
 | Of those, intermetallic | 108: 90 superconductors, **18 nulls** |
 
 - The second harvest added 13 intermetallic superconductors and **no**
-  intermetallic null. Its 6 new null records were in element systems the
-  models had already seen, or in other families. So the amendment did not buy
-  what it was for.
+  intermetallic null. Its 6 new null records were rejected, or in element
+  systems the models had already seen, or in other families. So the amendment
+  did not buy what it was for.
 
 **The one scoring run** (`docs/blind/score.json`).
 
@@ -235,15 +235,15 @@ not blind. That is the overconfidence this test exists to catch.
 **What the test could not do.**
 
 - **Nulls were the limit, as the plan feared.** Forty-two reader runs found
-  42 null records, and 18 survived the rules. Abstracts rarely say a compound
-  does not superconduct.
+  42 null records. After the rules, 20 compositions were left, 18 of them
+  intermetallic. Abstracts rarely say a compound does not superconduct.
 - Nine of the 18 nulls contain thorium, uranium or a lanthanide. They are not
   like the rung 4 pool, which excludes those elements.
 - Everything was read from abstracts by low-tier readers. I checked 20
   identifiers and 4 nulls myself; all held.
 - Readers made stray tool calls outside their brief (to send a message,
-  archive a session or create a reminder) in about one run in four. All were
-  denied or undone, and I confirmed the one reminder was deleted.
+  archive or create a session, or create a reminder) in 15 of 52 runs. All
+  were denied or undone, and I confirmed the one reminder was deleted.
 
 **What follows.**
 
