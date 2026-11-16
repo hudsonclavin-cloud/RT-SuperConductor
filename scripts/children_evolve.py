@@ -225,15 +225,16 @@ def run_generation(number: int) -> dict:
         for genes, changes in ((BASELINE, ()), (OLD_CHAMPION, G.CHANGES)):
             if not np.allclose(G.score_child(tuple(changes), datas["A"]), scores_for(genes, "A", datas["A"])):
                 raise SystemExit(f"this script's {name_of(genes)} differs from generation 7's on fold A")
-    per_fold = {}
+    # Which generation first scored a child. A state written before this field existed holds generation 8 only.
+    born = state.setdefault("born", {name: 8 for name in state["fitness"]})
     for child in unique(children):
         if child in fitness:
             continue
         values = {fold: auc_on(data, scores_for(child, fold, data), "selection") for fold, data in datas.items()}
         fitness[child] = float(np.mean(list(values.values())))
-        per_fold[name_of(child)] = {f: round(v, 4) for f, v in values.items()}
         print(f"gen{number} {name_of(child)} {fitness[child]:.4f}", flush=True)
         state["fitness"][name_of(child)] = fitness[child]
+        born[name_of(child)] = number
         WORK.mkdir(parents=True, exist_ok=True)
         (WORK / "state.json").write_text(json.dumps(state), encoding="utf-8")
     if waiting:
@@ -241,6 +242,9 @@ def run_generation(number: int) -> dict:
                          "run this generation again when it exists")
     ranked = rank(fitness)
     base = fitness[BASELINE]
+    per_fold = {name_of(c): {fold: round(auc_on(data, scores_for(c, fold, data), "selection"), 4)
+                             for fold, data in datas.items()}
+                for c in fitness if born[name_of(c)] == number}      # from the cached scores; nothing is refitted
     report = {"generation": number, "selection_half_only": True, "baseline_fitness": round(base, 4),
               "children_scored_this_generation": len(per_fold), "children_scored_so_far": len(fitness),
               "this_generation": [{"child": name, "fitness": round(state["fitness"][name], 4),
