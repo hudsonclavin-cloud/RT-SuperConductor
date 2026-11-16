@@ -234,3 +234,75 @@ that it does.
     doi:10.1109/tmag.1981.1060925.
 - PDFs read for this purpose stay out of the repository. Only the evidence
   row (DOI, page, Tc, quote) is recorded.
+
+## Cycle 3: plan and predictions, written before any cycle 3 result, 2026-11-16 04:55 UTC
+
+**How the batch was chosen.**
+- Triage: the 500 development non-cuprate negatives with the highest cycle 0
+  out-of-fold probability were searched in OpenAlex, one query per element
+  system (`scripts/openalex_triage.py`). 196 had a lead, meaning a work whose
+  title or abstract mentions superconductivity and names every element
+  (`data/benchmarks/learning-cycles/cycle3-triage-leads.json`). Seven of them
+  were rows already handled in cycles 1 and 2, which leaves 189.
+- Screen: each of the 189 was judged from its leads and a short literature
+  search, without the model's score: 16 likely wrong, 52 needing a full text,
+  121 unlikely to be wrong.
+- The 16 likely-wrong rows went through the rule: two independent readers
+  and a sceptical verifier. Records:
+  `data/benchmarks/learning-cycles/cycle3-evidence.json`.
+
+**Four pass the rule. All are development rows:**
+
+| Row in the table | Paper | Sample | Tc used |
+| --- | --- | --- | --- |
+| Nb:0.189;Pb:0.216;Se:0.595 = (PbSe)1.14NbSe2 (fold 3) | Phys. Rev. Materials 7, L041801 (2023), doi:10.1103/PhysRevMaterials.7.L041801 | Bulk CVT single crystal; one misfit stage by XRD | 5.6 K (90% of normal resistance; zero near 4.7 K). Resistive only, and above earlier reports of 1.1 to 2.5 K |
+| Fe:0.507;Se:0.222;Te:0.271 = Fe1.03Se0.45Te0.55 (fold 0) | Phys. Rev. B 80, 140511(R) (2009), doi:10.1103/physrevb.80.140511 | Bridgman single crystal, 97% one phase; full shielding | 13 K (onset of ac susceptibility, read from Fig. 4(g)). Composition is nominal |
+| Hf:0.110;Nb:0.670;Ti:0.110;Zr:0.110 = [Nb]0.67(HfZrTi)0.33 (fold 4) | PNAS 113, E7144 (2016), doi:10.1073/pnas.1615926113 | Arc-melted bcc bulk alloy | 9.2 K (zero-field-cooled magnetization, Fig. 6) |
+| As:0.400;Ca:0.200;Co:0.013;Fe:0.387 (fold 4) | Phys. Rev. B 79, 012504 (2009), doi:10.1103/physrevb.79.012504 | Sn-flux single crystal, CaFe1.94Co0.06As2 by microprobe (0.1 at.% from the row); zero resistance; 55 to 60% shielding | 17 K (onset). Processing-sensitive: some crystals near this composition do not superconduct in bulk |
+
+**The twelve that do not pass:**
+
+| Row | Why not |
+| --- | --- |
+| (V0.93Cr0.07)3Si | Abstract only; no Tc for x = 0.07 |
+| Eu0.785K0.215Fe2As2 | Readers split. A crystal at x = 0.22 is judged not a bulk superconductor by its authors, and the lower bracket is only a partial resistive drop |
+| In0.9Tl0.1 | Abstracts only (the APS full texts are blocked) |
+| In0.83Tl0.17 | Readers split. One read a 1967 thesis table (Tc 3.29 K at 17.1 at.% Tl), but the thesis has no DOI and its host was blocked for the verifier |
+| In0.75Tl0.25 | Nearest readable samples are 0.6 at.% below and 2.2 at.% above: the bracket misses the 2 at.% limit |
+| Nb0.4Ti0.6 | Nearest ambient-pressure sample is Nb0.44Ti0.56, 4 at.% away |
+| LaPt1.7Au0.3B2C | Abstract only; phase purity is not shown, and the phase is known to be non-stoichiometric |
+| Nb3Ge | The bulk powder's composition and phases are unknown; stoichiometric Nb3Ge exists only as films |
+| Pb0.925Bi0.075, Pb0.906Bi0.094 | Abstract only (the IOP host is blocked); the nearest readable series points are 2.5 and 0.5 at.% away |
+| Ti0.60Nb0.36Ta0.04 | No Tc stated; the paper's own series is 4 at.% away |
+| Lu2Ni3Si5 | Abstract only. It states Tc 2.1 K, zero resistance at 2.0 K and a specific-heat jump, but phase purity and figures cannot be checked without the APS full text |
+
+[Likely] Most of the twelve are superconductors in fact (all except perhaps
+Eu0.785K0.215Fe2As2 and Nb3Ge). They fail because the deciding page cannot
+be read from here.
+
+**Run order.**
+1. Three placebos first, on the unchanged cycle 1 table. Each marks four
+   random development non-cuprate negatives as superconductors at 0.9 K in
+   memory, which is a change the size of this cycle's. Seeds 31, 32 and 33:
+   `python scripts/run_learning_cycle.py --name cycle3-placebo-<n> --previous cycle1 --placebo-flips 4 --placebo-seed <30+n>`.
+2. Then add the four rows to `data/training/negative_evidence.csv`, rebuild
+   both tables, and run
+   `python scripts/run_learning_cycle.py --name cycle3 --previous cycle1`.
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| Cross-validated AUC changes by less than 0.005 from cycle 1's 0.793 | 85% |
+| The paired difference against cycle 1, on today's labels, has an interval that includes zero | 80% |
+| The made-metals top 50 keeps between 30 and 45 of cycle 1's 50 | 75% |
+| Zr6Ga2Ni stays in the top 20 | 85% |
+| Cycle 3's AUC change is larger than that of each of the three placebos | 45% |
+
+Reasoning:
+- Four corrected rows among about 9,400 cannot move a pooled score much.
+- Cycle 1 showed that any small label change reshuffles the order below the
+  first few places, so the top-50 band is set from the placebos (37 to 40 kept
+  with two flips) and widened for four flips.
+- With no real effect, cycle 3 would beat all three placebos one time in four.
+  I put it a little higher because the corrections are real.
