@@ -97,3 +97,34 @@ def test_symmetrise_restores_the_symmetry_rounding_lost():
     new_cell, new_sites = P.symmetrise(cell, sites)
     assert operations(new_cell, new_sites) == 12
     assert sorted(e for e, _ in new_sites) == sorted(e for e, _ in sites)
+
+
+LAMBDA_FILE = """
+  Electron-phonon coupling constant, lambda
+
+ Broadening   0.0150 lambda       2.8010 dos(Ef) 24.8488 omega_ln [K]     79.7752
+ Broadening   0.0200 lambda       2.6031 dos(Ef) 23.5174 omega_ln [K]     80.6585
+ Broadening   0.0250 lambda       2.4204 dos(Ef) 22.8094 omega_ln [K]     81.6900
+"""
+
+
+def test_lambda_table_reads_matdyn_s_real_format():
+    """Lines copied from the lambda file matdyn.x 7.6 wrote in the Re3Ir rehearsal."""
+    rows = R.lambda_table(LAMBDA_FILE)
+    assert [row["broadening_ry"] for row in rows] == [0.015, 0.02, 0.025]
+    assert rows[1] == {"broadening_ry": 0.02, "lambda": 2.6031, "dos_ef": 23.5174, "omega_log_k": 80.6585}
+
+
+def test_report_finds_the_package_when_given_a_relative_path(tmp_path, monkeypatch):
+    """The job runs the report as `phonon_chain_report.py .` from inside run/; it must still read ../package.json."""
+    run = tmp_path / "run"
+    run.mkdir()
+    (tmp_path / "package.json").write_text('{"name": "x", "formula": "X"}', encoding="utf-8")
+    (tmp_path / "CHAIN_MODE.txt").write_text("mode=smoke\n", encoding="utf-8")
+    (run / "x.dyn0").write_text("", encoding="utf-8")
+    (run / "x.dyn1").write_text("     freq (    1) =       3.00 [THz] =     100.07 [cm-1]\n", encoding="utf-8")
+    (run / "lambda").write_text(LAMBDA_FILE, encoding="utf-8")
+    monkeypatch.chdir(run)
+    out = R.report(Path("."))
+    assert out["formula"] == "X" and out["mode"] == "smoke"
+    assert out["verdict"].startswith("smoke run") and out["headline"]["lambda"] == 2.6031

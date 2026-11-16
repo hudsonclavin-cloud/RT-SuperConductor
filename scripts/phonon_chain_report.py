@@ -46,6 +46,7 @@ def lambda_table(text: str) -> list[dict]:
 
 
 def report(run: Path) -> dict:
+    run = run.resolve()  # the job passes ".", whose parent would otherwise be "." again
     package = json.loads((run.parent / "package.json").read_text(encoding="utf-8")) if (run.parent / "package.json").is_file() else {}
     prefix = package.get("name") or next(run.glob("*.dyn0")).name[:-5]
     mode = (run.parent / "CHAIN_MODE.txt").read_text(encoding="utf-8").splitlines()[0] if (run.parent / "CHAIN_MODE.txt").is_file() else "mode=unknown"
