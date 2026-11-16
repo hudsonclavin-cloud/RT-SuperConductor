@@ -459,3 +459,90 @@ earlier.
   the model tell which ones superconduct? Only moderately, 0.69 overall and
   0.76 for intermetallics. Chemists had already chosen those compounds as
   promising, so this is the harder question.
+
+## Generations 6 and 7: children that differ in what they know. Plan, 2026-11-16 16:55 UTC, before any model is trained
+
+**Main idea:** the earlier generations changed how each child learns and got
+about +0.02. These two change what each child is told: the learner stays
+fixed, and each child gets one extra block of physics or chemistry.
+
+**A limit found first: no blind test is left.**
+- [Certain] The NIMS file has 3 usable new-system compositions first reported
+  after 2020. Its record stops there.
+- [Certain] The 2016 to 2020 slice was the final test of generations 3 to 5
+  and has been read.
+- So nothing these generations produce can be a final result. Selection is
+  the only honest evidence here. A blind test needs new data: superconductor
+  papers from 2021 on, collected by readers, or a newer NIMS release.
+
+**Selection folds** (same rules as before: test compositions are first seen in
+the window, in an element system the training years never held).
+
+| Fold | Trained on papers up to | Tested on first seen | Test compositions | Of them intermetallic ("Other") | Nulls among those |
+| --- | --- | --- | --- | --- | --- |
+| A | 1995 | 1996 to 2000 | 902 | 355 | 54 |
+| B | 2000 | 2001 to 2005 | 835 | 491 | 79 |
+| C | 2005 | 2006 to 2010 | 1,039 | 282 | 71 |
+| D | 2010 | 2011 to 2015 | 1,130 | 487 | 104 |
+
+- Folds A to C have never been scored. Fold D was the selection slice of
+  generations 3 to 5, where only learner settings were chosen on it.
+- These counts were made before writing this plan. No model was scored.
+
+**Endpoint.** Primary: AUC on the intermetallic test compositions, averaged
+over the four folds. Secondary: AUC on all test compositions, same average.
+- This is a change from generations 3 to 5, which used all compositions. The
+  reason: the rung 4 pool is copper-free, non-magnetic metals, all "Other".
+- [Certain] I chose it knowing that on the spent 2016 to 2020 slice the
+  baseline scored 0.756 on intermetallics and the physics child 0.800.
+
+**Learner, fixed for every child:** gradient boosting with the ranking of
+record's settings (learning rate 0.05, 31 leaves, minimum leaf 20, L2 1.0),
+on the 155 formula features. That alone is the baseline.
+
+**Generation 6: five children, one change each.**
+
+| Child | What it is told, beyond the 155 features |
+| --- | --- |
+| `elements` | Measured properties of the elements, summarised over the formula (mean, minimum, maximum, range, spread): the element's own superconducting Tc, bulk modulus, sound velocity, molar volume, electrical resistivity, thermal conductivity, thermal expansion, and a Debye-temperature estimate from sound velocity and molar volume. Plus the mean of mass^(-1/2) (the isotope-effect term) and the distance of the valence-electron count per atom from Matthias's two peaks (4.7 and 6.5). |
+| `proxy` | The calculated-coupling proxy trained on Bercx et al.'s Table B (the same input the `physics` child had). |
+| `alloy` | Semi-empirical alloy chemistry from the formula: Miedema's formation enthalpies (intermetallic, solid solution, amorphous) and the Yang solid-solution parameters (atomic-size mismatch δ and Ω), from matminer. |
+| `tc-size` | No new input. It also learns how high Tc was (a second model fitted to log(1 + Tc), nulls as zero) and ranks by the average of the two models' ranks. |
+| `family` | The chemical family as an input, and a second model trained on the test composition's own family only (when that family has at least 200 training rows). Ranks by the average of the two models' ranks. |
+
+**Generation 7: breeding.** Order generation 6's changes by the primary
+endpoint and keep those above the baseline.
+
+| Child | Built from |
+| --- | --- |
+| `best` | The top change alone. |
+| `best-two` | The top two changes together. |
+| `best-three` | The top three together. |
+| `best-two-bagged` | `best-two`, averaged over 8 group-bootstrap bags. |
+| `all` | All five changes together, whatever they scored. |
+
+- If fewer changes beat the baseline than a child needs, that child uses the
+  ones that did. If none did, generation 7 is `all` and a bagged baseline.
+
+**Rule for a champion.** The generation 7 child with the highest primary
+endpoint is the champion only if its gain over the baseline has a 99%
+interval above zero. The interval comes from 1,000 bootstrap resamples of
+element systems within each fold, the four folds averaged in each resample.
+Otherwise there is no champion and the baseline stands.
+
+**Second look, not a test.** The champion (or, with no champion, the best
+generation 7 child) and the baseline are scored once on the spent 2016 to
+2020 slice and reported as a labelled second look. It decides nothing.
+
+**What this does not change.** The ranking of record. A winning block would
+still need its own test under the learning-cycle guards before it is adopted.
+
+**Predictions [Speculative].**
+
+| Outcome | Chance |
+| --- | --- |
+| `elements` beats the baseline on the primary endpoint (any margin) | 55% |
+| `proxy` beats the baseline on the primary endpoint | 55% |
+| `alloy` beats the baseline on the primary endpoint | 45% |
+| A champion is declared | 30% |
+| The best generation 7 child is above the baseline on the second look's intermetallics | 60% |
