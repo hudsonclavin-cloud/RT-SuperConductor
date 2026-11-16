@@ -1,0 +1,40 @@
+doi_or_id,title,rows_it_could_settle,n_rows,stage
+10.1016/0022-5088(70)90162-1,"Superconductivity and lattice parameters in the zirconium-molybdenum, zirconium-tungsten, hafnium-molybdenum and hafnium-tungsten alloy systems (1970, J. Less-Common Met.)",Hf:0.150;Mo:0.850; Mo:0.243;Zr:0.757; Mo:0.724;Zr:0.276; Mo:0.750;Zr:0.250; W:0.900;Zr:0.100; Hf:0.333;W:0.667; Hf:0.330;W:0.670,7,screen: needs full text
+openalex:W1560229845 (no DOI; OSTI 7297509),"Savitskii, Baron and Efimov, Effect of vanadium on the structure and superconducting properties of niobium-zirconium alloys, Izv. Akad. Nauk SSSR, Metally 3 (1966), Russian; OSTI 7297509 is a bibliographic record only",Nb:0.035;V:0.643;Zr:0.322; Nb:0.121;V:0.543;Zr:0.335; Nb:0.154;V:0.513;Zr:0.333; Nb:0.183;V:0.482;Zr:0.334; Nb:0.307;V:0.359;Zr:0.333,5,screen: needs full text
+10.1103/physrev.154.424,"Merriam, Hagen and Luo, Phys. Rev. 154, 424 (1967): over 75 In-Tl samples",In:0.900;Tl:0.100; In:0.830;Tl:0.170; In:0.750;Tl:0.250; In:0.950;Tl:0.050 (cycle 2),4,failed the rule in cycle 3 or 2 for lack of full text
+10.1103/physrev.168.715,"Low-Temperature Specific Heats of Zr-Ti, Zr-Hf, and Zr-Sc Alloys",Ti:0.800;Zr:0.200; Ti:0.100;Zr:0.900; Ti:0.250;Zr:0.750,3,screen: needs full text
+10.1103/physrev.137.a1438,Superconductivity in Cr3Si-Type Ternary Phases with Niobium and Group VIII Metals,Ir:0.075;Nb:0.750;Rh:0.175; Ir:0.175;Nb:0.750;Rh:0.075; Ir:0.125;Nb:0.750;Rh:0.125,3,screen: needs full text
+10.1016/s0921-4534(02)01332-1,High pressure synthesis and superconductivity of Ba1-xKxBiO3 (0.35<x<1),Ba:0.048;Bi:0.200;K:0.152;O:0.600; Ba:0.051;Bi:0.200;K:0.149;O:0.600,2,screen: needs full text
+,"Superconductivity of binary alloys based on mercury, thallium, lead, and bismuth (Claeson 1967 thesis, OpenAlex W244410199)",Hg:0.009;Tl:0.991; Hg:0.004;Tl:0.996,2,screen: needs full text
+10.1016/0022-3697(65)90117-4,"Superconductivity in zirconium-rhodium alloys (Zegler, 1965)",Rh:0.025;Zr:0.975; Rh:0.015;Zr:0.985,2,screen: needs full text
+10.1002/pssb.19660130214,"Superconductivity in the Close-packed Intermediate Phases of the V-Ir, Nb-Ir, Nb-Rh, Ta-Rh, Nb-Pt, Ta-Pt, and Other Related Systems",Ir:0.750;V:0.250; Ir:0.500;V:0.500,2,screen: needs full text
+10.1103/physrevb.109.104520,Diboride compounds doped with transition metals: A route to superconductivity through structure stabilization as well as defects,B:0.704;Mo:0.296; B:0.720;Mo:0.280,2,screen: needs full text
+10.1103/physrev.137.a119,Superconductivity in Binary Alloy Systems of the Rare Earths and of Thorium with Pt-Group Metals,Pt:0.625;Th:0.375; Pt:0.667;Th:0.333,2,screen: needs full text
+10.1016/0022-5088(84)90276-5,Phase relations in the Pb-Mo-Se ternary system at 1323 K and the superconductivity of the alloys,Mo:0.415;Pb:0.059;Se:0.526; Mo:0.417;Pb:0.056;Se:0.528,2,screen: needs full text
+10.1103/physrev.88.703,"Stout and Guttman, Phys. Rev. 88, 703 (1952): In-Tl single crystals",In:0.900;Tl:0.100; In:0.950;Tl:0.050 (cycle 2),2,failed the rule in cycle 3 or 2 for lack of full text
+10.1088/0370-1298/65/7/307,"Olsen, Proc. Phys. Soc. A 65, 518 (1952): Pb-Bi alloys",Bi:0.075;Pb:0.925; Bi:0.094;Pb:0.906,2,failed the rule in cycle 3 or 2 for lack of full text
+10.1038/333836a0,"Synthesis, structure and superconductivity in the Ba1-xKxBiO3-y system",Ba:0.150;Bi:0.200;K:0.050;O:0.600,1,screen: needs full text
+10.1073/pnas.64.4.1151,Rare earth impurities in YB6 and ZrB12,B:0.857;Ce:0.001;Y:0.141,1,screen: needs full text
+10.1103/physrevlett.7.302,Superconductivity of Niobium-Molybdenum Alloys Below 1 K,Mo:0.600;Nb:0.400,1,screen: needs full text
+,"Superconductivity and phase transformations in titanium alloys. I. Addition of vanadium + aluminum, niobium and molybdenum (Raub & Zwicker 1964, OpenAlex W326919751)",Mo:0.010;Nb:0.340;Ti:0.650,1,screen: needs full text
+10.1016/0022-5088(82)90134-5,Electrical properties of rare earth diborodicarbides (RB2C2-type layer compounds),B:0.400;C:0.400;La:0.200,1,screen: needs full text
+10.1103/physrev.149.409,Superconductivity and Electronic Specific Heat in the Scandium-Zirconium System (Jensen & Maita 1966),Sc:0.100;Zr:0.900,1,screen: needs full text
+10.1088/0953-2048/24/8/082002,Intrinsic phase separation in superconducting K0.8Fe1.6Se2 (Tc = 31.8 K) single crystals (Ricci et al. 2011),Fe:0.364;K:0.182;Se:0.455,1,screen: needs full text
+10.1016/0925-8388(94)90010-8,"Effect of hydrogen absorption on structure, superconductivity, magnetic susceptibility and heat capacity of Zr2Rh (Raj et al. 1994, J. Alloys Compd.)",H:0.400;Rh:0.200;Zr:0.400,1,screen: needs full text
+10.1016/j.physc.2005.04.027,The charge transfer induced by Cr doping in MgB2,B:0.667;Cr:0.017;Mg:0.317,1,screen: needs full text
+10.1103/physrevb.4.320,Electronic Transitions in Near-Equiatomic Vanadium-Ruthenium Alloys,Ru:0.500;V:0.500,1,screen: needs full text
+,"SUPERCONDUCTING PROPERTIES OF NIOBIUM--TITANIUM--ZIRCONIUM--HAFNIUM ALLOYS (Raevskii et al. 1971, OSTI, OpenAlex W40852739)",Hf:0.200;Nb:0.400;Ti:0.200;Zr:0.200,1,screen: needs full text
+10.1007/978-1-4613-9859-2_56,Enhanced Values of Hc2 in Nb-Ti Ternary and Quaternary Alloys,Hf:0.040;Nb:0.420;Ta:0.040;Ti:0.500,1,screen: needs full text
+,"Electric conductivity and superconductivity of solid solutions of vanadium, niobium, and chromium (Sirota and Fedotov 1973, OSTI, OpenAlex W13443083)",Cr:0.200;Nb:0.800,1,screen: needs full text
+10.1103/physrevb.27.1558,"Electronic structure, superconductivity, and spin fluctuations in the A15 compounds A3B: A=V, Nb; B=Ir, Pt, Au",Ir:0.250;V:0.750,1,screen: needs full text
+10.1103/physrev.140.a1177,Superconducting Technetium-Tungsten Alloys,Tc:0.050;W:0.950,1,screen: needs full text
+10.2172/4090171,"Superconductivity and magnetic order in La-Ce alloys (J. Wollan, Ames Lab report, 1970)",Ce:0.040;La:0.960,1,screen: needs full text
+10.1103/PhysRevLett.106.156403,"Shu et al., Correlated electron state in Ce1-xYbxCoIn5 stabilized by cooperative valence fluctuations (PRL 106, 156403, 2011); the JSON lead is the matching 2009 UCSD thesis",Ce:0.032;Co:0.143;In:0.714;Yb:0.111,1,screen: needs full text
+10.1103/physrev.141.412,"Superconductivity in the Alloy System Cadmium-Mercury and the Effect of Ordering upon Superconductivity (Claeson, Luo, Merriam, 1966)",Cd:0.100;Hg:0.900,1,screen: needs full text
+10.1016/0038-1098(88)90250-5,"Electronic properties, superconductivity and stability of the ordered alloys of the Ti-Rh, Zr-Rh and Hf-Rh isoelectronic systems (Kuentzler & Waterstrat, 1988)",Rh:0.333;Ti:0.667,1,screen: needs full text
+10.7566/jpsj.84.084703,"Pressure Effects on Superconducting Properties of the BiS2-Based Superconductor Bi2(O,F)S2",Bi:0.400;O:0.200;S:0.400,1,screen: needs full text
+10.1103/physrevb.50.13879,"Mazumdar et al., Phys. Rev. B 50, 13879 (1994): Lu2Ni3Si5",Lu:0.200;Ni:0.300;Si:0.500,1,failed the rule in cycle 3 or 2 for lack of full text
+10.1103/physrevb.50.4216,"Carter et al., Phys. Rev. B 50, 4216 (1994): LaPt2-xAuxB2C",Au:0.050;B:0.333;C:0.167;La:0.167;Pt:0.283,1,failed the rule in cycle 3 or 2 for lack of full text
+10.1063/10.0030111,"Kuznetsov et al., Sov. J. Low Temp. Phys. 6, 457 (1980): (V1-xCrx)3Si",Cr:0.052;Si:0.250;V:0.698,1,failed the rule in cycle 3 or 2 for lack of full text
+10.1103/physrev.123.1569,"Hulm and Blaugher, Superconducting solid solution alloys of the transition elements, Phys. Rev. 123, 1569 (1961): a possible bracketing series for Nb-Ti",Nb:0.400;Ti:0.600,1,failed the rule in cycle 3: nearest readable sample 4 at.% away
+10.1063/1.1709450,"DeSorbo, Lawrence and Healy, J. Appl. Phys. 38, 903 (1967): the Ti60Nb36Ta4 sample itself",Nb:0.360;Ta:0.040;Ti:0.600,1,failed the rule in cycle 3: no Tc stated in the readable paper
