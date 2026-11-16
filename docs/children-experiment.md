@@ -358,3 +358,104 @@ carry to the final slice. The NIMS data is the real improvement here.
   of the score comes from those.
 - The physics input comes from calculations published in 2025 on structures
   known by then, so the `physics` lineage sees a little of the future.
+
+## Generations 3 to 5 and the second reader: results, written 2026-11-16 08:23 UTC
+
+Files: `docs/children/nims-data.json`, `nims-evolve.json`, `nims-final.json`,
+`second-look.json`; `data/benchmarks/children/second-read.csv`.
+
+**The data came out as counted in the plan:** 1,130 selection compositions and
+524 final ones, all in element systems the training years never held.
+
+**Selection slice by generation** (AUC, superconductors against measured
+non-superconductors, first seen 2011 to 2015; model trained on data up to 2010):
+
+| Lineage | Start | Gen 3 | Gen 4 | Gen 5 | What changed |
+| --- | --- | --- | --- | --- | --- |
+| `boost` | 0.592 | 0.600 | 0.602 | 0.614 | faster learning rate, back to 31 leaves, no L2 penalty |
+| `bag` | 0.600 | 0.616 | 0.617 | 0.617 | 63 leaves, 16 bags |
+| `knn` | 0.566 | 0.566 | 0.582 | 0.582 | 10 neighbours, city-block distance |
+| `mlp` | 0.595 | 0.605 | 0.605 | 0.605 | slower learning rate |
+| `physics` | 0.597 | 0.615 | 0.618 | 0.623 | faster learning rate, larger leaves, stronger L2 penalty |
+
+The baseline (generation 1's `boost` settings) scores 0.598 on this slice.
+
+**Final test, scored once** (524 compositions first seen 2016 to 2020, 393
+superconductors, 217 element systems; models trained on data up to 2015):
+
+| Model | AUC (95% interval) | Minus baseline (95%; 99%) | Beats baseline by the rule |
+| --- | --- | --- | --- |
+| Baseline | 0.685 (0.605 to 0.768) | | |
+| `boost` | 0.704 (0.628 to 0.773) | +0.019 (−0.016 to +0.050; −0.029 to +0.058) | no |
+| `bag` | **0.720** (0.649 to 0.792) | **+0.035** (+0.008 to +0.062; +0.001 to +0.070) | **yes, barely** |
+| `knn` | 0.560 (0.477 to 0.649) | −0.125 (−0.215 to −0.043; −0.241 to −0.025) | no (worse) |
+| `mlp` | 0.689 (0.612 to 0.763) | +0.005 (−0.045 to +0.047; −0.063 to +0.068) | no |
+| `physics` | **0.720** (0.638 to 0.798) | +0.036 (−0.007 to +0.073; −0.021 to +0.082) | no |
+
+**Final AUC by family:**
+
+| Family | Compositions | Superconductors | Baseline | `boost` | `bag` | `knn` | `mlp` | `physics` |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Other (mostly intermetallics) | 386 | 285 | 0.756 | 0.759 | 0.773 | 0.615 | 0.759 | **0.800** |
+| Iron-based | 76 | 58 | 0.399 | 0.543 | 0.523 | 0.399 | 0.466 | 0.475 |
+| Oxides | 43 | 33 | 0.521 | 0.479 | 0.549 | 0.311 | 0.491 | 0.412 |
+| Cuprates | 19 | 17 | 0.677 | 0.677 | 0.765 | 0.677 | 0.853 | 0.735 |
+
+**Against the predictions:**
+
+| Prediction | Chance | Result |
+| --- | --- | --- |
+| Baseline's final AUC is 0.70 or more | 55% | no (0.685) |
+| `boost` or `bag` has the best final AUC | 65% | no, by 0.0008: `physics` 0.7204, `bag` 0.7196 |
+| Any lineage beats the baseline by the rule | 15% | **yes** (`bag`) |
+| A lineage that started behind blooms late | 7% | no |
+| Selection AUC rises by a median of at least 0.01 | 50% | yes (median +0.017 from start to generation 5) |
+| `knn` is at least 0.10 below the baseline | 45% | yes (−0.125) |
+
+**What it shows.**
+- [Certain, for this test] **On truly dated data the models are much weaker
+  than cross-validation suggested.** The baseline scores 0.685 on compounds
+  first reported after its training years, against 0.79 in grouped
+  cross-validation.
+- **Nearly all of that skill is in conventional intermetallics.** In "Other"
+  the baseline scores 0.756. For iron-based compounds and oxides it is at or
+  below chance. [Likely] A formula model cannot tell which new iron arsenide
+  or oxide will superconduct; that depends on doping and structure it does
+  not see.
+- **Averaging many models helped a little.** `bag` is +0.035 over the
+  baseline, and its 99% interval just clears zero.
+  - This is the one comparison of five that passed. With five tries, one
+    marginal pass is weak evidence.
+  - It does not show that evolution helped. The starting `bag` was never
+    scored on the final slice, so the gain may come from bagging itself.
+- **No late bloomer.** `knn` started last and finished last; `mlp` stayed
+  level with the baseline. `physics` improved most on the selection slice and
+  ties for best on the final one, but its interval includes zero.
+  - [Speculative] `physics` at 0.800 on the intermetallics is the most
+    interesting number here. It was picked after seeing the table, so it needs
+    its own test.
+- **Three generations bought about +0.02 on the selection slice.** On the
+  final slice the evolved `boost` is +0.019 over the baseline, not
+  distinguishable from zero. My view before the run stands: the data mattered,
+  the generations did not much.
+
+**The second reader on the first experiment's unconfirmed records.** Four
+low-tier readers searched the literature for the 173 unconfirmed SuperCon2
+compounds. They confirmed 12 more as bulk, ambient-pressure superconductors,
+each with a Crossref-verified DOI: 6 first reported in 2016 or later, and 6
+earlier.
+- A labelled second look, with no model chosen on it: on the 17 confirmed
+  2016-to-2021 discoveries the baseline's AUC is 0.789 (was 0.766 on 11), with
+  6 in the top 5% of the pool.
+- Two of the twelve look doubtful to me and are kept as the readers gave them:
+  EuFe2As2 (superconducting only in samples made under pressure, per the
+  note) and FeB4 (disputed).
+
+**How the two experiments fit together.** They ask different questions.
+- The pool test (first experiment): among 25,000 mostly untested compounds,
+  do later-discovered superconductors rank high? Yes, about the 80th to 90th
+  percentile. That is the question that matters for choosing what to study.
+- The dated test (this one): of new compounds that somebody did measure, can
+  the model tell which ones superconduct? Only moderately, 0.69 overall and
+  0.76 for intermetallics. Chemists had already chosen those compounds as
+  promising, so this is the harder question.
