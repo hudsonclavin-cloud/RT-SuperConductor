@@ -192,3 +192,45 @@ compound and was never analysed. Should a named compound count when its
 measured sample was made a little off-ratio on purpose (to make up for loss
 during melting) or was found slightly off by analysis? Under today's rule,
 no.
+
+## Cycle 2: result, 2026-11-16 03:45 UTC: no correction passed, so no retraining
+
+**Batch:** the six alloy rows that the blinded check of 80 negatives
+(`docs/negative-labels.md`) called "most likely also wrong": TlIn19, CdHg19,
+Hf(Ti2Nb)8, Ta9Ti8, ReW9 and Zr3V. The procedure was the same as cycle 1's:
+two independent readers and a sceptical verifier, with FastTrack, alphaXiv and
+open-access PDFs. The records are in
+`data/benchmarks/learning-cycles/cycle2-evidence.json`.
+
+| Row | What was found | Why it does not pass |
+| --- | --- | --- |
+| TlIn19 (In0.95Tl0.05) | Stout and Guttman (Phys. Rev. 88, 703, 1952) measured a 5 at.% Tl single crystal and give its superconducting critical fields; Merriam, Hagen and Luo (Phys. Rev. 154, 424, 1967) measured over 75 In–Tl samples, all superconducting at 2.5 to 3.8 K. **The row superconducts.** | No text that could be read states its Tc, and the sample lists are in the APS full texts |
+| CdHg19 (Hg0.95Cd0.05) | Claeson, Luo and Merriam (Phys. Rev. 141, 412, 1966) | Cd dissolves in Hg only up to 1.5 at.%, so 5 at.% Cd is a two-phase sample |
+| Hf(Ti2Nb)8 (Ti0.64Nb0.32Hf0.04) | Inside the 42-alloy Ti–Nb–Hf grid of Katoh, Wada and Tachikawa (Denki-Seiko 53, 105, 1982); Nb–Ti–Hf alloys have Hc2(4.2 K) of 8.7 to 11 T (Hawksworth and Larbalestier 1981) | The Tc values are in a figure that could not be read; the nearest named composition is about 4 at.% away |
+| Ta9Ti8 (Ta0.53Ti0.47) | Colling, Ralls and Wulff (J. Appl. Phys. 37, 4750, 1966): Tc varies smoothly across the Ta–Ti solid solution, peaking at 8.8 K | No sample list or per-composition Tc readable; the values are for cold-worked wire, which annealing lowers |
+| ReW9 (W0.9Re0.1) | W–Re data found are for vapour-deposited samples, whose Tc the authors say is raised above equilibrium | Not an equilibrium bulk value |
+| Zr3V (Zr0.75V0.25) | Zr–V solid solutions are reported non-superconducting down to 4.2 K; nearby splat-quenched samples superconduct through a ZrV2 impurity phase | No measurement of this composition; impurity-phase superconductivity |
+
+**No retraining.** Retraining on an unchanged table only checks that the
+result reproduces (`docs/active-learning.md`), and cycle 0 already showed
+that it does.
+
+**What blocked this batch: access, not evidence.**
+- The deciding tables and figures are in *Physical Review* and *Journal of
+  Applied Physics* full texts. journals.aps.org is refused by this
+  environment's network, and the articles need a subscription anyway.
+- TlIn19 in particular is shown to superconduct, but no readable text states
+  its Tc.
+- With library access, these PDFs would most likely settle TlIn19, Ta9Ti8 and
+  Hf(Ti2Nb)8:
+  - Stout and Guttman, Phys. Rev. 88, 703 (1952), doi:10.1103/physrev.88.703;
+  - Merriam, Hagen and Luo, Phys. Rev. 154, 424 (1967),
+    doi:10.1103/physrev.154.424;
+  - Gubser, Mapother and Connelly, Phys. Rev. B 2, 2547 (1970),
+    doi:10.1103/physrevb.2.2547;
+  - Colling, Ralls and Wulff, J. Appl. Phys. 37, 4750 (1966),
+    doi:10.1063/1.1708131;
+  - Wada, Tachikawa and Kato, IEEE Trans. Magn. 17 (1981),
+    doi:10.1109/tmag.1981.1060925.
+- PDFs read for this purpose stay out of the repository. Only the evidence
+  row (DOI, page, Tc, quote) is recorded.
