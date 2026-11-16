@@ -21,8 +21,11 @@
 # scf-fit, scf, ph, q2r, matdyn or report; LOCAL=1 runs the steps in order with
 # mpirun and no scheduler (a personal machine only, never a Hazel login node).
 #
-# ph.in sets recover = .true., so a phonon job that hits its time limit can be
-# resubmitted with START_AT=ph and continues where it stopped.
+# MEM=16G adds --mem=16G to every job (Slurm's default memory is used if unset).
+#
+# ph.in sets recover = .true., so a phonon job that hits its time limit, or is
+# preempted on partner nodes, can be resubmitted with START_AT=ph and continues
+# where it stopped.
 set -euo pipefail
 
 usage="usage: submit_phonon_chain.sh <package_dir> <run_dir> <partition> <qos> [ntasks]"
@@ -122,6 +125,7 @@ submit() {  # submit <name> <ntasks> <time> <command>
   local args=(--parsable --job-name="rtsc-$CHAIN_NAME-$name" --partition="$partition" --qos="$qos"
               --nodes=1 --ntasks="$n" --time="$time" --chdir="$run_dir/$RUN_DIR"
               --output="$run_dir/logs/%x.%j.out" --error="$run_dir/logs/%x.%j.err" "${dep[@]}")
+  [ -n "${MEM:-}" ] && args+=(--mem="$MEM")
   cmd="${cmd//srun /$launcher }"
   if [ "$local_run" = 1 ]; then
     if [ "$dry_run" = 1 ]; then

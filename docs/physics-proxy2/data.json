@@ -1,0 +1,23 @@
+{
+ "alexandria": {
+  "kept": 8203,
+  "folders": 8249,
+  "unreadable": 46
+ },
+ "jarvis": {
+  "kept": 623,
+  "entries": 1058,
+  "not_marked_stable": 432,
+  "lambda_or_omega_out_of_range": 3
+ },
+ "compositions": 7027,
+ "element_systems": 4957,
+ "tc_above_1k": 2855,
+ "with_an_f_element": 312,
+ "in_both_sets": 278,
+ "lambda_quartiles": [
+  0.253,
+  0.36,
+  0.521
+ ]
+}

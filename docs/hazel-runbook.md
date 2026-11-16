@@ -1787,3 +1787,59 @@ Points to settle before relying on it:
 - Whether NC State lets a user keep an endpoint running on Hazel, and where. Ask Research Facilitation.
 - Returned results are meant to be small. Large QE outputs should stay on Hazel or move by Globus Transfer, with only λ, ωlog and hashes sent back **[Likely]**.
 - Staff said the documentation is thin and chatbots give poor advice on it. Get one manual run working first, then automate with their help.
+
+## Update, 2026-11-16 19:11 UTC: research storage granted, and the staff's own QE test
+
+**Main change:** the HPC staff gave the project a Research Storage folder
+(about 5 TB) and sent the commands of their own Quantum ESPRESSO test. The
+runbook above still holds; this section says what is now known in place of
+its placeholders. The folder's path is not written here because this
+repository is public; it is in the owner's email from the staff. Below it is
+`<research_storage>`.
+
+| Item | Before | Now |
+| --- | --- | --- |
+| Where the conda environment goes | User app space, which was still being requested | `<research_storage>`. The staff's own test installed QE in Research Storage the same way. |
+| Where runs go | `/share/<group>/<unity_id>` | Unchanged. The staff's test used `/share/$GROUP/$USER/` as scratch. |
+| Where results are kept | Copied into the repository | Also copy each whole run directory to `<research_storage>/runs/`, because the work area is purged after about 30 days. |
+| Partition and QOS the staff tested | Not known | `--partition=compute_partners --qos short`, 16 cores over 2 nodes, `--mem=16GB`, 60 minutes. |
+| Deadline | None | **Access ends 2027-05-07 and the folder is then deleted.** Anything worth keeping must be in the repository or elsewhere before that date. |
+
+- [Certain] The staff wrote that access may take some time to appear, and
+  that storage for undergraduates without a faculty sponsor is under review
+  and may change, with notice.
+- [Certain] Agents are not to be run on login nodes (the meeting notes). The
+  owner runs every command below by hand.
+
+**Setup, in place of section 4's command.**
+
+```bash
+scripts/hpc/setup_qe_env.sh <research_storage>
+```
+
+```bash
+export PATH=<research_storage>/envs/rtsc-qe/bin:$PATH
+```
+
+- Keep this project's pinned version (QE 7.6, OpenMPI). The staff's command
+  (`conda install -c conda-forge qe`) installs whatever is newest, and every
+  benchmark in this repository was run with 7.6.
+- [Likely] The GPU container the staff built (QE 7.3.1 from NVIDIA's
+  registry) is not the one to start with: it is a different version from the
+  validated one, the staff have not tested it, and the phonon code's GPU
+  support is partial. Use it only if the processor runs prove too slow.
+
+**Two ways to run the phonon chain.**
+
+| Route | Command ending | When |
+| --- | --- | --- |
+| Ordinary nodes | `compute normal 16` | Default. Jobs up to 4 days, so the phonon job is not interrupted. |
+| Idle partner nodes | `compute_partners short 16` with `PH_TIME=01:55:00` | If the ordinary queue is slow. Jobs must stay under 2 hours; the phonon job then stops at its limit and is resubmitted with `START_AT=ph`, as many times as it takes. |
+
+- `MEM=16G` in front of the command asks for the memory the staff's test
+  used. Without it Slurm's default applies. [Speculative] Whether the default
+  is enough for the 9-atom benchmark has not been measured on Hazel.
+- A first interactive check, the staff's own command:
+  ```bash
+  salloc --nodes=2 --ntasks-per-node=8 --mem=16GB --qos short --partition=compute_partners --time 00:60:00
+  ```

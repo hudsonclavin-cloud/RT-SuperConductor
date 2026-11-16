@@ -335,3 +335,16 @@ gave 60% to an imaginary mode at one of the two points.
   stability check like this one, and what a lab can make (no radioactive
   elements, and a phase diagram that shows a compound and not a solid
   solution).
+
+## Update, 2026-11-16 19:11 UTC: Hazel storage granted
+
+The HPC staff granted a Research Storage folder and sent their own Quantum
+ESPRESSO test commands. What changes for the steps in "Running it on Hazel"
+is in `docs/hazel-runbook.md` ("Update, 2026-11-16 19:11 UTC"). In short:
+
+- Install the environment in Research Storage, run in `/share`, and copy
+  each finished run directory to Research Storage as well as its report into
+  the repository.
+- `MEM=16G` in front of the submit command requests memory; the partner
+  nodes need `PH_TIME=01:55:00` and resubmission with `START_AT=ph`.
+- Access ends 2027-05-07.

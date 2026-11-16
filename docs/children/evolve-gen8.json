@@ -1,0 +1,302 @@
+{
+ "generation": 8,
+ "selection_half_only": true,
+ "baseline_fitness": 0.6708,
+ "children_scored_this_generation": 18,
+ "children_scored_so_far": 18,
+ "this_generation": [
+  {
+   "child": "elements+proxy+alloy+tc-size",
+   "fitness": 0.7593,
+   "gain": 0.0884,
+   "by_fold": {
+    "A": 0.8801,
+    "B": 0.7141,
+    "C": 0.7506,
+    "D": 0.6539,
+    "E": 0.7975
+   }
+  },
+  {
+   "child": "elements+proxy+alloy+tc-size+family",
+   "fitness": 0.7513,
+   "gain": 0.0805,
+   "by_fold": {
+    "A": 0.8669,
+    "B": 0.6747,
+    "C": 0.7423,
+    "D": 0.6561,
+    "E": 0.8165
+   }
+  },
+  {
+   "child": "elements+proxy+tc-size+family",
+   "fitness": 0.7464,
+   "gain": 0.0756,
+   "by_fold": {
+    "A": 0.8605,
+    "B": 0.6986,
+    "C": 0.7069,
+    "D": 0.6517,
+    "E": 0.8145
+   }
+  },
+  {
+   "child": "proxy+alloy+tc-size+family",
+   "fitness": 0.7456,
+   "gain": 0.0748,
+   "by_fold": {
+    "A": 0.8592,
+    "B": 0.7257,
+    "C": 0.7192,
+    "D": 0.6331,
+    "E": 0.7908
+   }
+  },
+  {
+   "child": "elements+proxy2+alloy+tc-size+family",
+   "fitness": 0.7322,
+   "gain": 0.0613,
+   "by_fold": {
+    "A": 0.8609,
+    "B": 0.6504,
+    "C": 0.7477,
+    "D": 0.6536,
+    "E": 0.7482
+   }
+  },
+  {
+   "child": "elements+alloy+tc-size+family",
+   "fitness": 0.7289,
+   "gain": 0.0581,
+   "by_fold": {
+    "A": 0.884,
+    "B": 0.6284,
+    "C": 0.7503,
+    "D": 0.6254,
+    "E": 0.7564
+   }
+  },
+  {
+   "child": "elements+proxy+alloy+family",
+   "fitness": 0.7272,
+   "gain": 0.0564,
+   "by_fold": {
+    "A": 0.8429,
+    "B": 0.6315,
+    "C": 0.7299,
+    "D": 0.6387,
+    "E": 0.7931
+   }
+  },
+  {
+   "child": "tc-size",
+   "fitness": 0.7084,
+   "gain": 0.0376,
+   "by_fold": {
+    "A": 0.8112,
+    "B": 0.6611,
+    "C": 0.7077,
+    "D": 0.6264,
+    "E": 0.7358
+   }
+  },
+  {
+   "child": "family",
+   "fitness": 0.6983,
+   "gain": 0.0275,
+   "by_fold": {
+    "A": 0.838,
+    "B": 0.6273,
+    "C": 0.6851,
+    "D": 0.6194,
+    "E": 0.7218
+   }
+  },
+  {
+   "child": "proxy",
+   "fitness": 0.6868,
+   "gain": 0.016,
+   "by_fold": {
+    "A": 0.7045,
+    "B": 0.6922,
+    "C": 0.7044,
+    "D": 0.6236,
+    "E": 0.7094
+   }
+  },
+  {
+   "child": "elements",
+   "fitness": 0.6839,
+   "gain": 0.013,
+   "by_fold": {
+    "A": 0.8019,
+    "B": 0.6357,
+    "C": 0.6874,
+    "D": 0.6022,
+    "E": 0.6922
+   }
+  },
+  {
+   "child": "alloy",
+   "fitness": 0.677,
+   "gain": 0.0062,
+   "by_fold": {
+    "A": 0.7376,
+    "B": 0.6579,
+    "C": 0.6985,
+    "D": 0.6067,
+    "E": 0.6845
+   }
+  },
+  {
+   "child": "leaves63",
+   "fitness": 0.6759,
+   "gain": 0.0051,
+   "by_fold": {
+    "A": 0.7453,
+    "B": 0.6578,
+    "C": 0.664,
+    "D": 0.5981,
+    "E": 0.7143
+   }
+  },
+  {
+   "child": "balance",
+   "fitness": 0.6747,
+   "gain": 0.0039,
+   "by_fold": {
+    "A": 0.7187,
+    "B": 0.6931,
+    "C": 0.6945,
+    "D": 0.6099,
+    "E": 0.6573
+   }
+  },
+  {
+   "child": "baseline",
+   "fitness": 0.6708,
+   "gain": 0.0,
+   "by_fold": {
+    "A": 0.748,
+    "B": 0.6255,
+    "C": 0.6884,
+    "D": 0.6268,
+    "E": 0.6654
+   }
+  },
+  {
+   "child": "bag",
+   "fitness": 0.6669,
+   "gain": -0.0039,
+   "by_fold": {
+    "A": 0.7043,
+    "B": 0.644,
+    "C": 0.6668,
+    "D": 0.618,
+    "E": 0.7015
+   }
+  },
+  {
+   "child": "proxy2",
+   "fitness": 0.6527,
+   "gain": -0.0182,
+   "by_fold": {
+    "A": 0.6629,
+    "B": 0.6453,
+    "C": 0.6488,
+    "D": 0.6249,
+    "E": 0.6815
+   }
+  },
+  {
+   "child": "recent",
+   "fitness": 0.6486,
+   "gain": -0.0223,
+   "by_fold": {
+    "A": 0.6872,
+    "B": 0.6015,
+    "C": 0.6647,
+    "D": 0.5793,
+    "E": 0.7101
+   }
+  }
+ ],
+ "fittest_so_far": [
+  {
+   "child": "elements+proxy+alloy+tc-size",
+   "fitness": 0.7593,
+   "gain": 0.0884,
+   "gain_95": [
+    0.0505,
+    0.128
+   ],
+   "gain_99": [
+    0.0432,
+    0.1467
+   ]
+  },
+  {
+   "child": "elements+proxy+alloy+tc-size+family",
+   "fitness": 0.7513,
+   "gain": 0.0805,
+   "gain_95": [
+    0.0403,
+    0.1222
+   ],
+   "gain_99": [
+    0.0319,
+    0.1347
+   ]
+  },
+  {
+   "child": "elements+proxy+tc-size+family",
+   "fitness": 0.7464,
+   "gain": 0.0756,
+   "gain_95": [
+    0.0353,
+    0.1144
+   ],
+   "gain_99": [
+    0.0243,
+    0.1252
+   ]
+  }
+ ],
+ "proxy2_p3": {
+  "proxy2_minus_baseline": {
+   "gain": -0.0182,
+   "gain_95": [
+    -0.0489,
+    0.014
+   ],
+   "gain_99": [
+    -0.0583,
+    0.0207
+   ]
+  },
+  "proxy_minus_baseline": {
+   "gain": 0.016,
+   "gain_95": [
+    -0.007,
+    0.0377
+   ],
+   "gain_99": [
+    -0.0118,
+    0.0427
+   ]
+  },
+  "old_champion_with_proxy2_minus_old_champion": {
+   "gain": -0.0191,
+   "gain_95": [
+    -0.0424,
+    0.0067
+   ],
+   "gain_99": [
+    -0.0508,
+    0.0162
+   ]
+  },
+  "passes": false
+ }
+}

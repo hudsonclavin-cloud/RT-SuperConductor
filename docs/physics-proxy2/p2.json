@@ -1,0 +1,55 @@
+{
+ "same_882_rows_as_t2": 882,
+ "left_out_because_the_formula_is_in_the_new_data": 68,
+ "primary": {
+  "rows": 814,
+  "superconductors": 355,
+  "auc_tc_flag": 0.5938,
+  "auc_predicted_lambda": 0.6224,
+  "interval": {
+   "low": 0.5501,
+   "median": 0.5931,
+   "high": 0.6339,
+   "resamples": 1000
+  }
+ },
+ "pass_mark": 0.6,
+ "first_proxy_on_these_rows": 0.5309,
+ "with_an_f_element": {
+  "rows": 556,
+  "superconductors": 228,
+  "auc_tc_flag": 0.6159,
+  "auc_predicted_lambda": 0.6307,
+  "interval": {
+   "low": 0.5629,
+   "median": 0.613,
+   "high": 0.6637,
+   "resamples": 1000
+  }
+ },
+ "without": {
+  "rows": 258,
+  "superconductors": 127,
+  "auc_tc_flag": 0.5606,
+  "auc_predicted_lambda": 0.6287,
+  "interval": {
+   "low": 0.4814,
+   "median": 0.5618,
+   "high": 0.6445,
+   "resamples": 1000
+  }
+ },
+ "all_882_including_shared_formulas": {
+  "rows": 882,
+  "superconductors": 398,
+  "auc_tc_flag": 0.6096,
+  "auc_predicted_lambda": 0.6346,
+  "interval": {
+   "low": 0.5673,
+   "median": 0.6087,
+   "high": 0.6503,
+   "resamples": 1000
+  }
+ },
+ "passes": false
+}
