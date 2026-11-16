@@ -159,3 +159,19 @@ are scaled from the rehearsal on 2 cores, not measured on Hazel.
 | `headline` | The 0.020 Ry row, with Allen-Dynes Tc at μ* = 0.10 and 0.13. |
 | `scf_pressure_kbar`, `scf_total_force_ry_bohr` | Should be near zero. They check the cell is relaxed. |
 | `verdict` | The candidate rule applied. For the benchmark, apply rule 1 by hand to `headline.lambda`. |
+
+## Second read of the two candidates
+
+One more low-tier reader each, independent of the first
+(`data/benchmarks/rung4/second-read.csv`). Both read titles and abstracts
+only.
+
+| Compound | Found as made? | What the reader did find |
+| --- | --- | --- |
+| Re3Ir | No | Rhenium and iridium form disordered solid solutions, cubic on the iridium side and hexagonal on the rhenium side. No ordered compound near 75% rhenium was reported, and no superconductivity for any Re-Ir alloy. |
+| SbTe2 | No | Every result was Sb2Te3. It superconducts only under pressure (about 7 K above 30 GPa, Zhu et al. 2013). |
+
+- [Likely] Neither compound has been made. Two short searches finding nothing
+  is weak evidence, and neither reader checked a phase-diagram database.
+- [Likely] For Re3Ir the more important finding is the solid solution. The
+  ordered structure the calculation assumes may not be what forms.
