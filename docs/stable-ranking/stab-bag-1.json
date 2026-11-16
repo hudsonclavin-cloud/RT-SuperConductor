@@ -1,0 +1,314 @@
+{
+ "name": "stab-bag-1",
+ "previous": "stab-bag-base",
+ "bags": 8,
+ "bag_unit": "development-fold groups, with replacement",
+ "data_sha256": "961fa70220acd4b93544976d3e43245f04c82ab958f3f39e84c411c3e2861b3a",
+ "boosting_settings": {
+  "classifier_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 31,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  },
+  "regressor_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 63,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  }
+ },
+ "locked_rows": "neither trained on nor scored",
+ "placebo": [
+  "Rh:0.750;Th:0.250",
+  "La:0.200;Ni:0.200;O:0.600",
+  "Ge:0.300;Sn:0.700",
+  "Nb:0.075;Pt:0.500;Zr:0.425"
+ ],
+ "table_change": {
+  "moved_between_splits": [],
+  "added": [],
+  "removed": [],
+  "changed": []
+ },
+ "made_metals": {
+  "untested_made_metals": 7693,
+  "models": 40,
+  "top_10": [
+   {
+    "rank": 1,
+    "formula": "BaPb3",
+    "p_superconductor": 0.945,
+    "tc_if_superconductor_k": 3.73,
+    "rank_p10": 2,
+    "rank_p90": 148
+   },
+   {
+    "rank": 2,
+    "formula": "BaCdBi2",
+    "p_superconductor": 0.937,
+    "tc_if_superconductor_k": 4.18,
+    "rank_p10": 5,
+    "rank_p90": 337
+   },
+   {
+    "rank": 3,
+    "formula": "Ba3Pb5",
+    "p_superconductor": 0.935,
+    "tc_if_superconductor_k": 4.36,
+    "rank_p10": 4,
+    "rank_p90": 355
+   },
+   {
+    "rank": 4,
+    "formula": "NbAlRu2",
+    "p_superconductor": 0.933,
+    "tc_if_superconductor_k": 4.89,
+    "rank_p10": 7,
+    "rank_p90": 210
+   },
+   {
+    "rank": 5,
+    "formula": "Ba(Mo3S4)2",
+    "p_superconductor": 0.933,
+    "tc_if_superconductor_k": 3.53,
+    "rank_p10": 7,
+    "rank_p90": 193
+   },
+   {
+    "rank": 6,
+    "formula": "Ba2Cd3Bi4",
+    "p_superconductor": 0.932,
+    "tc_if_superconductor_k": 3.54,
+    "rank_p10": 8,
+    "rank_p90": 309
+   },
+   {
+    "rank": 7,
+    "formula": "Ba(RhPb2)3",
+    "p_superconductor": 0.929,
+    "tc_if_superconductor_k": 3.02,
+    "rank_p10": 6,
+    "rank_p90": 241
+   },
+   {
+    "rank": 8,
+    "formula": "SbTe",
+    "p_superconductor": 0.929,
+    "tc_if_superconductor_k": 2.54,
+    "rank_p10": 3,
+    "rank_p90": 557
+   },
+   {
+    "rank": 9,
+    "formula": "LuNiC2",
+    "p_superconductor": 0.928,
+    "tc_if_superconductor_k": 3.96,
+    "rank_p10": 3,
+    "rank_p90": 525
+   },
+   {
+    "rank": 10,
+    "formula": "Sr(Mo3S4)2",
+    "p_superconductor": 0.928,
+    "tc_if_superconductor_k": 3.58,
+    "rank_p10": 15,
+    "rank_p90": 340
+   }
+  ],
+  "top_50_range_inside_top_100": 0,
+  "top_50_median_range_width": 501.0,
+  "watched": {
+   "Zr6Ga2Ni": {
+    "rank": 19,
+    "rank_p10": 2,
+    "rank_p90": 545
+   },
+   "Zr6Ga2Co": {
+    "rank": 25,
+    "rank_p10": 3,
+    "rank_p90": 623
+   },
+   "Hf6Ga2Co": {
+    "rank": 195,
+    "rank_p10": 22,
+    "rank_p90": 1451
+   },
+   "Ti3SnH": {
+    "rank": 587,
+    "rank_p10": null,
+    "rank_p90": null
+   },
+   "ZrSbRu": {
+    "rank": 860,
+    "rank_p10": null,
+    "rank_p90": null
+   },
+   "TiAlPt": {
+    "rank": 735,
+    "rank_p10": null,
+    "rank_p90": null
+   },
+   "Y2B3C2": {
+    "rank": 1573,
+    "rank_p10": null,
+    "rank_p90": null
+   },
+   "ZrS": {
+    "rank": 2305,
+    "rank_p10": null,
+    "rank_p90": null
+   },
+   "NbCoSb": {
+    "rank": 1615,
+    "rank_p10": null,
+    "rank_p90": null
+   },
+   "Ti2Ga": {
+    "rank": 4886,
+    "rank_p10": null,
+    "rank_p90": null
+   },
+   "PtPb3Bi": {
+    "rank": 49,
+    "rank_p10": 12,
+    "rank_p90": 884
+   }
+  },
+  "against_previous": {
+   "compounds_in_both": 7693,
+   "entered": [],
+   "left": [],
+   "head_overlap": {
+    "top_10": 8,
+    "top_50": 46,
+    "top_200": 184
+   },
+   "rank_spearman": 0.9986,
+   "largest_moves_touching_top_200": [
+    {
+     "formula": "Ba0.250Ge0.500Li0.250",
+     "before": 278,
+     "after": 179
+    },
+    {
+     "formula": "Pd0.111S0.667Ta0.222",
+     "before": 180,
+     "after": 264
+    },
+    {
+     "formula": "Ge0.500Ir0.300La0.200",
+     "before": 197,
+     "after": 278
+    },
+    {
+     "formula": "Cl0.667K0.222Nb0.111",
+     "before": 183,
+     "after": 261
+    },
+    {
+     "formula": "Cl0.667Nb0.111Rb0.222",
+     "before": 171,
+     "after": 249
+    },
+    {
+     "formula": "Ir0.364Sn0.364Sr0.273",
+     "before": 248,
+     "after": 175
+    },
+    {
+     "formula": "Pb0.750Tm0.250",
+     "before": 158,
+     "after": 231
+    },
+    {
+     "formula": "Cl0.750Cs0.125W0.125",
+     "before": 199,
+     "after": 270
+    },
+    {
+     "formula": "Ba0.250In0.500Rh0.250",
+     "before": 186,
+     "after": 256
+    },
+    {
+     "formula": "Ag0.250Hg0.125Se0.500Sn0.125",
+     "before": 212,
+     "after": 145
+    },
+    {
+     "formula": "Au0.538Cs0.308Sn0.154",
+     "before": 255,
+     "after": 190
+    },
+    {
+     "formula": "Ge0.500Li0.250Yb0.250",
+     "before": 193,
+     "after": 132
+    },
+    {
+     "formula": "C0.375Cs0.125Fe0.062Mn0.062N0.375",
+     "before": 245,
+     "after": 189
+    },
+    {
+     "formula": "La0.200Re0.400Si0.400",
+     "before": 196,
+     "after": 252
+    },
+    {
+     "formula": "Bi0.667Ca0.333",
+     "before": 239,
+     "after": 186
+    }
+   ],
+   "watched": {
+    "Zr6Ga2Ni": {
+     "before": 24,
+     "after": 19
+    },
+    "Zr6Ga2Co": {
+     "before": 27,
+     "after": 25
+    },
+    "Hf6Ga2Co": {
+     "before": 169,
+     "after": 195
+    },
+    "Ti3SnH": {
+     "before": 638,
+     "after": 587
+    },
+    "ZrSbRu": {
+     "before": 858,
+     "after": 860
+    },
+    "TiAlPt": {
+     "before": 834,
+     "after": 735
+    },
+    "Y2B3C2": {
+     "before": 1509,
+     "after": 1573
+    },
+    "ZrS": {
+     "before": 2544,
+     "after": 2305
+    },
+    "NbCoSb": {
+     "before": 1544,
+     "after": 1615
+    },
+    "Ti2Ga": {
+     "before": 4903,
+     "after": 4886
+    },
+    "PtPb3Bi": {
+     "before": 50,
+     "after": 49
+    }
+   }
+  }
+ },
+ "minutes": 5.2
+}
