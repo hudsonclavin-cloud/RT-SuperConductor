@@ -1,0 +1,114 @@
+{
+ "champion": {
+  "child": "all",
+  "changes": [
+   "elements",
+   "proxy",
+   "alloy",
+   "tc-size",
+   "family"
+  ],
+  "bags": 0
+ },
+ "table_sha256": "854b318b8bc66e2070cdf39aa943e40f139a9c607fb9a5e8c41a649f08215c45",
+ "primary_intermetallics": {
+  "compositions": 108,
+  "superconductors": 90,
+  "nulls": 18,
+  "auc": {
+   "baseline": 0.7586,
+   "champion": 0.7469,
+   "ranking_of_record": 0.6327
+  },
+  "champion_minus_baseline": -0.0117,
+  "gain_95": [
+   -0.0798,
+   0.0599
+  ],
+  "gain_99": [
+   -0.1029,
+   0.0877
+  ]
+ },
+ "all_compositions": {
+  "compositions": 114,
+  "superconductors": 94,
+  "nulls": 20,
+  "auc": {
+   "baseline": 0.7729,
+   "champion": 0.7441,
+   "ranking_of_record": 0.6601
+  },
+  "champion_minus_baseline": -0.0288,
+  "gain_95": [
+   -0.1117,
+   0.0485
+  ],
+  "gain_99": [
+   -0.1369,
+   0.0713
+  ]
+ },
+ "sensitivity": {
+  "intermetallics_nulls_to_0.5_k_only": {
+   "compositions": 98,
+   "superconductors": 90,
+   "nulls": 8,
+   "auc": {
+    "baseline": 0.7556,
+    "champion": 0.7736,
+    "ranking_of_record": 0.6917
+   },
+   "champion_minus_baseline": 0.018,
+   "gain_95": [
+    -0.1108,
+    0.1193
+   ],
+   "gain_99": [
+    -0.159,
+    0.1465
+   ]
+  },
+  "intermetallics_first_reports_only": {
+   "compositions": 77,
+   "superconductors": 59,
+   "nulls": 18,
+   "auc": {
+    "baseline": 0.7505,
+    "champion": 0.7349,
+    "ranking_of_record": 0.6629
+   },
+   "champion_minus_baseline": -0.0156,
+   "gain_95": [
+    -0.1185,
+    0.0906
+   ],
+   "gain_99": [
+    -0.1621,
+    0.1208
+   ]
+  },
+  "intermetallics_first_harvest_only": {
+   "compositions": 95,
+   "superconductors": 77,
+   "nulls": 18,
+   "auc": {
+    "baseline": 0.7677,
+    "champion": 0.7702,
+    "ranking_of_record": 0.6407
+   },
+   "champion_minus_baseline": 0.0025,
+   "gain_95": [
+    -0.0658,
+    0.0734
+   ],
+   "gain_99": [
+    -0.0983,
+    0.1073
+   ]
+  }
+ },
+ "ranking_of_record_warning": "its training table has no dates and may contain some of these compounds",
+ "power_rule_met": false,
+ "reading": "underpowered: no claim (the selection gain did not carry over)"
+}

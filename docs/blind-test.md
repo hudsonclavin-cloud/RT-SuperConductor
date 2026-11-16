@@ -156,3 +156,104 @@ the six years, then second readers on their records as before.
 
 **Prediction [Speculative].** The power rule is met after the second harvest:
 55%.
+
+## Result, 2026-11-16 18:16 UTC
+
+**Main result:** on compounds from 2021 to 2026 in chemistry neither model
+had seen, the champion did not beat the baseline. The table is under the
+power rule, so by this plan's own terms no claim is made either way. The
+honest summary is that the gain seen in selection did not show up.
+
+**The table that was scored** (frozen in commit `62223ac`, sha256
+`854b318b…`, before any score existed).
+
+| Step | Count |
+| --- | --- |
+| Reader lines, both harvests (42 readers) | 360 |
+| Records after checks and duplicates | 265, from 215 papers |
+| Confirmed by a second reader | 251 (5% rejected) |
+| Compositions | 212 |
+| In an element system the NIMS data never held | 114 |
+| Of those, intermetallic | 108: 90 superconductors, **18 nulls** |
+
+- The second harvest added 13 intermetallic superconductors and **no**
+  intermetallic null. Its 6 new null records were in element systems the
+  models had already seen, or in other families. So the amendment did not buy
+  what it was for.
+
+**The one scoring run** (`docs/blind/score.json`).
+
+| | Baseline | Champion | Champion minus baseline | 95% interval |
+| --- | --- | --- | --- | --- |
+| **Intermetallics (108; 18 nulls): primary** | 0.759 | 0.747 | **−0.012** | −0.080 to +0.060 |
+| All compositions (114; 20 nulls) | 0.773 | 0.744 | −0.029 | −0.112 to +0.049 |
+| Sensitivity: nulls measured to 0.5 K only (8 nulls) | 0.756 | 0.774 | +0.018 | −0.111 to +0.119 |
+| Sensitivity: first reports only (77; 18 nulls) | 0.751 | 0.735 | −0.016 | −0.119 to +0.091 |
+| Sensitivity: first harvest only (95; 18 nulls) | 0.768 | 0.770 | +0.003 | −0.066 to +0.073 |
+
+**Reading, by the plan's table.**
+
+- [Certain] **Power rule not met** (18 nulls; 25 needed). No claim.
+- [Certain] The point estimate is slightly negative, which the plan reads as
+  "the selection gain did not carry over".
+- [Likely] The second look had flattered the champion. Its +0.088 on 2016 to
+  2020 is above this interval's upper end (+0.060). The selection gain of
+  +0.055 is still inside it, so a smaller real gain is not ruled out.
+- [Likely] The baseline is the good news. It scored 0.756 on 2016 to 2020
+  and 0.759 here, on compounds published after its data ends, in chemistry it
+  never saw. Its skill is real and stable.
+
+**Predictions against results.**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| The table meets the power rule | 55% | no |
+| The power rule is met after the second harvest | 55% | no |
+| The champion's gain on intermetallics is above zero | 70% | no (−0.012) |
+| Its 95% interval is above zero | 30% | no |
+| The champion's own AUC on intermetallics is 0.70 or higher | 45% | yes (0.747) |
+| The second reader rejects more than 15% of records | 50% | no (5%) |
+
+I was wrong on five of six, and wrong in the optimistic direction on the two
+that mattered. I gave the champion 70% after seeing it win a look that was
+not blind. That is the overconfidence this test exists to catch.
+
+**An exploratory finding, not planned, from the saved scores.**
+
+- The ranking of record scored 0.633 on the same 108 compounds, against the
+  baseline's 0.759. The difference is +0.126 (95% interval +0.019 to +0.228;
+  the 99% interval includes zero).
+- The two share a learner and inputs. They differ in training data: the
+  baseline learned from the NIMS file, with its measured nulls; the ranking of
+  record learned from the project's main table.
+- It puts 8 of the 18 nulls in its top half; the baseline puts 3 there.
+- [Speculative] The NIMS data may simply be the better training set for
+  telling a measured null from a superconductor. This was found after the
+  scores were read, on 18 nulls, so it is a lead for its own test and nothing
+  more.
+
+**What the test could not do.**
+
+- **Nulls were the limit, as the plan feared.** Forty-two reader runs found
+  42 null records, and 18 survived the rules. Abstracts rarely say a compound
+  does not superconduct.
+- Nine of the 18 nulls contain thorium, uranium or a lanthanide. They are not
+  like the rung 4 pool, which excludes those elements.
+- Everything was read from abstracts by low-tier readers. I checked 20
+  identifiers and 4 nulls myself; all held.
+- Readers made stray tool calls outside their brief (to send a message,
+  archive a session or create a reminder) in about one run in four. All were
+  denied or undone, and I confirmed the one reminder was deleted.
+
+**What follows.**
+
+1. The champion is **not adopted**, and its knowledge blocks do not go to the
+   learning-cycle guards on this evidence.
+2. This table is spent. It can serve as selection data later, never again as
+   a blind test.
+3. A real blind test needs about 40 nulls. Abstract searches will not supply
+   them. Two sources could: a newer NIMS release with its measured nulls, or
+   full-text reading of property papers, which needs library access.
+4. The exploratory finding above deserves a planned test: train the ranking
+   of record's learner on NIMS data and compare the two on held-out
+   experimental labels.
