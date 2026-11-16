@@ -1,0 +1,174 @@
+mp_id,formula,original_slice,supercon2_first_year,superconductor,first_report_year,tc_k,doi,note
+mp-aaaablrp,AlCl3,final,2017,no,,,,"Aluminium chloride is a salt and is not a superconductor, and the paper concerns FeSe crystals."
+mp-aaacnhux,BaCuS2,final,2020,no,,,,"The only BaCuS2 superconductivity paper (Chinese Phys. Lett. 2021, DOI 10.1088/0256-307x/38/1/017501) is a calculation that suggests superconductivity, and no measurement was found."
+mp-aaaabpya,CaAsPt,final,2019,yes,2019,1.5,10.1103/physrevlett.124.207001,"Noncentrosymmetric CaPtAs is superconducting with Tc of about 1.5 K (PRL 2020 abstract read, DOI verified); the earliest paper found is the arXiv preprint 1912.01993 (2019) with the journal version 10.1007/s11433-019-1488-5 published in 2020."
+mp-aaacjhxa,CaBi2,final,2019,yes,2016,2.0,10.1039/c6cp02856j,"Bulk superconductivity with Tc = 2.0 K was reported for self-flux-grown CaBi2 single crystals in PCCP 2016 (DOI verified, abstract read); the cited 2019 paper treats it as known."
+mp-aaaaaqsg,CaSn3,final,2017,yes,2015,1.178,10.1088/1361-648x/ab0f0d,"Zhu et al. 2019 (DOI verified) reports intrinsic bulk superconductivity below 1.178 K at ambient pressure in CaSn3; the earliest report found is Luo et al. 2015 (DOI 10.1039/c5tc02373d, verified) on CaSn3 single crystals, which claimed Tc 4.2 K that Zhu et al. attribute to surface Sn."
+mp-aaacjwsw,Ce(AsRh)2,final,2021,yes,2021,0.26,10.1103/physrevx.12.031001,"Landaeta et al. (PRX 2022) report Tc = 0.26 K for CeRh2As2 single crystals, and Khim et al. (Science 2021, doi 10.1126/science.abe7518) is the earliest report I found, so an earlier report may exist; the abstracts do not state the pressure, and pressure is known to suppress superconductivity in this compound."
+mp-aaaaaihp,Ce(SiAg)2,final,2017,unclear,,,,"The search returned only a review of ThCr2Si2 f-electron compounds, so the CeAg2Si2 superconductivity and its pressure condition could not be confirmed."
+mp-aaaaafhe,Ce(SiRu)2,final,2017,no,,,,Takahashi et al. 2003 found no superconductivity in undoped CeRu2Si2 down to 170 microkelvin; the Ce(SiRu)2 note paper studies PuCoGa5.
+mp-aaaabiat,Ce2BiO2,final,2021,no,,,,Ce2O2Bi is an antiferromagnetic Kondo lattice (10.1016/j.jallcom.2020.155229) with no superconductivity reported.
+mp-aaaabdhv,Co3(SnS)2,final,2019,no,,,,Co3Sn2S2 is a ferromagnetic Weyl semimetal; the abstract reports no superconductivity.
+mp-aaabeuyz,CrGeTe3,final,2016,no,,,,"Known van der Waals ferromagnet, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaacflkp,DyBiPd,final,2018,unclear,,,,"Nakajima et al. (Sci. Adv. 2015) report superconductivity suppressed with rising de Gennes factor in the RPdBi family, but whether DyPdBi itself superconducts was not confirmed."
+mp-aaacjjso,EuAs3,final,2020,no,,,,Cheng et al. 2021 (DOI 10.1038/s41467-021-26482-7) reports magnetism-induced topological transitions in EuAs3 with no superconductivity.
+mp-aaabfyqp,FeAsS,final,2017,no,,,,"FeAsS is an arsenosulfide mineral with no reported superconductivity, and the first reader's paper concerns FeS."
+mp-aaacjkuv,FeB4,final,2018,yes,2013,2.9,10.1103/physrevlett.111.157002,"Gou et al. report bulk superconductivity below 2.9 K in FeB4 single crystals made at high pressure, but Wang et al. (J. Materiomics 2015) found no superconductivity down to 2.5 K, so the result is disputed."
+mp-aaacrsfr,FeCl4,final,2018,no,,,,"FeCl4 is a tetrachloroferrate anion or salt, not a superconductor; the paper is a review of organic charge-transfer solids."
+mp-aaacginn,Hf(VGa2)2,final,2018,unclear,,,,"Experimental HfV2Ga4 superconductivity is reported (Santos et al. 2018, DOI 10.1016/j.physleta.2018.02.018; Bhattacharyya et al. 2020, DOI 10.1103/physrevresearch.2.022001), but no read experimental abstract states a Tc; Ferreira et al. 2018 quotes Tc 4.1 K but is a calculation."
+mp-aaaaaflq,KCuF3,final,2016,no,,,,"Orbital-ordered Mott insulator with no superconductivity reported; the input row had no DOI, so the search was on the formula."
+mp-aaabgjzw,La(AsRu)2,final,2016,yes,2016,7.8,10.1007/s11434-016-1080-4,"LaRu2As2 superconductivity at 7.8 K was reported in Science Bulletin 2016 (DOI verified by Crossref); Tc is taken from the title because the abstract was not retrieved, and bulk character is not confirmed from text read."
+mp-aaabjaln,La2Ni5C3,final,2020,unclear,,,,"Only LaNiC2 superconductivity was found (DOI 10.1103/physrevb.103.014511), a different stoichiometry; no report on La2Ni5C3 was located."
+mp-aaaabegp,LaInPt,final,2021,no,,,,"LaPtIn is reported not to superconduct down to 0.4 K in the 2021 LaPdIn paper (PRB 104, 024505)."
+mp-aaacipat,LaNi,final,2020,unclear,,,,No superconductivity report for LaNi was found; the superconducting La2Ni2In paper (DOI 10.1103/physrevb.102.165125) is a different compound.
+mp-aaacjjgb,LiNbO3,final,2016,no,,,,"Ferroelectric insulator and nonlinear optics material, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaaaaqgq,NaYbSe2,final,2021,no,,,,"Magnetic spin-liquid candidate insulator with no superconductivity; plainly not one, so no search was run, and this agrees with the first reader."
+mp-aaabqyfk,Nb3N5,final,2020,unclear,,,,No abstract was found and no Nb3N5 superconductivity report surfaced in searches; the title concerns delta-NbN.
+mp-aaacqvvu,Nb5SiB2,final,2016,unclear,,,,"McGuire et al. (PRB 2016, DOI 10.1103/physrevb.93.064507) reports superconductivity in the Nb5Si3-xBx family at 5.8 to 7.8 K, but the abstract does not state the Nb5SiB2 composition, so it could not be confirmed."
+mp-aaaaadvg,NbB,final,2017,no,,,,The cited paper is titled 'Absence of superconductivity in NbB' (10.1103/physrevmaterials.1.044803) and attributes the observed superconductivity to a minority Nb-rich phase.
+mp-aaacksac,NdIr3,final,2019,unclear,,,,"The Ir-based search found superconducting CeIr3 (2.5 K, ambient) but no NdIr3 report, so NdIr3 could not be assessed."
+mp-aaaaabft,RuO2,final,2020,no,,,,"Superconductivity appears only in epitaxially strained RuO2 films (Uchida et al., PRL 2020, DOI 10.1103/physrevlett.125.147001), and bulk RuO2 is not reported superconducting."
+mp-aaaaabcv,SmN,final,2016,unclear,,,,The abstract reports superconductivity coexisting with ferromagnetism in SmN and SmN/GdN superlattices but does not say whether the sample is bulk or film.
+mp-aaaaabta,SnS2,final,2020,no,,,,The DFT study of SnSe2 and SnS2 under pressure measures no ambient-pressure superconductivity.
+mp-aaaaaazp,SnSe2,final,2018,no,,,,"The abstract reports 2D superconductivity in SnSe2 only when induced by electrostatic gating in an electric-double-layer transistor, which is an excluded route."
+mp-aaabggyc,Sr(BiPd)2,final,2016,yes,2016,2.0,10.1021/acs.inorgchem.5b02900,"Tetragonal SrPd2Bi2 (CaBe2Ge2-type polymorph) is superconducting at 2.0 K per this 2016 Inorganic Chemistry paper (DOI verified, abstract read); the monoclinic polymorph is not superconducting."
+mp-aaaaanwt,Sr(SnAs)2,final,2021,no,,,,"SrSn2As2 is superconducting only under pressure (Cao et al. 2024, doi 10.1002/apxr.202300149), not at ambient pressure."
+mp-aaaaayba,Th(SiAu)2,final,2019,unclear,,,,No experimental superconductivity report for ThAu2Si2 was found; the only hits were a ThCr2Si2-type ab initio screen and an unrelated UAu2Si2 magnetism paper.
+mp-aaacevua,TiAu,final,2018,no,,,,"TiAu is an itinerant antiferromagnetic metal (Wolowiec et al. 2017, DOI 10.1103/physrevb.95.214403); no superconductivity is reported."
+mp-aaacrfeo,W2N3,final,2019,unclear,,,,"Searches found only first-principles studies of hexagonal W2N3 that do not discuss superconductivity, so nothing was established either way."
+mp-aaacixpm,Y2BiO2,final,2020,no,,,,"Pristine Y2O2Bi is nonsuperconducting; superconductivity appears only after oxygen incorporation (Sei et al. 2016, DOI 10.1021/jacs.6b05275)."
+mp-aaaaaghk,YCoC2,final,2019,unclear,,,,No experimental paper on YCoC2 superconductivity was found; the 2019 APL topology paper only cites a reported Tc of 4.2 K and the originating paper was not located.
+mp-aaacpquz,Zr5Pt3,final,2021,yes,2018,6.4,10.1088/2053-1591/aad9cf,"Hamamoto and Kitagawa 2018 (DOI verified) abstract gives Tc 6.4 K for parent Zr5Pt3 at ambient pressure; this is the earliest experimental report I found, though an older Mn5Si3-type superconductivity paper (Waterstrat et al. 1990, DOI 10.1016/0022-5088(90)90302-z) may cover Zr5Pt3 and its abstract was not available to read."
+mp-aaabevqu,ZrBrN,final,2018,no,,,,"ZrNBr is superconducting only when electrostatically gated (Wang et al. 2019), not intrinsically at ambient pressure."
+mp-aaaaafvm,ZrSiS,final,2018,no,,,,"ZrSiS shows superconductivity only with a metallic silver tip on the surface, and high-pressure resistivity shows none up to about 20 GPa."
+mp-aaacfybz,ZrTe2,final,2021,no,,,,"Undoped ZrTe2 becomes superconducting only under pressure (Zhu et al., Adv. Sci. 2023, DOI 10.1002/advs.202301332), and the superconducting Te-deficient ZrTe1.8 is a different composition."
+mp-aaaaaaeu,Ag,selection,2001,no,,,,Elemental silver is a normal metal at ambient pressure; the cited paper uses Ag only as an electrode (answered without search).
+mp-aaaaabrz,Al2O3,selection,2000,no,,,,Al2O3 is an insulating substrate; the paper concerns proton irradiation of YBCO films.
+mp-aaaaaogl,AlAgO2,selection,2012,no,,,,"The only AgAlO2 result is a first-principles prediction of Tc for hole-doped delafossites, with no measured superconductivity."
+mp-aaaaayoz,AlAuO2,selection,2015,no,,,,"AlAuO2 is only a calculation-based design of a delafossite fermion system, with no measured superconductivity (answered without search)."
+mp-aaaaaepe,AlCuO2,selection,2011,no,,,,"The cited work is a calculation-only design of superconductivity in hole-doped CuAlO2 with no measured superconductivity (answered from the first reader note, not searched)."
+mp-aaaaadvt,AlNi3,selection,2013,no,,,,"Only a 2026 electronic-structure study of AlNi3 turned up, with no superconductivity reported; the evidence is thin."
+mp-aaaaaalu,B2O3,selection,2012,no,,,,B2O3 is a glass-forming insulator and the cited paper is about boron doping of YBCO (answered without search).
+mp-aaaaacex,BP,selection,2005,no,,,,"Semiconductor, not a superconductor; the cited paper is about MgB2 films, which agrees with the first reader."
+mp-aaabgnep,Ba(CrAs)2,selection,2013,no,,,,"BaCr2As2 is an itinerant antiferromagnetic metal (Singh et al. 2009, DOI 10.1103/physrevb.79.094429; Filsinger et al. 2017, DOI 10.1103/physrevb.95.184414); no superconductivity is reported."
+mp-aaaaanrr,Ba(CuAs)2,selection,2013,no,,,,"BaCu2As2 is a nonsuperconducting metal in the ThCr2Si2 form, and superconductivity was reported only under pressure in a different polymorph (Wu et al., APS abstract, 2021)."
+mp-aaagjexi,Ba(FeAs)2,selection,2008,no,,,,"Ambient-pressure BaFe2As2 is not superconducting; superconductivity appears only under pressure (10.1103/physrevb.81.224511) or with doping, as in the cited work."
+mp-aaaaaxci,Ba(MnAs)2,selection,2013,no,,,,"BaMn2As2 is an antiferromagnetic semiconductor (Singh et al. 2009, DOI 10.1103/physrevb.79.094519); superconductivity appears only as a pressure-based suggestion."
+mp-aaaaakzr,Ba(ZnAs)2,selection,2013,no,,,,"BaZn2As2 is a narrow-gap semiconductor (about 0.23 eV, 10.1021/ja507890u) and no superconductivity was found; the cited work is on diluted magnetic semiconductors."
+mp-aaaaabnp,BaF2,selection,2005,no,,,,"BaF2 is an ionic fluoride used as a substrate, and the paper cited is about superconducting films on it."
+mp-aaaaajou,BaNd2ZnO5,selection,2013,no,,,,"BaNd2ZnO5 is studied for spin-chain frustration, not superconductivity (answered from the first reader note, not searched)."
+mp-aaaaafrm,BaZrO3,selection,2005,no,,,,BaZrO3 is a perovskite oxide used as an insulator or substrate and is not a superconductor; the cited paper is about Dy123.
+mp-aaacdqds,Bi2Rh3S2,selection,2015,no,,,,"Bi2Rh3S2 shows a structural transition near 165 K and no superconductivity down to 0.5 K, with bulk superconductivity only in Bi2Rh3.5S2 (10.1103/physrevb.91.174513)."
+mp-aaacdhkb,BiS2,selection,2014,no,,,,Binary BiS2 is not a known superconductor; the cited paper is on Sr0.5La0.5FBiS2 under pressure only.
+mp-aaackiha,BiSe2,selection,2015,unclear,,,,"No superconductivity report for the BiSe2 stoichiometry was found; the superconducting BiSe2-layer compound found is LaO0.5F0.5BiSe2, a different compound, and Bi2Se3 is superconducting only under pressure or after intercalation."
+mp-aaaaaaav,Ca,selection,2008,unclear,,,,"No ambient-pressure calcium superconductivity paper was retrieved, and the pressure reports were not reached, so the answer is not settled."
+mp-aaabgkec,Ca(CoAs)2,selection,2015,no,,,,CaCo2As2 is studied as an antiferromagnet or metamagnet (for example 10.1103/physrevb.92.144416) and no superconductivity was reported in the papers found.
+mp-aaabgkcn,Ca3(B3Rh4)2,selection,2013,unclear,,,,No superconductivity report for a calcium rhodium boride was found; searches returned only rare-earth Rh borides.
+mp-aaaaaebl,CaF2,selection,2013,no,,,,"CaF2 is an insulating fluoride, and the paper treats it as a substrate for iron-based superconducting films."
+mp-aaaabrih,CaMn7O12,selection,2014,no,,,,"CaMn7O12 is a multiferroic oxide with no superconductivity reported; the cited paper concerns BaFe2Se3 (answered from the first reader note, not searched)."
+mp-aaaabezr,CaRuO3,selection,2001,no,,,,"The ruthenate studied shows metal-insulator transitions and magnetic order, with no superconductivity, per the first reader's note."
+mp-aaaaaazw,CdS,selection,2009,no,,,,"Semiconductor, not a superconductor; the cited chapter is about organic superconductors, which agrees with the first reader."
+mp-aaaaatxz,Ce(GePd)2,selection,2006,no,,,,CePd2Ge2 is an antiferromagnet (TN 5.1 K) and no superconductivity is reported for it at ambient pressure in the papers found.
+mp-aaaabhbj,Ce(GeRu)2,selection,2013,no,,,,CeRu2Ge2 is a ferromagnetic heavy fermion; under pressure it becomes nonmagnetic near 10 GPa with no superconductivity down to 60 mK (10.1103/physrevb.57.5025).
+mp-aaaabfby,Ce(NiAs)2,selection,2013,unclear,,,,"CeNi2As2 in the ThCr2Si2 form is an antiferromagnet (TN 4.8 K) per Luo et al. 2012, and an unreviewed 2026 preprint reports superconductivity in the CaBe2Ge2-type polymorph, so the structure of this record cannot be settled."
+mp-aaaabdws,CeO2,selection,2006,no,,,,CeO2 is a nonsuperconducting oxide and the record had no title or DOI; no CeO2 superconductivity paper was found.
+mp-aaaabfqa,CePRuO,selection,2011,unclear,,,,"Not searched directly; the related ZrCuSiAs-type phosphide oxide hits report no superconductivity but do not cover this composition, so the answer is not settled."
+mp-aaacfyxi,CeSbPd,selection,2003,unclear,,,,"Searches on CePdSb returned no superconductivity report, but no paper on this compound could be read."
+mp-aaaabbtc,Co3O4,selection,2008,no,,,,"Spinel insulator, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaaaaark,CoAs3,selection,2013,unclear,,,,No report of superconductivity in CoAs3 was found in the searched literature.
+mp-aaaaabkn,CoPt,selection,2008,no,,,,"CoPt is a ferromagnet; the superconductivity reported (Rakshit et al. 2008, DOI 10.1103/physrevb.77.094505) is of NbN in NbN-CoPt film bilayers."
+mp-aaaaabjm,CoPt3,selection,2003,no,,,,"Magnetic CoPt3 nanocrystal study on superparamagnetism; no superconductivity reported (answered from the first reader note, not searched)."
+mp-aaaabcjp,CrO2,selection,2010,no,,,,CrO2 is a ferromagnet; the paper is on percolation in MgB2 and CrO2 nanocomposites.
+mp-aaacfopj,Cs2Se,selection,2014,no,,,,"Cs2Se is an ionic salt, and the first reader's paper is a review of iron-based superconductors rather than this compound."
+mp-aaabiytj,CsCSN,selection,2012,unclear,,,,No superconductivity report for CsCSN was found; the paper on CaIrSi3 is a different compound.
+mp-aaaabrhq,CsS,selection,2012,no,,,,Cesium sulfide is an ionic salt and not a superconductor in its own right.
+mp-aaaaaadk,Dy,selection,2003,no,,,,Elemental dysprosium is an antiferromagnet at ambient pressure and not a superconductor (answered without search).
+mp-aaaabexm,Eu(FeAs)2,selection,2008,yes,2013,20-30,10.1002/pssb.201200770,"Tsvyashchenko et al. 2013 (DOI verified, title matches) abstract states that EuFe2As2 polycrystals synthesized at 8 GPa show superconductivity with Tc 20-30 K at ambient pressure, but zero resistance was not observed, so this is a weak claim; Miclea 2009 and Terashima 2009 report superconductivity only under pressure."
+mp-aaaabdsx,Eu(FeP)2,selection,2013,no,,,,The EuFe2P2 study (DOI 10.1103/physrevb.82.094426) reports ferromagnetic and Kondo behavior with no superconductivity.
+mp-aaaabfqw,EuO,selection,2000,no,,,,"Well-known ferromagnetic insulator, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaaabeau,EuP,selection,2014,no,,,,"No superconductivity reported for EuP in the literature found; the cited paper concerns iron pnictides, so this agrees with the first reader."
+mp-aaaabelv,EuS,selection,2000,no,,,,EuS is a ferromagnetic semiconductor and the cited paper is on spin-polarized tunneling with no superconductivity (answered without search).
+mp-aaaabfcb,EuSe,selection,2004,no,,,,"Known magnetic semiconductor, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaabfyet,F2,selection,2010,no,,,,"Elemental fluorine is a gas, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaaaadck,FeCo,selection,2007,no,,,,FeCo is a ferromagnetic alloy and the cited theory concerns a trilayer in which FeCo is a magnetic layer (answered without search).
+mp-aaaaaibc,FeCo2Si,selection,2013,no,,,,"Co2FeSi-type magnetic compound, not a superconductor; the cited paper is on Co2FeSi-NbN bilayers (answered without search)."
+mp-aaaaadhd,FeNi,selection,2010,no,,,,"FeNi is a magnetic alloy; the paper is on magneto-optics of irradiated Ba(Fe,M)2As2."
+mp-aaaaaeex,FePd,selection,1998,no,,,,"FePd appears only as a magnetic layer in Nb/FePd heterostructures, and no superconductivity in FePd itself was reported."
+mp-aaaaabdg,FeSe2,selection,2011,unclear,,,,No report of superconductivity in the FeSe2 pyrite phase was found; the closest match (DOI 10.1021/acs.inorgchem.8b03089) reports a spin-glass Fe-Pd-Se phase.
+mp-aaaaaafz,Gd,selection,2008,no,,,,"Elemental gadolinium is not superconducting at ambient pressure, and the paper concerns rare-earth ruthenocuprates."
+mp-aaabitdy,Gd(CoB)2,selection,2001,unclear,,,,"No superconductivity report for GdCo2B2 itself was found, and the borocarbide reviews cover only nearby compositions."
+mp-aaaabikv,GdCl3,selection,2000,no,,,,GdCl3 appears only as a parameter set in a spin-wave paper; it is a magnetic salt and not a superconductor.
+mp-aaaaachj,Ge2Pt,selection,2013,unclear,,,,No superconductivity report for Ge2Pt (PtGe2) was found; the only related paper found is on the BaPt4Ge12 skutterudite.
+mp-aaabraim,Hf3N4,selection,2013,no,,,,"Insulating nitride, not a superconductor; no search was run, and the cited paper is about LaFeAsO, which agrees with the first reader."
+mp-aaabevqt,HfNCl,selection,2001,no,,,,"Undoped HfNCl is an insulator; superconductivity appears only after electron doping by intercalation (Yamanaka et al. 1998, DOI 10.1038/33362; Felser and Seshadri 1999, DOI 10.1039/a808127a)."
+mp-aaaabilw,HgBr2,selection,2007,no,,,,"HgBr2 is a salt and the cited tunneling study concerns Bi-2212, which is the superconductor (answered from the first reader note, not searched)."
+mp-aaaabeaz,InAs,selection,2012,no,,,,"Semiconductor; superconductivity appears only in Nb/InAs junctions, an induced effect, so this agrees with the first reader."
+mp-aaacfaab,InBi,selection,2006,no,,,,Tissen et al. 1998 reports superconductivity of InBi only as a function of pressure up to 40 GPa; no ambient-pressure superconductivity is reported in the paper found.
+mp-aaaaammc,K2Se,selection,2012,no,,,,K2Se is not a known superconductor; the cited paper is on phase relations in KxFe2-ySe2 (answered without search).
+mp-aaaabjln,KP(HO2)2,selection,2000,no,,,,"KP(HO2)2 is KH2PO4 (KDP), a dielectric crystal whose pressure effects on permittivity were studied, with no superconductivity."
+mp-aaaaafja,KTaO3,selection,2006,no,,,,"Insulating perovskite; superconductivity is reported only at interfaces or in doped forms, so bulk KTaO3 is not a superconductor here."
+mp-aaaaagni,La(CoP)2,selection,2012,no,,,,"LaCo2P2 is a weak itinerant ferromagnet with no superconductivity reported, which agrees with the first reader."
+mp-aaaaacxs,La2O3,selection,2014,no,,,,"Insulating oxide, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaaaaeii,LaAlO3,selection,2010,no,,,,LaAlO3 is only the substrate in the LaFeAsO films paper.
+mp-aaaabdjx,LaCrSb3,selection,2002,no,,,,"A neutron diffraction study of LaCrSb3 itself reports coexisting magnetic orders and no superconductivity, which agrees with the first reader."
+mp-aaacfakm,LaPt,selection,2013,unclear,,,,"Searches found superconductivity in La3Pt4 below 0.51 K and in LaPt2-based phases, but no report on the 1:1 LaPt composition."
+mp-aaabfhab,LaZnAsO,selection,2013,no,,,,"LaZnAsO is a semiconductor (gap about 1.5 eV, 10.1021/ja507890u) and the cited paper is on diluted magnetic semiconductors; no superconductivity was found."
+mp-aaaaaabz,Li,selection,2003,yes,2007,0.0004,10.1038/nature05820,"Tuoriniemi et al. (Nature 2007, DOI verified by verify_reference) title reports superconductivity in lithium below 0.4 millikelvin at ambient pressure, which contradicts the note's pressure-only claim; the Tc was read from the title because the abstract was not retrieved, and the 2004 PRL on this topic only gives an upper limit."
+mp-aaacfaad,LiB,selection,2008,no,,,,"Only theory was found: LiB is computed to be an insulator, and an older calculation expects at best low-temperature superconductivity, with no measured superconductivity."
+mp-aaaaanro,LiBC,selection,2008,no,,,,"LiBC is reported as a semiconductor from optical and dielectric measurements, with no superconductivity."
+mp-aaaaacba,LiC,selection,2013,no,,,,"Only first-principles calculations of Li-graphene systems were found, with no measured superconductivity in LiC."
+mp-aaacgcvr,LiC12,selection,2015,unclear,,,,"Searched only LiC6-type intercalation results, which do not establish a superconducting LiC12 phase, so the answer is not settled."
+mp-aaacezqj,LiC6,selection,2005,no,,,,"A review chapter states that KC8 is a superconductor and LiC6 is not, so the lithium graphite intercalation compound is not superconducting at ambient pressure."
+mp-aaaabcsx,LiFeO2,selection,2014,no,,,,"LiFeO2 is only the spacer block in (LiFeO2)Fe2Se2 and is not reported superconducting (answered from the first reader note, not searched)."
+mp-aaaaaafp,Lu,selection,2008,unclear,,,,"Searches found only lutetium hydride papers and no experimental report of superconductivity in elemental Lu at ambient pressure, so none could be verified."
+mp-aaaaaafx,Mg,selection,2012,no,,,,"Elemental magnesium is not a superconductor at ambient pressure, and the paper concerns superconductivity at a metal-oxidized Mg interface."
+mp-aaacjlcf,Mg(BC)2,selection,2003,unclear,,,,"Carbon-substituted MgB2 is reported superconducting only for carbon fractions up to about 0.15, and no report was found at the Mg(BC)2 composition (x = 0.5)."
+mp-aaaaafga,MgAl2O4,selection,2008,no,,,,MgAl2O4 is a spinel insulator and substrate; the paper is about superconducting spinel oxide thin films.
+mp-aaabgjum,MgBIr,selection,2007,unclear,,,,"The only superconducting Mg-Ir-B phase found is Mg12-dIr19B16 (Tc 5.7 K, PRB 2007), a different stoichiometry, and no report on the 1:1:1 phase was found."
+mp-aaaaabwr,MgO,selection,1997,no,,,,"Insulating oxide used as a substrate, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaaaaxqk,Mn(CrS2)2,selection,2008,no,,,,Mn(CrS2)2 (MnCr2S4) is a thiospinel half-metallic antiferromagnet; the abstract reports no superconductivity.
+mp-aaaabfnt,Mn3GaC,selection,2008,no,,,,"Mn3GaC is studied for electronic structure and antiferromagnetic nesting with no superconductivity (answered from the first reader note, not searched)."
+mp-aaacfaae,MnGa,selection,2008,no,,,,"MnGa is a ferromagnetic compound, and the first reader's paper concerns ferromagnetism in ion-implanted (Ga,Mn)P."
+mp-aaaabdya,MnGaNi2,selection,2002,no,,,,MnGaNi2 is a ferromagnetic Heusler alloy; the abstract covers its order-disorder transition and no superconductivity.
+mp-aaaaacdb,MnSi,selection,2000,no,,,,MnSi is a well-known helimagnet; the quantum phase transition review does not show superconductivity in MnSi.
+mp-aaaaaeed,MoN,selection,2007,no,,,,"Superconductivity in NaCl-type MoN was reported only in films (10.1088/0305-4608/14/7/005, 10.1103/physrevb.73.052504), not in bulk samples."
+mp-aaaaaaaz,N2,selection,2003,no,,,,"Nitrogen is a gas, and the paper concerns MgB2 thin films."
+mp-aaaaaaex,Na,selection,2002,no,,,,"Elemental sodium becomes superconducting only at very high pressure, and the paper cited is a Hubbard-model study of carbon nanotubes."
+mp-aaaabgua,NaFeAs,selection,2008,unclear,,,,"Parker et al. 2009 (DOI 10.1039/b818911k) reports superconductivity coexisting with magnetic order in NaFeAs, but the abstract read gives no Tc and the DOI was not run through verify_reference, so no yes can be given."
+mp-aaaabcfz,NaVO3,selection,2014,no,,,,NaVO3 is an oxide insulator; the paper is a spin-isospin model of NaV2O5.
+mp-aaaaaaet,Nd,selection,2006,no,,,,"Elemental neodymium is a magnetic metal with no ambient-pressure superconductivity reported; no search was run, and this agrees with the first reader."
+mp-aaaaacse,NdNi5,selection,2007,no,,,,"NdNi5 is a magnetic intermetallic with no reported bulk superconductivity, so the first reader's note stands."
+mp-aaaaaaax,Ni,selection,2001,no,,,,"Elemental nickel is not superconducting at ambient pressure, and the paper concerns the cuprate YBa2Cu4O8 with Ni as a dopant."
+mp-aaaaadju,NiS2,selection,2000,no,,,,"NiS2 is a pyrite-type Mott insulator, and the first reader's paper shows only its magnetic phase diagram and metal-insulator transition."
+mp-aaaaadwq,NpO2,selection,2014,no,,,,"NpO2 is an actinide oxide; the paper is on multipole Coulomb interactions and magnetic moments, with no superconductivity."
+mp-aaaaahgq,Pr(SiRu)2,selection,2014,no,,,,"PrRu2Si2 is a magnetic compound with a crystal-field ground state (Mulders et al., PRB 1997), and no superconductivity was reported."
+mp-aaaabfpd,PuGa3,selection,2005,no,,,,"Searches found no PuGa3 superconductivity; the Pu superconductors retrieved are PuCoGa5 and PuRhGa5, and the cited paper reports none for PuGa3."
+mp-aaaaabma,Si3N4,selection,2012,no,,,,Si3N4 is an insulator and the cited paper is a theory of topological insulator and superconductor interplay (answered without search).
+mp-aaaaakgg,SiO2,selection,2013,no,,,,SiO2 is only the substrate in the TaN thin-film paper.
+mp-aaabeukn,SmSI,selection,2010,no,,,,"No superconductivity reported for SmSI; the cited paper is a calculation on TiNCl-type layered nitrides (answered from the first reader note, not searched)."
+mp-aaabgmzj,Sr(CoAs)2,selection,2015,no,,,,"SrCo2As2 is a nonsuperconducting paramagnetic metal at ambient pressure (10.1103/physrevb.91.220406), and the cited paper concerns only a pressure-induced collapsed-tetragonal phase."
+mp-aaaaavja,Sr2YRuO6,selection,1997,no,,,,"Sr2YRuO6 is studied as an insulating magnet from band calculations with no superconductivity (answered from the first reader note, not searched)."
+mp-aaaaairs,Sr3Ru2O7,selection,2000,no,,,,"Pure Sr3Ru2O7 has not been reported superconducting (Kittaka et al. PRB 2008, doi 10.1103/physrevb.77.214511), and a later preprint finds none down to 15 mK, while apparent superconductivity appears only in Sr2RuO4-intergrown eutectic crystals."
+mp-aaacribg,SrLaAlO4,selection,2010,no,,,,"Substrate material for film growth, not a superconductor; no search was run, and this agrees with the first reader."
+mp-aaacrhyc,SrNdMn2O6,selection,2001,no,,,,"This manganite shows magnetic relaxation, and the first reader's note found no superconductivity indicated."
+mp-aaaaagsb,SrRuO3,selection,1997,no,,,,"SrRuO3 is an itinerant ferromagnet and the cited paper is a Stoner-theory calculation with no superconductivity (answered from the first reader note, not searched)."
+mp-aaaaadyj,SrSi,selection,2014,unclear,,,,"Only a 1980 title on SrSi2 superconductivity (Evers et al., DOI 10.1016/0022-5088(80)90297-0) was found, with no abstract read; SrSi does not match the SrSi2 stoichiometry."
+mp-aaaaabqq,TaB2,selection,2001,unclear,,,,"Kaczorowski et al. (arXiv cond-mat/0103571) abstract reports Tc 9.5 K, but that DOI is not registered with Crossref, and other 2001 TaB2 studies found no superconductivity down to 1.5 K."
+mp-aaaabhay,TaInS2,selection,2013,unclear,,,,No TaInS2 superconductivity report was found; the cited paper concerns PbTaSe2 and searches returned only TaS2 and TaB2 results.
+mp-aaaaabxf,TaN,selection,2013,unclear,,,,"Searches returned no bulk TaN superconductivity paper, only the film work the first reader noted, so the bulk question could not be settled."
+mp-aaacqqnf,Th2NiC2,selection,2013,yes,2012,11.2,10.1088/0953-2048/25/4/045010,"Machado et al. report Th2NiC2 as a new bulk superconductor, with Tc 11.2 K for the Sc-substituted Th1.8Sc0.2NiC2, and the undoped phase is quoted at Tc 8.5 K in a later abstract (Quan and Pickett 2013)."
+mp-aaaaalnq,Ti2N,selection,2012,no,,,,"Searches for Ti2N and TiN bulk superconductivity returned only MXene and calculation papers, with no measured superconductivity."
+mp-aaaaaapa,TiO2,selection,2002,no,,,,TiO2 is a wide-gap oxide insulator and is not superconducting.
+mp-aaaaahaa,UGa5Co,selection,2013,no,,,,"UCoGa5 is a Pauli paramagnet that is not superconducting above 0.3 K, and the superconductor in this family is PuCoGa5."
+mp-aaaaadel,USe,selection,2002,no,,,,USe is a magnetic actinide chalcogenide named only as an example in a theory of itinerant ferromagnetism.
+mp-aaaabhwf,XeF2,selection,2015,no,,,,"XeF2 is a fluorinating gas reagent; the paper is on Bi2(O,F)S2 superconductors."
+mp-aaaaaaei,Y,selection,1996,no,,,,"Elemental yttrium is superconducting only under high pressure (Hamlin et al., PRB 2006, DOI 10.1103/physrevb.73.094522), and no ambient-pressure report was found."
+mp-aaacjlqg,Y(NiB)2,selection,2015,no,,,,Only the carbide YNi2B2C is superconducting at ambient pressure; the boride YNi2B2+x was reported superconducting only as high-pressure phases.
+mp-aaaaatby,Y2SO2,selection,2014,no,,,,"The cited work is on yttrium substitution in La1-xYxO0.5F0.5BiS2; Y2SO2 is not reported superconducting (answered from the first reader note, not searched)."
+mp-aaaaazao,Y2Si5Ni3,selection,2012,unclear,,,,"Only ab initio papers on Lu2Ni3Si5 and Y2Ni3Si5 were found, and no measurement of superconductivity in Y2Ni3Si5 was located."
+mp-aaaabrzh,YBRh3,selection,2006,unclear,,,,"Takei et al. 1986 (DOI 10.1016/0022-5088(86)90098-6) has a title claiming superconducting properties of YRh3B, but no abstract giving a Tc was available; the 2006 Sc3XB paper only compares with YRh3B."
+mp-aaacfkbg,YBiPd,selection,2015,yes,2015,1.0,10.1103/physrevb.98.241111,"Radmanesh et al. report superconductivity in YPdBi single crystals with Tc about 1 K, and the earliest report I found is the 2015 Nakajima et al. RPdBi family paper, whose abstract does not name YPdBi explicitly."
+mp-aaackrwj,YCoGe,selection,2011,no,,,,"NQR and NMR on YCoGe show conventional metallic behaviour and no superconducting transition down to 0.3 K (JPSJ 2011, doi 10.1143/jpsj.80.064711)."
+mp-aaaaacsa,YbS,selection,2014,no,,,,"The cited superconductivity is interface superconductivity in strained topological crystalline insulators, not bulk YbS (answered from the first reader note, not searched)."
+mp-aaaaacyk,ZnO,selection,2002,no,,,,"ZnO is a wide-gap semiconductor and the cited paper reports ferromagnetism, not superconductivity (answered without search)."
+mp-aaaaaorx,ZrCuSiAs,selection,2008,unclear,,,,No superconductivity report for the ZrCuSiAs compound itself was found; the ZrCuSiAs-type results are for doped or other members of the structure family.
