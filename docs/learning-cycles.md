@@ -193,7 +193,7 @@ measured sample was made a little off-ratio on purpose (to make up for loss
 during melting) or was found slightly off by analysis? Under today's rule,
 no.
 
-## Cycle 2: result, 2026-11-16 03:45 UTC: no correction passed, so no retraining
+## Cycle 2: result, 2026-11-16 03:36 UTC: no correction passed, so no retraining
 
 **Batch:** the six alloy rows that the blinded check of 80 negatives
 (`docs/negative-labels.md`) called "most likely also wrong": TlIn19, CdHg19,
