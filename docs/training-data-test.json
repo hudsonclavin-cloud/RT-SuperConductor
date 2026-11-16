@@ -1,0 +1,171 @@
+{
+ "learner": {
+  "learning_rate": 0.05,
+  "max_leaf_nodes": 31,
+  "min_samples_leaf": 20,
+  "l2_regularization": 1.0
+ },
+ "folds": 5,
+ "training_rows": {
+  "record": 13644,
+  "nims": 15496
+ },
+ "labels": {
+  "record": {
+   "1": 10381,
+   "0": 3263
+  },
+  "nims": {
+   "1": 12686,
+   "0": 2810
+  }
+ },
+ "shared_compositions": {
+  "shared_compositions": 12461,
+  "labels_differ": 55,
+  "fraction": 0.0044,
+  "kinds": {
+   "record superconductor, NIMS null": 35,
+   "record negative, NIMS superconductor": 20
+  }
+ },
+ "scored_on": {
+  "record_rows": {
+   "intermetallics": {
+    "rows": 6637,
+    "superconductors": 5105,
+    "nulls": 1532,
+    "auc": {
+     "record": 0.8348,
+     "nims": 0.8231,
+     "both": 0.8367
+    },
+    "both_minus_record": {
+     "difference": 0.0019,
+     "interval_95": [
+      -0.0044,
+      0.0091
+     ],
+     "interval_99": [
+      -0.0064,
+      0.0114
+     ]
+    },
+    "both_minus_nims": {
+     "difference": 0.0136,
+     "interval_95": [
+      0.0047,
+      0.0255
+     ],
+     "interval_99": [
+      0.0019,
+      0.0292
+     ]
+    }
+   },
+   "all_families": {
+    "rows": 13644,
+    "superconductors": 10381,
+    "nulls": 3263,
+    "auc": {
+     "record": 0.8119,
+     "nims": 0.7807,
+     "both": 0.813
+    },
+    "both_minus_record": {
+     "difference": 0.0011,
+     "interval_95": [
+      -0.0061,
+      0.0077
+     ],
+     "interval_99": [
+      -0.0078,
+      0.0093
+     ]
+    },
+    "both_minus_nims": {
+     "difference": 0.0323,
+     "interval_95": [
+      0.0229,
+      0.0419
+     ],
+     "interval_99": [
+      0.0205,
+      0.0446
+     ]
+    }
+   }
+  },
+  "nims_rows": {
+   "intermetallics": {
+    "rows": 8403,
+    "superconductors": 6672,
+    "nulls": 1731,
+    "auc": {
+     "record": 0.8255,
+     "nims": 0.847,
+     "both": 0.8435
+    },
+    "both_minus_record": {
+     "difference": 0.018,
+     "interval_95": [
+      0.0108,
+      0.026
+     ],
+     "interval_99": [
+      0.0085,
+      0.0275
+     ]
+    },
+    "both_minus_nims": {
+     "difference": -0.0035,
+     "interval_95": [
+      -0.0087,
+      0.0016
+     ],
+     "interval_99": [
+      -0.0108,
+      0.0026
+     ]
+    }
+   },
+   "all_families": {
+    "rows": 15496,
+    "superconductors": 12686,
+    "nulls": 2810,
+    "auc": {
+     "record": 0.8058,
+     "nims": 0.828,
+     "both": 0.8258
+    },
+    "both_minus_record": {
+     "difference": 0.02,
+     "interval_95": [
+      0.0138,
+      0.0261
+     ],
+     "interval_99": [
+      0.012,
+      0.0285
+     ]
+    },
+    "both_minus_nims": {
+     "difference": -0.0022,
+     "interval_95": [
+      -0.0087,
+      0.0052
+     ],
+     "interval_99": [
+      -0.0113,
+      0.007
+     ]
+    }
+   }
+  }
+ },
+ "verdict": {
+  "both_helps_on_nims_rows": true,
+  "both_holds_on_record_rows": true,
+  "reading": "candidate change to the ranking of record: propose it to the owner"
+ }
+}
