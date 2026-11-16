@@ -207,3 +207,20 @@ What it means:
   reachable from a university library) and record each in
   `data/training/negative_evidence.csv`.
 - Nothing was relabelled.
+
+### Note on the wrong-negative lists above, after the first learning cycle (2026-11-16)
+
+The owner's correction rule (`docs/learning-cycles.md`) needs the paper's own
+text to state superconductivity for the table's composition. Under it, two of
+the seven rows listed above were applied: YRu3B2 and LuRu3B2. The other five
+are held back for now:
+- **Ti3V22 is not shown to be a wrong negative.** The blinded check above
+  calls it "[Certain]". Its source measured V0.90Ti0.10, while the table row is
+  V0.88Ti0.12, and no measurement at or bracketing that composition was found.
+  The correct label is "probably wrong, not shown".
+- **ScS and W3Re2C** are held back on composition only: their samples were
+  made a few at.% off the named compound. Whether that counts is the owner's
+  open question.
+- **WB and NbS** could not be read beyond their titles or abstracts.
+
+The tables above are unchanged.
