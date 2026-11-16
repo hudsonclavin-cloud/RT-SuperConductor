@@ -57,3 +57,22 @@ def test_crystal_system_boundaries():
 def test_system_fold_is_stable_and_spread():
     assert R.system_fold("Nb-Sn") == R.system_fold("Nb-Sn")
     assert len({R.system_fold(f"X{i}-Y") for i in range(200)}) == 5
+
+
+def short(mp, system, proto):
+    return {"mp_id": mp, "element_system": system, "prototype": proto}
+
+
+def test_capped_head_limits_systems_and_prototypes():
+    rows = [short("a", "Nb-Sn", "p1"), short("b", "Nb-Sn", "p1"), short("c", "Nb-Sn", "p2"),   # third Nb-Sn dropped
+            short("d", "V-Si", "p1"), short("e", "Ta-Sb", "p1"),                                # fourth p1 dropped
+            short("f", "Zr-Pb", "p2")]
+    assert [r["mp_id"] for r in R.capped_head(rows, size=4)] == ["a", "b", "d", "f"]
+
+
+def test_matched_controls_prefer_the_same_prototype_and_avoid_shortlist_systems():
+    shortlist = [short("a", "Nb-Sn", "p1"), short("b", "V-Si", "p2")]
+    eligible = shortlist + [short("c", "Nb-Sn", "p1"), short("d", "Ta-Sb", "p1"), short("e", "Zr-Pb", "p3")]
+    controls = R.matched_controls(shortlist, eligible, seed=0)
+    assert [c["mp_id"] for c in controls] == ["d", "e"]          # c shares a shortlist system; no p2 is left for b
+    assert [c["matched_prototype"] for c in controls] == [True, False]

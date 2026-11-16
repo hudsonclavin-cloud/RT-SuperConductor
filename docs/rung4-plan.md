@@ -266,3 +266,28 @@ every commit here a new ID. The authored times are unchanged:
 | `31a7e6f` (first correction, 07:01:14 UTC) | `798ae2f` |
 
 The plan itself is `37919ec` (06:55:23 UTC).
+
+## Step 3: decision and method, written 2026-11-16 07:49 UTC, before the pool was scored
+
+**Decision.** The owner left this to my discretion on 2026-11-16. **The
+physics proxy is not used in step 3**: T2 failed, and adding the proxy
+lowered experimental AUC by 0.069. The shortlist uses the ranking of record
+alone. This follows the plan's "Risks" section and departs from the wording
+of its step 3.
+
+**Ranking.** The stability test (`docs/stable-ranking.md`) did not support
+the bagged ranking, so the pool is scored by the single model: cycle 3's five
+final boosting models, averaged as for the made metals.
+
+**Rules, as in the plan and made exact here** (`scripts/rung4.py shortlist`):
+- Order the 4,014 by rounded probability, ties by probability times Tc.
+- Keep those on the hull (2,399).
+- Walk down the order, taking at most 2 per element system and 3 per
+  prototype, until 20 are taken.
+- Controls: for each shortlisted compound, one compound drawn at random
+  (seed 2026) from the on-hull pool, of the same prototype where one is left,
+  from an element system not already used.
+
+**Prediction** [Speculative]: the 20 will be dominated by two or three
+element families the model already favours (lead, bismuth and barium
+compounds, and transition-metal borides or carbides): 70%.
