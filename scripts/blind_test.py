@@ -184,6 +184,8 @@ def build_table(records: list[dict], verdicts: dict[str, dict], nims_systems: se
                      "first_year": min(int(r["year"]) for r in group),
                      "first_report": "yes" if any(r["first_report"] == "yes" for r in chosen) else "no_or_unclear",
                      "family": M.family(set(fractions)), "element_system": "-".join(sorted(fractions)),
+                     "first_harvest": "yes" if any(int(r.get("cell", "y0-t1").split("-t")[1]) in THEMES
+                                                   for r in group) else "no",
                      "identifiers": " ".join(sorted({r["identifier"] for r in group})),
                      "record_ids": " ".join(r["record_id"] for r in group)})
     steps["in_a_new_element_system"] = len(rows)
@@ -191,7 +193,7 @@ def build_table(records: list[dict], verdicts: dict[str, dict], nims_systems: se
 
 
 TABLE_FIELDS = ["composition", "formula", "label", "tc_k", "null_lowest_k", "first_year", "first_report", "family",
-                "element_system", "identifiers", "record_ids"]
+                "element_system", "first_harvest", "identifiers", "record_ids"]
 
 
 def cmd_table() -> dict:
@@ -225,6 +227,8 @@ def cmd_table() -> dict:
                "intermetallics": {"compositions": len(other), "superconductors": sum(r["label"] for r in other),
                                   "nulls": sum(1 - r["label"] for r in other)},
                "power_rule": {"needs_compositions": POWER_COMPOSITIONS, "needs_nulls": POWER_NULLS}}
+    summary["intermetallics"]["nulls_from_the_first_harvest"] = sum(1 - r["label"] for r in other
+                                                                     if r["first_harvest"] == "yes")
     summary["power_rule"]["met"] = bool(len(other) >= POWER_COMPOSITIONS
                                         and summary["intermetallics"]["nulls"] >= POWER_NULLS)
     (DOCS / "table.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
@@ -285,10 +289,12 @@ def cmd_score() -> dict:
     other = family == G.PRIMARY_FAMILY
     strict_null = np.array([r["label"] == "1" or float(r["null_lowest_k"]) <= STRICT_NULL_K for r in rows])
     first = np.array([r["label"] == "0" or r["first_report"] == "yes" for r in rows])
+    harvest_one = np.array([r["first_harvest"] == "yes" for r in rows])
     report = {"champion": spec, "table_sha256": hashlib.sha256((OUT / "table.csv").read_bytes()).hexdigest(),
               "primary_intermetallics": block(other), "all_compositions": block(np.ones(len(y), dtype=bool)),
               "sensitivity": {"intermetallics_nulls_to_0.5_k_only": block(other & strict_null),
-                              "intermetallics_first_reports_only": block(other & first)},
+                              "intermetallics_first_reports_only": block(other & first),
+                              "intermetallics_first_harvest_only": block(other & harvest_one)},
               "ranking_of_record_warning": "its training table has no dates and may contain some of these compounds"}
     primary = report["primary_intermetallics"]
     report["power_rule_met"] = bool(primary.get("compositions", 0) >= POWER_COMPOSITIONS

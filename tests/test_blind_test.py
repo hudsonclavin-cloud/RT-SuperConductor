@@ -64,6 +64,17 @@ def test_table_follows_the_plan_s_rules():
     la = by_formula["LaRu3Si2"]
     assert la["label"] == 0 and la["null_lowest_k"] == 0.4 and la["record_ids"] == "r3 r4"
     assert by_formula["FeAs"]["family"] == "Ferrites"
+    assert {r["first_harvest"] for r in rows} == {"yes"}               # records without a cell count as first harvest
+
+
+def test_a_composition_found_only_by_the_second_harvest_is_marked():
+    base = {"year": "2022", "identifier": "10.1/a", "first_report": "yes", "class": "null", "temperature_k": "0.4"}
+    recs = [{**base, "record_id": "r1", "formula": "LaRu3Si2", "cell": "y2022-t7"},
+            {**base, "record_id": "r2", "formula": "NbIr2B2", "cell": "y2022-t6"},
+            {**base, "record_id": "r3", "formula": "NbIr2B2", "cell": "y2022-t4"}]
+    verdicts = {f"r{i}": {"verdict": "confirmed", "note": ""} for i in (1, 2, 3)}
+    rows, _ = B.build_table(recs, verdicts, nims_systems=set())
+    assert {r["formula"]: r["first_harvest"] for r in rows} == {"LaRu3Si2": "no", "NbIr2B2": "yes"}
 
 
 def test_a_null_measured_only_above_2_k_is_not_a_null():
