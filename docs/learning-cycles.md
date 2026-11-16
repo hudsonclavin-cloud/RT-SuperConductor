@@ -601,3 +601,97 @@ alone.
 | The made-metals top 50 keeps between 25 and 45 of cycle 3's 50 | 70% |
 | Zr6Ga2Ni stays in the top 20 | 80% |
 | Cycle 4 keeps fewer of cycle 3's top 50 than each of the three placebos does | 55% |
+
+## Cycle 4: result, 2026-11-16 19:34 UTC
+
+**Main result:** the rule's two conditions are met, so cycle 4 is the
+ranking of record **if the owner does not veto it**. The gain is on new
+compounds of the kind NIMS has; at home the scores are slightly lower, inside
+the range the placebos show. It passed the home condition narrowly.
+
+Numbers are from `docs/learning-cycles/cycle4.json` and the three
+`cycle4-placebo-<n>.json` files. The table itself did not change: no row
+moved, appeared, disappeared or changed label.
+
+**E1: the 851 added rows, each scored by the round that held its fold out.**
+
+| Rows | AUC without any added rows | AUC with the other folds' added rows | Difference | 95% interval |
+| --- | --- | --- | --- | --- |
+| All 851 (185 nulls) | 0.6790 | 0.7643 | +0.0852 | +0.0414 to +0.1317 |
+| Non-cuprates, 812 (183 nulls) | 0.6884 | 0.7734 | +0.0851 | +0.0434 to +0.1292 |
+
+**E2: the development rows, cycle 4 against cycle 3 (non-cuprates).**
+
+| | Cycle 3 | Cycle 4 | Paired difference (median, 95% interval) |
+| --- | --- | --- | --- |
+| AUC | 0.7891 | 0.7856 | −0.0037 (−0.0102 to +0.0023) |
+| Tc error, log scale (lower is better) | 0.3871 | 0.3964 | +0.0086 (−0.0025 to +0.0212) |
+
+**Placebos: 851 development rows duplicated, against cycle 3.**
+
+| Run | Non-cuprate AUC | Paired AUC difference (median) | Top 50 kept | Zr6Ga2Ni's place (was 18) |
+| --- | --- | --- | --- | --- |
+| Placebo 1 | 0.7857 | −0.0030 | 36 | 6 |
+| Placebo 2 | 0.7917 | +0.0027 | 34 | 14 |
+| Placebo 3 | 0.7879 | −0.0010 | 37 | 8 |
+| **Cycle 4** | **0.7856** | **−0.0037** | **29** | **63** |
+
+**Against the rule.**
+
+| Condition | Result | Met? |
+| --- | --- | --- |
+| E1's 95% interval above zero | +0.0434 to +0.1292 | Yes |
+| E2's median difference not below −0.005 | −0.0037 | Yes, by 0.0013 |
+
+**The strongest argument against adopting it.**
+
+- [Certain] At home every measure moved the wrong way: AUC −0.0037, Tc error
+  +0.0086, Brier score 0.1407 against 0.1392. None is outside its interval,
+  and the AUC change is lower than all three placebos'.
+- [Certain] E1 is the favourable case, as the plan said: its rows come from
+  the same source as what was added. It shows the model learned NIMS's extra
+  chemistry, not that it ranks unseen candidates better.
+- [Likely] The honest summary is a trade: clearly better on about 850
+  compounds of a kind the table lacked, and no measurable change, or a slight
+  loss, on the 8,598 it already had.
+
+**What it changes.**
+
+- [Certain] The made-metals order moved more than re-weighting alone moves
+  it: 29 of cycle 3's top 50 kept, against 34 to 37 for the placebos; 5 of the
+  top 10 kept.
+- [Certain] Zr6Ga2Ni fell from 18th to 63rd and Zr6Ga2Co from 19th to 70th.
+  In the placebos they rose. So the added rows did this, not noise.
+  [Speculative] 11 added rows are at least half zirconium and 6 of them are
+  nulls (Zr-Rh-O), which would pull zirconium-rich compounds down.
+- [Certain] Zr6Ga2Ni stays the Hazel benchmark. It was chosen because a
+  published calculation exists to compare with, not for its place in the order.
+- Not changed here: shortlist 2 and the rung 4 scripts still use cycle 3's
+  models. Switching them belongs to the next shortlist.
+
+**Checks.**
+
+- The models fitted without added rows inside this run reproduce cycle 3's
+  saved predictions exactly (largest gap 0.0).
+- Added rows fitted per round: 599 to 677 of 851 in cross-validation (the
+  rest were of the held-out fold or tied to that round's early-stopping
+  groups); final models were fitted on 12,558 to 13,007 rows.
+
+**Against the predictions written before the result:**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| E1's 95% interval is above zero | 40% | Yes (+0.043 to +0.129) |
+| E2: non-cuprate AUC changes by less than 0.005 | 85% | Yes (−0.0035) |
+| Cycle 4 is adopted under the rule | 35% | Yes |
+| Top 50 keeps between 25 and 45 of cycle 3's | 70% | Yes (29) |
+| Zr6Ga2Ni stays in the top 20 | 80% | No (63rd) |
+| Cycle 4 keeps fewer of the top 50 than each placebo | 55% | Yes |
+
+- I expected the added rows to matter less than they did. E1's gain is four
+  times what I guessed, and I did not foresee the benchmark compound moving.
+
+**Open question for the owner (this pull request's one question).** The rule
+says adopt. Veto it if a slight loss at home is not worth a gain that is only
+shown on NIMS's own kind of compound. Merging this pull request accepts
+cycle 4 as the ranking of record.
