@@ -44,6 +44,7 @@ BENCH = ROOT / "data/benchmarks/children"
 WORK = ROOT / "data/processed/children"
 DOCS = ROOT / "docs/children"
 CHECK = BENCH / "final-hits-check.csv"
+SELECTION_CHECK = BENCH / "selection-hits-check.csv"      # the amendment of 2026-11-16: the same reader check
 NEAR, EXACT = 0.02, 0.0015
 GEN1 = ("boost", "bag", "knn", "mlp", "physics")
 VARIANTS = {
@@ -345,13 +346,22 @@ def load_scores(name: str) -> np.ndarray:
 
 
 def cmd_gen1() -> dict:
+    """Fit the five children (or reuse their saved pool scores) and score them on the selection slice.
+
+    Children are ranked on the reader-confirmed selection hits (the amendment); raw-slice scores are kept beside.
+    """
     tables = load_tables()
-    hits, negatives = slice_rows(tables["pool"], "selection")
-    report = {"slice": "selection (pre-2016 SuperCon2 hits absent from the 2018 export)", "children": {}}
+    confirmed, check_counts = confirmed_hits(SELECTION_CHECK)
+    hits, negatives = slice_rows(tables["pool"], "selection", confirmed)
+    raw_hits, _ = slice_rows(tables["pool"], "selection")
+    report = {"slice": "selection: pre-2016 SuperCon2 hits absent from the 2018 export, confirmed by a reader",
+              "reader_check": check_counts, "children": {}}
     for kind in GEN1:
-        scores = score_child(kind, tables)
+        path = WORK / f"scores-gen1-{kind}.npy"
+        scores = load_scores(f"gen1-{kind}") if path.is_file() else score_child(kind, tables)
         save_scores(f"gen1-{kind}", scores)
-        report["children"][kind] = summarise(scores, hits, negatives)
+        report["children"][kind] = {**summarise(scores, hits, negatives),
+                                    "raw_slice": summarise(scores, raw_hits, negatives)}
         print(kind, report["children"][kind], flush=True)
     order = sorted(GEN1, key=lambda k: -report["children"][k]["auc"])
     report["order"] = order
@@ -359,6 +369,7 @@ def cmd_gen1() -> dict:
     base = percentiles(load_scores("gen1-boost"), hits, negatives)
     report["against_boost"] = {k: paired_interval(percentiles(load_scores(f"gen1-{k}"), hits, negatives), base)
                                for k in GEN1 if k != "boost"}
+    report["boost_auc_minus_chance"] = paired_interval(base, np.full(len(hits), 0.5))
     DOCS.mkdir(parents=True, exist_ok=True)
     (DOCS / "gen1.json").write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("order", "winner", "runner_up")}, indent=1))
@@ -368,7 +379,7 @@ def cmd_gen1() -> dict:
 def cmd_gen2() -> dict:
     gen1 = json.loads((DOCS / "gen1.json").read_text(encoding="utf-8"))
     tables = load_tables()
-    hits, negatives = slice_rows(tables["pool"], "selection")
+    hits, negatives = slice_rows(tables["pool"], "selection", confirmed_hits(SELECTION_CHECK)[0])
     winner, order = gen1["winner"], gen1["order"]
     a, b = VARIANTS[winner]
     children = {"elite": load_scores(f"gen1-{winner}"),
@@ -393,8 +404,8 @@ def cmd_gen2() -> dict:
     return report
 
 
-def confirmed_hits() -> tuple[set[str], dict]:
-    with open(CHECK, newline="", encoding="utf-8") as handle:
+def confirmed_hits(path: Path = CHECK) -> tuple[set[str], dict]:
+    with open(path, newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     counts = defaultdict(int)
     for row in rows:
