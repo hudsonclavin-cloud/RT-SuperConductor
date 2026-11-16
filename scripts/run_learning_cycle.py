@@ -94,7 +94,8 @@ def check_unchanged_layout(comparison: dict) -> None:
 # ---------------------------------------------------------------------------
 # 2. Cross-validation.
 
-def cross_validate(ds: C.Dataset, X: np.ndarray, settings: dict) -> tuple[np.ndarray, tuple, np.ndarray, list]:
+def cross_validate(ds: C.Dataset, X: np.ndarray, settings: dict, seed_offset: int = 0
+                   ) -> tuple[np.ndarray, tuple, np.ndarray, list]:
     """Out-of-fold boosting predictions on the development rows; the same folds and seeds as run_scratchnet.py cv."""
     dev = np.flatnonzero(ds.split == "dev")
     position = {int(row): i for i, row in enumerate(dev)}
@@ -103,7 +104,8 @@ def cross_validate(ds: C.Dataset, X: np.ndarray, settings: dict) -> tuple[np.nda
     for fold in sorted(set(ds.fold[dev].tolist())):
         fit, valid, test = fold_rows(ds, fold)
         where = np.array([position[int(row)] for row in test])
-        p_fold, tc_fold, fold_info = C.boosting_predict(X, ds.arrays, fit, valid, X[test], seed=fold, **settings)
+        p_fold, tc_fold, fold_info = C.boosting_predict(X, ds.arrays, fit, valid, X[test], seed=fold + seed_offset,
+                                                        **settings)
         p[where], tc[where] = p_fold, tc_fold
         distance[where] = C.nearest_distance(ds.dense[np.concatenate([fit, valid])], ds.dense[test])[0]
         info.append({"fold": fold, **fold_info})
@@ -131,7 +133,8 @@ def score_with_labels(ds: C.Dataset, rows: np.ndarray, distance: np.ndarray, pre
 # ---------------------------------------------------------------------------
 # 4. Final models and the made-metals order.
 
-def final_models(ds: C.Dataset, X: np.ndarray, settings: dict, model_dir: Path) -> tuple[list, list]:
+def final_models(ds: C.Dataset, X: np.ndarray, settings: dict, model_dir: Path, seed_offset: int = 0
+                 ) -> tuple[list, list]:
     """One model per development fold held back for early stopping; locked rows are never fitted."""
     import joblib
 
@@ -142,8 +145,8 @@ def final_models(ds: C.Dataset, X: np.ndarray, settings: dict, model_dir: Path) 
         valid = dev & (ds.fold == fold)
         fit = ((ds.split == "train_only") | dev) & ~valid
         assert not (fit & (ds.split == "lockbox")).any()
-        model, fold_info = C.boosting_fit(X, ds.arrays, np.flatnonzero(fit), np.flatnonzero(valid), seed=fold,
-                                          **settings)
+        model, fold_info = C.boosting_fit(X, ds.arrays, np.flatnonzero(fit), np.flatnonzero(valid),
+                                          seed=fold + seed_offset, **settings)
         joblib.dump(model, model_dir / f"boosting-fold{fold}.joblib")
         models.append(model)
         info.append({"validation_fold": fold, "fit_rows": int(fit.sum()), **fold_info})
@@ -220,6 +223,20 @@ def compare_orders(previous: list[dict], now: list[dict], watch: tuple[str, ...]
 
 # ---------------------------------------------------------------------------
 
+def placebo(ds: C.Dataset, flips: int, seed: int) -> list[str]:
+    """Flip ``flips`` random development non-cuprate negatives to superconductors at 0.9 K, in memory only.
+
+    A control with no evidence behind it: the size of change one real cycle makes, put in random places. The files
+    on disk are not touched, and the cycle's saved table state is the unchanged one.
+    """
+    rng = np.random.default_rng(seed)
+    pool = np.flatnonzero((ds.split == "dev") & (ds.arrays.label == 0) & (ds.family != "Cuprates"))
+    chosen = rng.choice(pool, size=flips, replace=False)
+    ds.arrays.label[chosen] = 1.0
+    ds.arrays.tc_k[chosen] = 0.9
+    return [ds.rows[i]["composition"] for i in chosen]
+
+
 def save_state(name: str, state: dict, keys: list[str], prediction: tuple, order: list[dict]) -> None:
     WORK.mkdir(parents=True, exist_ok=True)
     with gzip.open(WORK / f"{name}-state.json.gz", "wt", encoding="utf-8") as handle:
@@ -239,15 +256,18 @@ def load_previous(name: str) -> tuple[dict, dict, list[dict]]:
     return state, oof, order
 
 
-def run(name: str, previous: str | None) -> dict:
+def run(name: str, previous: str | None, seed_offset: int = 0, placebo_flips: int = 0, placebo_seed: int = 0) -> dict:
     import joblib  # noqa: F401  (fail early if missing)
 
     started = time.time()
     ds = C.load_dataset()
     settings = boosting_settings()
     state = table_state(ds)
-    report: dict = {"name": name, "previous": previous, "data_sha256": ds.sha256, "boosting_settings": settings,
+    report: dict = {"name": name, "previous": previous, "seed_offset": seed_offset, "data_sha256": ds.sha256,
+                    "boosting_settings": settings,
                     "locked_rows": "neither trained on nor scored"}
+    if placebo_flips:
+        report["placebo"] = placebo(ds, placebo_flips, placebo_seed)
     prev_state = prev_oof = prev_order = None
     if previous:
         prev_state, prev_oof, prev_order = load_previous(previous)
@@ -257,7 +277,7 @@ def run(name: str, previous: str | None) -> dict:
 
     formulas = [C.formula_text(C.fractions_of(row["composition"])) for row in ds.rows]
     X, _ = C.formula_features(formulas, cache=C.WORK / "formula-features.npz")
-    dev, prediction, distance, cv_info = cross_validate(ds, X, settings)
+    dev, prediction, distance, cv_info = cross_validate(ds, X, settings, seed_offset)
     keys = [ds.rows[i]["composition"] for i in dev]
     label, tc = ds.arrays.label[dev], ds.arrays.tc_k[dev]
     not_cuprate = ds.family[dev] != "Cuprates"
@@ -283,7 +303,7 @@ def run(name: str, previous: str | None) -> dict:
                  "p_this_model": round(float(prediction[0][i]), 4)}
                 for i, k in enumerate(keys) if k in changed]}
 
-    models, final_info = final_models(ds, X, settings, WORK / "models" / name)
+    models, final_info = final_models(ds, X, settings, WORK / "models" / name, seed_offset)
     rows, compositions = candidate_pool(CANDIDATES, set(ds.table.symbols))
     X_pool, _ = C.formula_features([C.formula_text(c) for c in compositions], cache=C.WORK / "candidate-features.npz")
     applied = [C.boosting_apply(model, X_pool) for model in models]
@@ -314,8 +334,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--name", required=True, help="this cycle, e.g. cycle1")
     parser.add_argument("--previous", help="the cycle to compare with, e.g. cycle0 (omit for the baseline)")
+    parser.add_argument("--placebo-flips", type=int, default=0,
+                        help="a control: in memory only, mark this many random development non-cuprate negatives as "
+                             "superconductors at 0.9 K, to see how much any change of that size moves the results")
+    parser.add_argument("--placebo-seed", type=int, default=0)
+    parser.add_argument("--seed-offset", type=int, default=0,
+                        help="added to every model's random seed; a run on an unchanged table with another offset "
+                             "measures how much of a change is training noise")
     args = parser.parse_args()
-    run(args.name, args.previous)
+    run(args.name, args.previous, args.seed_offset, args.placebo_flips, args.placebo_seed)
     return 0
 
 

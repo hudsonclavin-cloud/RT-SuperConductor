@@ -42,7 +42,7 @@ python scripts/build_mp_candidates.py
 ```
 
 ```bash
-python scripts/build_scratchnet_data.py --skip-elements
+python scripts/build_scratchnet_data.py
 ```
 
 ```bash
@@ -114,3 +114,81 @@ verifier, run on 2026-11-16 before the table was rebuilt.
 Reasoning: five to seven corrected rows among about 9,400 labelled development
 rows cannot move a pooled score much. Their effect should show near their own
 chemistry.
+
+## Cycle 1: result, 2026-11-16 03:10 UTC
+
+**Evidence.** Two of the seven passed the rule. The full reader and verifier
+records are in `data/benchmarks/learning-cycles/cycle1-evidence.json`.
+
+| Row | Readers | Verifier | Why |
+| --- | --- | --- | --- |
+| YRu3B2 | both confirm | **apply** | Stoichiometric arc-melted sample, about 100% shielding, specific-heat jump; Tc 0.81 K (Phys. Rev. Research 8, 023308, 2026). Two other groups agree (0.63 to 0.73 K) |
+| LuRu3B2 | both confirm | **apply** | Same paper; about 90% shielding, specific-heat jump; Tc 0.95 K. One group only |
+| ScS | both confirm | do not apply | Weighed in sulfur-rich (1:1.2) and never analysed; the 1974 report is titled "ScS1+x"; the table holds S1.005Sc1 at 5.37 K beside S1Sc1 at 0, so the zero may be a real null at exact 1:1 |
+| W3Re2C | split | do not apply | The measured sample was weighed in at C0.8 and EDX finds it about 1 at.% Re-poor: about 3 at.% off the named composition |
+| WB | neither | do not apply | The 2012 paper could not be read beyond its title |
+| NbS | split | do not apply | Abstract only; superconductivity near Nb:S = 1:1 depends on composition and structure (SuperCon: NbS0.899 3.8 K, NbS1.06 3.3 K, NbS 0) |
+| Ti3V22 | neither | do not apply | The known measurement is V0.90Ti0.10, not V0.88Ti0.12; no bracketing series was found |
+
+**Applied:**
+- YRu3B2 at 0.81 K and LuRu3B2 at 0.95 K, both from DOI 10.1103/lpqj-7hyg.
+- Both are recorded in `data/training/negative_evidence.csv`.
+- Both are development rows (folds 3 and 2). Each changed from 0 to 1, and
+  nothing else in the table moved.
+
+**Against the predictions written before the result:**
+
+| Prediction | Chance given | Result | |
+| --- | --- | --- | --- |
+| AUC changes by less than 0.005 | 85% | 0.790 to 0.793 | yes |
+| Paired difference against cycle 0 includes zero | 85% | +0.003 (−0.001 to +0.008) | yes |
+| Top 50 keeps at least 45 | 85% | **37** | **no** |
+| Zr6Ga2Ni stays in the top 20 | 90% | 9th | yes |
+| A made metal in a corrected chemistry moves up 100 places or more | 50% | yes (LaB2Ru3: 1,744th to 886th) | yes, but see below |
+
+**A control, run after seeing the top-50 result (not pre-registered).** Why
+did two Ru–B labels reshuffle unrelated chlorides by 300 to 500 places?
+- Changing every model's random seed by 100, on the unchanged table, changes
+  nothing at all. [Certain] These boosting models are deterministic: early
+  stopping uses fixed validation rows and nothing is subsampled.
+- So three placebos were run instead. In memory only, two random development
+  non-cuprate negatives were marked as superconductors at 0.9 K. That is a
+  change the size of cycle 1's, with no evidence behind it.
+
+| Run (two labels changed) | AUC | Against cycle 0 | Top 10 kept | Top 50 kept | Top 200 kept | Rank correlation | Zr6Ga2Ni | Ti3SnH |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Cycle 1 (two real corrections)** | **0.793** | **+0.003** | 7 | 37 | 161 | 0.990 | 9 | 1,031 |
+| Placebo 1 | 0.790 | −0.000 | 7 | 37 | 166 | 0.991 | 6 | 484 |
+| Placebo 2 | 0.789 | −0.001 | 5 | 40 | 170 | 0.993 | 3 | 657 |
+| Placebo 3 | 0.786 | −0.004 | 6 | 37 | 165 | 0.991 | 17 | 879 |
+
+(Cycle 0 had Zr6Ga2Ni 9th and Ti3SnH 511th.)
+
+**What it shows.**
+- **The made-metals order below the first few places is unstable.** [Certain,
+  for this measurement]
+  - Any two-label change swaps 10 to 13 of the top 50 and 30 to 39 of the top
+    200, whatever the labels are.
+  - It works by changing how many trees each model keeps (fold 3's Tc model
+    went from 352 trees to 163) and so the whole fitted function.
+  - Zr6Ga2Ni ranges from 3rd to 17th. Ti3SnH ranges from 484th to 1,031st, so
+    its "511th" in `docs/bercx-published-check.md` carries no information
+    beyond "around 500 to 1,000".
+- **The corrections may still help.** Cycle 1 is the only run whose AUC went
+  up; all three placebos went down. With three placebos that is suggestive,
+  not shown. [Speculative]
+- **The Ru–B moves are not distinguishable from noise.** The 20 Ru–B made
+  metals moved up by a median of 40 places in cycle 1, against 19, 41 and
+  −18 in the placebos. Prediction 5 came true, but it would have come true by
+  chance too.
+- **Ranks quoted to the place are not reliable.** The fix is to train many
+  slightly perturbed models and report each candidate's rank as a range. It
+  is not done here: it changes the ranking of record and needs its own rule
+  written first.
+
+**Open question for the owner (this pull request's one question).** ScS and
+W3Re2C failed only on composition: each sample was a few at.% off the named
+compound and was never analysed. Should a named compound count when its
+measured sample was made a little off-ratio on purpose (to make up for loss
+during melting) or was found slightly off by analysis? Under today's rule,
+no.

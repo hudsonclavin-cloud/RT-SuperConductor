@@ -90,3 +90,32 @@ def test_evidence_rows_name_existing_columns():
     for column in ("formula", "publication_doi", "page_table_or_figure", "superconductivity_observed", "tc_k",
                    "reviewer", "date"):
         assert column in header
+
+
+def tiny_dataset():
+    n = 8
+    split = np.array(["dev", "dev", "dev", "dev", "lockbox", "train_only", "dev", "dev"])
+    family = np.array(["Other", "Cuprates", "Other", "Other", "Other", "Other", "Other", "Oxides"])
+    label = np.array([0, 0, 1, 0, 0, 0, np.nan, 0], float)
+    tc = np.array([np.nan, np.nan, 5.0, np.nan, np.nan, np.nan, np.nan, np.nan])
+    arrays = L.T.Arrays(np.zeros((n, 1), int), np.zeros((n, 1)), np.ones((n, 1), bool), label, tc,
+                        np.array([f"g{i}" for i in range(n)]))
+    rows = [{"composition": f"X:{i}"} for i in range(n)]
+    return L.C.Dataset(rows, None, arrays, split, np.zeros(n, int), family, np.zeros((n, 2)), "sha")
+
+
+def test_placebo_flips_only_development_non_cuprate_negatives_in_memory():
+    ds = tiny_dataset()
+    before = ds.arrays.label.copy()
+    flipped = L.placebo(ds, 3, seed=0)
+    eligible = {"X:0", "X:3", "X:7"}                # dev, label 0, not a cuprate
+    assert set(flipped) == eligible
+    rows = [int(key.split(":")[1]) for key in flipped]
+    assert np.all(ds.arrays.label[rows] == 1) and np.all(ds.arrays.tc_k[rows] == 0.9)
+    untouched = [i for i in range(8) if i not in rows]
+    assert np.array_equal(ds.arrays.label[untouched], before[untouched], equal_nan=True)
+
+
+def test_placebo_refuses_more_flips_than_eligible_rows():
+    with pytest.raises(ValueError):
+        L.placebo(tiny_dataset(), 4, seed=0)
