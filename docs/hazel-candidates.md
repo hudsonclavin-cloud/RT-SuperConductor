@@ -200,6 +200,13 @@ the same job script and `LOCAL=1` in place of the scheduler.
   step several times more expensive. The generator now symmetrises a
   structure before relaxing it.
 
+- **SbTe2's phonon step would have crashed on Hazel.** `ph.x` stopped with
+  "divide_class: Wrong classes for D_3d" because the cell was drawn in the
+  Materials Project's orientation, not Quantum ESPRESSO's. The pre-check
+  below found it (11:00 UTC). The generator now writes hexagonal cells in
+  Quantum ESPRESSO's orientation, and SbTe2's inputs were regenerated. The
+  atoms and the physics are unchanged.
+
 **What the smoke numbers show, and do not.** Re3Ir on the coarse meshes has
 imaginary modes at two of its four points: −39 cm⁻¹ (threefold) at the zone
 centre and −89 cm⁻¹ at the zone corner. Its λ of 2.6 comes from those soft
