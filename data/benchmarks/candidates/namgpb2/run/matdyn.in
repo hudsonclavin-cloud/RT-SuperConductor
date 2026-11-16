@@ -1,0 +1,12 @@
+ &input
+    asr    = 'simple'
+    flfrc  = 'namgpb2.fc'
+    flfrq  = 'namgpb2.freq'
+    dos    = .true.
+    fldos  = 'namgpb2.phdos'
+    nk1 = 16
+    nk2 = 16
+    nk3 = 16
+    ndos   = 500
+    la2F   = .true.
+ /

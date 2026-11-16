@@ -1,0 +1,47 @@
+{
+ "name": "namgpb2",
+ "formula": "NaMgPb2",
+ "mp_id": "mp-aaabxftj",
+ "atoms": 4,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  8,
+  8,
+  8
+ ],
+ "fit_k_mesh": [
+  16,
+  16,
+  16
+ ],
+ "q_mesh": [
+  4,
+  4,
+  4
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   0.0,
+   3.795185125,
+   3.795185125
+  ],
+  [
+   3.795185125,
+   0.0,
+   3.795185125
+  ],
+  [
+   3.795185125,
+   3.795185125,
+   -0.0
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Mg_ONCV_PBE_sr.upf": "cbbacab070d13dcbd12603f65af68a66cca7d3e7e0af8a13cc9fb19e1daac7de",
+  "Na_ONCV_PBE_sr.upf": "93de2c5ac400ffe6487e4929fcbe669ce5607b335f5f904c410cca643a833986",
+  "Pb_ONCV_PBE_sr.upf": "108c7825f18819fffc64ef69bbe5ee94df73db09a0358641ab0a4bcf0a704fd0"
+ },
+ "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"
+}
