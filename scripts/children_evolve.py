@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 
 import numpy as np
 
@@ -176,7 +177,7 @@ def score_child(genes: frozenset, data: dict) -> np.ndarray:
 
 def scores_for(genes: frozenset, fold: str, data: dict) -> np.ndarray:
     """A child's scores for every test row of a fold, from the cache or freshly fitted."""
-    cache = WORK / "scores" / f"{fold}-{hashlib.sha256(name_of(genes).encode()).hexdigest()[:16]}.npy"
+    cache = cache_file(genes, fold)
     if cache.is_file():
         return np.load(cache)
     scores = score_child(genes, data)
@@ -185,12 +186,58 @@ def scores_for(genes: frozenset, fold: str, data: dict) -> np.ndarray:
     return scores
 
 
+def cache_file(genes: frozenset, fold: str):
+    return WORK / "scores" / f"{fold}-{hashlib.sha256(name_of(genes).encode()).hexdigest()[:16]}.npy"
+
+
+def _warm_fold(fold: str, names: list[str]) -> int:
+    """One worker process: fit and cache these children's scores for one fold."""
+    data = load(fold)
+    for name in names:
+        scores_for(frozenset(name.split("+")) if name != "baseline" else BASELINE, fold, data)
+        print(f"  cached {fold} {name}", flush=True)
+    return len(names)
+
+
+def warm(children: list[frozenset], jobs: int) -> None:
+    """Fit the children whose scores are not cached yet, one process per fold. The scores are the same as when
+    fitted one after another; this only uses the processors better."""
+    from joblib import Parallel, delayed
+
+    todo = {fold: [name_of(c) for c in children if not cache_file(c, fold).is_file()] for fold in FOLDS}
+    todo = {fold: names for fold, names in todo.items() if names}
+    if todo and jobs > 1:
+        Parallel(n_jobs=min(jobs, len(todo)))(delayed(_warm_fold)(fold, names) for fold, names in todo.items())
+
+
 def auc_on(data: dict, scores: np.ndarray, which: str) -> float:
     mask = (data["half"] == which) & (data["test_family"] == G.PRIMARY_FAMILY)
     return N.auc(data["y_test"][mask], scores[mask])
 
 
 # ------------------------------------------------------------------------------------------------ generations
+
+EXTRA = -1    # scored, but not a child the plan's rule breeds (an interrupted run bred from its own generation)
+
+
+def genes_of(name: str) -> frozenset:
+    return BASELINE if name == "baseline" else frozenset(name.split("+"))
+
+
+def eligible(state: dict, upto: int | None = None) -> dict[frozenset, float]:
+    """Fitness of the children the rule bred, born in generation ``upto`` or earlier (any generation if None)."""
+    born = state["born"]
+    return {genes_of(name): value for name, value in state["fitness"].items()
+            if born[name] != EXTRA and (upto is None or born[name] <= upto)}
+
+
+def relabel(born: dict[str, int], number: int, proper: set[str]) -> list[str]:
+    """Mark as EXTRA every child recorded for this generation that the rule does not breed for it."""
+    strays = sorted(name for name, generation in born.items() if generation == number and name not in proper)
+    for name in strays:
+        born[name] = EXTRA
+    return strays
+
 
 def read_state() -> dict:
     path = WORK / "state.json"
@@ -211,13 +258,18 @@ def gain_interval(datas: dict, child: frozenset, against: frozenset, which: str)
 
 def run_generation(number: int) -> dict:
     state = read_state()
-    fitness = {frozenset(k.split("+")) if k != "baseline" else BASELINE: v for k, v in state["fitness"].items()}
+    fitness = {genes_of(k): v for k, v in state["fitness"].items()}
+    # Which generation first scored a child. A state written before this field existed holds generation 8 only.
+    born = state.setdefault("born", {name: 8 for name in state["fitness"]})
     if number == 8:
         children = [BASELINE, OLD_CHAMPION, *generation_8()]
     else:
         if str(number - 1) not in state["generation"]:
             raise SystemExit(f"generation {number - 1} has not been run")
-        children = next_generation(rank(fitness))
+        # Parents are the fittest of EARLIER generations only. Breeding from every scored child let an interrupted
+        # generation, when resumed, breed from its own children (found and fixed 2026-11-16).
+        children = next_generation(rank(eligible(state, number - 1)))
+    strays = relabel(born, number, {name_of(c) for c in unique(children)})
     datas = {fold: load(fold) for fold in FOLDS}
     waiting = [c for c in children if "proxy2" in c] if "proxy2" not in datas["A"] else []
     children = [c for c in children if c not in waiting]      # scored now; the rest when the proxy's table exists
@@ -225,10 +277,11 @@ def run_generation(number: int) -> dict:
         for genes, changes in ((BASELINE, ()), (OLD_CHAMPION, G.CHANGES)):
             if not np.allclose(G.score_child(tuple(changes), datas["A"]), scores_for(genes, "A", datas["A"])):
                 raise SystemExit(f"this script's {name_of(genes)} differs from generation 7's on fold A")
-    # Which generation first scored a child. A state written before this field existed holds generation 8 only.
-    born = state.setdefault("born", {name: 8 for name in state["fitness"]})
+    warm([c for c in unique(children) if c not in fitness], int(os.environ.get("EVOLVE_JOBS", "1")))
     for child in unique(children):
         if child in fitness:
+            if born[name_of(child)] == EXTRA:                 # fitted earlier outside the rule; the rule breeds it now
+                born[name_of(child)] = number
             continue
         values = {fold: auc_on(data, scores_for(child, fold, data), "selection") for fold, data in datas.items()}
         fitness[child] = float(np.mean(list(values.values())))
@@ -240,13 +293,16 @@ def run_generation(number: int) -> dict:
     if waiting:
         raise SystemExit(f"{len(waiting)} children wait for the second proxy's table (physics_proxy2.py data); "
                          "run this generation again when it exists")
-    ranked = rank(fitness)
+    counted = eligible(state, number)
+    ranked = rank(counted)
     base = fitness[BASELINE]
     per_fold = {name_of(c): {fold: round(auc_on(data, scores_for(c, fold, data), "selection"), 4)
                              for fold, data in datas.items()}
                 for c in fitness if born[name_of(c)] == number}      # from the cached scores; nothing is refitted
     report = {"generation": number, "selection_half_only": True, "baseline_fitness": round(base, 4),
-              "children_scored_this_generation": len(per_fold), "children_scored_so_far": len(fitness),
+              "children_scored_this_generation": len(per_fold), "children_scored_so_far": len(counted),
+              "scored_outside_the_rule_and_not_counted": sorted(n for n, g in born.items() if g == EXTRA),
+              "relabelled_in_this_run": strays,
               "this_generation": [{"child": name, "fitness": round(state["fitness"][name], 4),
                                    "gain": round(state["fitness"][name] - base, 4), "by_fold": folds}
                                   for name, folds in sorted(per_fold.items(), key=lambda kv: -state["fitness"][kv[0]])],
@@ -279,7 +335,7 @@ def cmd_lockbox() -> dict:
     state = read_state()
     if "10" not in state["generation"]:
         raise SystemExit("generation 10 has not been run")
-    fitness = {frozenset(k.split("+")) if k != "baseline" else BASELINE: v for k, v in state["fitness"].items()}
+    fitness = eligible(state)
     champion = rank(fitness)[0]
     datas = {fold: load(fold) for fold in FOLDS}
     entrants = {"baseline": BASELINE, "champion": champion, "old_champion": OLD_CHAMPION}

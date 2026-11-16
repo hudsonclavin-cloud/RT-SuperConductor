@@ -123,3 +123,34 @@ def test_fitness_reads_the_selection_half_only():
     scores = np.array([0.9, 0.1, 0.8, 0.2, 0.9, 0.1, 0.8, 0.2])
     assert E.auc_on(data, scores, "selection") == 1.0
     assert E.auc_on(data, scores, "lockbox") == 0.0
+
+
+def test_warming_the_cache_skips_children_already_scored(tmp_path, monkeypatch):
+    monkeypatch.setattr(E, "WORK", tmp_path)
+    children = [frozenset({"alloy"}), frozenset({"bag", "alloy"})]
+    for child in children:
+        for fold in E.FOLDS:
+            E.cache_file(child, fold).parent.mkdir(parents=True, exist_ok=True)
+            np.save(E.cache_file(child, fold), np.zeros(3))
+    called = []
+    monkeypatch.setattr(E, "_warm_fold", lambda fold, names: called.append((fold, names)))
+    E.warm(children, jobs=4)                                   # everything cached: no worker starts
+    assert called == []
+    assert E.cache_file(children[0], "A") != E.cache_file(children[1], "A")
+    assert E.cache_file(children[0], "A") != E.cache_file(children[0], "B")
+
+
+def test_parents_come_from_earlier_generations_only():
+    state = {"fitness": {"baseline": 0.60, "alloy": 0.70, "bag": 0.65, "alloy+leaves63": 0.72, "tc-size": 0.90},
+             "born": {"baseline": 8, "alloy": 8, "bag": 8, "alloy+leaves63": 9, "tc-size": E.EXTRA}}
+    assert set(E.eligible(state, 8)) == {frozenset(), frozenset({"alloy"}), frozenset({"bag"})}
+    assert E.rank(E.eligible(state, 8))[0] == frozenset({"alloy"})
+    assert E.rank(E.eligible(state))[0] == frozenset({"alloy", "leaves63"})       # a stray never ranks
+    assert frozenset({"tc-size"}) not in E.eligible(state)
+
+
+def test_children_scored_outside_the_rule_are_set_aside_and_can_be_bred_later():
+    born = {"alloy": 8, "alloy+bag": 9, "alloy+bag+recent": 9}
+    assert E.relabel(born, 9, proper={"alloy+bag"}) == ["alloy+bag+recent"]
+    assert born == {"alloy": 8, "alloy+bag": 9, "alloy+bag+recent": E.EXTRA}
+    assert E.relabel(born, 9, proper={"alloy+bag"}) == []                         # running it again changes nothing

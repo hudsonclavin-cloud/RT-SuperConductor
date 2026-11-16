@@ -695,3 +695,28 @@ moved, appeared, disappeared or changed label.
 says adopt. Veto it if a slight loss at home is not worth a gain that is only
 shown on NIMS's own kind of compound. Merging this pull request accepts
 cycle 4 as the ranking of record.
+
+## Cycle 4 accepted by the owner, written 2026-11-16 20:08 UTC
+
+The owner merged the cycle 4 pull request on 2026-11-16 at 20:07 UTC
+(https://github.com/hudsonclavin-cloud/RT-SuperConductor/pull/59). **Cycle 4
+is the ranking of record.**
+
+What that means in files:
+
+- The models of record are `data/processed/learning-cycles/models/cycle4/`
+  (five, one per development fold held back), trained on the table plus the
+  851 added rows in `data/processed/learning-cycles/nims-additions.csv.gz`
+  (sha256 `e7507a3f…`, full value in `docs/learning-cycles/nims-additions.json`).
+- The order of record for made metals is
+  `docs/learning-cycles/cycle4-made-metals-top50.csv`.
+- The next cycle compares with `--previous cycle4` and must pass
+  `--additions` again, or it would silently drop the added rows.
+
+Still on cycle 3, on purpose:
+
+- Shortlist 2 (`docs/rung4-shortlist2.md`) and the Hazel packages were chosen
+  with cycle 3 and are not re-ranked. `scripts/rung4.py` reads cycle 3's
+  models and predictions; the next shortlist switches it.
+- The blind test and the children experiments never used the ranking of
+  record's models for selection, so nothing there changes.

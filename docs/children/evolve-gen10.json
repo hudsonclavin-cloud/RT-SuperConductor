@@ -1,0 +1,100 @@
+{
+ "generation": 10,
+ "selection_half_only": true,
+ "baseline_fitness": 0.6708,
+ "children_scored_this_generation": 4,
+ "children_scored_so_far": 36,
+ "scored_outside_the_rule_and_not_counted": [],
+ "relabelled_in_this_run": [],
+ "this_generation": [
+  {
+   "child": "elements+proxy+alloy+tc-size+bag+leaves63",
+   "fitness": 0.7407,
+   "gain": 0.0698,
+   "by_fold": {
+    "A": 0.8848,
+    "B": 0.6583,
+    "C": 0.7351,
+    "D": 0.6314,
+    "E": 0.7937
+   }
+  },
+  {
+   "child": "elements+proxy+alloy+tc-size+recent+leaves63",
+   "fitness": 0.7327,
+   "gain": 0.0619,
+   "by_fold": {
+    "A": 0.8604,
+    "B": 0.698,
+    "C": 0.7168,
+    "D": 0.6042,
+    "E": 0.7843
+   }
+  },
+  {
+   "child": "elements+proxy+alloy+tc-size+balance+leaves63",
+   "fitness": 0.7267,
+   "gain": 0.0558,
+   "by_fold": {
+    "A": 0.8385,
+    "B": 0.6827,
+    "C": 0.7275,
+    "D": 0.6274,
+    "E": 0.7572
+   }
+  },
+  {
+   "child": "elements+proxy2+alloy+tc-size+leaves63",
+   "fitness": 0.719,
+   "gain": 0.0482,
+   "by_fold": {
+    "A": 0.8679,
+    "B": 0.6037,
+    "C": 0.7315,
+    "D": 0.6159,
+    "E": 0.7762
+   }
+  }
+ ],
+ "fittest_so_far": [
+  {
+   "child": "elements+proxy+alloy+tc-size",
+   "fitness": 0.7593,
+   "gain": 0.0884,
+   "gain_95": [
+    0.0505,
+    0.128
+   ],
+   "gain_99": [
+    0.0432,
+    0.1467
+   ]
+  },
+  {
+   "child": "elements+proxy+alloy+tc-size+leaves63",
+   "fitness": 0.7562,
+   "gain": 0.0853,
+   "gain_95": [
+    0.0501,
+    0.1285
+   ],
+   "gain_99": [
+    0.0378,
+    0.1432
+   ]
+  },
+  {
+   "child": "elements+proxy+alloy+tc-size+family",
+   "fitness": 0.7513,
+   "gain": 0.0805,
+   "gain_95": [
+    0.0403,
+    0.1222
+   ],
+   "gain_99": [
+    0.0319,
+    0.1347
+   ]
+  }
+ ]
+}
