@@ -496,3 +496,27 @@ before this pull request; the plan's text is left as written):**
   - The other abstract-only failures ((V0.93Cr0.07)3Si, In0.9Tl0.1 and the
     two Pb–Bi rows) fail either way: their abstracts give no Tc for the
     composition.
+
+## Abstract-only rows: the owner's answer and what follows, written 2026-11-16 07:51 UTC
+
+**The owner's answer to cycle 3's open question (2026-11-16): option B.** The
+verifier no longer refuses a row only because it was read from an abstract.
+It refuses on substance: a concrete reason to doubt that the composition, as a
+bulk sample at ambient pressure, superconducts, or that the sample matches the
+row.
+
+**Re-check under that instruction** (one sceptical verifier, 2026-11-16; it
+could not read either full text, and re-read both abstracts):
+
+| Row | Verifier | My decision | Why |
+| --- | --- | --- | --- |
+| Lu2Ni3Si5 (Phys. Rev. B 50, 13879, 1994) | apply | **apply, with the next batch** | The abstract states Tc 2.1 K, zero resistance at 2.0 K and a specific-heat jump of ΔC/γTc = 1.1 for the exact composition. No contrary report was found. Not replicated by another group |
+| LaPt1.7Au0.3B2C (Phys. Rev. B 50, 4216, 1994) | apply | **hold** | The abstract gives Tc 10.2 K for the nominal formula. Related papers describe the phase as Ln(Pt,Au)2+δB2C, off-stoichiometric. A shift of 0.1 in Pt + Au moves the composition by about 1 at.%, past the rule's 0.15 at.%, and an abstract cannot settle the measured composition. That is a reason of substance under option B. It waits for the full text |
+
+The owner left these two decisions to my discretion on 2026-11-16.
+
+**Why Lu2Ni3Si5 is not applied today.** One changed label cannot be measured
+(cycles 1 and 3), and every table change invalidates the saved comparisons
+that the stability test, rung 4 and the five-children experiment use. It is
+recorded here as approved and goes into `data/training/negative_evidence.csv`
+with the next batch of corrections.
