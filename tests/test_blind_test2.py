@@ -125,3 +125,11 @@ def test_the_paper_filter_wants_a_temperature_and_refuses_films_pressure_and_the
     assert not B.keep_paper("Superconductivity in LaPt3P thin films", good)
     assert not B.keep_paper("Superconductivity in LaPt3P", good + " Under pressure Tc rises to 3 K.")
     assert not B.keep_paper("Superconductivity in LaPt3P", "First-principles calculations give Tc of 2 K.")
+
+
+def test_the_filter_matches_whole_words_and_allows_ambient_pressure():
+    good = "We investigate polycrystalline LaPt3P at ambient pressure; it superconducts below 1.1 K, as BCS theory expects."
+    assert B.keep_paper("Superconductivity in LaPt3P", good)                    # "investigate" is not "gate"
+    assert not B.keep_paper("Superconductivity in gated LaPt3P", good)
+    assert not B.keep_paper("Theory of superconductivity in LaPt3P", good)       # theory in the title
+    assert not B.keep_paper("Superconductivity in LaPt3P", good + " At 2 GPa Tc doubles.")

@@ -154,3 +154,24 @@ reading. Two fixed steps cut it down, set here before any abstract is read:
   than the first test's readers and leaves them no choice of paper.
 - [Likely] The filter throws away some good papers (any abstract that
   mentions pressure in passing). It cannot add a wrong record.
+
+## Correction to the word filter, 2026-11-17 17:37 UTC, from counts only (no abstract read)
+
+**What went wrong.** The filter kept 55 of 1,930 papers. The words were
+matched as parts of words, so "investigate" counted as "gate" and "ambient
+pressure" counted as "pressure". On a sample of 200 papers, "gate" hit 37
+and "theor" 55.
+
+**The corrected filter, fixed here.**
+
+- Words are matched whole (or from the start of a word).
+- "Ambient pressure" is removed before "pressure" is looked for.
+- "Theor…", "predict…" and "calculat…" exclude a paper only when they are
+  in its title. Experimental abstracts often compare with theory.
+- Everything else is as in the amendment above: a temperature in kelvin is
+  required, and at most 400 papers are drawn with the fixed seed.
+
+- [Certain] I decided this from the counts. No abstract had been read by me
+  or by a reader, and no record had been extracted.
+- [Certain] 35 of the 200 sampled papers have no abstract in OpenAlex and
+  cannot be used at all.

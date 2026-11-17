@@ -212,10 +212,13 @@ def cmd_nulls() -> dict:
 
 PAPERS = ROOT / "data/raw/blind2"                     # abstracts are publishers' text: they stay out of git
 TITLE_PHRASES = ('"new superconductor"', '"discovery of superconductivity"', '"superconductivity in"')
-DROP_WORDS = ("film", "monolayer", "bilayer", "heterostructure", "interface", "pressure", "gpa", "hydride", "twisted",
-              "graphene", "gate", "gating", "nanowire", "first-principles", "first principles", "ab initio",
-              "density functional", "predict", "cuprate", "nickelate", "iron-based", "pnictide", "theor",
-              "ionic liquid", "intercalat", "proximity", "josephson", "topological insulator")
+# Whole words (or word beginnings), so that "investigate" is not "gate". "theor" and "predict" are checked in the
+# title only: experimental abstracts often compare with theory.
+DROP_ANYWHERE = re.compile(
+    r"\b(?:films?|monolayers?|bilayers?|heterostructures?|interfaces?|pressures?|gpa|hydrides?|twisted|graphene|"
+    r"gate|gated|gating|nanowires?|first[- ]principles|ab initio|density functional|cuprates?|nickelates?|"
+    r"iron-based|pnictides?|ionic liquid|intercalat\w*|proximity|josephson|topological insulators?)\b")
+DROP_IN_TITLE = re.compile(r"\b(?:theor\w*|predict\w*|calculat\w*)\b")
 KELVIN = re.compile(r"\d\s*K\b")
 PAPER_CAP, PAPERS_PER_BATCH, SAMPLE_SEED = 400, 25, 0
 
@@ -229,8 +232,9 @@ def abstract_text(inverted: dict | None) -> str:
 
 def keep_paper(title: str, abstract: str) -> bool:
     """The fixed filter: an abstract that gives a temperature in kelvin and names none of the excluded settings."""
-    text = f"{title} {abstract}".lower()
-    return bool(KELVIN.search(abstract)) and "superconduct" in text and not any(word in text for word in DROP_WORDS)
+    text = re.sub(r"ambient[- ]pressures?", " ", f"{title} {abstract}".lower())
+    return (bool(KELVIN.search(abstract)) and "superconduct" in text and not DROP_ANYWHERE.search(text)
+            and not DROP_IN_TITLE.search(title.lower()))
 
 
 def cmd_papers() -> dict:
