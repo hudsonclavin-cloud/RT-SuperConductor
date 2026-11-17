@@ -208,10 +208,89 @@ def cmd_nulls() -> dict:
     return report
 
 
+# ------------------------------------------------------------------------------------------------ papers
+
+PAPERS = ROOT / "data/raw/blind2"                     # abstracts are publishers' text: they stay out of git
+TITLE_PHRASES = ('"new superconductor"', '"discovery of superconductivity"', '"superconductivity in"')
+DROP_WORDS = ("film", "monolayer", "bilayer", "heterostructure", "interface", "pressure", "gpa", "hydride", "twisted",
+              "graphene", "gate", "gating", "nanowire", "first-principles", "first principles", "ab initio",
+              "density functional", "predict", "cuprate", "nickelate", "iron-based", "pnictide", "theor",
+              "ionic liquid", "intercalat", "proximity", "josephson", "topological insulator")
+KELVIN = re.compile(r"\d\s*K\b")
+PAPER_CAP, PAPERS_PER_BATCH, SAMPLE_SEED = 400, 25, 0
+
+
+def abstract_text(inverted: dict | None) -> str:
+    if not inverted:
+        return ""
+    words = sorted((position, word) for word, positions in inverted.items() for position in positions)
+    return " ".join(word for _, word in words)
+
+
+def keep_paper(title: str, abstract: str) -> bool:
+    """The fixed filter: an abstract that gives a temperature in kelvin and names none of the excluded settings."""
+    text = f"{title} {abstract}".lower()
+    return bool(KELVIN.search(abstract)) and "superconduct" in text and not any(word in text for word in DROP_WORDS)
+
+
+def cmd_papers() -> dict:
+    import random
+    import time
+    import urllib.parse
+    import urllib.request
+
+    import blind_test as B1
+
+    used = {row["identifier"] for row in csv.DictReader((B1.OUT / "records.csv").open(encoding="utf-8"))}
+    found: dict[str, dict] = {}
+    counts = Counter()
+    for phrase in TITLE_PHRASES:
+        cursor = "*"
+        while cursor:
+            query = urllib.parse.urlencode({
+                "filter": f"title.search:{phrase},abstract.search:superconduct,from_publication_date:2021-01-01,"
+                          "type:article",
+                "per-page": 200, "cursor": cursor,
+                "select": "id,doi,title,publication_year,abstract_inverted_index"})
+            with urllib.request.urlopen(f"https://api.openalex.org/works?{query}", timeout=60) as reply:
+                page = json.load(reply)
+            for work in page["results"]:
+                counts["returned"] += 1
+                ident = B1.identifier(work.get("doi") or "")
+                if ident is None:
+                    counts["no usable doi"] += 1
+                elif ident in used:
+                    counts["used in the first test"] += 1
+                elif ident not in found:
+                    found[ident] = {"identifier": ident, "year": work["publication_year"], "title": work["title"] or "",
+                                    "abstract": abstract_text(work.get("abstract_inverted_index"))}
+            cursor = page["meta"].get("next_cursor") if page["results"] else None
+            time.sleep(0.2)
+    kept = sorted((p for p in found.values() if keep_paper(p["title"], p["abstract"])), key=lambda p: p["identifier"])
+    counts["distinct papers"], counts["pass the filter"] = len(found), len(kept)
+    if len(kept) > PAPER_CAP:
+        kept = sorted(random.Random(SAMPLE_SEED).sample(kept, PAPER_CAP), key=lambda p: p["identifier"])
+    counts["read"] = len(kept)
+    (PAPERS / "batches").mkdir(parents=True, exist_ok=True)
+    (PAPERS / "papers.json").write_text(json.dumps(kept, indent=1), encoding="utf-8")
+    batches = [kept[i:i + PAPERS_PER_BATCH] for i in range(0, len(kept), PAPERS_PER_BATCH)]
+    for number, batch in enumerate(batches, 1):
+        lines = []
+        for paper in batch:
+            lines += [f"IDENTIFIER: {paper['identifier']}", f"YEAR: {paper['year']}", f"TITLE: {paper['title']}",
+                      f"ABSTRACT: {paper['abstract']}", ""]
+        (PAPERS / "batches" / f"batch-{number:02d}.txt").write_text("\n".join(lines), encoding="utf-8")
+    report = {**counts, "batches": len(batches), "by_year": dict(sorted(Counter(p["year"] for p in kept).items()))}
+    DOCS.mkdir(parents=True, exist_ok=True)
+    (DOCS / "papers.json").write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=1))
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("command", choices=("nulls",))
-    {"nulls": cmd_nulls}[parser.parse_args().command]()
+    parser.add_argument("command", choices=("nulls", "papers"))
+    {"nulls": cmd_nulls, "papers": cmd_papers}[parser.parse_args().command]()
     return 0
 
 

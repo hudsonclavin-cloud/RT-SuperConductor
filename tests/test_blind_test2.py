@@ -110,3 +110,18 @@ def test_any_scan_with_a_signal_decides_the_composition():
     signal = B.read_scan(scan([chi, chi, chi, 0, 0, 0, 0]), "x")
     assert B.judge([clean, signal])[0] == "signal seen"
     assert B.judge([{"usable": False, "reason": "no sample mass"}]) == ("left out", "no usable scan")
+
+
+def test_an_abstract_is_rebuilt_from_its_word_positions():
+    assert B.abstract_text({"superconducts": [2], "It": [0], "below": [3], "bulk": [1], "4.2": [4], "K": [5]}) == \
+        "It bulk superconducts below 4.2 K"
+    assert B.abstract_text(None) == ""
+
+
+def test_the_paper_filter_wants_a_temperature_and_refuses_films_pressure_and_theory():
+    good = "Polycrystalline LaPt3P shows bulk superconductivity below 1.1 K."
+    assert B.keep_paper("Superconductivity in LaPt3P", good)
+    assert not B.keep_paper("Superconductivity in LaPt3P", "A new superconductor is reported.")          # no temperature
+    assert not B.keep_paper("Superconductivity in LaPt3P thin films", good)
+    assert not B.keep_paper("Superconductivity in LaPt3P", good + " Under pressure Tc rises to 3 K.")
+    assert not B.keep_paper("Superconductivity in LaPt3P", "First-principles calculations give Tc of 2 K.")

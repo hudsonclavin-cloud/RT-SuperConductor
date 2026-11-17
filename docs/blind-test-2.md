@@ -135,3 +135,22 @@ intermetallic superconductors: scored once, reported, no claim either way.
 | A: its 95% interval excludes zero, either way | 15% |
 | B: champion minus baseline is above zero | 60% |
 | B: its 95% interval is above zero | 20% |
+
+## Amendment: how the papers are chosen, 2026-11-17 17:36 UTC, before any abstract is read
+
+The plan's search returns about 2,000 papers, far more than is worth
+reading. Two fixed steps cut it down, set here before any abstract is read:
+
+1. **A word filter.** Keep a paper only if its abstract gives a temperature
+   in kelvin and neither title nor abstract contains any of: film,
+   monolayer, bilayer, heterostructure, interface, pressure, GPa, hydride,
+   twisted, graphene, gate, nanowire, first-principles, ab initio, density
+   functional, predict, cuprate, nickelate, iron-based, pnictide, theor,
+   ionic liquid, intercalat, proximity, Josephson, topological insulator.
+2. **A fixed random sample.** If more than 400 papers pass, 400 are drawn
+   with a fixed seed. They are read in batches of 25.
+
+- The readers are handed the abstracts; they do not search. That is cheaper
+  than the first test's readers and leaves them no choice of paper.
+- [Likely] The filter throws away some good papers (any abstract that
+  mentions pressure in passing). It cannot add a wrong record.
