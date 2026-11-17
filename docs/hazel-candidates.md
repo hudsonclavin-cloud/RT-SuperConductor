@@ -450,7 +450,7 @@ three steps (force constants, λ, report).
 and the Zr6Ga2Ni benchmark are running.
 
 **For planning Hazel time.** [Speculative] CsIr2P2's full run (finer
-meshes, 8 points in place of 4) is the most expensive of the candidates:
+meshes and more phonon points; I have not counted them) is the most expensive of the candidates:
 roughly 20 to 40 times this smoke run in processor time. On 16 cores that
 is a day or more, so it belongs on the ordinary nodes, not the two-hour
 partner queue.
