@@ -319,3 +319,41 @@ zero, and what is left are the real modes.
   values in the tables above are ph.x's, before the correction.
 - Suggested for the report script, not done here: use this check at the
   zone centre in place of the equal-amounts test.
+
+### Step 4, final: CsIr2P2 passes; all three pass, 2026-11-17 06:04 UTC
+
+**CsIr2P2, second point (½ ½ ½).** Frequencies (cm⁻¹): 28.2 (×2), 45.5,
+46.9 (×2), 63.7, 126.5, 162.8 (×2), 306.3 (×2), 310.6 (×2), 335.2, 405.8.
+None is imaginary. With the zone centre above, **CsIr2P2 passes the
+pre-check.** Its package is `data/benchmarks/candidates/csir2p2/`.
+
+**All three.**
+
+| Compound | Structure | Lowest real mode, zone centre (cm⁻¹) | Lowest mode, second point (cm⁻¹) | Verdict |
+| --- | --- | --- | --- | --- |
+| NaMgPb2 | Heusler | 60.4 | 26.5 at (½ ½ 0) | Passes |
+| LiMgPb2 | Heusler | 72.3 | 33.3 at (½ 0 ½) | Passes |
+| CsIr2P2 | I4/mmm (ThCr2Si2 type, like its relatives) | 50.8 | 28.2 at (½ ½ ½) | Passes |
+
+- The zone-centre column is after the sum rule; the raw ph.x numbers are in
+  `data/benchmarks/candidates/precheck.csv`.
+- [Certain] Three of three passed. With Re3Ir (failed) and SbTe2 (passed
+  one point), four of the five never-made compounds checked so far show no
+  instability at the points tested.
+- [Certain] That is a weak filter by design: two points per compound. A
+  compound can still be unstable elsewhere in the zone, and none of this
+  says whether any of them superconducts.
+- [Likely] The two Heusler compounds are one result, not two.
+- The CsIr2P2 run took about 6 hours on four cores and was cut four times
+  (three time limits and one container restart). Each time it continued
+  from saved work; both outputs end normally.
+
+**Prediction.** "At least 1 never-made compound survives the pre-check"
+(40%): yes, three did. I set that chance too low: I was anchored on Re3Ir's
+failure and on the force field's flags, which its own validation had already
+shown to be unreliable.
+
+**Step 5.** All survivors have a Hazel package: `sbte2`, `namgpb2`,
+`limgpb2`, `csir2p2`. Suggested order after the Zr6Ga2Ni benchmark:
+NaMgPb2 (highest ranked, 4 atoms), CsIr2P2 (a different structure),
+SbTe2, then LiMgPb2 only if NaMgPb2 is interesting.

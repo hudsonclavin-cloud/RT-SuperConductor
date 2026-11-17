@@ -9,3 +9,4 @@ namgpb2,NaMgPb2,0.5 0.5 0,8x8x8,package scf.in unchanged (relaxed cell),"26.5 26
 limgpb2,LiMgPb2,0 0 0,8x8x8,package scf.in unchanged (relaxed cell),"14.7 14.7 14.7 72.3 72.3 72.3 178.1 178.1 178.1 195.9 195.9 195.9",,14.7,no
 limgpb2,LiMgPb2,0.5 0 0.5,8x8x8,package scf.in unchanged (relaxed cell),"33.3 33.3 47.8 47.8 56.7 65.5 169.6 169.6 179.4 204.6 204.8 204.8",,33.3,no
 csir2p2,CsIr2P2,0 0 0,8x8x8,package scf.in unchanged (relaxed cell),"11.9 11.9 50.8 50.8 71.6 126.5 163.4 163.4 307.1 307.1 312.0 312.0 333.5 410.6","-9.4",11.9,no
+csir2p2,CsIr2P2,0.5 0.5 0.5,8x8x8,package scf.in unchanged (relaxed cell),"28.2 28.2 45.5 46.9 46.9 63.7 126.5 162.8 162.8 306.3 306.3 310.6 310.6 335.2 405.8",,28.2,no
