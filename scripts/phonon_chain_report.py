@@ -37,8 +37,57 @@ Q_POINT = re.compile(r"q\s*=\s*\(\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*\)")
 VECTOR = re.compile(r"^\s*\(\s*([-\d.]+)\s+[-\d.]+\s+([-\d.]+)\s+[-\d.]+\s+([-\d.]+)\s+[-\d.]+\s*\)\s*$")
 
 
-def is_translation(vectors: list[tuple[float, float, float]]) -> bool:
-    """True if every atom moves the same way: the crystal sliding as a whole, which costs no energy."""
+TRANSLATION_OVERLAP = 0.9         # acoustic modes at Gamma measure 0.99 or more, optical modes 0.1 or less
+
+
+def atom_masses(text: str) -> list[float] | None:
+    """The mass of each atom, in the order of the file, from a .dyn file's header. None if there is no header."""
+    lines = text.splitlines()
+    for start, line in enumerate(lines[:8]):
+        parts = line.split()
+        if len(parts) >= 9 and parts[0].isdigit() and parts[1].isdigit():      # ntyp, nat, ibrav, celldm(1..6)
+            ntyp, nat = int(parts[0]), int(parts[1])
+            break
+    else:
+        return None
+    start += 1
+    if start < len(lines) and lines[start].strip().lower().startswith("basis vectors"):
+        start += 4
+    species: dict[int, float] = {}
+    for line in lines[start:start + ntyp]:
+        found = re.match(r"\s*(\d+)\s+'[^']*'\s+([-+\d.EeDd]+)", line)
+        if not found:
+            return None
+        species[int(found.group(1))] = float(found.group(2).replace("D", "E").replace("d", "e"))
+    masses = []
+    for line in lines[start + ntyp:start + ntyp + nat]:
+        parts = line.split()
+        if len(parts) < 5 or not parts[1].isdigit() or int(parts[1]) not in species:
+            return None
+        masses.append(species[int(parts[1])])
+    return masses if len(masses) == nat else None
+
+
+def translation_overlap(vectors: list[tuple[float, float, float]], masses: list[float]) -> float:
+    """How much of a mode is the whole crystal sliding: 1 for a pure translation, 0 for a mode with no net momentum.
+
+    The .dyn file prints displacements u. In mass-weighted form a translation is sqrt(M) times one direction for
+    every atom, so the overlap is |sum M u| / sqrt(sum M |u|^2 * sum M). Optical modes at the zone centre carry no
+    net momentum (sum M u = 0), whatever the masses are, so the two kinds are far apart.
+    """
+    net = [sum(m * v[k] for m, v in zip(masses, vectors)) for k in range(3)]
+    weight = sum(m * sum(x * x for x in v) for m, v in zip(masses, vectors)) * sum(masses)
+    return math.sqrt(sum(x * x for x in net) / weight) if weight > 0 else 0.0
+
+
+def is_translation(vectors: list[tuple[float, float, float]], masses: list[float] | None = None) -> bool:
+    """True if the mode is the crystal sliding as a whole, which costs no energy.
+
+    With the atoms' masses (read from the file's header) this is the overlap test above. Without them it falls back
+    to "every atom moves the same way by nearly the same amount", which is right only for atoms of similar mass.
+    """
+    if masses is not None and len(masses) == len(vectors) and len(vectors) >= 2:
+        return translation_overlap(vectors, masses) >= TRANSLATION_OVERLAP
     if len(vectors) < 2:
         return False
     first = vectors[0]
@@ -77,8 +126,10 @@ def modes(text: str) -> list[dict]:
         vector = VECTOR.match(line)
         if vector and current is not None:
             current["vectors"].append(tuple(float(x) for x in vector.groups()))
+    masses = atom_masses(text)
     for item in found:
-        item["translation"] = item["at_gamma"] and is_translation(item.pop("vectors"))
+        vectors = item.pop("vectors")
+        item["translation"] = item["at_gamma"] and is_translation(vectors, masses)
     return found
 
 
