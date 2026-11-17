@@ -1,0 +1,83 @@
+composition,formula,label,tc_k,null_lowest_k,family,element_system,source,new_element_system,has_magnetic_element,first_report,identifiers,record_ids
+Ag:0.167;Ca:0.500;Zn:0.333,Ca3Zn2Ag,0,,2.0,Other,Ag-Ca-Zn,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Ag:0.400;Ca:0.200;Ge:0.400,CaAg2Ge2,0,,1.999,Other,Ag-Ca-Ge,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Al:0.011;Cu:0.143;Ir:0.275;Te:0.571,CuIr1.925Al0.075Te4,1,2.75,,Other,Al-Cu-Ir-Te,new harvest,1,0,no_or_unclear,10.1088/1674-1056/ac43b1,s025
+Al:0.125;Nb:0.625;Si:0.250,Nb5Si2Al,1,2.6,,Other,Al-Nb-Si,"first test, unscored",0,0,yes,10.35848/1347-4065/ae133e,r146
+Al:0.333;Hf:0.333;Ni:0.333,HfNiAl,1,1.0,,Other,Al-Hf-Ni,"first test, unscored",0,1,yes,10.1088/1361-648x/ac8a80,r060
+Al:0.333;Ni:0.333;Zr:0.333,ZrNiAl,1,1.0,,Other,Al-Ni-Zr,"first test, unscored",0,1,yes,10.1088/1361-648x/ac8a80,r061
+Al:0.462;Fe:0.462;Sc:0.077,ScAl6Fe6,0,,2.0,Other,Al-Fe-Sc,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Al:0.615;Ca:0.077;Cu:0.308,CaAl8Cu4,0,,2.0,Other,Al-Ca-Cu,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Al:0.700;Cu:0.100;Pr:0.200,Pr2Al7Cu,0,,2.0,Other,Al-Cu-Pr,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+As:0.400;La:0.200;Rh:0.400,LaRh2As2,1,0.3,,Other,As-La-Rh,"first test, unscored",0,0,yes,10.1103/physrevb.106.014506 10.7566/jpsj.95.013701 arxiv:2204.07740,r219 r225 r253
+B:0.111;Mg:0.278;O:0.556;Sn:0.028;Ti:0.028,Mg10TiSn(BO5)4,0,,2.0,Oxides,B-Mg-O-Sn-Ti,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+B:0.111;Mg:0.278;O:0.556;Sn:0.056,Mg5Sn(BO5)2,0,,2.0,Oxides,B-Mg-O-Sn,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+B:0.111;Mg:0.278;O:0.556;Ti:0.056,Mg5Ti(BO5)2,0,,2.0,Oxides,B-Mg-O-Ti,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+B:0.143;Mg:0.214;O:0.571;Ti:0.071,Mg3Ti(BO4)2,0,,2.0,Oxides,B-Mg-O-Ti,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+B:0.143;Mg:0.238;Nb:0.048;O:0.571,Mg5Nb(BO4)3,0,,2.0,Oxides,B-Mg-Nb-O,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+B:0.143;Mg:0.238;O:0.571;Ta:0.048,Mg5Ta(BO4)3,0,,2.0,Oxides,B-Mg-O-Ta,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+B:0.154;Cu:0.231;O:0.564;Ti:0.051,Ti2Cu9B6O22,0,,2.0,Cuprates,B-Cu-O-Ti,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Ba:0.081;Ge:0.297;Pt:0.622,Ba3Pt23Ge11,0,,1.8,Other,Ba-Ge-Pt,"first test, unscored",0,0,yes,arxiv:2106.10330,r049
+Ba:0.125;F:0.125;In:0.250;O:0.500,BaIn2O4F,0,,2.0,Oxides,Ba-F-In-O,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Ba:0.200;Bi:0.200;Br:0.200;O:0.400,BaBiO2Br,1,4.6,,Oxides,Ba-Bi-Br-O,new harvest,1,0,yes,10.1088/1361-6668/aea819,s022
+Bi:0.200;Ce:0.200;O:0.200;S:0.340;Se:0.060,CeOBiS1.7Se0.3,1,3.3,,Oxides,Bi-Ce-O-S-Se,new harvest,1,0,no_or_unclear,10.1002/pssr.202000546,s002
+Bi:0.250;Br:0.125;O:0.500;Y:0.125,YBi2O4Br,1,3.6,,Oxides,Bi-Br-O-Y,new harvest,1,0,yes,10.1088/1361-6668/aea819,s023
+Bi:0.257;Ni:0.143;O:0.571;Sr:0.029,Bi1.8Sr.2NiO4,0,,2.0,Oxides,Bi-Ni-O-Sr,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Bi:0.667;Tl:0.333,TlBi2,1,6.2,,Other,Bi-Tl,new harvest,0,0,no_or_unclear,10.1103/physrevb.106.224501,s032
+Ca:0.071;Cu:0.643;Sn:0.286,CaCu9Sn4,0,,2.0,Other,Ca-Cu-Sn,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Ca:0.105;O:0.579;Sb:0.105;Sr:0.211,Sr2CaSbO5.5,0,,1.996,Oxides,Ca-O-Sb-Sr,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Ca:0.200;Cu:0.533;Sn:0.267,Ca3Cu8Sn4,0,,2.0,Other,Ca-Cu-Sn,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Ce:0.250;Co:0.250;Ge:0.500,CeCoGe2,0,,0.02,Other,Ce-Co-Ge,"first test, unscored",0,1,no_or_unclear,arxiv:2603.13111,r209
+Cl:0.158;Cu:0.263;Na:0.053;O:0.421;Se:0.105,NaCu5O2(SeO3)2Cl3,0,,1.998,Cuprates,Cl-Cu-Na-O-Se,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Cl:0.211;Eu:0.158;S:0.421;Ta:0.211,Eu0.75ClTaS2,1,3.5,,Other,Cl-Eu-S-Ta,new harvest,1,0,no_or_unclear,10.1103/xxn8-gbv6,s038
+Co:0.250;La:0.250;Si:0.500,LaCoSi2,1,1.2,,Other,Co-La-Si,new harvest,1,1,no_or_unclear,10.1016/j.physc.2025.1354655,s004
+Co:0.308;Fe:0.692,Fe9Co4,0,,1.998,Other,Co-Fe,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Co:0.375;Fe:0.625,Fe5Co3,0,,2.0,Other,Co-Fe,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Co:0.438;Fe:0.562,Fe9Co7,0,,2.0,Other,Co-Fe,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Co:0.667;Sn:0.167;Zr:0.167,ZrSnCo4,0,,2.004,Other,Co-Sn-Zr,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Cr:0.250;Fe:0.250;Mn:0.500,Mn2CrFe,0,,2.001,Other,Cr-Fe-Mn,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Cr:0.250;Fe:0.500;Sn:0.250,CrFe2Sn,0,,2.004,Other,Cr-Fe-Sn,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Cs:0.091;Cu:0.273;Se:0.455;Yb:0.182,CsYb2Cu3Se5,0,,2.0,Other,Cs-Cu-Se-Yb,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Cs:0.125;Cu:0.500;Se:0.375,CsCu4Se3,0,,2.0,Other,Cs-Cu-Se,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Cu:0.143;Ir:0.286;Se:0.014;Te:0.557,CuIr2Te3.9Se0.1,1,2.83,,Other,Cu-Ir-Se-Te,new harvest,0,0,no_or_unclear,10.1088/1361-6668/ac2169,s019
+Cu:0.167;Ga:0.500;Pr:0.333,Pr2Ga3Cu,0,,2.0,Other,Cu-Ga-Pr,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Cu:0.300;Ga:0.500;Pr:0.200,Pr2Ga5Cu3,0,,2.0,Other,Cu-Ga-Pr,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Cu:0.500;K:0.125;Se:0.375,KCu4Se3,0,,2.0,Other,Cu-K-Se,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+Eu:0.081;Ge:0.297;Pt:0.622,Eu3Pt23Ge11,0,,1.8,Other,Eu-Ge-Pt,"first test, unscored",0,0,yes,arxiv:2106.10330,r050
+Fe:0.077;Se:0.615;Zr:0.308,FeZr4Se8,0,,2.002,Ferrites,Fe-Se-Zr,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Fe:0.111;Sb:0.222;Zr:0.667,Zr6FeSb2,1,1.3,,Other,Fe-Sb-Zr,new harvest,1,1,yes,10.7566/jpsj.93.065001,s045
+Fe:0.222;K:0.333;Se:0.444,K3Fe2Se4,0,,2.0,Ferrites,Fe-K-Se,dataset,0,1,no_or_unclear,10.34863/w3xm-w506,
+Fe:0.250;K:0.250;Se:0.500,KFeSe2,0,,2.0,Ferrites,Fe-K-Se,dataset,0,1,no_or_unclear,10.34863/w3xm-w506,
+Fe:0.385;Ga:0.538;Zr:0.077,ZrFe5Ga7,0,,2.005,Other,Fe-Ga-Zr,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Fe:0.462;Ga:0.462;Sc:0.077,ScGa6Fe6,0,,2.0,Other,Fe-Ga-Sc,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Fe:0.462;Ga:0.462;Zr:0.077,ZrGa6Fe6,0,,2.0,Other,Fe-Ga-Zr,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Fe:0.500;Hf:0.250;Zr:0.250,HfZrFe2,0,,2.0,Other,Fe-Hf-Zr,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Fe:0.500;Sc:0.250;Ta:0.250,ScTaFe2,0,,2.0,Other,Fe-Sc-Ta,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Ga:0.333;Ni:0.333;Zr:0.333,ZrNiGa,1,0.42,,Other,Ga-Ni-Zr,"first test, unscored",0,1,yes,10.1088/1361-648x/ac8a80,r062
+Ga:0.667;Lu:0.333,LuGa2,0,,0.34,Other,Ga-Lu,"first test, unscored",0,0,no_or_unclear,10.1021/acs.inorgchem.5c06073,r211
+Ga:0.833;Pd:0.167,PdGa5,1,1.6,,Other,Ga-Pd,new harvest,1,0,no_or_unclear,10.1021/acs.jpcc.1c03615,s005
+Ge:0.297;Pt:0.622;Sr:0.081,Sr3Pt23Ge11,0,,1.8,Other,Ge-Pt-Sr,"first test, unscored",0,0,yes,arxiv:2106.10330,r048
+Ge:0.333;Ir:0.333;Zr:0.333,ZrIrGe,1,2.84,,Other,Ge-Ir-Zr,"first test, unscored",0,0,no_or_unclear,10.1103/dch7-3f7y arxiv:2510.03188,r149 r162
+Ge:0.333;Rh:0.333;Th:0.333,ThRhGe,1,3.36,,Other,Ge-Rh-Th,"first test, unscored",0,0,yes,10.1021/acs.chemmater.1c03772 10.1038/s41535-022-00464-4,r088 r215 r216
+Ge:0.600;La:0.200;Rh:0.200,LaRhGe3,1,0.39,,Other,Ge-La-Rh,"first test, unscored",0,0,yes,10.1038/s41535-024-00686-8,r242
+Ge:0.615;Ru:0.077;Y:0.308,Y4RuGe8,1,1.3,,Other,Ge-Ru-Y,"first test, unscored",0,0,yes,10.1021/acs.chemmater.1c02488,r006
+Hf:0.250;Nb:0.250;Ti:0.250;Zr:0.250,TiZrNbHf,1,6.3,,Other,Hf-Nb-Ti-Zr,new harvest,1,0,no_or_unclear,10.1063/10.0027922,s011
+Hf:0.250;Te:0.750,HfTe3,0,,0.05,Other,Hf-Te,"first test, unscored",0,0,no_or_unclear,arxiv:2110.09715,r212
+Hf:0.400;N:0.400;Se:0.200,Hf2N2Se,0,,2.0,Other,Hf-N-Se,dataset,1,0,no_or_unclear,10.34863/w3xm-w506,
+In:0.333;Lu:0.333;Pd:0.333,LuPdIn,0,,0.4,Other,In-Lu-Pd,"first test, unscored",0,0,no_or_unclear,10.1103/physrevb.104.024505,r010
+In:0.500;Ni:0.500,NiIn,0,,2.0,Other,In-Ni,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Ir:0.100;Mo:0.350;Nb:0.350;Pt:0.150;V:0.050,V0.05Nb0.35Mo0.35Ir0.10Pt0.15,1,5.18,,Other,Ir-Mo-Nb-Pt-V,new harvest,1,0,yes,10.3389/fphy.2021.651808,s041
+La:0.200;P:0.200;Pd:0.600,LaPd3P,1,0.28,,Other,La-P-Pd,"first test, unscored",0,0,yes,10.1021/acs.inorgchem.1c02604,r032
+La:0.219;Rh:0.342;Sb:0.438,La2Rh3.125Sb4,1,0.8,,Other,La-Rh-Sb,"first test, unscored",0,0,yes,10.1088/2752-5724/ac972f arxiv:2206.05635,r066 r086
+La:0.333;Ni:0.333;Zn:0.333,LaNiZn,1,1.5,,Other,La-Ni-Zn,new harvest,1,1,no_or_unclear,10.7566/jpsj.92.043703,s044
+La:0.333;Pt:0.293;Si:0.373,LaPt0.88Si1.12,1,2.02,,Other,La-Pt-Si,"first test, unscored",0,0,no_or_unclear,arxiv:2305.12721,r105
+Mo:0.250;Nb:0.500;Ti:0.250,Nb2TiMo,1,3.22,,Other,Mo-Nb-Ti,"first test, unscored",0,0,no_or_unclear,arxiv:2412.08361,r139
+Nb:0.333;Ti:0.333;Zr:0.333,TiZrNb,1,8.2,,Other,Nb-Ti-Zr,new harvest,0,0,no_or_unclear,10.1063/10.0027922,s010
+Nb:0.500;Ni:0.500,NbNi,0,,1.998,Other,Nb-Ni,dataset,1,1,no_or_unclear,10.34863/w3xm-w506,
+Nb:0.571;Sb:0.286;Si:0.143,Nb4SiSb2,1,1.6,,Other,Nb-Sb-Si,new harvest,1,0,yes,10.1039/d2tc01510b,s008
+Ni:0.200;P:0.400;Zr:0.400,Zr2NiP2,0,,1.8,Other,Ni-P-Zr,"first test, unscored",0,1,yes,10.1016/j.cplett.2022.139896,r083
+Ni:0.462;Si:0.462;Th:0.077,ThNi6Si6,0,,2.0,Other,Ni-Si-Th,"first test, unscored",0,1,yes,10.1016/j.jalmes.2023.100051,r117
+Ni:0.500;Zr:0.500,ZrNi,0,,2.0,Other,Ni-Zr,dataset,0,1,no_or_unclear,10.34863/w3xm-w506,
+Si:0.250;Ta:0.750,Ta3Si,0,,2.001,Other,Si-Ta,dataset,0,0,no_or_unclear,10.34863/w3xm-w506,
+Sn:0.750;Sr:0.250,SrSn3,1,5.5,,Other,Sn-Sr,new harvest,1,0,no_or_unclear,10.1103/physrevb.111.184517,s035
+Ta:0.250;W:0.750,W3Ta,0,,2.009,Other,Ta-W,dataset,0,0,no_or_unclear,10.34863/w3xm-w506,
+Ta:0.615;Te:0.385,Ta1.6Te,1,1.0,,Other,Ta-Te,"first test, unscored",0,0,yes,10.1038/s41467-024-45952-2 10.1038/s41535-024-00669-9,r122 r243

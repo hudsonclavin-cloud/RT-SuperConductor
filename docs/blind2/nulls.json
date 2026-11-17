@@ -1,0 +1,31 @@
+{
+ "files": 323,
+ "files_with_a_usable_scan": 251,
+ "files_not_used": {
+  "named 'reduced': oxygen content unknown": 19,
+  "a mixture of targets": 16,
+  "no susceptibility column": 10,
+  "the field changes during the scan": 9,
+  "no composition in the file name": 8,
+  "field above 100 Oe": 5,
+  "not a temperature scan": 3,
+  "a film": 2
+ },
+ "compositions": 162,
+ "verdicts": {
+  "null": 55,
+  "signal seen": 32,
+  "left out": 75
+ },
+ "left_out_or_signal_reasons": {
+  "a diamagnetic signal of 2% of full shielding or more": 32,
+  "a system the authors flag as unresolved": 75
+ },
+ "nulls_by_family": {
+  "Other": 41,
+  "Oxides": 9,
+  "Cuprates": 2,
+  "Ferrites": 3
+ },
+ "note": "before the rule that drops compositions the training tables hold"
+}
