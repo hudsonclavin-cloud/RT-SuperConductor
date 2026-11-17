@@ -211,3 +211,50 @@ def test_memory_is_requested_only_when_asked(tmp_path):
     assert plain.returncode == 0 and "--mem" not in plain.stderr
     assert asked.returncode == 0 and asked.stderr.count("--mem=16G") == 6
     assert "--partition=compute_partners --qos=short" in asked.stderr
+
+
+PHONON_FIXTURES = ROOT / "tests/fixtures/phonon"
+
+
+@pytest.mark.parametrize("name, translations, lowest_real, counted", [
+    ("namgpb2", [18.054071, 18.054071, 18.054071], 60.435167, 9),
+    ("limgpb2", [14.66871, 14.66871, 14.66871], 72.305195, 9),
+    ("csir2p2", [-9.37198, 11.880014, 11.880014], 50.831082, 12),
+])
+def test_translations_are_found_when_atoms_differ_in_mass(name, translations, lowest_real, counted):
+    """Real zone-centre files from the shortlist 2 pre-check. Na and Pb move by different amounts in a translation
+    that ph.x has left impure, so the equal-amounts test missed them; the mass-weighted overlap does not."""
+    text = (PHONON_FIXTURES / f"{name}.gamma.dyn").read_text(encoding="utf-8")
+    found = R.modes(text)
+    assert [item["cm1"] for item in found if item["translation"]] == translations
+    values = R.frequencies(text)
+    assert len(values) == counted and min(values) == lowest_real
+
+
+def test_masses_are_read_from_the_header_in_atom_order():
+    text = (PHONON_FIXTURES / "namgpb2.gamma.dyn").read_text(encoding="utf-8")
+    masses = R.atom_masses(text)
+    assert len(masses) == 4 and masses[2] == masses[3]                 # Na, Mg, Pb, Pb
+    assert masses[2] / masses[0] == pytest.approx(207.2 / 22.99, rel=1e-3)
+    assert R.atom_masses(GAMMA_DYN) is None                            # no header: the older test is used
+
+
+def test_a_soft_optical_mode_still_counts_with_unequal_masses():
+    text = (PHONON_FIXTURES / "namgpb2.gamma.dyn").read_text(encoding="utf-8")
+    soft = text.replace("1.811801 [THz] =      60.435167", "-1.199170 [THz] =     -40.000000")
+    assert soft != text and min(R.frequencies(soft)) == -40.0
+
+
+def test_translations_are_excused_only_at_the_zone_centre_with_unequal_masses():
+    text = (PHONON_FIXTURES / "csir2p2.gamma.dyn").read_text(encoding="utf-8")
+    moved = text.replace("q = (    0.000000000   0.000000000   0.000000000 )",
+                         "q = (    0.000000000   0.000000000   0.500000000 )")
+    assert moved != text and min(R.frequencies(moved)) == -9.37198
+
+
+def test_the_overlap_is_one_for_a_pure_translation_and_zero_for_no_net_momentum():
+    masses = [1.0, 9.0]
+    assert R.translation_overlap([(0.3, 0.0, 0.0), (0.3, 0.0, 0.0)], masses) == pytest.approx(1.0)
+    assert R.translation_overlap([(0.9, 0.0, 0.0), (-0.1, 0.0, 0.0)], masses) == pytest.approx(0.0)
+    # the light atom moving alone is mostly not a translation
+    assert R.translation_overlap([(1.0, 0.0, 0.0), (0.0, 0.0, 0.0)], masses) < 0.4

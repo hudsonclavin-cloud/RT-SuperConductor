@@ -348,3 +348,35 @@ is in `docs/hazel-runbook.md` ("Update, 2026-11-16 19:11 UTC"). In short:
 - `MEM=16G` in front of the submit command requests memory; the partner
   nodes need `PH_TIME=01:55:00` and resubmission with `START_AT=ph`.
 - Access ends 2027-05-07.
+
+## Update, 2026-11-17 17:00 UTC: the report now recognises translations for atoms of any mass
+
+**What was wrong.** The rule sets aside the three whole-crystal translations
+at the zone centre. The report recognised one only if every atom moved by
+nearly the same amount. In NaMgPb2 and LiMgPb2 the atoms differ a lot in
+mass and ph.x leaves the translations impure, so they were not set aside
+(`docs/rung4-shortlist2.md`). Had they come out negative, the report would
+have called a stable compound unstable.
+
+**The fix.** The report reads each atom's mass from the file's header and
+measures how much of a mode is the crystal sliding as a whole: the
+mass-weighted overlap with a pure translation. An optical mode at the zone
+centre carries no net momentum, whatever the masses, so its overlap is near
+zero.
+
+| File (zone centre) | Overlap of the three lowest modes | Largest overlap of any other mode |
+| --- | --- | --- |
+| NaMgPb2 | 0.996 | 0.07 |
+| LiMgPb2 | 0.999 | 0.04 |
+| CsIr2P2 | 0.996 to 1.000 | 0.09 |
+
+- A mode counts as a translation at 0.9 or more, and only at the zone
+  centre.
+- The three real files are test fixtures (`tests/fixtures/phonon/`). The
+  tests check that the translations are found, that a soft optical mode
+  still counts, and that the same pattern away from the zone centre still
+  counts.
+- No verdict changes. With the fix the lowest counted modes at the zone
+  centre are 60.4 (NaMgPb2), 72.3 (LiMgPb2) and 50.8 cm⁻¹ (CsIr2P2), the
+  same as the sum-rule check gave.
+- Files without a header fall back to the earlier test.
