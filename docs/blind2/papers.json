@@ -1,0 +1,17 @@
+{
+ "returned": 2000,
+ "used in the first test": 59,
+ "no usable doi": 6,
+ "distinct papers": 1930,
+ "pass the filter": 105,
+ "read": 105,
+ "batches": 5,
+ "by_year": {
+  "2021": 17,
+  "2022": 17,
+  "2023": 14,
+  "2024": 20,
+  "2025": 19,
+  "2026": 18
+ }
+}
