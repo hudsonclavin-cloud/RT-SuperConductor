@@ -1,0 +1,47 @@
+{
+ "name": "csir2p2",
+ "formula": "CsIr2P2",
+ "mp_id": "mp-aaacqsbd",
+ "atoms": 5,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  8,
+  8,
+  8
+ ],
+ "fit_k_mesh": [
+  16,
+  16,
+  16
+ ],
+ "q_mesh": [
+  4,
+  4,
+  4
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   -1.984856395,
+   1.984856395,
+   7.259716376
+  ],
+  [
+   1.984856395,
+   -1.984856395,
+   7.259716376
+  ],
+  [
+   1.984856395,
+   1.984856395,
+   -7.259716376
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Cs_ONCV_PBE_sr.upf": "514dbd6e5093dd0beca9d484c94877264173ae3cebab3b61ddddc61d5f95482c",
+  "Ir_ONCV_PBE_sr.upf": "93302cc5592571d9bb6a0e87dcf7dbf0f9b178e6b06ca7f77dc271dccd2b846a",
+  "P_ONCV_PBE_sr.upf": "9076687f1b7041232d4f70c30eb603645b94460af9e28fff82914bb0aa21aa26"
+ },
+ "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"
+}

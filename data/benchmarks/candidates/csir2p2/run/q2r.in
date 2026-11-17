@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'csir2p2.dyn'
+    flfrc  = 'csir2p2.fc'
+    la2F   = .true.
+ /

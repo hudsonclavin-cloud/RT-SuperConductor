@@ -1,0 +1,12 @@
+ &input
+    asr    = 'simple'
+    flfrc  = 'csir2p2.fc'
+    flfrq  = 'csir2p2.freq'
+    dos    = .true.
+    fldos  = 'csir2p2.phdos'
+    nk1 = 16
+    nk2 = 16
+    nk3 = 16
+    ndos   = 500
+    la2F   = .true.
+ /

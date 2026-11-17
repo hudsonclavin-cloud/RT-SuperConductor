@@ -232,3 +232,56 @@ Ten low-tier readers, one compound each: the five in the top 10 that shortlist
 - **Settings:** each compound is relaxed first, then its package's own
   ground-state input is used unchanged (k mesh 8×8×8, 90 Ry, smearing 0.02
   Ry).
+
+### Step 4, first result: NaMgPb2 passes at both points, 2026-11-16 22:49 UTC
+
+**Result.** With the package's own ground-state settings on the relaxed cell
+(k mesh 8×8×8, 90 Ry), no mode is imaginary at either point.
+
+| Point | Frequencies (cm⁻¹) | Lowest | Imaginary? |
+| --- | --- | --- | --- |
+| Zone centre | 18.1 (×3), 60.4 (×3), 160.3 (×3), 182.5 (×3) | 18.1 | No |
+| (½ ½ 0), where the force field was softest | 26.5 (×2), 49.0 (×2), 55.6, 57.4, 150.6 (×2), 159.6, 182.4, 190.2 (×2) | 26.5 | No |
+
+- Verdict under the rule in `docs/hazel-candidates.md`: **NaMgPb2 passes
+  the pre-check.** Its Hazel package is `data/benchmarks/candidates/namgpb2/`.
+- [Certain] The force field had flagged it (−28 cm⁻¹). The real calculation
+  does not agree, as with 17 of the 60 made compounds in the screen's
+  validation.
+- [Likely] The 18.1 triplet at the zone centre is the three whole-crystal
+  translations, shifted up from zero because ph.x does not impose the sum
+  rule. All four atoms move in the same direction in those modes.
+- **A limit of the report script, found here.** It recognises a translation
+  only if every atom moves by nearly the same amount (within 10%). With atoms
+  as different in mass as Na and Pb the amounts differ, so the three modes
+  were not set aside. That does not change this verdict, because they are
+  positive. For a compound of unequal masses whose translations came out
+  negative, the script would wrongly call it unstable. Not changed here; it
+  should be fixed with a test before the next such case.
+- [Certain] What this does not show: two points are not the whole zone, and
+  a stable lattice says nothing yet about superconductivity. The full run on
+  Hazel gives both.
+
+**Prediction.** "At least 1 never-made compound survives the pre-check"
+(40%): yes, NaMgPb2. LiMgPb2 and CsIr2P2 are still to run.
+
+**Note on the ranking of record.** This shortlist was ranked with cycle 3.
+The owner accepted cycle 4 on 2026-11-16; the shortlist is not re-ranked.
+
+### Step 4, second result: LiMgPb2 passes at both points, 2026-11-16 23:33 UTC
+
+| Point | Frequencies (cm⁻¹) | Lowest | Imaginary? |
+| --- | --- | --- | --- |
+| Zone centre | 14.7 (×3), 72.3 (×3), 178.1 (×3), 195.9 (×3) | 14.7 | No |
+| (½ 0 ½), where the force field was softest | 33.3 (×2), 47.8 (×2), 56.7, 65.5, 169.6 (×2), 179.4, 204.6, 204.8 (×2) | 33.3 | No |
+
+- Verdict under the rule: **LiMgPb2 passes the pre-check.** Its package is
+  `data/benchmarks/candidates/limgpb2/`.
+- [Likely] As with NaMgPb2, the lowest triplet at the zone centre is the
+  three translations, shifted up by the missing sum rule.
+- [Certain] NaMgPb2 and LiMgPb2 are the same structure with one element
+  swapped, so they are not two independent successes. If one is run on Hazel,
+  the other adds less.
+- The run was cut by a container restart during the second point and
+  continued from its saved work; the output ends normally.
+- CsIr2P2 is running.

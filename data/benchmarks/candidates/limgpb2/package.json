@@ -1,0 +1,47 @@
+{
+ "name": "limgpb2",
+ "formula": "LiMgPb2",
+ "mp_id": "mp-aaacplni",
+ "atoms": 4,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  8,
+  8,
+  8
+ ],
+ "fit_k_mesh": [
+  16,
+  16,
+  16
+ ],
+ "q_mesh": [
+  4,
+  4,
+  4
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   0.0,
+   3.685562455,
+   3.685562455
+  ],
+  [
+   3.685562455,
+   0.0,
+   3.685562455
+  ],
+  [
+   3.685562455,
+   3.685562455,
+   0.0
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Li_ONCV_PBE_sr.upf": "c618f91dc57000278fdc6db70b87c73b37a96b2c30ccd1074c0e1920a2032faa",
+  "Mg_ONCV_PBE_sr.upf": "cbbacab070d13dcbd12603f65af68a66cca7d3e7e0af8a13cc9fb19e1daac7de",
+  "Pb_ONCV_PBE_sr.upf": "108c7825f18819fffc64ef69bbe5ee94df73db09a0358641ab0a4bcf0a704fd0"
+ },
+ "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"
+}

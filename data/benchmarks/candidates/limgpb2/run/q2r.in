@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'limgpb2.dyn'
+    flfrc  = 'limgpb2.fc'
+    la2F   = .true.
+ /
