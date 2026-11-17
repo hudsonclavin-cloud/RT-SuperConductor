@@ -1,0 +1,55 @@
+{
+ "records": {
+  "dataset nulls": 55,
+  "first test, unscored: confirmed records": 250,
+  "first test, unscored: not confirmed": 14,
+  "first test, unscored: null not measured to 2 K": 1,
+  "new harvest: confirmed records": 45,
+  "new harvest: not confirmed": 2,
+  "compositions with both a null and a superconducting record (kept as superconductors)": 2
+ },
+ "compositions_before_the_rules": 300,
+ "dropped": {
+  "in a training table": 95,
+  "scored in the first blind table": 114,
+  "a near twin of a training composition": 9
+ },
+ "second_reader_verdicts": {
+  "confirmed": 45,
+  "not_bulk_ambient": 2
+ },
+ "table": {
+  "compositions": 82,
+  "superconductors": 30,
+  "nulls": 52,
+  "families": {
+   "Other": 65,
+   "Oxides": 12,
+   "Cuprates": 2,
+   "Ferrites": 3
+  },
+  "sources": {
+   "dataset / label 0": 43,
+   "new harvest / label 1": 16,
+   "first test, unscored / label 1": 14,
+   "first test, unscored / label 0": 9
+  }
+ },
+ "intermetallics": {
+  "compositions": 65,
+  "superconductors": 27,
+  "nulls": 38,
+  "in_a_new_element_system": {
+   "compositions": 36,
+   "superconductors": 10,
+   "nulls": 26
+  },
+  "without_magnetic_elements": {
+   "compositions": 41,
+   "superconductors": 21,
+   "nulls": 20
+  }
+ },
+ "table_sha256": "98ffcf9e964fd4c470e2d571c4575144a48b36a105680defb4b72f0abbedcac5",
+ "power_rule_met": true
+}

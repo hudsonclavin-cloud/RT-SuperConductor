@@ -1,0 +1,48 @@
+record_id,verdict,note
+s001,confirmed,"Abstract states Mg4Pd7As6 is a superconductor with Tc = 5.45 K; bulk XRD, magnetization, specific heat, resistivity"
+s002,confirmed,CeOBiS1.7Se0.3 single crystals: bulk superconductivity with Tc 3.3 K from resistivity and magnetization
+s003,confirmed,TiHfNbTaMo HEA: type-II superconductivity with Tc = 3.42 K stated
+s004,confirmed,LaCoSi2 single crystal: Tc = 1.2 K from resistivity; specific heat supports BCS
+s005,confirmed,PdGa5 endohedral Ga cluster compound: superconductivity below Tc = 1.6 K from magnetization and heat capacity
+s006,confirmed,Abstract states CsV3Sb5 has Tc = 3.2 K (x=0 end member of the Cs(V1-xTix)3Sb5 series studied)
+s007,confirmed,"Monoclinic approximant of Al13Os4 quasicrystal: superconductivity at Tc ~5.47 K from resistivity, magnetization, specific heat, muSR"
+s008,confirmed,Nb4SiSb2 stated as a new superconductor with Tc of 1.6 K; interstitial Cu/Pd/Pt doping only lowers Tc
+s009,not_bulk_ambient,Hydrated Li(x)(H2O)(y)TaS2 is intercalated (Li and water between layers); max Tc 4.6 K at x ~0.42
+s010,confirmed,"Abstract: bulk equimolar TiZrNb superconductor, Tc ~8.2 K"
+s011,confirmed,"Abstract: bulk equimolar TiZrNbHf superconductor, Tc ~6.3 K"
+s012,confirmed,Abstract: Mn5Si3-type Zr5Ga3 shows no superconducting transition down to 1.9 K; bulk/ambient not stated
+s013,confirmed,Abstract: bulk gamma-PtBi2 gap with Tc ~0.5 K (STM); surface Tc ~3 K also reported
+s014,confirmed,"Abstract: single-crystal cubic La3Al, Tc ~6.32 K"
+s015,confirmed,"Abstract: noncentrosymmetric W3Al2C, Tc = 7.6 K"
+s016,confirmed,Abstract: LuPd2Sn superconducting transition below 2.5 K
+s017,confirmed,Abstract: SrGaGe Tc = 2.6 K
+s018,confirmed,Abstract: SrAlGe Tc = 6.7 K
+s019,confirmed,Abstract: CuIr2Te4-xSex at x=0.1 (Te3.9Se0.1) maximum Tc = 2.83 K
+s020,confirmed,Abstract: single-crystal NbC Tc = 12.0 K
+s021,confirmed,Abstract: single-crystal TaC Tc = 10.2 K
+s022,confirmed,"Abstract: BaBiO2Br Tc = 4.6 K from transport, bulk synthesis, intrinsic superconductivity"
+s023,confirmed,Abstract: YBi2O4Br Tc = 3.6 K from transport
+s024,confirmed,Abstract: Mo2.91Re0.09Al2C (x=0.09) maximum Tc = 9.14 K
+s025,confirmed,Max Tc 2.75 K at x=0.075 stated for CuIr1.925Al0.075Te4; specific heat shows bulk SC
+s026,confirmed,Tc = 3.8 K stated for ThRu3Si2; bulk superconductivity reported
+s027,confirmed,Tc onset 6.37 K (Tc zero 6.18 K) stated for La3Al; heat capacity confirms bulk SC
+s028,confirmed,Tc 1.2 K stated for single-crystalline BiPt
+s029,not_bulk_ambient,"Tc 3.9 K stated, but measured by STM/STS on cleaved TaIrTe4 surface; no bulk claim"
+s030,confirmed,Superconducting state below 36.5 K stated for EuRbFe4As4 single crystals
+s031,confirmed,Abstract states bulk Tc ~1.5 K for MoTe1.85Se0.15 (STM study)
+s032,confirmed,Bulk superconductivity with Tc = 6.2 K stated for TlBi2
+s033,confirmed,Two Tc at 1.8 and 1.6 K stated for PdTe2; 1.8 K matches claim
+s034,confirmed,Tc = 4.5 K stated for PdTe single crystals
+s035,confirmed,Tc = 5.5 K stated for single-crystal SrSn3 with bulk superconductivity
+s036,confirmed,Tc0 = 2.2 K stated for bulk Ba6Nb11Se28 crystal; 2D-like behaviour noted
+s037,confirmed,Tc = 0.26 K stated for CeRh2As2 single crystals
+s038,confirmed,Resistive onset around 3.5 K stated for Eu0.75ClTaS2 single crystals; matches claim
+s039,confirmed,Tc = 2.40 +/- 0.05 K stated for AuSn4 single crystals; matches 2.4 K
+s040,confirmed,Tc = 42 K stated for DyFeAsO0.88F0.12 polycrystal; matches 42.0 K
+s041,confirmed,Max Tc 5.18 K at x=0 stated; x=0 composition equals V0.05Nb0.35Mo0.35Ir0.10Pt0.15 HEA
+s042,confirmed,Tc ~4.7 K stated for Sn1-xInxTe at x=0.5 single crystals; matches 4.7 K
+s043,confirmed,Single-crystal NaAlSi: sharp superconducting transition with Tc of 6.8 K stated
+s044,confirmed,LaNiZn single crystal: bulk superconductivity below Tc = 1.5 K stated
+s045,confirmed,"Zr6FeSb2 arc-melted: superconducting transition at 1.3 K stated (AC susceptibility, resistivity)"
+s046,confirmed,Zr6RuBi2 polycrystal: bulk superconductivity below Tc = 4.9 K stated
+s047,confirmed,Zr6FeBi2 polycrystal: bulk superconductivity below Tc = 1.4 K stated
