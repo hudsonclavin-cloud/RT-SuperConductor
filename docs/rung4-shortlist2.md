@@ -285,3 +285,37 @@ The owner accepted cycle 4 on 2026-11-16; the shortlist is not re-ranked.
 - The run was cut by a container restart during the second point and
   continued from its saved work; the output ends normally.
 - CsIr2P2 is running.
+
+### Step 4: CsIr2P2 at the zone centre, and a sum-rule check of all three, 2026-11-17 03:39 UTC
+
+**CsIr2P2, zone centre.** Raw frequencies from ph.x (cm⁻¹): −9.4, 11.9 (×2),
+50.8 (×2), 71.6, 126.5, 163.4 (×2), 307.1 (×2), 312.0 (×2), 333.5, 410.6.
+
+- The −9.4 mode is the whole-crystal translation along the long axis: all
+  five atoms move the same way by the same amount (0.43 to 0.45). The report
+  script classifies it as a translation, so the rule sets it aside.
+- Verdict at this point: **no imaginary mode.** The second point, (½ ½ ½),
+  is still running; CsIr2P2 has no verdict until it finishes.
+
+**Sum-rule check (added after seeing the numbers; labelled so).** The rule
+excludes the three zone-centre translations, and the last section noted
+that the script cannot always recognise them. Quantum ESPRESSO's own tool
+settles it: `dynmat.x` with `asr = 'crystal'` imposes the acoustic sum rule
+on a zone-centre result. The three translations then come out at exactly
+zero, and what is left are the real modes.
+
+| Compound | Raw lowest three (cm⁻¹) | After the sum rule | Lowest real mode (cm⁻¹) |
+| --- | --- | --- | --- |
+| NaMgPb2 | 18.1, 18.1, 18.1 | 0, 0, 0 | 60.4 |
+| LiMgPb2 | 14.7, 14.7, 14.7 | 0, 0, 0 | 72.3 |
+| CsIr2P2 | −9.4, 11.9, 11.9 | 0, 0, 0 | 50.8 |
+
+- [Certain] In all three the lowest raw triplet is the three translations.
+  The earlier sections said "[Likely]"; this confirms it.
+- [Certain] No verdict changes. NaMgPb2 and LiMgPb2 passed on positive raw
+  numbers already.
+- The sum rule also moves the upper modes of the two Heusler compounds down
+  by 8 to 10 cm⁻¹ (160.3 to 150.1 and 182.5 to 174.8 for NaMgPb2). The raw
+  values in the tables above are ph.x's, before the correction.
+- Suggested for the report script, not done here: use this check at the
+  zone centre in place of the equal-amounts test.
