@@ -175,3 +175,119 @@ and "theor" 55.
   or by a reader, and no record had been extracted.
 - [Certain] 35 of the 200 sampled papers have no abstract in OpenAlex and
   cannot be used at all.
+
+## Result, 2026-11-17 17:43 UTC
+
+**Main result:** on compounds no model had seen, cycle 4 tells real new
+superconductors from predicted-and-failed compounds better than cycle 3
+does: +0.047 AUC on intermetallics, with a 95% interval above zero. The
+lockbox champion is ahead of the baseline by +0.029, which is not
+distinguishable from zero.
+
+Numbers are from `docs/blind2/score.json` (command:
+`python scripts/blind_test2.py score`, which refuses a second run). The
+table was committed before scoring (commit `fd4bf46`, sha256
+`98ffcf9e…`, full value in `docs/blind2/table.json`).
+
+**How the table was built.**
+
+| Step | Count |
+| --- | --- |
+| Raw susceptibility files downloaded (1 of 324 failed; it is a mixture) | 323 |
+| Files with a usable temperature scan | 251 |
+| Compositions measured | 162 |
+| Left out: a system the authors flag as unresolved | 75 |
+| Left out: a diamagnetic signal of 2% of full shielding or more | 32 |
+| **Nulls by the rule** | **55** |
+| Papers the search returned / passed the word filter | 1,930 / 105 |
+| Records the first readers extracted (from 42 papers) | 47 |
+| Confirmed by the second readers | 45 |
+| Compositions from all three sources, before the rules | 300 |
+| Dropped: scored in the first blind table | 114 |
+| Dropped: in a training table | 95 |
+| Dropped: a near twin of a training composition | 9 |
+| **The table** | **82 compositions: 30 superconductors, 52 nulls** |
+| **Intermetallics in it** | **65: 27 superconductors, 38 nulls** |
+
+- The power rule (25 of each among intermetallics) is met.
+- Of the 38 intermetallic nulls, 29 come from the dataset and 9 from the
+  first test's unscored records. Of the 27 superconductors, 14 come from the
+  first test's unscored records and 13 from the new harvest.
+- The rule's sanity check on known compounds: every known superconductor the
+  authors made as a check (Nb3Ge, V3Si, Nb3Al and others) came out as
+  "signal seen", and known non-superconductors (Cu3Sn, Ta3Si) as nulls.
+- My own check of the readers: 8 random records read against their
+  abstracts; all 8 say what was recorded.
+
+**Comparison A (primary): cycle 4 against cycle 3.**
+
+| Rows | Cycle 3 AUC | Cycle 4 AUC | Difference | 95% interval | 99% interval |
+| --- | --- | --- | --- | --- | --- |
+| Intermetallics (65; 38 nulls) | 0.8197 | 0.8665 | +0.0468 | +0.0075 to +0.1013 | −0.0030 to +0.1248 |
+| All compositions (82; 52 nulls) | 0.7545 | 0.8218 | +0.0673 | +0.0181 to +0.1253 | +0.0012 to +0.1481 |
+| Intermetallics, dataset nulls only (56) | 0.8059 | 0.8621 | +0.0562 | +0.0111 to +0.1205 | +0.0036 to +0.1514 |
+| Intermetallics without Fe, Co, Ni, Mn, Cr (41) | 0.7786 | 0.8238 | +0.0452 | −0.0127 to +0.1187 | −0.0313 to +0.1467 |
+
+- Reading by the plan's table: **cycle 4 is better.**
+
+**Comparison B: the lockbox champion against the baseline.**
+
+| Rows | Baseline AUC | Champion AUC | Difference | 95% interval |
+| --- | --- | --- | --- | --- |
+| Intermetallics (65) | 0.8012 | 0.8304 | +0.0292 | −0.0445 to +0.1136 |
+| All compositions (82) | 0.7397 | 0.7436 | +0.0039 | −0.0723 to +0.0801 |
+| Intermetallics, dataset nulls only (56) | 0.7957 | 0.8570 | +0.0613 | −0.0196 to +0.1579 |
+| Intermetallics without Fe, Co, Ni, Mn, Cr (41) | 0.8262 | 0.8536 | +0.0274 | −0.0682 to +0.1348 |
+
+- Reading: **no difference shown.**
+
+**What it shows.**
+
+- [Likely] Adding the 851 NIMS rows made the ranking of record better at
+  this task. It is the first evidence for the cycle 4 decision that does not
+  come from NIMS's own rows. The owner accepted cycle 4 on a rule it passed
+  narrowly; this supports that decision.
+- [Certain] The evidence is moderate, not strong. The 99% interval on the
+  primary rows just includes zero, and with magnetic elements removed the
+  95% interval includes zero too (41 rows).
+- [Likely] The champion's gain over the baseline is real but small. Three
+  tests now point the same way with the same weakness: +0.043 on the lockbox
+  (interval above zero), −0.012 on the first blind table and +0.029 here
+  (both intervals include zero). A true gain of zero to +0.05 fits all three.
+- [Certain] The AUC values themselves (0.80 to 0.87) should not be quoted as
+  the model's skill. Nulls and superconductors come from different sources,
+  as the plan said.
+
+**The strongest argument against reading too much into A.**
+
+- The nulls are mostly one group's choices: compounds a formula model
+  ranked in its top class. Cycle 4 may simply be less fooled by that
+  particular model's tastes.
+- Two comparisons were run. A was named primary beforehand, so it is not a
+  pick after the fact, but one result at the 95% level out of two looks is
+  weaker than it sounds.
+- The labels were read by me from raw curves. The rule was fixed first and
+  every number is committed, but no second person has checked them.
+
+**Predictions.**
+
+| Outcome | Chance given | Result |
+| --- | --- | --- |
+| At least 25 intermetallic nulls survive the rules | 55% | Yes (38) |
+| The power rule is met on both sides | 45% | Yes |
+| A: cycle 4 minus cycle 3 is above zero | 55% | Yes (+0.047) |
+| A: its 95% interval excludes zero, either way | 15% | Yes |
+| B: champion minus baseline is above zero | 60% | Yes (+0.029) |
+| B: its 95% interval is above zero | 20% | No |
+
+- I gave a clear result on A only 15%. I expected 851 rows to matter less
+  than they did, the same error I made on cycle 4 itself.
+
+**What follows.**
+
+- Cycle 4 stays the ranking of record, now with independent support.
+- This table is spent. The 43 dataset nulls and the 45 new records could be
+  added to training in a later cycle, under the owner's rules; that would
+  need its own plan.
+- One low-tier reader made a call outside its task (it listed sessions); it
+  changed nothing. No other stray action occurred in ten reader runs.

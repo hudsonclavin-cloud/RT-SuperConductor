@@ -1,0 +1,153 @@
+{
+ "table_sha256": "98ffcf9e964fd4c470e2d571c4575144a48b36a105680defb4b72f0abbedcac5",
+ "A_cycle4_against_cycle3": {
+  "first": "cycle4",
+  "second": "cycle3",
+  "primary_intermetallics": {
+   "compositions": 65,
+   "superconductors": 27,
+   "nulls": 38,
+   "auc_first": 0.8665,
+   "auc_second": 0.8197,
+   "difference": 0.0468,
+   "gain_95": [
+    0.0075,
+    0.1013
+   ],
+   "gain_99": [
+    -0.003,
+    0.1248
+   ]
+  },
+  "all_compositions": {
+   "compositions": 82,
+   "superconductors": 30,
+   "nulls": 52,
+   "auc_first": 0.8218,
+   "auc_second": 0.7545,
+   "difference": 0.0673,
+   "gain_95": [
+    0.0181,
+    0.1253
+   ],
+   "gain_99": [
+    0.0012,
+    0.1481
+   ]
+  },
+  "sensitivity": {
+   "intermetallics_dataset_nulls_only": {
+    "compositions": 56,
+    "superconductors": 27,
+    "nulls": 29,
+    "auc_first": 0.8621,
+    "auc_second": 0.8059,
+    "difference": 0.0562,
+    "gain_95": [
+     0.0111,
+     0.1205
+    ],
+    "gain_99": [
+     0.0036,
+     0.1514
+    ]
+   },
+   "intermetallics_without_magnetic_elements": {
+    "compositions": 41,
+    "superconductors": 21,
+    "nulls": 20,
+    "auc_first": 0.8238,
+    "auc_second": 0.7786,
+    "difference": 0.0452,
+    "gain_95": [
+     -0.0127,
+     0.1187
+    ],
+    "gain_99": [
+     -0.0313,
+     0.1467
+    ]
+   }
+  },
+  "reading": "cycle4 is better"
+ },
+ "B_champion_against_baseline": {
+  "first": "champion",
+  "second": "baseline",
+  "primary_intermetallics": {
+   "compositions": 65,
+   "superconductors": 27,
+   "nulls": 38,
+   "auc_first": 0.8304,
+   "auc_second": 0.8012,
+   "difference": 0.0292,
+   "gain_95": [
+    -0.0445,
+    0.1136
+   ],
+   "gain_99": [
+    -0.082,
+    0.1456
+   ]
+  },
+  "all_compositions": {
+   "compositions": 82,
+   "superconductors": 30,
+   "nulls": 52,
+   "auc_first": 0.7436,
+   "auc_second": 0.7397,
+   "difference": 0.0039,
+   "gain_95": [
+    -0.0723,
+    0.0801
+   ],
+   "gain_99": [
+    -0.0908,
+    0.0965
+   ]
+  },
+  "sensitivity": {
+   "intermetallics_dataset_nulls_only": {
+    "compositions": 56,
+    "superconductors": 27,
+    "nulls": 29,
+    "auc_first": 0.857,
+    "auc_second": 0.7957,
+    "difference": 0.0613,
+    "gain_95": [
+     -0.0196,
+     0.1579
+    ],
+    "gain_99": [
+     -0.0445,
+     0.1858
+    ]
+   },
+   "intermetallics_without_magnetic_elements": {
+    "compositions": 41,
+    "superconductors": 21,
+    "nulls": 20,
+    "auc_first": 0.8536,
+    "auc_second": 0.8262,
+    "difference": 0.0274,
+    "gain_95": [
+     -0.0682,
+     0.1348
+    ],
+    "gain_99": [
+     -0.1227,
+     0.1855
+    ]
+   }
+  },
+  "reading": "no difference shown"
+ },
+ "champion_genes": [
+  "elements",
+  "proxy",
+  "alloy",
+  "tc-size"
+ ],
+ "warning": "the classes come from different sources, so only the differences are read, not the AUC values",
+ "power_rule_met": true
+}
