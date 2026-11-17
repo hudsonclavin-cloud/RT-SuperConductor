@@ -133,3 +133,32 @@ def test_the_filter_matches_whole_words_and_allows_ambient_pressure():
     assert not B.keep_paper("Superconductivity in gated LaPt3P", good)
     assert not B.keep_paper("Theory of superconductivity in LaPt3P", good)       # theory in the title
     assert not B.keep_paper("Superconductivity in LaPt3P", good + " At 2 GPa Tc doubles.")
+
+
+def test_a_composition_the_models_have_seen_or_nearly_seen_is_dropped():
+    rows = [{"composition": "Nb:0.750;Sn:0.250", "label": 1}, {"composition": "Ge:0.245;Nb:0.755", "label": 1},
+            {"composition": "La:0.500;Pt:0.500", "label": 0}, {"composition": "Ir:0.500;Y:0.500", "label": 1}]
+    seen = {"Nb:0.750;Sn:0.250", "Ge:0.250;Nb:0.750"}
+    kept, why = B.drop_seen(rows, seen, spent={"Ir:0.500;Y:0.500"}, systems={frozenset({"La", "Pt"})})
+    assert [r["composition"] for r in kept] == ["La:0.500;Pt:0.500"] and kept[0]["new_element_system"] == 0
+    assert why == {"in a training table": 1, "a near twin of a training composition": 1,
+                   "scored in the first blind table": 1}
+
+
+def test_the_score_command_runs_once(tmp_path, monkeypatch):
+    monkeypatch.setattr(B, "DOCS", tmp_path)
+    (tmp_path / "score.json").write_text("{}")
+    with pytest.raises(SystemExit, match="scored once"):
+        B.cmd_score()
+
+
+def test_a_gain_needs_both_classes():
+    import numpy as np
+
+    y = np.array([1, 1, 1])
+    assert B.gain(y, np.array(["a", "b", "c"]), np.array([0.1, 0.2, 0.3]), np.array([0.3, 0.2, 0.1]))["note"] == "one class only"
+    y = np.array([1, 0, 1, 0, 1, 0])
+    groups = np.array(list("abcdef"))
+    good, bad = np.array([0.9, 0.1, 0.8, 0.2, 0.7, 0.3]), np.array([0.1, 0.9, 0.2, 0.8, 0.3, 0.7])
+    out = B.gain(y, groups, good, bad, resamples=50)
+    assert out["auc_first"] == 1.0 and out["auc_second"] == 0.0 and out["difference"] == 1.0

@@ -2,6 +2,10 @@
 """The second blind table (``docs/blind-test-2.md``): nulls read from raw susceptibility curves, then one scoring.
 
     python scripts/blind_test2.py nulls     # raw files -> one row per file and one per composition, by the fixed rule
+    python scripts/blind_test2.py papers    # the fixed search and filter -> batches of abstracts for the readers
+    python scripts/blind_test2.py collect   # the readers' files -> checked records, and the second readers' inputs
+    python scripts/blind_test2.py table     # nulls + confirmed records -> the table, with the rules that drop seen rows
+    python scripts/blind_test2.py score     # once: cycle 4 against cycle 3, and the champion against the baseline
 
 The raw files are the public dataset of Pogue et al. (2023), doi:10.34863/w3xm-w506, under
 ``data/raw/pogue-2023/files/`` (git ignores it). What is committed has no raw data: the per-file numbers the rule
@@ -11,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import io
 import json
 import math
@@ -291,10 +296,305 @@ def cmd_papers() -> dict:
     return report
 
 
+# ------------------------------------------------------------------------------------------------ records
+
+RECORD_FIELDS = ["record_id", "batch", "formula", "class", "temperature_k", "year", "identifier", "first_report"]
+
+
+def cmd_collect() -> dict:
+    """The readers' files -> one checked list of records, and the second readers' input files."""
+    import blind_test as B1
+    import scratchnet_common as C
+
+    valid = set(C.load_dataset().table.symbols)
+    papers = {p["identifier"]: p for p in json.loads((PAPERS / "papers.json").read_text(encoding="utf-8"))}
+    batch_of = {}
+    for path in sorted((PAPERS / "batches").glob("batch-*.txt")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.startswith("IDENTIFIER: "):
+                batch_of[line[len("IDENTIFIER: "):].strip()] = path.stem
+    records, dropped, evidence, seen, lines = [], Counter(), {}, set(), 0
+    for path in sorted((PAPERS / "batches").glob("batch-*.txt")):
+        reader = PAPERS / "readers" / f"{path.stem}.tsv"
+        if not reader.is_file():
+            raise SystemExit(f"missing reader file: {reader}")
+        rows = list(csv.reader(reader.open(newline="", encoding="utf-8"), delimiter="\t", quoting=csv.QUOTE_NONE))
+        for row in rows[1:]:
+            lines += 1
+            ident = B1.identifier(row[4]) if len(row) == 7 else None
+            if ident is None or batch_of.get(ident) != path.stem:
+                dropped["identifier_not_in_this_batch" if len(row) == 7 else "wrong_column_count"] += 1
+                continue
+            record, reason = B1.check_record(row, int(papers[ident]["year"]), valid)
+            if record is None:
+                dropped[reason] += 1
+                continue
+            mark = (record["key"], record["class"], record["identifier"])
+            if mark in seen:
+                dropped["duplicate"] += 1
+                continue
+            seen.add(mark)
+            record.update(record_id=f"s{len(records) + 1:03d}", batch=path.stem)
+            evidence[record["record_id"]] = row[6].strip()
+            records.append(record)
+    C.write_table(OUT / "records.csv", records, RECORD_FIELDS)
+    (PAPERS / "verify-in").mkdir(parents=True, exist_ok=True)
+    for batch in sorted({r["batch"] for r in records}):
+        with open(PAPERS / "verify-in" / f"{batch}.tsv", "w", newline="", encoding="utf-8") as handle:
+            writer = csv.writer(handle, delimiter="\t")
+            writer.writerow(["record_id", "identifier", "formula", "claimed_class", "claimed_temperature_k"])
+            for r in records:
+                if r["batch"] == batch:
+                    writer.writerow([r["record_id"], r["identifier"], r["formula"], r["class"], r["temperature_k"]])
+    (PAPERS / "evidence.json").write_text(json.dumps(evidence, indent=0), encoding="utf-8")
+    report = {"reader_lines": lines, "records": len(records), "by_class": dict(Counter(r["class"] for r in records)),
+              "dropped": dict(dropped), "papers_with_a_record": len({r["identifier"] for r in records}),
+              "papers_read": len(papers)}
+    (DOCS / "collect.json").write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=1))
+    return report
+
+
+def read_verdicts() -> dict[str, dict]:
+    import blind_test as B1
+
+    verdicts = {}
+    for path in sorted((PAPERS / "verify-out").glob("batch-*.tsv")):
+        rows = list(csv.reader(path.open(newline="", encoding="utf-8"), delimiter="\t", quoting=csv.QUOTE_NONE))
+        for row in rows[1:]:
+            if len(row) >= 2 and row[1].strip().lower() in B1.VERDICTS:
+                verdicts[row[0].strip()] = {"verdict": row[1].strip().lower(),
+                                            "note": (row[2].strip() if len(row) > 2 else "")[:200]}
+    return verdicts
+
+
+# ------------------------------------------------------------------------------------------------ table
+
+MAGNETIC = {"Cr", "Mn", "Fe", "Co", "Ni"}
+POWER_EACH_CLASS = 25
+TABLE_FIELDS = ["composition", "formula", "label", "tc_k", "null_lowest_k", "family", "element_system", "source",
+                "new_element_system", "has_magnetic_element", "first_report", "identifiers", "record_ids"]
+
+
+def training_keys() -> tuple[set[str], set[str]]:
+    """(every composition a model of record or a NIMS-trained model has seen, the first blind table's compositions)."""
+    import gzip
+
+    import children_knowledge as G
+    import scratchnet_common as C
+
+    nims = set(json.loads((G.WORK / "table.json").read_text(encoding="utf-8"))["keys"])
+    record = {row["composition"] for row in C.load_dataset().rows}
+    with gzip.open(ROOT / "data/processed/learning-cycles/nims-additions.csv.gz", "rt", encoding="utf-8") as handle:
+        added = {row["composition"] for row in csv.DictReader(handle)}
+    with open(ROOT / "data/benchmarks/blind/table.csv", newline="", encoding="utf-8") as handle:
+        spent = {row["composition"] for row in csv.DictReader(handle)}
+    return nims | record | added, spent
+
+
+def candidate_rows() -> tuple[list[dict], Counter]:
+    """Every composition with a label, from the three sources, before the rules that drop seen compositions."""
+    import blind_test as B1
+    import build_mp_candidates as M
+    import build_scratchnet_data as B
+
+    by_key: dict[str, list[dict]] = defaultdict(list)
+    counts = Counter()
+    with open(OUT / "pogue-compositions.csv", newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row["verdict"] == "null":
+                by_key[row["composition"]].append({"class": "null", "temperature_k": float(row["lowest_k"]),
+                                                   "formula": row["formula"], "source": "dataset", "first_report": "",
+                                                   "identifier": "10.34863/w3xm-w506", "record_id": ""})
+                counts["dataset nulls"] += 1
+    first = list(csv.DictReader(open(B1.OUT / "records.csv", newline="", encoding="utf-8")))
+    first_verdicts = {row["record_id"]: row["verdict"] for row in
+                      csv.DictReader(open(B1.OUT / "verdicts.csv", newline="", encoding="utf-8"))}
+    second = list(csv.DictReader(open(OUT / "records.csv", newline="", encoding="utf-8")))
+    second_verdicts = {key: value["verdict"] for key, value in read_verdicts().items()}
+    missing = [r["record_id"] for r in second if r["record_id"] not in second_verdicts]
+    if missing:
+        raise SystemExit(f"{len(missing)} new records have no verdict yet, e.g. {missing[:5]}")
+    for records, verdicts, source in ((first, first_verdicts, "first test, unscored"),
+                                      (second, second_verdicts, "new harvest")):
+        for r in records:
+            if verdicts.get(r["record_id"]) != "confirmed":
+                counts[f"{source}: not confirmed"] += 1
+                continue
+            if r["class"] == "null" and float(r["temperature_k"]) > B1.NULL_AT_MOST_K:
+                counts[f"{source}: null not measured to 2 K"] += 1
+                continue
+            by_key[B.composition_key(M.fractions(r["formula"]))].append({**r, "source": source,
+                                                                         "temperature_k": float(r["temperature_k"])})
+            counts[f"{source}: confirmed records"] += 1
+    rows = []
+    for key, group in sorted(by_key.items()):
+        fractions = B.parse_key(key)
+        positive = [r for r in group if r["class"] == "superconductor"]
+        chosen = positive or group
+        if positive and len(positive) < len(group):
+            counts["compositions with both a null and a superconducting record (kept as superconductors)"] += 1
+        rows.append({"composition": key, "formula": chosen[0]["formula"], "label": int(bool(positive)),
+                     "tc_k": max(r["temperature_k"] for r in positive) if positive else "",
+                     "null_lowest_k": "" if positive else min(r["temperature_k"] for r in group),
+                     "family": M.family(set(fractions)), "element_system": "-".join(sorted(fractions)),
+                     "source": " + ".join(sorted({r["source"] for r in chosen})),
+                     "has_magnetic_element": int(bool(set(fractions) & MAGNETIC)),
+                     "first_report": "yes" if any(r["first_report"] == "yes" for r in chosen) else "no_or_unclear",
+                     "identifiers": " ".join(sorted({r["identifier"] for r in group})),
+                     "record_ids": " ".join(r["record_id"] for r in group if r["record_id"])})
+    return rows, counts
+
+
+def drop_seen(rows: list[dict], seen: set[str], spent: set[str], systems: set[frozenset]) -> tuple[list[dict], Counter]:
+    """Keep a composition only if no model has seen it or a near twin of it, and the first table did not score it."""
+    import build_scratchnet_data as B
+
+    ordered = sorted(seen)
+    fractions = [B.parse_key(k) for k in ordered] + [B.parse_key(r["composition"]) for r in rows]
+    twins = set()
+    for a, b in B.near_pairs(fractions, B.NEAR_TOLERANCE):
+        if (a < len(ordered)) != (b < len(ordered)):
+            twins.add(max(a, b) - len(ordered))
+    kept, why = [], Counter()
+    for i, row in enumerate(rows):
+        if row["composition"] in spent:
+            why["scored in the first blind table"] += 1
+        elif row["composition"] in seen:
+            why["in a training table"] += 1
+        elif i in twins:
+            why["a near twin of a training composition"] += 1
+        else:
+            kept.append({**row, "new_element_system": int(frozenset(B.parse_key(row["composition"])) not in systems)})
+    return kept, why
+
+
+def describe(rows: list[dict]) -> dict:
+    return {"compositions": len(rows), "superconductors": sum(r["label"] for r in rows),
+            "nulls": sum(1 - r["label"] for r in rows)}
+
+
+def cmd_table() -> dict:
+    import build_scratchnet_data as B
+    import children_knowledge as G
+    import scratchnet_common as C
+
+    rows, counts = candidate_rows()
+    seen, spent = training_keys()
+    systems = {frozenset(B.parse_key(k)) for k in json.loads((G.WORK / "table.json").read_text(encoding="utf-8"))["keys"]}
+    kept, why = drop_seen(rows, seen, spent, systems)
+    C.write_table(OUT / "table.csv", kept, TABLE_FIELDS)
+    verdicts = read_verdicts()
+    C.write_table(OUT / "verdicts.csv", [{"record_id": k, **v} for k, v in sorted(verdicts.items())],
+                  ["record_id", "verdict", "note"])
+    other = [r for r in kept if r["family"] == "Other"]
+    report = {"records": dict(counts), "compositions_before_the_rules": len(rows), "dropped": dict(why),
+              "second_reader_verdicts": dict(Counter(v["verdict"] for v in verdicts.values())),
+              "table": {**describe(kept), "families": dict(Counter(r["family"] for r in kept)),
+                        "sources": dict(Counter((r["source"], r["label"]) and f"{r['source']} / label {r['label']}"
+                                                for r in kept))},
+              "intermetallics": {**describe(other),
+                                 "in_a_new_element_system": describe([r for r in other if r["new_element_system"]]),
+                                 "without_magnetic_elements": describe([r for r in other
+                                                                        if not r["has_magnetic_element"]])},
+              "table_sha256": hashlib.sha256((OUT / "table.csv").read_bytes()).hexdigest()}
+    report["power_rule_met"] = bool(report["intermetallics"]["nulls"] >= POWER_EACH_CLASS
+                                    and report["intermetallics"]["superconductors"] >= POWER_EACH_CLASS)
+    (DOCS / "table.json").write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=1))
+    return report
+
+
+# ------------------------------------------------------------------------------------------------ score
+
+LOCKBOX_CHAMPION = ("elements", "proxy", "alloy", "tc-size")
+CYCLE_MODELS = ROOT / "data/processed/learning-cycles/models"
+
+
+def gain(y, groups, first, second, resamples: int = 1000) -> dict:
+    """AUC of ``first`` minus AUC of ``second`` on these rows, with intervals from resampling element systems."""
+    import blind_test as B1
+    import children_nims as N
+
+    if len(set(y.tolist())) < 2:
+        return {"compositions": int(len(y)), "note": "one class only"}
+    out = {"compositions": int(len(y)), "superconductors": int(y.sum()), "nulls": int(len(y) - y.sum()),
+           "auc_first": round(N.auc(y, first), 4), "auc_second": round(N.auc(y, second), 4)}
+    out["difference"] = round(out["auc_first"] - out["auc_second"], 4)
+    out.update(B1.interval(y, groups, first, second, resamples=resamples))
+    return out
+
+
+def cmd_score() -> dict:
+    import joblib
+    import numpy as np
+
+    import children_knowledge as G
+    import scratchnet_common as C
+
+    out = DOCS / "score.json"
+    if out.is_file():
+        raise SystemExit(f"{out} exists: the second blind table is scored once.")
+    table = OUT / "table.csv"
+    summary = json.loads((DOCS / "table.json").read_text(encoding="utf-8"))
+    if hashlib.sha256(table.read_bytes()).hexdigest() != summary["table_sha256"]:
+        raise SystemExit("the table is not the one whose checksum was recorded")
+    rows = list(csv.DictReader(table.open(newline="", encoding="utf-8")))
+    fractions = [C.fractions_of(r["composition"]) for r in rows]
+    X, _ = C.formula_features([C.formula_text(f) for f in fractions])
+    scores = {}
+    for cycle in ("cycle3", "cycle4"):
+        models = sorted((CYCLE_MODELS / cycle).glob("boosting-fold*.joblib"))
+        if len(models) != 5:
+            raise SystemExit(f"expected five {cycle} models, found {len(models)}")
+        scores[cycle] = np.mean([C.boosting_apply(joblib.load(m), X)[0] for m in models], axis=0)
+    scores["champion"], scores["baseline"] = G.score_new(fractions, LOCKBOX_CHAMPION, 0)
+    y = np.array([int(r["label"]) for r in rows])
+    groups = np.array([r["element_system"] for r in rows])
+    other = np.array([r["family"] == G.PRIMARY_FAMILY for r in rows])
+    from_dataset = np.array([r["label"] == "1" or "dataset" in r["source"] for r in rows])
+    no_magnet = np.array([r["has_magnetic_element"] == "0" for r in rows])
+    np.savez_compressed(ROOT / "data/processed/children-knowledge/blind2-scores.npz", y=y, **scores)
+
+    def comparison(first: str, second: str) -> dict:
+        block = {"first": first, "second": second,
+                 "primary_intermetallics": gain(y[other], groups[other], scores[first][other], scores[second][other]),
+                 "all_compositions": gain(y, groups, scores[first], scores[second]),
+                 "sensitivity": {
+                     "intermetallics_dataset_nulls_only": gain(y[other & from_dataset], groups[other & from_dataset],
+                                                               scores[first][other & from_dataset],
+                                                               scores[second][other & from_dataset]),
+                     "intermetallics_without_magnetic_elements": gain(
+                         y[other & no_magnet], groups[other & no_magnet], scores[first][other & no_magnet],
+                         scores[second][other & no_magnet])}}
+        primary = block["primary_intermetallics"]
+        if "gain_95" in primary:
+            low, high = primary["gain_95"]
+            block["reading"] = (f"{first} is better" if low > 0 else f"{second} is better" if high < 0 else
+                                "no difference shown")
+        return block
+
+    report = {"table_sha256": summary["table_sha256"],
+              "A_cycle4_against_cycle3": comparison("cycle4", "cycle3"),
+              "B_champion_against_baseline": comparison("champion", "baseline"),
+              "champion_genes": list(LOCKBOX_CHAMPION),
+              "warning": "the classes come from different sources, so only the differences are read, not the AUC values"}
+    primary = report["A_cycle4_against_cycle3"]["primary_intermetallics"]
+    report["power_rule_met"] = bool(primary.get("nulls", 0) >= POWER_EACH_CLASS
+                                    and primary.get("superconductors", 0) >= POWER_EACH_CLASS)
+    if not report["power_rule_met"]:
+        for key in ("A_cycle4_against_cycle3", "B_champion_against_baseline"):
+            if "reading" in report[key]:
+                report[key]["reading"] = "underpowered: no claim (" + report[key]["reading"] + ")"
+    out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=1))
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("command", choices=("nulls", "papers"))
-    {"nulls": cmd_nulls, "papers": cmd_papers}[parser.parse_args().command]()
+    parser.add_argument("command", choices=("nulls", "papers", "collect", "table", "score"))
+    {"nulls": cmd_nulls, "papers": cmd_papers, "collect": cmd_collect, "table": cmd_table, "score": cmd_score}[parser.parse_args().command]()
     return 0
 
 
