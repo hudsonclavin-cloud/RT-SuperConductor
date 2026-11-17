@@ -423,3 +423,34 @@ stands: no verdict from a smoke run.
 nine atoms; its smoke run may be too long for this machine's two-hour limit
 on a job and will be continued from saved work as needed. The Slurm path
 itself still cannot be rehearsed here.
+
+## Rehearsal: CsIr2P2 also runs end to end, 2026-11-17 23:54 UTC
+
+The CsIr2P2 package completed all six steps in smoke mode, with nothing to
+fix. It is the first body-centred tetragonal cell to go through the last
+three steps (force constants, λ, report).
+
+| Step | CsIr2P2 |
+| --- | --- |
+| Dense ground state, ground state | 5 min and 84 s |
+| Phonons with electron-phonon coupling (4 points, coarse meshes) | about 4.8 hours on 4 cores |
+| Force constants, a2F and λ, report | 1 s, 9 s, under 1 s |
+
+- The phonon step was cut three times by this machine's two-hour limit on a
+  job and continued from saved work each time. On Hazel's ordinary nodes it
+  would run through; on the partner nodes it needs the same resubmission
+  with `START_AT=ph`.
+- Report: translations set aside at −7.8, 11.7 and 11.7 cm⁻¹; lowest
+  counted mode 28.0 cm⁻¹; no imaginary mode; verdict "smoke run: checks the
+  tools only, no verdict".
+- Smoke λ is 0.60 and ranges from 0.29 to 1.73 across broadenings: not
+  converged, and no verdict.
+
+**Rehearsed end to end so far:** Re3Ir, NaMgPb2, SbTe2, CsIr2P2. LiMgPb2
+and the Zr6Ga2Ni benchmark are running.
+
+**For planning Hazel time.** [Speculative] CsIr2P2's full run (finer
+meshes, 8 points in place of 4) is the most expensive of the candidates:
+roughly 20 to 40 times this smoke run in processor time. On 16 cores that
+is a day or more, so it belongs on the ordinary nodes, not the two-hour
+partner queue.
