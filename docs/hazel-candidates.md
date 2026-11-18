@@ -543,3 +543,23 @@ nodes.
 
 **Rehearsed end to end:** Zr6Ga2Ni, NaMgPb2, LiMgPb2, SbTe2, CsIr2P2 and
 Re3Ir. **Still not rehearsed, and not possible here:** the Slurm path.
+
+## Update, 2026-11-18 16:59 UTC: the report shows which Quantum ESPRESSO ran
+
+`report.json` now has a `quantum_espresso` section, read from the first
+and last lines that every Quantum ESPRESSO program writes ("Program PWSCF
+v.7.6 starts…", "Number of MPI processes", "JOB DONE."). For each of the
+five steps it records the program, its version, how many MPI processes it
+ran on, and whether it finished; then:
+
+| Field | Must be |
+| --- | --- |
+| `is_quantum_espresso` | true: every output was written by a QE program |
+| `matches_validated_version` | true: every step ran 7.6, the version all benchmarks here used |
+| `all_finished` | true: all five steps printed "JOB DONE" |
+| `mpi_processes` of the ground-state and phonon steps | the cores requested (16 on Hazel). 1 means the parallel launch failed |
+
+- Checked on the NaMgPb2 rehearsal here: all five steps 7.6, finished,
+  4 processes for the parallel steps and 1 for the two serial ones.
+- Before any λ from Hazel is read, these must hold. Otherwise the number is
+  not used.
