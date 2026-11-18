@@ -258,3 +258,52 @@ def test_the_overlap_is_one_for_a_pure_translation_and_zero_for_no_net_momentum(
     assert R.translation_overlap([(0.9, 0.0, 0.0), (-0.1, 0.0, 0.0)], masses) == pytest.approx(0.0)
     # the light atom moving alone is mostly not a translation
     assert R.translation_overlap([(1.0, 0.0, 0.0), (0.0, 0.0, 0.0)], masses) < 0.4
+
+
+def qe_output(program: str, version: str = "7.6", processes: int = 16, done: bool = True) -> str:
+    lines = [f"     Program {program} v.{version} starts on 17Nov2026 at 17: 6:45 ",
+             f"     Parallel version (MPI & OpenMP), running on      {processes} processor cores"]
+    if processes > 1:
+        lines.append(f"     Number of MPI processes:                {processes}")
+    lines.append("   JOB DONE." if done else "     iter #   5 total cpu time :  5077.4 secs")
+    return "\n".join(lines) + "\n"
+
+
+def chain_outputs(run, **changes):
+    names = {"scf_fit.out": "PWSCF", "scf.out": "PWSCF", "ph.out": "PHONON", "q2r.out": "Q2R", "matdyn.out": "MATDYN"}
+    for name, program in names.items():
+        options = {"processes": 16 if program in ("PWSCF", "PHONON") else 1, **changes.get(name, {})}
+        if options.pop("missing", False):
+            continue
+        (run / name).write_text(qe_output(program, **options), encoding="utf-8")
+
+
+def test_the_report_records_which_quantum_espresso_ran(tmp_path):
+    run = tmp_path / "run"
+    run.mkdir()
+    chain_outputs(run)
+    out = R.programs(run)
+    assert out["is_quantum_espresso"] and out["versions"] == ["7.6"] and out["matches_validated_version"]
+    assert out["all_finished"]
+    assert out["outputs"]["ph.out"] == {"present": True, "program": "PHONON", "version": "7.6", "mpi_processes": 16,
+                                        "finished": True}
+    assert out["outputs"]["q2r.out"]["mpi_processes"] == 1
+
+
+def test_the_report_flags_another_version_an_unfinished_step_and_a_serial_run(tmp_path):
+    run = tmp_path / "run"
+    run.mkdir()
+    chain_outputs(run, **{"ph.out": {"version": "7.3.1", "processes": 1, "done": False}, "matdyn.out": {"missing": True}})
+    out = R.programs(run)
+    assert out["versions"] == ["7.3.1", "7.6"] and not out["matches_validated_version"]
+    assert not out["all_finished"] and out["outputs"]["matdyn.out"] == {"present": False}
+    assert out["outputs"]["ph.out"]["mpi_processes"] == 1 and out["outputs"]["ph.out"]["finished"] is False
+
+
+def test_a_file_that_is_not_quantum_espresso_output_is_caught(tmp_path):
+    run = tmp_path / "run"
+    run.mkdir()
+    chain_outputs(run)
+    (run / "scf.out").write_text("slurmstepd: error: execve(): pw.x: No such file or directory\n", encoding="utf-8")
+    out = R.programs(run)
+    assert not out["is_quantum_espresso"] and out["outputs"]["scf.out"]["program"] is None

@@ -8,6 +8,8 @@ Standard library only, so it runs on a compute node. It reads:
   three whole-crystal translations at the zone centre are left out: they are zero by symmetry;
 - ``lambda``: matdyn.x's table of lambda and omega_log for each of the ten broadenings;
 - ``scf.out``: the residual pressure and the largest force at the relaxed geometry.
+- every step's output: which Quantum ESPRESSO program and version wrote it, on how many MPI processes, and whether
+  it printed "JOB DONE" (the ``quantum_espresso`` section).
 
 The rung 4 rule (``docs/rung4-plan.md``, step 5): a finalist needs no imaginary mode and an isotropic Tc of at least
 2 K. Here Tc is Allen-Dynes at mu* = 0.10 and 0.13 from the headline broadening, and is read as an upper bound.
@@ -147,6 +149,36 @@ def lambda_table(text: str) -> list[dict]:
     return rows
 
 
+VALIDATED_QE_VERSION = "7.6"      # the version every benchmark in this repository was run with
+CHAIN_OUTPUTS = ("scf_fit.out", "scf.out", "ph.out", "q2r.out", "matdyn.out")
+PROGRAM = re.compile(r"Program\s+(\S+)\s+v\.(\S+)\s+starts")
+MPI_PROCESSES = re.compile(r"Number of MPI processes:\s+(\d+)")
+
+
+def programs(run: Path) -> dict:
+    """Which Quantum ESPRESSO program wrote each output of the chain, which version, on how many MPI processes,
+    and whether it finished. Every QE program prints its name and version first and "JOB DONE." last."""
+    found = {}
+    for name in CHAIN_OUTPUTS:
+        path = run / name
+        if not path.is_file():
+            found[name] = {"present": False}
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        program, processes = PROGRAM.search(text), MPI_PROCESSES.search(text)
+        found[name] = {"present": True, "program": program.group(1) if program else None,
+                       "version": program.group(2) if program else None,
+                       "mpi_processes": int(processes.group(1)) if processes else 1,
+                       "finished": "JOB DONE" in text}
+    present = [entry for entry in found.values() if entry["present"]]
+    versions = sorted({entry["version"] for entry in present if entry["version"]})
+    return {"outputs": found, "versions": versions,
+            "is_quantum_espresso": bool(present) and all(entry["program"] for entry in present),
+            "validated_version": VALIDATED_QE_VERSION,
+            "matches_validated_version": versions == [VALIDATED_QE_VERSION],
+            "all_finished": len(present) == len(CHAIN_OUTPUTS) and all(entry["finished"] for entry in present)}
+
+
 def report(run: Path) -> dict:
     run = run.resolve()  # the job passes ".", whose parent would otherwise be "." again
     package = json.loads((run.parent / "package.json").read_text(encoding="utf-8")) if (run.parent / "package.json").is_file() else {}
@@ -180,6 +212,7 @@ def report(run: Path) -> dict:
     force = re.findall(r"Total force =\s*([-\d.]+)", scf)
     out["scf_pressure_kbar"] = float(pressure[-1]) if pressure else None
     out["scf_total_force_ry_bohr"] = float(force[-1]) if force else None
+    out["quantum_espresso"] = programs(run)
     if out["mode"] != "full":
         out["verdict"] = "smoke run: checks the tools only, no verdict"
     elif out["imaginary_mode"] is None or "headline" not in out:
