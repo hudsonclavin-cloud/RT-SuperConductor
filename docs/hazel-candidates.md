@@ -507,3 +507,39 @@ minutes on 4 cores here, so a few minutes on 16.
 - The Zr6Ga2Ni smoke chain is still being run here to its end, so that the
   benchmark package is known to complete all six steps before Hazel time is
   spent on it.
+
+## Rehearsal: the Zr6Ga2Ni benchmark runs end to end, 2026-11-18 09:45 UTC
+
+**Main result:** the benchmark package completed all six steps in smoke
+mode, with nothing to fix. Every package in the Hazel queue has now been
+through the whole chain on this machine.
+
+| Step | Zr6Ga2Ni (4 cores) |
+| --- | --- |
+| Dense ground state, ground state | 13 min and 3 min |
+| Phonons with electron-phonon coupling (2 points, 18 mode groups each) | about 9.2 hours, in five stretches |
+| Force constants, a2F and λ, report | 2 s, 61 s, under 1 s |
+| **Whole chain** | **about 9.5 hours** |
+
+- The phonon step was cut four times by this machine's two-hour limit and
+  continued from saved work each time. Each cut lost the mode group in
+  progress, and one stretch shared the processors with a test run, so 9.5
+  hours overstates the computing needed.
+- Report: translations set aside at −13.3 (×2) and 14.0 cm⁻¹; lowest counted
+  mode 31.8 cm⁻¹; no imaginary mode; verdict "smoke run: checks the tools
+  only, no verdict".
+- Smoke λ is 1.03, ranging from 0.78 to 1.38 across broadenings. The
+  published value is 0.70. [Certain] This is not a result: the smoke run
+  uses 2 phonon points and coarse meshes, and rule 3 allows no verdict from
+  it. The benchmark is judged on the full run only.
+
+**One measured time, in place of the two estimates above.** The benchmark's
+smoke run took about 9.5 hours on 4 cores here, about 38 core-hours.
+[Speculative] On 16 Hazel cores that is 2.5 to 4 hours. My first estimate
+(2 to 3 hours) was nearer than my correction (4 to 6 hours); both were
+scaled from too little of the run. The advice in the section above stands:
+smoke-test with NaMgPb2, then run the benchmark in full on the ordinary
+nodes.
+
+**Rehearsed end to end:** Zr6Ga2Ni, NaMgPb2, LiMgPb2, SbTe2, CsIr2P2 and
+Re3Ir. **Still not rehearsed, and not possible here:** the Slurm path.
