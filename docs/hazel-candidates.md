@@ -380,3 +380,96 @@ zero.
   centre are 60.4 (NaMgPb2), 72.3 (LiMgPb2) and 50.8 cm⁻¹ (CsIr2P2), the
   same as the sum-rule check gave.
 - Files without a header fall back to the earlier test.
+
+## Rehearsal of the new packages on this machine, 2026-11-17 19:31 UTC
+
+**Main result:** the whole six-step chain now runs end to end, in smoke
+mode, for NaMgPb2 and SbTe2 as well as Re3Ir. Nothing had to be fixed. The
+same job script was used with `LOCAL=1` in place of the scheduler, on 4
+cores.
+
+| Step | NaMgPb2 | SbTe2 |
+| --- | --- | --- |
+| Dense ground state | 52 s | 188 s |
+| Ground state | 12 s | 36 s |
+| Phonons with electron-phonon coupling (coarse meshes) | 22 min (3 points) | 91 min (4 points) |
+| Force constants | 2 s | 2 s |
+| a2F and λ | 10 s | 14 s |
+| Report | 2 s | under 1 s |
+| **Whole chain** | **24 min** | **95 min** |
+
+- SbTe2's phonon step shared the processors with other work for part of
+  its run, so 91 minutes overstates it.
+- Each report says `"verdict": "smoke run: checks the tools only, no
+  verdict"`, as it should.
+
+**The report's new translation test, on real chain output.**
+
+| Compound | Translations set aside (cm⁻¹) | Lowest counted mode (cm⁻¹) | Imaginary? |
+| --- | --- | --- | --- |
+| NaMgPb2 | 21.8, 21.8, 21.8 | 38.0 | No |
+| SbTe2 | −11.3, −11.3, 16.4 | 37.4 | No |
+
+- [Certain] For SbTe2 two translations are at −11.3 cm⁻¹, below the −5
+  limit. The report set them aside and did not call the compound unstable.
+  That is the case the fix of the same day was written for.
+
+**What the smoke numbers show, and do not.** λ came out at 0.85 for NaMgPb2
+and 0.39 for SbTe2. NaMgPb2's ranges from 0.81 to 3.06 across the ten
+broadenings, which means it is not converged on these coarse meshes. Rule 3
+stands: no verdict from a smoke run.
+
+**Not yet rehearsed:** CsIr2P2 (running), LiMgPb2 and Zr6Ga2Ni. Zr6Ga2Ni has
+nine atoms; its smoke run may be too long for this machine's two-hour limit
+on a job and will be continued from saved work as needed. The Slurm path
+itself still cannot be rehearsed here.
+
+## Rehearsal: CsIr2P2 also runs end to end, 2026-11-17 23:54 UTC
+
+The CsIr2P2 package completed all six steps in smoke mode, with nothing to
+fix. It is the first body-centred tetragonal cell to go through the last
+three steps (force constants, λ, report).
+
+| Step | CsIr2P2 |
+| --- | --- |
+| Dense ground state, ground state | 5 min and 84 s |
+| Phonons with electron-phonon coupling (4 points, coarse meshes) | about 4.8 hours on 4 cores |
+| Force constants, a2F and λ, report | 1 s, 9 s, under 1 s |
+
+- The phonon step was cut three times by this machine's two-hour limit on a
+  job and continued from saved work each time. On Hazel's ordinary nodes it
+  would run through; on the partner nodes it needs the same resubmission
+  with `START_AT=ph`.
+- Report: translations set aside at −7.8, 11.7 and 11.7 cm⁻¹; lowest
+  counted mode 28.0 cm⁻¹; no imaginary mode; verdict "smoke run: checks the
+  tools only, no verdict".
+- Smoke λ is 0.60 and ranges from 0.29 to 1.73 across broadenings: not
+  converged, and no verdict.
+
+**Rehearsed end to end so far:** Re3Ir, NaMgPb2, SbTe2, CsIr2P2. LiMgPb2
+and the Zr6Ga2Ni benchmark are running.
+
+**For planning Hazel time.** [Speculative] CsIr2P2's full run (finer
+meshes and more phonon points; I have not counted them) is the most expensive of the candidates:
+roughly 20 to 40 times this smoke run in processor time. On 16 cores that
+is a day or more, so it belongs on the ordinary nodes, not the two-hour
+partner queue.
+
+## Rehearsal: LiMgPb2 passes; Zr6Ga2Ni under way, 2026-11-18 02:01 UTC
+
+- **LiMgPb2** ran all six steps in smoke mode with nothing to fix: dense
+  ground state 30 s, ground state 11 s, phonons about 13 minutes (after one
+  container restart), then seconds for the rest. Translations set aside at
+  14.7 cm⁻¹ (×3); lowest counted mode 43.7 cm⁻¹; no imaginary mode.
+- **Rehearsed end to end:** Re3Ir, NaMgPb2, LiMgPb2, SbTe2, CsIr2P2. Every
+  candidate package has now been through the whole chain once.
+- **Zr6Ga2Ni, the benchmark, is running.** Its two ground-state steps took
+  13 minutes and 3 minutes on 4 cores. The smoke phonon step has two points;
+  the first has 18 mode groups at about 15 minutes each.
+
+**For planning Hazel time.** [Speculative] From that pace, the benchmark's
+smoke run needs about 10 hours of 4 cores here, so roughly 2 to 3 hours on
+16 Hazel cores. That is longer than the "under an hour" guessed above, and
+it does not fit one two-hour job on the partner nodes. Submit the smoke run
+on the ordinary nodes (`compute normal 16`), or expect one resubmission
+with `START_AT=ph` on the partner nodes.
