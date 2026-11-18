@@ -473,3 +473,73 @@ smoke run needs about 10 hours of 4 cores here, so roughly 2 to 3 hours on
 it does not fit one two-hour job on the partner nodes. Submit the smoke run
 on the ordinary nodes (`compute normal 16`), or expect one resubmission
 with `START_AT=ph` on the partner nodes.
+
+## Correction to the benchmark's smoke-run time, and a better first job, 2026-11-18 04:02 UTC
+
+**What was wrong.** The section above says the Zr6Ga2Ni smoke run needs
+"about 10 hours of 4 cores here, so roughly 2 to 3 hours on 16 Hazel
+cores". That was scaled from its first six mode groups, which were the
+cheap ones. The original text is kept.
+
+**What the run shows now.** Ten of the 18 mode groups at the first of two
+points are done. The first six took about 15 minutes each on 4 cores; the
+next four, which each hold two modes, took about 30 minutes each.
+
+- [Speculative] Whole smoke phonon step here: about 15 hours of 4 cores.
+  On 16 Hazel cores that is roughly 4 to 6 hours, if it scales reasonably.
+- [Certain] That is too long for a first check of the tools.
+
+**A better first job on Hazel: the NaMgPb2 smoke run.** What a smoke run
+checks (that every program starts, that the jobs chain, that the report is
+written) does not depend on the compound. NaMgPb2's whole chain took 24
+minutes on 4 cores here, so a few minutes on 16.
+
+| Order on Hazel | Job | Why |
+| --- | --- | --- |
+| 1 | `DRY_RUN=1` of the NaMgPb2 package | Nothing runs; shows what would be submitted |
+| 2 | NaMgPb2 smoke run | Minutes. Checks the tools, the scheduler and the chain |
+| 3 | Zr6Ga2Ni **full** run, ordinary nodes | The benchmark. Its smoke run is optional: it costs hours and checks little that step 2 and this machine's rehearsal have not |
+| 4 | Candidates, if the benchmark passes rule 1 | NaMgPb2 full, then CsIr2P2, SbTe2 |
+
+- Use `data/benchmarks/candidates/namgpb2` in place of
+  `data/benchmarks/candidates/zr6ga2ni` in steps 2 to 5 of "Running it on
+  Hazel" above.
+- The Zr6Ga2Ni smoke chain is still being run here to its end, so that the
+  benchmark package is known to complete all six steps before Hazel time is
+  spent on it.
+
+## Rehearsal: the Zr6Ga2Ni benchmark runs end to end, 2026-11-18 09:45 UTC
+
+**Main result:** the benchmark package completed all six steps in smoke
+mode, with nothing to fix. Every package in the Hazel queue has now been
+through the whole chain on this machine.
+
+| Step | Zr6Ga2Ni (4 cores) |
+| --- | --- |
+| Dense ground state, ground state | 13 min and 3 min |
+| Phonons with electron-phonon coupling (2 points, 18 mode groups each) | about 9.2 hours, in five stretches |
+| Force constants, a2F and λ, report | 2 s, 61 s, under 1 s |
+| **Whole chain** | **about 9.5 hours** |
+
+- The phonon step was cut four times by this machine's two-hour limit and
+  continued from saved work each time. Each cut lost the mode group in
+  progress, and one stretch shared the processors with a test run, so 9.5
+  hours overstates the computing needed.
+- Report: translations set aside at −13.3 (×2) and 14.0 cm⁻¹; lowest counted
+  mode 31.8 cm⁻¹; no imaginary mode; verdict "smoke run: checks the tools
+  only, no verdict".
+- Smoke λ is 1.03, ranging from 0.78 to 1.38 across broadenings. The
+  published value is 0.70. [Certain] This is not a result: the smoke run
+  uses 2 phonon points and coarse meshes, and rule 3 allows no verdict from
+  it. The benchmark is judged on the full run only.
+
+**One measured time, in place of the two estimates above.** The benchmark's
+smoke run took about 9.5 hours on 4 cores here, about 38 core-hours.
+[Speculative] On 16 Hazel cores that is 2.5 to 4 hours. My first estimate
+(2 to 3 hours) was nearer than my correction (4 to 6 hours); both were
+scaled from too little of the run. The advice in the section above stands:
+smoke-test with NaMgPb2, then run the benchmark in full on the ordinary
+nodes.
+
+**Rehearsed end to end:** Zr6Ga2Ni, NaMgPb2, LiMgPb2, SbTe2, CsIr2P2 and
+Re3Ir. **Still not rehearsed, and not possible here:** the Slurm path.
