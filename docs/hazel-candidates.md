@@ -454,3 +454,22 @@ meshes and more phonon points; I have not counted them) is the most expensive of
 roughly 20 to 40 times this smoke run in processor time. On 16 cores that
 is a day or more, so it belongs on the ordinary nodes, not the two-hour
 partner queue.
+
+## Rehearsal: LiMgPb2 passes; Zr6Ga2Ni under way, 2026-11-18 02:01 UTC
+
+- **LiMgPb2** ran all six steps in smoke mode with nothing to fix: dense
+  ground state 30 s, ground state 11 s, phonons about 13 minutes (after one
+  container restart), then seconds for the rest. Translations set aside at
+  14.7 cm⁻¹ (×3); lowest counted mode 43.7 cm⁻¹; no imaginary mode.
+- **Rehearsed end to end:** Re3Ir, NaMgPb2, LiMgPb2, SbTe2, CsIr2P2. Every
+  candidate package has now been through the whole chain once.
+- **Zr6Ga2Ni, the benchmark, is running.** Its two ground-state steps took
+  13 minutes and 3 minutes on 4 cores. The smoke phonon step has two points;
+  the first has 18 mode groups at about 15 minutes each.
+
+**For planning Hazel time.** [Speculative] From that pace, the benchmark's
+smoke run needs about 10 hours of 4 cores here, so roughly 2 to 3 hours on
+16 Hazel cores. That is longer than the "under an hour" guessed above, and
+it does not fit one two-hour job on the partner nodes. Submit the smoke run
+on the ordinary nodes (`compute normal 16`), or expect one resubmission
+with `START_AT=ph` on the partner nodes.
