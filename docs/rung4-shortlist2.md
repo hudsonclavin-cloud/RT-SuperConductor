@@ -390,3 +390,76 @@ lead's own 7.2 K: NaPb3 at 5.62 K, Na0.28Pb0.72 at 7.2 K, LiPb at 7.2 K
   learned from contaminated labels. This is a reason to trust the Hazel
   calculation over the ranking for these three, and a check worth doing on
   the training data later.
+
+### Alexandria check: the packaged NaMgPb2 is probably not NaMgPb2's stable form, 2026-11-19 03:10 UTC
+
+**Main result:** the Na2Mg3Pb5 worry is gone, but the check found a bigger
+problem. Alexandria has a layered tetragonal NaMgPb2 that is lower in energy
+than the cubic one in our package, and a calculation here with the package's
+own settings agrees. So the cubic NaMgPb2 we planned to run in full is
+[Likely] not the form a lab would make. CsIr2P2 is unaffected. LiMgPb2's
+cubic form comes out lowest here, by a margin that is small and not fully
+converged.
+
+**Source:** the Alexandria PBE database (OPTIMADE API at
+alexandria.icams.rub.de), every entry with exactly the elements Na-Mg-Pb (176
+entries), Li-Mg-Pb (263) and Cs-Ir-P (21), all pages read. Field used:
+`_alexandria_hull_distance`, the energy above Alexandria's own convex hull.
+
+| Compound | Structure | Alexandria id | Above Alexandria's hull (eV/atom) | Ours? |
+| --- | --- | --- | --- | --- |
+| Na2Mg3Pb5 | 20 atoms, space group 72 | agm003346682 | 0.090 | No |
+| NaMgPb2 | Tetragonal, P4/mmm (layered) | agm001144382 | 0.000 | No |
+| NaMgPb2 | Cubic, Fm-3m | agm002709982 | 0.015 | **Yes** |
+| LiMgPb2 | Orthorhombic, Pmmm | agm003186842 | 0.000 | No |
+| LiMgPb2 | Cubic, Fm-3m | agm002158086 | 0.0004 | **Yes** |
+| CsIr2P2 | Tetragonal, I4/mmm | agm002232279 | 0.000 | **Yes** |
+
+- [Certain] Na2Mg3Pb5 is a computed entry 0.090 eV/atom above the hull. It
+  is not a threat to NaMgPb2's stability, and nothing here says it has been
+  made.
+- [Certain] The Materials Project pool used for shortlist 2 holds only the
+  cubic NaMgPb2 (`mp-aaabxftj`, space group 225, above hull 0). The hull
+  filter (step 1) could only judge the polymorphs it held, so it passed the
+  cubic form.
+
+**Check here with the package's settings.** Quantum ESPRESSO 7.6, the
+package pseudopotentials, 90 Ry, Marzari-Vanderbilt smearing of 0.02 Ry,
+cell and atoms relaxed for each structure (starting from Alexandria's for
+the non-cubic ones), on this machine (no Hazel time).
+
+| Pair | k-points | Energy of the other structure minus the cubic one (meV/atom) |
+| --- | --- | --- |
+| NaMgPb2, tetragonal | 12³ cubic, 16×16×8 tetragonal | −6.8 |
+| NaMgPb2, tetragonal, rerun at the relaxed structures | 16³ cubic, 20×20×10 tetragonal | **−5.9** |
+| LiMgPb2, orthorhombic | 12³ cubic, 16×16×8 orthorhombic | +6.5 (relaxation stopped at 11 steps by this machine's time limit; still falling by about 0.03 meV/atom per step) |
+
+- [Certain] For NaMgPb2 both calculations put the tetragonal form lower:
+  about 6 meV/atom here, 15 in Alexandria. The k-point check moved the gap
+  by 0.9 meV/atom, so the sign is safe.
+- [Likely] A 6 to 15 meV/atom gap is small. Metastable forms this close are
+  sometimes made, depending on how the sample is prepared.
+- [Speculative] Which form a real synthesis gives is not settled by this: at
+  low temperature the tetragonal form is favoured, and at high temperature
+  vibrations and disorder can change the order. A phonon and coupling
+  calculation of the cubic form says nothing about the tetragonal one.
+- [Likely] For LiMgPb2 the two calculations disagree on the order
+  (Alexandria: orthorhombic lower by 0.4 meV/atom; here: cubic lower by about
+  6.5). Both gaps are small. The cubic package stands, with this caveat.
+- [Certain] The relaxed tetragonal NaMgPb2 here: a = 3.758 Å, c = 7.906 Å,
+  pressure +0.03 kbar. Inputs and outputs are in this session's scratch
+  space, not committed.
+
+**What this changes in the Hazel queue.**
+
+- The NaMgPb2 **smoke** run stays first. It checks the tools, and that does
+  not depend on which form is the stable one.
+- The cubic NaMgPb2 **full** run moves from first candidate to last. CsIr2P2
+  becomes the first candidate, then SbTe2.
+- [Likely] A package for the tetragonal NaMgPb2, with the same pre-check as
+  the other three, would put the more likely form in the queue. It can be
+  built and pre-checked on this machine before Hazel is needed for it.
+
+**What the filters got wrong, again.** Step 1 trusted one database's hull.
+For the next shortlist, check each survivor against a second database's
+polymorphs (Alexandria here) before it is packaged.
