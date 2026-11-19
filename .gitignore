@@ -14,3 +14,9 @@ data/interim/
 data/processed/
 artifacts/
 runs/
+
+# Hazel results for candidate compounds stay private until NC State's Office of Research Commercialization
+# has reviewed them (owner's decision, 2026-11-19; AGENTS.md). The benchmark (zr6ga2ni) is exempt.
+results/*
+!results/zr6ga2ni/
+!results/README.md
