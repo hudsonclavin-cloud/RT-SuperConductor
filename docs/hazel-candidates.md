@@ -499,7 +499,7 @@ minutes on 4 cores here, so a few minutes on 16.
 | 1 | `DRY_RUN=1` of the NaMgPb2 package | Nothing runs; shows what would be submitted |
 | 2 | NaMgPb2 smoke run | Minutes. Checks the tools, the scheduler and the chain |
 | 3 | Zr6Ga2Ni **full** run, ordinary nodes | The benchmark. Its smoke run is optional: it costs hours and checks little that step 2 and this machine's rehearsal have not |
-| 4 | Candidates, if the benchmark passes rule 1 | NaMgPb2 full, then CsIr2P2, SbTe2 |
+| 4 | Candidates, if the benchmark passes rule 1 | CsIr2P2 full, then SbTe2, then cubic NaMgPb2 last (changed 2026-11-19: the cubic form is probably not NaMgPb2's stable one; see `docs/rung4-shortlist2.md`, "Alexandria check") |
 
 - Use `data/benchmarks/candidates/namgpb2` in place of
   `data/benchmarks/candidates/zr6ga2ni` in steps 2 to 5 of "Running it on
