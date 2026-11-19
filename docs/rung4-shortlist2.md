@@ -357,3 +357,36 @@ shown to be unreliable.
 `limgpb2`, `csir2p2`. Suggested order after the Zr6Ga2Ni benchmark:
 NaMgPb2 (highest ranked, 4 atoms), CsIr2P2 (a different structure),
 SbTe2, then LiMgPb2 only if NaMgPb2 is interesting.
+
+### An outside search of the three names, and what it changes, 2026-11-19 00:44 UTC
+
+The owner searched the three compound names with a search engine's AI
+summary. I checked each claim against the Materials Project snapshot here,
+the training data and the one paper it cited.
+
+| Claim in the search summary | Check | Verdict |
+| --- | --- | --- |
+| NaMgPb2, LiMgPb2 and CsIr2P2 have not been made | Same as both literature reads here; all three are "theoretical" in the Materials Project | Agrees [Likely] |
+| Na2MgPb is a known, made compound in the same system | In the Materials Project with an ICSD entry (icsd-238202), on the convex hull; the hull NaMgPb2 sits on already includes it | True; no change |
+| Na2Mg3Pb5 is a known compound | The source's identifier (agm…) looks like a computed Alexandria entry, not an experiment. It is not in the Materials Project snapshot used here | Probably wrong as stated [Likely]. If it is a real low-energy phase, it could make NaMgPb2 unstable against decomposition [Speculative] |
+| Li2MgPb is a known compound | In the Materials Project with two ICSD entries | True; LiMgPb2 is on the hull with it included |
+| A 2025 paper (arXiv 2509.05909) studies LiMgPb2 | Read here: a machine-learning paper on magnetism. LiMgPb2 appears once, in a table, called diamagnetic by valence counting. No calculation of phonons or superconductivity | No bearing on these calculations or on novelty [Certain] |
+| NaMgPb2 is a heavy analogue of MgB2 | The structure computed here is a cubic Heusler type, not the MgB2 type | Not applicable [Certain] |
+| CsIr2P2 is a ThCr2Si2-type 122 compound; BaIr2P2 superconducts | Matches the package (I4/mmm) and the training data (BaIr2P2, 2.1 K) | Agrees |
+
+**One thing this turned up that matters more than the summary.** None of
+the three element systems has any record in either training table. The
+nearest data are lead-rich binaries, whose reported Tc values cluster near
+lead's own 7.2 K: NaPb3 at 5.62 K, Na0.28Pb0.72 at 7.2 K, LiPb at 7.2 K
+(a 1932 report), Mg2Pb at 5.6 K.
+
+- [Likely] A sample of any of these candidates that contains a little free
+  lead will show a superconducting signal near 7.2 K that is not the
+  compound's. A lab check would have to rule that out, for example by
+  showing the signal's size and that it moves with field differently from
+  lead's.
+- [Speculative] Some of those binary records may themselves be lead
+  impurity. If so, part of the model's preference for lead-rich compounds is
+  learned from contaminated labels. This is a reason to trust the Hazel
+  calculation over the ranking for these three, and a check worth doing on
+  the training data later.
