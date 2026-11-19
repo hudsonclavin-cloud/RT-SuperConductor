@@ -563,3 +563,30 @@ ran on, and whether it finished; then:
   4 processes for the parallel steps and 1 for the two serial ones.
 - Before any λ from Hazel is read, these must hold. Otherwise the number is
   not used.
+
+## Candidate results stay private, 2026-11-19 00:34 UTC
+
+**The owner's decision (2026-11-19):** Hazel results for the candidate
+compounds (NaMgPb2, CsIr2P2, SbTe2, LiMgPb2) are not committed or published
+until NC State's Office of Research Commercialization has reviewed them.
+
+**Why.** NC State's patent policy (POL 10.00.01) counts an invention made
+with "substantial use of University resources" as the university's, and
+defines resources as anything "available to the INVENTOR because of the
+INVENTOR'S affiliation with the University" (§2.7, §5.1). Hazel is such a
+resource. The same policy asks inventors to report a publication "sufficiently
+in advance" because publication "can be an immediate bar to patentability in
+most foreign countries" (§6.2). This repository is public.
+
+**What changes.**
+
+- Step 8 of "Running it on Hazel" above (copy each report into
+  `results/<name>/`) now applies to the benchmark, Zr6Ga2Ni, only. It is an
+  already-published compound and is exempt.
+- Candidate results are kept under `data/raw/hazel/`, which git ignores.
+  `.gitignore` also ignores everything under `results/` except the
+  benchmark, and `AGENTS.md` carries the rule for later sessions.
+- What is already public stays as it is: the candidates' names (since
+  2026-11-06 and 2026-11-16), their packages, and the single-point stability
+  pre-checks. Nothing here deletes it, and deleting it would not undo the
+  disclosure.
