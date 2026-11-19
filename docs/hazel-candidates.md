@@ -499,7 +499,7 @@ minutes on 4 cores here, so a few minutes on 16.
 | 1 | `DRY_RUN=1` of the NaMgPb2 package | Nothing runs; shows what would be submitted |
 | 2 | NaMgPb2 smoke run | Minutes. Checks the tools, the scheduler and the chain |
 | 3 | Zr6Ga2Ni **full** run, ordinary nodes | The benchmark. Its smoke run is optional: it costs hours and checks little that step 2 and this machine's rehearsal have not |
-| 4 | Candidates, if the benchmark passes rule 1 | CsIr2P2 full, then SbTe2, then cubic NaMgPb2 last (changed 2026-11-19: the cubic form is probably not NaMgPb2's stable one; see `docs/rung4-shortlist2.md`, "Alexandria check") |
+| 4 | Candidates, if the benchmark passes rule 1 | CsIr2P2 full, then SbTe2, then cubic NaMgPb2 last (changed 2026-11-19: the cubic form is probably not NaMgPb2's stable one; see `docs/rung4-shortlist2.md`, "Alexandria check"). Tetragonal NaMgPb2 added second, 2026-11-19 23:44 UTC; see the last section |
 
 - Use `data/benchmarks/candidates/namgpb2` in place of
   `data/benchmarks/candidates/zr6ga2ni` in steps 2 to 5 of "Running it on
@@ -590,3 +590,33 @@ most foreign countries" (§6.2). This repository is public.
   2026-11-06 and 2026-11-16), their packages, and the single-point stability
   pre-checks. Nothing here deletes it, and deleting it would not undo the
   disclosure.
+
+## Tetragonal NaMgPb2 added to the queue, 2026-11-19 23:44 UTC
+
+**Main idea:** NaMgPb2 now has a package for its layered form,
+`namgpb2tet`, which both Alexandria and the check here put below the cubic
+one. It passed the stability pre-check at Γ and A (M still running) and goes into the
+queue ahead of the cubic package. Details: `docs/rung4-shortlist2.md`,
+"Tetragonal NaMgPb2".
+
+| Folder in `data/benchmarks/candidates/` | Compound | Structure | Atoms | Status |
+| --- | --- | --- | --- | --- |
+| `namgpb2tet` | NaMgPb2, layered form | P4/mmm, from Alexandria `agm001144382` | 4 | ready; pre-check passed at Γ and A, M running (rows in `precheck.csv`) |
+
+**Candidate order after the benchmark passes:**
+
+1. CsIr2P2 (ordinary nodes; the most expensive)
+2. Tetragonal NaMgPb2 (`namgpb2tet`)
+3. SbTe2
+4. Cubic NaMgPb2 (`namgpb2`), last
+
+- [Speculative] Why second and not first: CsIr2P2 was already first, and the
+  tetragonal package is newer and less tested. It is cheaper, so running it
+  first would give a candidate answer sooner. That is a fair alternative;
+  the owner can swap 1 and 2.
+- The cubic NaMgPb2 smoke run stays the first Hazel job. It checks the
+  tools, and that does not depend on which form is stable.
+- Its softest mode so far, 13.0 cm⁻¹ at A, is the lowest of any passing
+  candidate. If the full run turns it imaginary, the candidate rule fails it.
+- Results stay private under the 2026-11-19 rule above, like the other
+  candidates.

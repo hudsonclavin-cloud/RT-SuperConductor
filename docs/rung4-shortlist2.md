@@ -463,3 +463,58 @@ the non-cubic ones), on this machine (no Hazel time).
 **What the filters got wrong, again.** Step 1 trusted one database's hull.
 For the next shortlist, check each survivor against a second database's
 polymorphs (Alexandria here) before it is packaged.
+
+## Tetragonal NaMgPb2: packaged and pre-checked, 2026-11-19 23:44 UTC
+
+**Main result:** the layered form of NaMgPb2 now has its own Hazel package,
+`data/benchmarks/candidates/namgpb2tet`, and it passed the stability
+pre-check at the zone centre and at the zone corner A (½ ½ ½). A third
+point, M (½ ½ 0), was still running when this was written. Computed on
+this machine; no Hazel time.
+
+**The package.** Built by `scripts/prepare_phonon_candidate.py` from
+Alexandria's structure `agm001144382` (P4/mmm, 4 atoms), relaxed with the
+package's own settings (12×12×6 k-points): a = 3.766 Å, c = 7.851 Å,
+pressure +0.04 kbar. Full-run meshes: k 12×12×6, phonon q 4×4×2,
+interpolation 24×24×12; phonon job limit 24 hours.
+
+**Pre-check** (the package's `scf.in` unchanged, then `ph.x` at single
+points; same rule as `docs/hazel-candidates.md`: below −5 cm⁻¹ fails,
+except the three whole-crystal translations at the zone centre).
+
+| Point | Lowest counted mode (cm⁻¹) | Imaginary? |
+| --- | --- | --- |
+| Γ (0 0 0) | 44.7 | No |
+| A (½ ½ ½) | 13.0 | No |
+| M (½ ½ 0) | running when this was written | — |
+
+- [Certain] At Γ the raw output has −21.7 (×2) and 11.5 cm⁻¹ for the three
+  translation-like modes. With the acoustic sum rule (`dynmat.x`,
+  `asr='crystal'`) they go to 0 and every other mode stays positive; the
+  lowest is still 44.7 cm⁻¹.
+- [Likely] The −21.7 cm⁻¹ pair is a translation, not an instability: every
+  atom moves the same way, but by 0.44 to 0.58 rather than exactly equal
+  amounts, so it is mixed with the in-plane optical mode of the same
+  symmetry. It is the largest sum-rule error of any package so far (the
+  others stay within 18.1 cm⁻¹ of zero). The later chain steps impose the
+  sum rule.
+- [Certain] The softest mode found is 13.0 cm⁻¹ at A, lower than any other
+  passing candidate's zone-boundary minimum (26.5 to 33.3 cm⁻¹). It is above
+  the line, but it is the mode to watch in the full run.
+- [Likely] The relaxed c depends on the k-mesh: 7.851 Å at 12×12×6 (the
+  package) against 7.906 Å at 16×16×8 (the energy comparison above), 0.7%.
+  The package keeps one mesh for relaxation and phonons, as every other
+  package does. [Speculative] That shift could move the 13 cm⁻¹ mode by a few
+  cm⁻¹ either way.
+- Three points prove nothing about the rest of the zone. X (½ 0 0), Z
+  (0 0 ½) and R (0 ½ ½) were not checked.
+
+**Cost [Speculative].** The zone-boundary points took about an hour each on
+4 cores here, without the coupling step. The full run's 4×4×2 grid has 12
+points after symmetry, most of lower symmetry (so dearer) than these. On 16
+Hazel cores that is perhaps 4 to 12 hours: probably less than CsIr2P2, and
+too long for one two-hour partner job.
+
+**Queue.** The tetragonal form goes ahead of the cubic one. Order of
+candidates after the benchmark: CsIr2P2, tetragonal NaMgPb2, SbTe2, cubic
+NaMgPb2 last (`docs/hazel-candidates.md`, last section).
