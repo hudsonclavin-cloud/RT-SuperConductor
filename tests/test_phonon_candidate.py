@@ -307,3 +307,33 @@ def test_a_file_that_is_not_quantum_espresso_output_is_caught(tmp_path):
     (run / "scf.out").write_text("slurmstepd: error: execve(): pw.x: No such file or directory\n", encoding="utf-8")
     out = R.programs(run)
     assert not out["is_quantum_espresso"] and out["outputs"]["scf.out"]["program"] is None
+
+
+def test_every_candidate_names_exactly_one_structure_source():
+    for name, spec in P.CANDIDATES.items():
+        sources = [key for key in ("mp_id", "alexandria_id") if key in spec]
+        assert len(sources) == 1, name
+        if "alexandria_id" in spec:
+            assert spec["alexandria_id"] in P.ALEXANDRIA, name
+        assert P.source_fields(spec) == {sources[0]: spec[sources[0]]}
+
+
+def test_the_tetragonal_namgpb2_starts_from_alexandria_s_layered_structure():
+    spec = P.CANDIDATES["namgpb2tet"]
+    cell, sites = P.initial_structure(spec)
+    assert sorted(element for element, _ in sites) == ["Mg", "Na", "Pb", "Pb"]
+    assert abs(cell[0][0] - cell[1][1]) < 1e-9 and cell[2][2] > 2 * cell[0][0]   # tetragonal, c about 2a
+    # Pb on the cell edge at heights z and 1 - z; Na and Mg at the face centre, stacked along c.
+    lead = sorted(xyz[2] for element, xyz in sites if element == "Pb")
+    assert abs(lead[0] + lead[1] - 1.0) < 1e-9
+    assert {element: xyz for element, xyz in sites if element != "Pb"} == {"Na": [0.5, 0.5, 0.5], "Mg": [0.5, 0.5, 0.0]}
+
+
+def test_the_tetragonal_namgpb2_keeps_its_symmetry_when_symmetrised():
+    pytest.importorskip("pymatgen")
+    from pymatgen.core import Lattice, Structure
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+    cell, sites = P.symmetrise(*P.initial_structure(P.CANDIDATES["namgpb2tet"]))
+    structure = Structure(Lattice(cell), [s for s, _ in sites], [xyz for _, xyz in sites])
+    assert SpacegroupAnalyzer(structure, symprec=1e-3).get_space_group_symbol() == "P4/mmm"
