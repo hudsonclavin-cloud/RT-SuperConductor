@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'namgpb2tet.dyn'
+    flfrc  = 'namgpb2tet.fc'
+    la2F   = .true.
+ /

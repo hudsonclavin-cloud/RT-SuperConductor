@@ -1,0 +1,47 @@
+{
+ "name": "namgpb2tet",
+ "formula": "NaMgPb2",
+ "alexandria_id": "agm001144382",
+ "atoms": 4,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  12,
+  12,
+  6
+ ],
+ "fit_k_mesh": [
+  24,
+  24,
+  12
+ ],
+ "q_mesh": [
+  4,
+  4,
+  2
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   3.766285796,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   3.766285796,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   7.850627642
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Mg_ONCV_PBE_sr.upf": "cbbacab070d13dcbd12603f65af68a66cca7d3e7e0af8a13cc9fb19e1daac7de",
+  "Na_ONCV_PBE_sr.upf": "93de2c5ac400ffe6487e4929fcbe669ce5607b335f5f904c410cca643a833986",
+  "Pb_ONCV_PBE_sr.upf": "108c7825f18819fffc64ef69bbe5ee94df73db09a0358641ab0a4bcf0a704fd0"
+ },
+ "relaxed_from": "Alexandria structure, vc-relax with these pseudopotentials and cutoff"
+}

@@ -1,0 +1,17 @@
+phonons and electron-phonon coupling
+ &inputph
+    prefix   = 'namgpb2tet'
+    outdir   = './tmp'
+    fildyn   = 'namgpb2tet.dyn'
+    fildvscf = 'dvscf'
+    ldisp    = .true.
+    nq1 = 4
+    nq2 = 4
+    nq3 = 2
+    tr2_ph   = 1.0d-14
+    trans    = .true.
+    electron_phonon = 'interpolated'
+    el_ph_sigma  = 0.005
+    el_ph_nsigma = 10
+    recover  = .true.
+ /
