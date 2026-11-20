@@ -464,13 +464,15 @@ the non-cubic ones), on this machine (no Hazel time).
 For the next shortlist, check each survivor against a second database's
 polymorphs (Alexandria here) before it is packaged.
 
-## Tetragonal NaMgPb2: packaged and pre-checked, 2026-11-19 23:44 UTC
+## Tetragonal NaMgPb2: packaged, and it fails the pre-check at M, 2026-11-19 23:44 UTC
 
 **Main result:** the layered form of NaMgPb2 now has its own Hazel package,
-`data/benchmarks/candidates/namgpb2tet`, and it passed the stability
-pre-check at the zone centre and at the zone corner A (½ ½ ½). A third
-point, M (½ ½ 0), was still running when this was written. Computed on
-this machine; no Hazel time.
+`data/benchmarks/candidates/namgpb2tet`. It passed the stability pre-check
+at the zone centre and at the zone corner A (½ ½ ½), and **failed at M
+(½ ½ 0)** with a mode at −14.5 cm⁻¹ (×2). Under the candidate rule it is
+not submitted. Computed on this machine; no Hazel time. (Result for M added
+2026-11-20 01:35 UTC; the first version of this section was written while M
+was still running.)
 
 **The package.** Built by `scripts/prepare_phonon_candidate.py` from
 Alexandria's structure `agm001144382` (P4/mmm, 4 atoms), relaxed with the
@@ -486,7 +488,7 @@ except the three whole-crystal translations at the zone centre).
 | --- | --- | --- |
 | Γ (0 0 0) | 44.7 | No |
 | A (½ ½ ½) | 13.0 | No |
-| M (½ ½ 0) | running when this was written | — |
+| M (½ ½ 0) | **−14.5** (×2, E_u) | **Yes: fails** |
 
 - [Certain] At Γ the raw output has −21.7 (×2) and 11.5 cm⁻¹ for the three
   translation-like modes. With the acoustic sum rule (`dynmat.x`,
@@ -506,15 +508,32 @@ except the three whole-crystal translations at the zone centre).
   The package keeps one mesh for relaxation and phonons, as every other
   package does. [Speculative] That shift could move the 13 cm⁻¹ mode by a few
   cm⁻¹ either way.
-- Three points prove nothing about the rest of the zone. X (½ 0 0), Z
-  (0 0 ½) and R (0 ½ ½) were not checked.
+- [Certain] At M the two lowest modes are −14.5 cm⁻¹, a degenerate pair
+  (E_u) in which Mg, Na and Pb move in the plane. M is not the zone centre,
+  so the translation exception does not apply. The other ten modes are
+  59 to 155 cm⁻¹.
+- [Likely] At these settings the ordered layered structure would distort
+  into a larger in-plane cell (√2 × √2). If so, NaMgPb2's lowest-energy form
+  is neither packaged structure, and the cubic one is metastable by at
+  least the 6 meV/atom found above.
+- [Speculative] The mode is weak (−14.5 cm⁻¹) and c moved 0.7% with the
+  k-mesh, so a denser mesh might lift it. I put about 30% on that. It was
+  not tested; one more point at 16×16×8 on the denser-mesh cell is roughly
+  two to three hours here. Testing it now would be a check chosen after
+  seeing a failure, and should be labelled that way if the owner wants it.
+- X (½ 0 0), Z (0 0 ½) and R (0 ½ ½) were not checked; the failure at M is
+  enough under the rule.
+- **Chain rehearsal.** The package ran all six steps in smoke mode here
+  (phonon step 22 minutes on 4 cores), so the package itself works. Its
+  smoke coupling numbers are not quoted: smoke runs give no verdict, and
+  candidate coupling values stay out of the repository under the
+  2026-11-19 rule.
 
-**Cost [Speculative].** The zone-boundary points took about an hour each on
-4 cores here, without the coupling step. The full run's 4×4×2 grid has 12
-points after symmetry, most of lower symmetry (so dearer) than these. On 16
-Hazel cores that is perhaps 4 to 12 hours: probably less than CsIr2P2, and
-too long for one two-hour partner job.
+**Queue.** Unchanged from the Alexandria check: CsIr2P2, then SbTe2, then
+cubic NaMgPb2 last. The tetragonal package keeps `PRECHECK_FAILED.txt`, and
+the job script refuses its full run (`docs/hazel-candidates.md`, last
+section).
 
-**Queue.** The tetragonal form goes ahead of the cubic one. Order of
-candidates after the benchmark: CsIr2P2, tetragonal NaMgPb2, SbTe2, cubic
-NaMgPb2 last (`docs/hazel-candidates.md`, last section).
+**Lesson.** The more stable of two polymorphs by energy can still be
+dynamically unstable. Checking a second database caught the polymorph;
+only the phonon check caught that it is not the end of the story.
