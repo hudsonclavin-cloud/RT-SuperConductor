@@ -1,0 +1,4 @@
+NaMgPb2 (tetragonal, P4/mmm), 2026-11-20: imaginary phonon mode at M (1/2 1/2 0), -14.5 cm-1 (x2, E_u),
+calculated with this package's own ground-state settings (k 12x12x6, 90 Ry, smearing 0.02 Ry).
+In-plane motion of Mg, Na and Pb. Fails the candidate rule in docs/hazel-candidates.md.
+Gamma (44.7 cm-1) and A (13.0 cm-1) passed. Not checked on a denser k mesh.

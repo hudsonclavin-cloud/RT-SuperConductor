@@ -499,7 +499,7 @@ minutes on 4 cores here, so a few minutes on 16.
 | 1 | `DRY_RUN=1` of the NaMgPb2 package | Nothing runs; shows what would be submitted |
 | 2 | NaMgPb2 smoke run | Minutes. Checks the tools, the scheduler and the chain |
 | 3 | Zr6Ga2Ni **full** run, ordinary nodes | The benchmark. Its smoke run is optional: it costs hours and checks little that step 2 and this machine's rehearsal have not |
-| 4 | Candidates, if the benchmark passes rule 1 | CsIr2P2 full, then SbTe2, then cubic NaMgPb2 last (changed 2026-11-19: the cubic form is probably not NaMgPb2's stable one; see `docs/rung4-shortlist2.md`, "Alexandria check") |
+| 4 | Candidates, if the benchmark passes rule 1 | CsIr2P2 full, then SbTe2, then cubic NaMgPb2 last (changed 2026-11-19: the cubic form is probably not NaMgPb2's stable one; see `docs/rung4-shortlist2.md`, "Alexandria check"). Tetragonal NaMgPb2 packaged 2026-11-19; it failed its pre-check, so the order is unchanged (last section) |
 
 - Use `data/benchmarks/candidates/namgpb2` in place of
   `data/benchmarks/candidates/zr6ga2ni` in steps 2 to 5 of "Running it on
@@ -590,3 +590,27 @@ most foreign countries" (§6.2). This repository is public.
   2026-11-06 and 2026-11-16), their packages, and the single-point stability
   pre-checks. Nothing here deletes it, and deleting it would not undo the
   disclosure.
+
+## Tetragonal NaMgPb2: packaged, failed its pre-check, not queued, 2026-11-20 01:35 UTC
+
+**Main idea:** NaMgPb2 now has a package for its layered form,
+`namgpb2tet`, which both Alexandria and the check here put below the cubic
+one in energy. It passed the stability pre-check at Γ and A and failed at
+M (½ ½ 0), −14.5 cm⁻¹. It is not submitted. Details:
+`docs/rung4-shortlist2.md`, "Tetragonal NaMgPb2".
+
+| Folder in `data/benchmarks/candidates/` | Compound | Structure | Atoms | Status |
+| --- | --- | --- | --- | --- |
+| `namgpb2tet` | NaMgPb2, layered form | P4/mmm, from Alexandria `agm001144382` | 4 | **failed the pre-check at M**; carries `PRECHECK_FAILED.txt`, so a full run is refused. Rehearsed end to end in smoke mode |
+
+**Candidate order after the benchmark passes (unchanged):** CsIr2P2, then
+SbTe2, then cubic NaMgPb2 last.
+
+- The cubic NaMgPb2 smoke run stays the first Hazel job. It checks the
+  tools, and that does not depend on which form is stable.
+- [Likely] The failure is a further point against the cubic package too:
+  NaMgPb2's lowest-energy form is probably a distorted structure that
+  neither package holds.
+- The first version of this section (2026-11-19, written before M had
+  finished) put the tetragonal package second in the queue. That is
+  withdrawn.

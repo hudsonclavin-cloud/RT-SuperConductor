@@ -43,6 +43,22 @@ CANDIDATES = {
                 "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
     "csir2p2": {"mp_id": "mp-aaacqsbd", "formula": "CsIr2P2", "k": (8, 8, 8), "q": (4, 4, 4),
                 "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
+    # The layered tetragonal NaMgPb2 (P4/mmm), lower in energy than the cubic form in "namgpb2"
+    # (docs/rung4-shortlist2.md, "Alexandria check"). Not in the Materials Project snapshot, so the starting
+    # structure is Alexandria's. k spacing about 0.14 per angstrom, a little denser than the cubic package's 0.18.
+    "namgpb2tet": {"alexandria_id": "agm001144382", "formula": "NaMgPb2", "k": (12, 12, 6), "q": (4, 4, 2),
+                   "smoke_k": (4, 4, 2), "smoke_q": (2, 2, 1), "matdyn_k": (24, 24, 12), "ph_time": "24:00:00"},
+}
+
+# Starting structures that are not in the Materials Project snapshot: the Alexandria PBE database
+# (alexandria.icams.rub.de, OPTIMADE endpoint /pbe/v1/structures), copied as published. Cell rows in angstrom,
+# positions in crystal coordinates.
+ALEXANDRIA = {
+    "agm001144382": {
+        "cell": [[3.76869961, 0.0, 0.0], [0.0, 3.76869961, 0.0], [0.0, 0.0, 7.76526153]],
+        "sites": [("Pb", [0.0, 0.0, 0.77283445]), ("Pb", [0.0, 0.0, 0.22716555]),
+                  ("Na", [0.5, 0.5, 0.5]), ("Mg", [0.5, 0.5, 0.0])],
+    },
 }
 
 
@@ -53,6 +69,21 @@ def load_structure(mp_id: str) -> dict:
             if row["mp_id"] == mp_id:
                 return row["structure"]
     raise SystemExit(f"{mp_id} is not in {STRUCTURES}")
+
+
+def initial_structure(spec: dict):
+    """The unrelaxed cell and sites: from the Materials Project snapshot, or from ``ALEXANDRIA``."""
+    if "mp_id" in spec:
+        return from_mp(load_structure(spec["mp_id"]))
+    entry = ALEXANDRIA[spec["alexandria_id"]]
+    return [list(row) for row in entry["cell"]], [(element, list(xyz)) for element, xyz in entry["sites"]]
+
+
+def source_fields(spec: dict) -> dict:
+    """Where a package's structure came from, for package.json."""
+    if "mp_id" in spec:
+        return {"mp_id": spec["mp_id"]}
+    return {"alexandria_id": spec["alexandria_id"]}
 
 
 def snap(x: float) -> float:
@@ -184,7 +215,7 @@ def cif_text(formula: str, cell, sites) -> str:
 
 def cmd_relax_input(name: str, directory: Path) -> None:
     spec = CANDIDATES[name]
-    cell, sites = symmetrise(*from_mp(load_structure(spec["mp_id"])))
+    cell, sites = symmetrise(*initial_structure(spec))
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "relax.in").write_text(pw_input(name, "vc-relax", cell, sites, spec["k"], la2f=False,
                                                  pseudo_dir=str(PP_SOURCE) + "/"), encoding="utf-8")
@@ -221,10 +252,11 @@ def cmd_package(name: str, relax_out: Path) -> None:
         "# Read by scripts/hpc/submit_phonon_chain.sh. Paths are relative to this directory.",
         f"CHAIN_NAME={name}", f"PREFIX={name}", "RUN_DIR=run", 'COPY_ITEMS="../pp run"',
         f"FULL_PH_TIME={spec['ph_time']}", ""]), encoding="utf-8")
-    meta = {"name": name, "formula": spec["formula"], "mp_id": spec["mp_id"], "atoms": len(sites),
+    source = "Materials Project" if "mp_id" in spec else "Alexandria"
+    meta = {"name": name, "formula": spec["formula"], **source_fields(spec), "atoms": len(sites),
             "ecutwfc_ry": ECUTWFC, "smearing": SMEARING, "degauss_ry": DEGAUSS, "k_mesh": spec["k"], "fit_k_mesh": fit,
             "q_mesh": spec["q"], "relaxed_cell_angstrom": cell, "pseudopotential_sha256": checksums,
-            "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"}
+            "relaxed_from": f"{source} structure, vc-relax with these pseudopotentials and cutoff"}
     (package / "package.json").write_text(json.dumps(meta, indent=1) + "\n", encoding="utf-8")
     print(package)
 
