@@ -561,3 +561,31 @@ comparison above). Then `ph.x` at M (½ ½ 0) only. Run on this machine.
 
 **Prediction [Speculative].** 30% that the lowest mode at M is −5 cm⁻¹ or
 above (the number given before the owner asked for the check).
+
+## Denser-mesh check of the M instability: result, 2026-11-21 06:31 UTC
+
+**Main result:** the instability does not depend on the k-mesh. At 16×16×8
+k-points, on the cell relaxed at that mesh, the lowest mode at M is
+**−17.3 cm⁻¹** (×2, E_u), softer than the −14.5 cm⁻¹ at the package's
+12×12×6. Under the reading fixed before the result, the failure stands and
+is firmer. `PRECHECK_FAILED.txt` stays.
+
+| | Package mesh (12×12×6, a = 3.766 Å, c = 7.851 Å) | Denser mesh (16×16×8, a = 3.758 Å, c = 7.906 Å) |
+| --- | --- | --- |
+| Lowest two modes at M (cm⁻¹) | −14.5, −14.5 | **−17.3, −17.3** |
+| Next modes (cm⁻¹) | 59.1, 59.1, 60.0, 62.7 | 58.0, 58.0, 58.3, 58.9 |
+| Highest (cm⁻¹) | 155.0 | 152.1 |
+| Ground-state pressure (kbar) | +0.04 | +0.03 |
+
+- [Certain] Same pseudopotentials, cutoff (90 Ry) and smearing
+  (Marzari-Vanderbilt, 0.02 Ry) as the package. Only the k-mesh and the cell
+  changed. Run on this machine; no Hazel time.
+- [Certain] Against the prediction written before the result: I gave 30% to
+  the mode lifting to −5 cm⁻¹ or above. It moved the other way.
+- [Likely] The ordered layered NaMgPb2 distorts in-plane (the E_u pair at M
+  doubles the cell to √2 × √2). Its true lowest-energy structure is neither
+  packaged form.
+- Not tested: a different smearing. The plan said that would be a separate
+  check; with the mode now further below the line, it is not worth running
+  for the queue's sake.
+- Inputs and outputs are in this session's scratch space, not committed.
