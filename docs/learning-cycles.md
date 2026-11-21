@@ -720,3 +720,73 @@ Still on cycle 3, on purpose:
   models and predictions; the next shortlist switches it.
 - The blind test and the children experiments never used the ranking of
   record's models for selection, so nothing there changes.
+
+## Cycle 5: plan and predictions, written before any cycle 5 result, 2026-11-21 01:54 UTC
+
+**Why now.** On 2026-11-21 the owner asked for training to continue without
+stopping while tokens last. [Certain] Retraining on an unchanged table adds
+nothing: the models are deterministic and a cycle takes two minutes. A cycle
+needs new evidence, so the tokens go to readers who check labels against
+the papers. This is cycles 1 to 3 again, on the rows not yet checked.
+
+**Where the batch comes from.**
+
+| Lane | Rows | How |
+| --- | --- | --- |
+| 1. Rows never checked | The 1,476 development non-cuprate negatives that cycle 3's triage did not reach, most suspicious first by cycle 4's out-of-fold probability | `scripts/openalex_triage.py --previous cycle4`, then a screen of every row with a lead, blind to the model's score |
+| 2. Cycle 3's backlog | The 39 papers in `data/benchmarks/learning-cycles/cycle3-library-requests.csv`, which could settle 52 rows that needed a full text and the rows that failed for lack of access | Tried again with connectors that cycle 3 did not have (a page-fetch service, Wiley's full-text search) |
+
+- Lane 1 starts with the 628 rows at 0.5 or above and goes on down the
+  list while tokens last.
+- Lu2Ni3Si5, approved on 2026-11-16, is applied with this batch.
+  LaPt1.7Au0.3B2C stays held unless its full text is read.
+
+**The rule is unchanged:** the owner's rule of 2026-11-16, with option B for
+abstracts. Two independent readers confirm from the paper; a third,
+sceptical reader tries to refute; the owner can veto any row before merging.
+
+**Two changes from cycle 3, stated before any result.**
+
+- Rows the screen calls "needs a full text" go to readers now, not to a
+  waiting list, because readers have more ways to reach a text.
+- When a paper states that a composition was measured and did not
+  superconduct, readers record that null with its lowest temperature. Those
+  records are kept in the cycle's evidence file. They change no label and
+  are not added to `data/training/negative_evidence.csv` in this cycle.
+
+**What cannot be read from here.** Only arXiv and OpenAlex answer directly.
+Other hosts go through the page-fetch service, which returns text but not
+scanned pages. Papers behind a paywall are not read; nothing is taken from
+sites that copy papers without permission.
+
+**Run order.**
+1. Three placebos on the cycle 4 table: as many random development
+   non-cuprate negatives flipped as there are corrections (seeds 51 to 53),
+   each with `--additions`.
+2. Add the corrections to `data/training/negative_evidence.csv`, rebuild
+   both tables, and run
+   `python scripts/run_learning_cycle.py --name cycle5 --previous cycle4 --additions data/processed/learning-cycles/nims-additions.csv.gz`.
+3. Corrections found after that run wait for cycle 6.
+
+**What becomes the ranking of record.** Cycle 5, if the owner merges its
+pull request. A correction is a fact about a label, not a modelling choice,
+so no score decides it; the scores below only describe the change.
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| Corrections that pass the rule, both lanes together: between 5 and 20 | 60% |
+| Fewer than 5 | 25% |
+| Lane 2 gives at least 2 of them | 50% |
+| Cross-validated non-cuprate AUC changes by less than 0.005 from cycle 4's 0.7856 | 85% |
+| The paired difference against cycle 4 has an interval that includes zero | 80% |
+| The made-metals top 50 keeps between 30 and 45 of cycle 4's 50 | 70% |
+| Cycle 5's AUC change is larger than that of each of the three placebos | 40% |
+
+Reasoning:
+- Cycle 3 searched the 500 most suspicious rows and four passed. These rows
+  are less suspicious, but there are three times as many and the
+  needs-full-text rows are now read.
+- A dozen corrected rows among about 9,400 cannot move a pooled score much.
+  The gain to expect is a cleaner top of the order, not a higher AUC.

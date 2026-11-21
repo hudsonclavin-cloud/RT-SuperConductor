@@ -537,3 +537,27 @@ section).
 **Lesson.** The more stable of two polymorphs by energy can still be
 dynamically unstable. Checking a second database caught the polymorph;
 only the phonon check caught that it is not the end of the story.
+
+## Denser-mesh check of the M instability: plan, written before the result, 2026-11-21 01:54 UTC
+
+**Why.** The owner asked for it on 2026-11-21. [Certain] This check was
+chosen after seeing the failure at M, so it cannot rescue the package by
+itself; it can only say whether the failure depends on the k-mesh.
+
+**What.** The same settings as the package (90 Ry, Marzari-Vanderbilt
+smearing 0.02 Ry, the package pseudopotentials), but with 16×16×8 k-points
+and the cell relaxed at that mesh (a = 3.758 Å, c = 7.906 Å, from the energy
+comparison above). Then `ph.x` at M (½ ½ 0) only. Run on this machine.
+
+**How it will be read, fixed now.**
+
+| Lowest mode at M on the denser mesh | Reading |
+| --- | --- |
+| Below −5 cm⁻¹ | The failure stands and is firmer. Nothing changes. |
+| −5 cm⁻¹ or above | The failure depends on the mesh. `PRECHECK_FAILED.txt` stays until the package is rebuilt at 16×16×8 and passes Γ, A and M again at that mesh. |
+
+- Smearing is not varied here. A soft mode in a metal can also depend on
+  it; that would be a separate check.
+
+**Prediction [Speculative].** 30% that the lowest mode at M is −5 cm⁻¹ or
+above (the number given before the owner asked for the check).
