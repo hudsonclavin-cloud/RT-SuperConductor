@@ -1,0 +1,583 @@
+{
+ "name": "cycle5",
+ "previous": "cycle4",
+ "seed_offset": 0,
+ "data_sha256": "0dc96f63796e99599a8d15f466ae29b91dd8ce7eab3fcc9a4da22ccbc2cafd5b",
+ "boosting_settings": {
+  "classifier_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 31,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  },
+  "regressor_settings": {
+   "learning_rate": 0.05,
+   "max_leaf_nodes": 63,
+   "min_samples_leaf": 20,
+   "l2_regularization": 1.0
+  }
+ },
+ "locked_rows": "neither trained on nor scored",
+ "table_change": {
+  "moved_between_splits": [],
+  "added": [],
+  "removed": [],
+  "changed": [
+   {
+    "composition": "Ba:0.333;Ga:0.667",
+    "split": "dev",
+    "fold": 4,
+    "label_before": "0",
+    "label_after": "1",
+    "tc_k_before": "",
+    "tc_k_after": "0.36"
+   },
+   {
+    "composition": "Be:0.667;W:0.333",
+    "split": "dev",
+    "fold": 4,
+    "label_before": "0",
+    "label_after": "1",
+    "tc_k_before": "",
+    "tc_k_after": "1.05"
+   },
+   {
+    "composition": "Fe:0.500;S:0.500",
+    "split": "dev",
+    "fold": 4,
+    "label_before": "0",
+    "label_after": "1",
+    "tc_k_before": "",
+    "tc_k_after": "3.9"
+   },
+   {
+    "composition": "Ge:0.667;Nb:0.333",
+    "split": "dev",
+    "fold": 4,
+    "label_before": "0",
+    "label_after": "1",
+    "tc_k_before": "",
+    "tc_k_after": "2.0"
+   },
+   {
+    "composition": "Hf:0.200;Nb:0.400;Ti:0.200;Zr:0.200",
+    "split": "dev",
+    "fold": 4,
+    "label_before": "0",
+    "label_after": "1",
+    "tc_k_before": "",
+    "tc_k_after": "7.99"
+   },
+   {
+    "composition": "Lu:0.200;Ni:0.300;Si:0.500",
+    "split": "dev",
+    "fold": 4,
+    "label_before": "0",
+    "label_after": "1",
+    "tc_k_before": "",
+    "tc_k_after": "2.1"
+   },
+   {
+    "composition": "Nb:0.333;Si:0.667",
+    "split": "dev",
+    "fold": 2,
+    "label_before": "0",
+    "label_after": "1",
+    "tc_k_before": "",
+    "tc_k_after": "0.13"
+   }
+  ]
+ },
+ "cross_validation": {
+  "development_rows": 9765,
+  "labelled_rows": 9399,
+  "superconductors": 7116,
+  "folds": [
+   {
+    "fold": 0,
+    "classifier_trees": 287,
+    "regressor_trees": 388,
+    "added_rows_fitted": 655
+   },
+   {
+    "fold": 1,
+    "classifier_trees": 135,
+    "regressor_trees": 262,
+    "added_rows_fitted": 640
+   },
+   {
+    "fold": 2,
+    "classifier_trees": 269,
+    "regressor_trees": 274,
+    "added_rows_fitted": 599
+   },
+   {
+    "fold": 3,
+    "classifier_trees": 344,
+    "regressor_trees": 219,
+    "added_rows_fitted": 629
+   },
+   {
+    "fold": 4,
+    "classifier_trees": 299,
+    "regressor_trees": 290,
+    "added_rows_fitted": 677
+   }
+  ],
+  "scores": {
+   "all": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7116,
+    "auc": 0.7866,
+    "brier": 0.1453,
+    "tc_mae_k": 3.9877,
+    "tc_log_mae": 0.3885,
+    "tc_spearman": 0.8356,
+    "expected_tc_spearman": 0.6377,
+    "top_decile_recall": 0.667
+   },
+   "not cuprates": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6633,
+    "auc": 0.7852,
+    "brier": 0.1404,
+    "tc_mae_k": 3.4239,
+    "tc_log_mae": 0.3904,
+    "tc_spearman": 0.8115,
+    "expected_tc_spearman": 0.6819,
+    "top_decile_recall": 0.6884
+   }
+  },
+  "intervals": {
+   "all": {
+    "auc": {
+     "low": 0.7661,
+     "median": 0.7863,
+     "high": 0.8065,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.3689,
+     "median": 0.3885,
+     "high": 0.4065,
+     "resamples": 300
+    }
+   },
+   "not cuprates": {
+    "auc": {
+     "low": 0.7659,
+     "median": 0.7848,
+     "high": 0.8045,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.3726,
+     "median": 0.3911,
+     "high": 0.4098,
+     "resamples": 300
+    }
+   }
+  },
+  "previous_model": {
+   "scored_against_previous_labels": {
+    "all": {
+     "rows": 9765,
+     "labelled_rows": 9399,
+     "superconductor_rows": 7109,
+     "auc": 0.7861,
+     "brier": 0.1457,
+     "tc_mae_k": 4.0962,
+     "tc_log_mae": 0.3952,
+     "tc_spearman": 0.8328,
+     "expected_tc_spearman": 0.6319,
+     "top_decile_recall": 0.6606
+    },
+    "not cuprates": {
+     "rows": 8942,
+     "labelled_rows": 8598,
+     "superconductor_rows": 6626,
+     "auc": 0.7856,
+     "brier": 0.1407,
+     "tc_mae_k": 3.5226,
+     "tc_log_mae": 0.3964,
+     "tc_spearman": 0.8088,
+     "expected_tc_spearman": 0.6763,
+     "top_decile_recall": 0.6965
+    }
+   },
+   "scored_against_todays_labels": {
+    "all": {
+     "rows": 9765,
+     "labelled_rows": 9399,
+     "superconductor_rows": 7116,
+     "auc": 0.7858,
+     "brier": 0.1456,
+     "tc_mae_k": 4.0946,
+     "tc_log_mae": 0.3954,
+     "tc_spearman": 0.8325,
+     "expected_tc_spearman": 0.6321,
+     "top_decile_recall": 0.6606
+    },
+    "not cuprates": {
+     "rows": 8942,
+     "labelled_rows": 8598,
+     "superconductor_rows": 6633,
+     "auc": 0.7851,
+     "brier": 0.1406,
+     "tc_mae_k": 3.5215,
+     "tc_log_mae": 0.3967,
+     "tc_spearman": 0.8084,
+     "expected_tc_spearman": 0.6766,
+     "top_decile_recall": 0.6965
+    }
+   },
+   "this_model_minus_previous_todays_labels": {
+    "all": {
+     "auc": {
+      "low": -0.0036,
+      "median": 0.001,
+      "high": 0.0058,
+      "resamples": 300
+     },
+     "tc_log_mae": {
+      "low": -0.0163,
+      "median": -0.0055,
+      "high": 0.0005,
+      "resamples": 300
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "low": -0.0058,
+      "median": 0.0005,
+      "high": 0.0057,
+      "resamples": 300
+     },
+     "tc_log_mae": {
+      "low": -0.0172,
+      "median": -0.0051,
+      "high": 0.003,
+      "resamples": 300
+     }
+    }
+   },
+   "corrected_development_rows": [
+    {
+     "composition": "Ba:0.333;Ga:0.667",
+     "label_now": "1",
+     "p_previous_model": 0.7084,
+     "p_this_model": 0.6975
+    },
+    {
+     "composition": "Be:0.667;W:0.333",
+     "label_now": "1",
+     "p_previous_model": 0.5677,
+     "p_this_model": 0.5088
+    },
+    {
+     "composition": "Fe:0.500;S:0.500",
+     "label_now": "1",
+     "p_previous_model": 0.3441,
+     "p_this_model": 0.2853
+    },
+    {
+     "composition": "Ge:0.667;Nb:0.333",
+     "label_now": "1",
+     "p_previous_model": 0.469,
+     "p_this_model": 0.5241
+    },
+    {
+     "composition": "Hf:0.200;Nb:0.400;Ti:0.200;Zr:0.200",
+     "label_now": "1",
+     "p_previous_model": 0.814,
+     "p_this_model": 0.8264
+    },
+    {
+     "composition": "Lu:0.200;Ni:0.300;Si:0.500",
+     "label_now": "1",
+     "p_previous_model": 0.6467,
+     "p_this_model": 0.6877
+    },
+    {
+     "composition": "Nb:0.333;Si:0.667",
+     "label_now": "1",
+     "p_previous_model": 0.432,
+     "p_this_model": 0.4566
+    }
+   ]
+  }
+ },
+ "added_rows": {
+  "source": "data/processed/learning-cycles/nims-additions.csv.gz",
+  "sha256": "e7507a3fe14ab2ce88bb4b5bd3c9d72d444fcd0bc1763f99bc5af6e8e8acac74",
+  "rows": 851,
+  "superconductors": 666,
+  "nulls": 185,
+  "scored_as_development_rows": false,
+  "E1_held_out_added_rows": {
+   "all": {
+    "rows": 851,
+    "superconductors": 666,
+    "nulls": 185,
+    "auc_with_added_rows": 0.7593,
+    "auc_without": 0.6672,
+    "difference": 0.0921,
+    "difference_interval_95": {
+     "low": 0.0419,
+     "median": 0.0907,
+     "high": 0.1446,
+     "resamples": 1000
+    }
+   },
+   "not cuprates": {
+    "rows": 812,
+    "superconductors": 629,
+    "nulls": 183,
+    "auc_with_added_rows": 0.7676,
+    "auc_without": 0.6758,
+    "difference": 0.0918,
+    "difference_interval_95": {
+     "low": 0.043,
+     "median": 0.0931,
+     "high": 0.1419,
+     "resamples": 1000
+    }
+   }
+  },
+  "largest_gap_to_previous_cycle_without_added_rows": 0.5106
+ },
+ "final_models": [
+  {
+   "validation_fold": 0,
+   "fit_rows": 13007,
+   "classifier_trees": 375,
+   "regressor_trees": 668
+  },
+  {
+   "validation_fold": 1,
+   "fit_rows": 12831,
+   "classifier_trees": 352,
+   "regressor_trees": 540
+  },
+  {
+   "validation_fold": 2,
+   "fit_rows": 12582,
+   "classifier_trees": 230,
+   "regressor_trees": 553
+  },
+  {
+   "validation_fold": 3,
+   "fit_rows": 12711,
+   "classifier_trees": 375,
+   "regressor_trees": 732
+  },
+  {
+   "validation_fold": 4,
+   "fit_rows": 12558,
+   "classifier_trees": 179,
+   "regressor_trees": 752
+  }
+ ],
+ "made_metals": {
+  "untested_made_metals": 7693,
+  "top_10": [
+   {
+    "rank": 1,
+    "formula": "BiTe",
+    "p_superconductor": 0.968,
+    "tc_if_superconductor_k": 3.81
+   },
+   {
+    "rank": 2,
+    "formula": "Ba3Pb5",
+    "p_superconductor": 0.967,
+    "tc_if_superconductor_k": 4.33
+   },
+   {
+    "rank": 3,
+    "formula": "BaPb3",
+    "p_superconductor": 0.966,
+    "tc_if_superconductor_k": 3.42
+   },
+   {
+    "rank": 4,
+    "formula": "BaCdBi2",
+    "p_superconductor": 0.965,
+    "tc_if_superconductor_k": 3.38
+   },
+   {
+    "rank": 5,
+    "formula": "Ba2Cd3Bi4",
+    "p_superconductor": 0.96,
+    "tc_if_superconductor_k": 2.89
+   },
+   {
+    "rank": 6,
+    "formula": "NbAlRu2",
+    "p_superconductor": 0.959,
+    "tc_if_superconductor_k": 4.46
+   },
+   {
+    "rank": 7,
+    "formula": "Ba7Al4Ge9",
+    "p_superconductor": 0.957,
+    "tc_if_superconductor_k": 5.08
+   },
+   {
+    "rank": 8,
+    "formula": "Ba(RhPb2)3",
+    "p_superconductor": 0.956,
+    "tc_if_superconductor_k": 3.06
+   },
+   {
+    "rank": 9,
+    "formula": "SbTe",
+    "p_superconductor": 0.956,
+    "tc_if_superconductor_k": 3.04
+   },
+   {
+    "rank": 10,
+    "formula": "Nb5Pt3O",
+    "p_superconductor": 0.954,
+    "tc_if_superconductor_k": 5.69
+   }
+  ],
+  "against_previous": {
+   "compounds_in_both": 7693,
+   "entered": [],
+   "left": [],
+   "head_overlap": {
+    "top_10": 9,
+    "top_50": 38,
+    "top_200": 165
+   },
+   "rank_spearman": 0.9914,
+   "largest_moves_touching_top_200": [
+    {
+     "formula": "O0.667Rb0.111Te0.222",
+     "before": 585,
+     "after": 166
+    },
+    {
+     "formula": "Cs0.250Ga0.750",
+     "before": 524,
+     "after": 156
+    },
+    {
+     "formula": "In0.800Rb0.200",
+     "before": 538,
+     "after": 175
+    },
+    {
+     "formula": "In0.800K0.200",
+     "before": 547,
+     "after": 187
+    },
+    {
+     "formula": "Cs0.250In0.750",
+     "before": 453,
+     "after": 123
+    },
+    {
+     "formula": "F0.600Na0.100Rb0.200Ti0.100",
+     "before": 161,
+     "after": 457
+    },
+    {
+     "formula": "Mo0.333N0.333Ta0.333",
+     "before": 84,
+     "after": 375
+    },
+    {
+     "formula": "C0.333Re0.667",
+     "before": 131,
+     "after": 413
+    },
+    {
+     "formula": "Ge0.400Ir0.400Sr0.200",
+     "before": 178,
+     "after": 456
+    },
+    {
+     "formula": "Cd0.111Rb0.278Tl0.611",
+     "before": 427,
+     "after": 155
+    },
+    {
+     "formula": "Mn0.600N0.200Pt0.200",
+     "before": 156,
+     "after": 417
+    },
+    {
+     "formula": "Co0.100Nb0.300S0.600",
+     "before": 375,
+     "after": 119
+    },
+    {
+     "formula": "F0.600K0.100Rb0.200Ti0.100",
+     "before": 139,
+     "after": 381
+    },
+    {
+     "formula": "In0.500Pb0.125Sr0.375",
+     "before": 378,
+     "after": 141
+    },
+    {
+     "formula": "Cs0.200F0.600Na0.100Ti0.100",
+     "before": 189,
+     "after": 421
+    }
+   ],
+   "watched": {
+    "Zr6Ga2Ni": {
+     "before": 63,
+     "after": 32
+    },
+    "Zr6Ga2Co": {
+     "before": 70,
+     "after": 34
+    },
+    "Hf6Ga2Co": {
+     "before": 145,
+     "after": 171
+    },
+    "Ti3SnH": {
+     "before": 458,
+     "after": 724
+    },
+    "ZrSbRu": {
+     "before": 1058,
+     "after": 1100
+    },
+    "TiAlPt": {
+     "before": 1010,
+     "after": 1259
+    },
+    "Y2B3C2": {
+     "before": 1659,
+     "after": 2029
+    },
+    "ZrS": {
+     "before": 860,
+     "after": 1022
+    },
+    "NbCoSb": {
+     "before": 2837,
+     "after": 2496
+    },
+    "Ti2Ga": {
+     "before": 5818,
+     "after": 5782
+    },
+    "PtPb3Bi": {
+     "before": 147,
+     "after": 197
+    }
+   }
+  }
+ },
+ "minutes": 1.9
+}

@@ -720,3 +720,380 @@ Still on cycle 3, on purpose:
   models and predictions; the next shortlist switches it.
 - The blind test and the children experiments never used the ranking of
   record's models for selection, so nothing there changes.
+
+## Cycle 5: plan and predictions, written before any cycle 5 result, 2026-11-21 01:54 UTC
+
+**Why now.** On 2026-11-21 the owner asked for training to continue without
+stopping while tokens last. [Certain] Retraining on an unchanged table adds
+nothing: the models are deterministic and a cycle takes two minutes. A cycle
+needs new evidence, so the tokens go to readers who check labels against
+the papers. This is cycles 1 to 3 again, on the rows not yet checked.
+
+**Where the batch comes from.**
+
+| Lane | Rows | How |
+| --- | --- | --- |
+| 1. Rows never checked | The 1,476 development non-cuprate negatives that cycle 3's triage did not reach, most suspicious first by cycle 4's out-of-fold probability | `scripts/openalex_triage.py --previous cycle4`, then a screen of every row with a lead, blind to the model's score |
+| 2. Cycle 3's backlog | The 39 papers in `data/benchmarks/learning-cycles/cycle3-library-requests.csv`, which could settle 52 rows that needed a full text and the rows that failed for lack of access | Tried again with connectors that cycle 3 did not have (a page-fetch service, Wiley's full-text search) |
+
+- Lane 1 starts with the 628 rows at 0.5 or above and goes on down the
+  list while tokens last.
+- Lu2Ni3Si5, approved on 2026-11-16, is applied with this batch.
+  LaPt1.7Au0.3B2C stays held unless its full text is read.
+
+**The rule is unchanged:** the owner's rule of 2026-11-16, with option B for
+abstracts. Two independent readers confirm from the paper; a third,
+sceptical reader tries to refute; the owner can veto any row before merging.
+
+**Two changes from cycle 3, stated before any result.**
+
+- Rows the screen calls "needs a full text" go to readers now, not to a
+  waiting list, because readers have more ways to reach a text.
+- When a paper states that a composition was measured and did not
+  superconduct, readers record that null with its lowest temperature. Those
+  records are kept in the cycle's evidence file. They change no label and
+  are not added to `data/training/negative_evidence.csv` in this cycle.
+
+**What cannot be read from here.** Only arXiv and OpenAlex answer directly.
+Other hosts go through the page-fetch service, which returns text but not
+scanned pages. Papers behind a paywall are not read; nothing is taken from
+sites that copy papers without permission.
+
+**Run order.**
+1. Three placebos on the cycle 4 table: as many random development
+   non-cuprate negatives flipped as there are corrections (seeds 51 to 53),
+   each with `--additions`.
+2. Add the corrections to `data/training/negative_evidence.csv`, rebuild
+   both tables, and run
+   `python scripts/run_learning_cycle.py --name cycle5 --previous cycle4 --additions data/processed/learning-cycles/nims-additions.csv.gz`.
+3. Corrections found after that run wait for cycle 6.
+
+**What becomes the ranking of record.** Cycle 5, if the owner merges its
+pull request. A correction is a fact about a label, not a modelling choice,
+so no score decides it; the scores below only describe the change.
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| Corrections that pass the rule, both lanes together: between 5 and 20 | 60% |
+| Fewer than 5 | 25% |
+| Lane 2 gives at least 2 of them | 50% |
+| Cross-validated non-cuprate AUC changes by less than 0.005 from cycle 4's 0.7856 | 85% |
+| The paired difference against cycle 4 has an interval that includes zero | 80% |
+| The made-metals top 50 keeps between 30 and 45 of cycle 4's 50 | 70% |
+| Cycle 5's AUC change is larger than that of each of the three placebos | 40% |
+
+Reasoning:
+- Cycle 3 searched the 500 most suspicious rows and four passed. These rows
+  are less suspicious, but there are three times as many and the
+  needs-full-text rows are now read.
+- A dozen corrected rows among about 9,400 cannot move a pooled score much.
+  The gain to expect is a cleaner top of the order, not a higher AUC.
+
+### Cycle 5: a note on the readers, 2026-11-21 02:41 UTC (before any correction was applied)
+
+- [Certain] The reader agents started on one model (Claude Fable 5.2). At
+  about 02:40 UTC that model's usage limit stopped roughly 30 of them
+  mid-task. They are being rerun on Claude Opus 5.5 from the saved results:
+  agents that had finished are kept, and only the stopped ones run again.
+- So one row's readers may run on different models. The rule asks for two
+  independent readings and a sceptic; it does not ask for one model. Each
+  reader still works only from the task file and the literature.
+- Nothing here changes the rule, the batch, or the predictions above.
+
+## Cycle 5: result, 2026-11-21 05:10 UTC
+
+**Main result:** seven labels corrected. As predicted, the overall score does
+not move beyond noise: the three placebos (seven random flips each) moved it
+a little more. The corrections do move the made metals of their own
+chemistries up, more than the placebos do.
+
+**The check, by numbers.**
+
+| Stage | Rows |
+| --- | --- |
+| Development non-cuprate negatives cycle 3 did not reach | 1,476 |
+| Searched in OpenAlex (the rest hit the free daily budget; least suspicious first) | 1,129 |
+| With at least one lead | 457 |
+| Screen: unlikely to be wrong / needs a full text / likely wrong | 412 / 31 / 14 |
+| Backlog papers from cycle 3 retried (lane 2) | 39 papers, about 65 rows |
+| Reader A confirmed / verified null / not confirmed | 16 / 5 / 89 |
+| Reader B confirmed (of reader A's confirmations) | 15 |
+| Sceptic: apply / do not apply | **7** / 8 |
+
+Records: `data/benchmarks/learning-cycles/cycle5-evidence.json` (screen,
+both readers and the sceptic for every row; short quotes only),
+`cycle5-triage-leads.json` (lead titles and DOIs) and
+`cycle5-library-requests.csv` (43 papers that could settle 65 rows the
+readers could not open from here).
+
+**Applied** (recorded in `data/training/negative_evidence.csv`; all are
+development rows, each changed from 0 to 1, nothing moved between splits):
+
+| Row | Paper | Sample | Tc used (K) | Read from | Where the zero probably came from |
+| --- | --- | --- | --- | --- | --- |
+| BaGa2 (fold 4) | Phys. Rev. B 105, 214517 (2022) | Self-flux single crystals; zero resistance, diamagnetism, field-suppressed specific-heat jump | 0.36 | full text (arXiv) | Specific heat and transport that stopped at 1.8 K |
+| WBe2 (fold 4) | J. Alloys Compd. 1010, 177756 (2025) | Arc-melted bulk, 90-95% WBe2 with W metal; resistive onset, bulk specific-heat jump | 1.05 | full text (arXiv) | A 1963 search that stopped at 1.68 K |
+| NbGe2 (fold 4) | Phys. Rev. B 102, 064507 (2020) | Single crystals, single-phase C40; >100% shielding, specific-heat jump. Also arc-melted 1978 (2.09 K) and 2024 polycrystals | 2.0 | full text (arXiv) | Hardy and Hulm 1954, "normal to 1.2 K" (contradicted by every later bulk report) |
+| NbSi2 (fold 2) | J. Low Temp. Phys. 92, 335 (1993) | C40 single crystals, specific heat | 0.13 | **abstract only** (option B) | Searches that stopped at 1.2 K |
+| FeS (fold 4) | Phys. Rev. B 93, 094522 (2016) | Single crystals of **tetragonal (mackinawite) FeS**, full site occupancy; shielding 60-90%, specific-heat jump. Replicated by several groups | 3.9 | full text (arXiv) | NIMS 2014 papers on Fe1.08S, 1.9 at.% off, measured to 2 K |
+| Nb0.4Hf0.2Zr0.2Ti0.2 (fold 4) | Acta Mater. 261, 119420 (2023) | Arc-melted bulk; specific-heat jump 3.3 | 7.99 | **abstract only** (option B) | Probably Raevskii et al. 1969/1971 (not readable) |
+| Lu2Ni3Si5 (fold 4) | Phys. Rev. B 50, 13879 (1994) | Polycrystal; zero resistance at 2.0 K, specific-heat jump | 2.1 | **abstract only** (option B) | Not identified. Approved on 2026-11-16; confirmed again by this cycle's readers and sceptic |
+
+**Refused by the sceptic although both readers confirmed** (reasons of
+substance, as option B requires):
+
+| Row | Reason |
+| --- | --- |
+| MoB2 | The one positive sample's composition was not determined and boron-rich Mo-B superconducts in the same range; four other MoB2 samples (two papers plus the same paper's arc-melted one) found nothing |
+| CeFeAsO0.94F0.06 | On the edge of the dome; two primary papers measured samples written this way and found no superconductivity; the positive sample's F content is uncertain by more than the 0.15 at.% limit |
+| Ir3Te8 | The measured crystal refines to about Ir0.80Te2, 1.4 at.% off; incomplete transition; not reproduced |
+| NbB2.24 | Bracket from a series described only as ">94% NbB2"; two other groups find only trace superconductivity at this boron content |
+| EuFe2(As0.64P0.36)2 | Single crystals bracketing the row (EDX compositions) do not superconduct; the polycrystal bracket shows partial drops only |
+| Ir0.75Pt0.25Te2 | The only direct measurement at this composition finds nothing above 0.3 K, below what the bracket implies |
+| Fe1.03Se | McQueen et al. report this exact composition as a bulk non-superconductor to 0.6 K in two papers; the positive match rests on a refined occupancy at the limit |
+| Bi2OS2 | Superconducts only after treatment at 2 GPa; made at ambient pressure it does not. Cycle 3 flagged pressure-processed samples as a rule question for the owner, still open |
+
+Verified nulls found by readers (recorded in the evidence file; no label
+changes): Al3Nb to 0.012 K, HfW2 to 0.03 K, LaB2C2 to 1.8 K, Ti2Rh to 1.2 K,
+and one Eu-Fe-As-P row to 2.0 K.
+
+**Scores on the development rows, non-cuprates** (paired difference: this
+model minus cycle 4's, both on today's labels, 300 resamples):
+
+| Run (seven labels changed) | AUC | Paired AUC difference (median, 95% interval) | Tc error, log scale | Top 10 / 50 / 200 kept | Rank correlation | Zr6Ga2Ni (was 63) |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Cycle 5 (seven corrections)** | **0.7852** | **+0.0005 (−0.0058 to +0.0057)** | 0.3904 (was 0.3964) | 9 / 38 / 165 | 0.991 | 32 |
+| Placebo 1 (seed 51) | 0.7868 | +0.0009 | 0.3888 | 9 / 38 / 166 | 0.991 | 56 |
+| Placebo 2 (seed 52) | 0.7884 | +0.0033 | 0.3900 | 8 / 38 / 164 | 0.991 | 47 |
+| Placebo 3 (seed 53) | 0.7876 | +0.0023 | 0.3904 | 8 / 39 / 167 | 0.990 | 75 |
+
+**Made metals in the corrected chemistries** (sharing at least two elements
+with a corrected row; 175 compounds): median rise **102 places** in cycle 5,
+against −29, +17 and +3 in the three placebos. The four in exactly a
+corrected element system rose a median of 514 places (placebos 51, 254, 27):
+LuNiSi2 1,218th to 843rd, BaGa4 2,209th to 1,557th, Nb3Si2 2,962nd to
+2,703rd, LuNi2Si2 4,139th to 3,357th.
+
+**Against the predictions written before the result:**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| Corrections that pass, both lanes: 5 to 20 | 60% | Yes (7) |
+| Fewer than 5 | 25% | No |
+| Lane 2 gives at least 2 | 50% | Yes, but only by counting Lu2Ni3Si5, approved before; 1 new |
+| AUC changes by less than 0.005 from cycle 4 | 85% | Yes (−0.0004) |
+| The paired difference includes zero | 80% | Yes |
+| Top 50 keeps 30 to 45 of cycle 4's | 70% | Yes (38) |
+| Cycle 5's AUC change is larger than each placebo's | 40% | **No**: smaller than all three |
+
+**What it shows.**
+
+- [Certain] Seven corrected rows among 9,399 do not change a pooled score.
+  The placebos moved it more. As the plan said, no score decides a label
+  correction.
+- [Likely] The corrections do what they should locally: made metals sharing
+  chemistry with a corrected row rose about 100 places, where random flips
+  of the same size moved them by −29 to +17.
+- [Certain] In three of seven (BaGa2, WBe2, NbSi2) the zero comes from a
+  search that stopped above the Tc found later (floors of 1.2 to 1.8 K
+  against Tc of 0.13 to 1.05 K). For FeS it comes from a sample 1.9 at.%
+  off; for NbGe2 from a 1954 null that every later bulk report contradicts.
+  For the other two the source was not found. SuperCon's "not a
+  superconductor" often means "not above the lowest temperature reached".
+- [Speculative] Six of the seven are in fold 4. Readers never saw the fold,
+  and fold 4 supplied only 79 of the 457 rows sent to the screen. By chance
+  this is about a 0.5% event. Fold 4's negatives also carry the highest mean
+  out-of-fold suspicion of the five folds (0.60 against 0.50 to 0.55). One
+  reading is that fold 4 happens to hold more wrong zeros. Cycle 6 could test
+  that by screening fold 4's remaining negatives first.
+- Zr6Ga2Ni rose from 63rd to 32nd. Two placebos moved it less, one moved it
+  down; it stays the benchmark for its published calculation, not its rank.
+
+**For the owner's veto** (each row can be vetoed before merging):
+
+- **FeS.** Only the metastable tetragonal polymorph superconducts; the common
+  hexagonal one does not. The table works by composition, so the rule
+  corrects the row. Veto it if a composition label should follow the stable
+  polymorph.
+- **WBe2.** The paper names the phase WBe2 without a chemical analysis and
+  places it on the W-rich side of a range whose edge is 0.7 at.% away. The
+  excess tungsten is seen as a separate phase. This is close to the cycle 1
+  question about off-ratio samples (ScS, W3Re2C), which those rows failed.
+- **NbSi2, Nb0.4Hf0.2Zr0.2Ti0.2, Lu2Ni3Si5** were read from abstracts only,
+  under option B. Each abstract states the exact composition, a Tc and a
+  bulk signature (specific heat).
+
+**What becomes the ranking of record.** Cycle 5, if the owner merges this
+pull request. Its models are `data/processed/learning-cycles/models/cycle5/`
+(not committed), trained on the corrected table plus the 851 NIMS rows.
+Shortlist 2 and the Hazel packages stay as they are (chosen with cycle 3).
+
+## Cycle 6: plan and predictions, written before any cycle 6 result, 2026-11-21 05:14 UTC
+
+(Correction to the heading above: the cycle 5 result was written at about
+05:10 UTC, not 05:30 as first typed.)
+
+**Why.** The owner's request of 2026-11-21 stands: keep going while tokens
+last. Cycle 5 used the rows that had an automatic lead. This cycle takes the
+rest.
+
+**Batch.** The 1,019 development non-cuprate negatives that neither cycle 3
+nor cycle 5 sent to a screen: 672 whose OpenAlex search found no lead and 347
+the search did not reach (its free daily budget ran out). They are taken
+most suspicious first by cycle 5's out-of-fold probability, starting with
+the 381 at 0.5 or above, and continued down the list while tokens last.
+
+**What differs from cycle 5.** These rows have no automatic lead, so the
+screen runs its own searches (a few per row, through the literature
+connectors). Everything after the screen is cycle 5's: two independent
+readers, then a sceptic, under the owner's rule of 2026-11-16 with option B.
+Screens and readers are not shown the model's score or the row's fold.
+
+**Not in this cycle:** development cuprate negatives (318; their labels hang
+on oxygen content, which needs its own rule), locked-row negatives (439;
+never scored again) and train-only negatives (973).
+
+**Run order.** As in cycle 5: three placebos with as many random flips as
+there are corrections (seeds 61 to 63, with `--additions`), then the
+corrections, a rebuild of both tables, and
+`python scripts/run_learning_cycle.py --name cycle6 --previous cycle5 --additions data/processed/learning-cycles/nims-additions.csv.gz`.
+If cycle 5 is vetoed in part before then, cycle 6 is rerun on the table that
+results.
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| Corrections that pass: 0 to 4 | 65% |
+| 5 or more | 35% |
+| Pass rate per row screened is below cycle 5's (7 of 457 with leads, 1.5%) | 80% |
+| Cross-validated non-cuprate AUC changes by less than 0.005 from cycle 5's 0.7852 | 90% |
+| If there are at least two corrections, fold 4 supplies at least half of them (it holds 174 of the 1,019 rows, 17%) | 30% |
+
+Reasoning:
+- A row with no lead has had the most obvious search done already and
+  found nothing, so fewer of these zeros should be wrong.
+- The fold-4 line tests cycle 5's unexplained pattern (six of seven
+  corrections in fold 4). With no real effect, fold 4 would supply half of
+  two or more corrections well under one time in five.
+
+## Cycle 6: result, 2026-11-21 07:05 UTC
+
+**Main result:** nine labels corrected, one held for the owner. The score
+moves a little more than in cycle 5 but stays within noise, and the
+corrections' effect on their own chemistries is weaker than in cycle 5.
+
+**What was screened.** The 620 rows at cycle 5 suspicion 0.3 or above that
+had no automatic lead (381 at 0.5 or above, 239 from 0.3 to 0.5). The 399
+rows below 0.3 were not reached in this cycle.
+
+| Stage | Rows |
+| --- | --- |
+| Screen: unlikely / needs a full text / likely wrong | 570 / 32 / 18 |
+| Reader A confirmed / verified null / not confirmed | 15 / 4 / 31 |
+| Reader B confirmed | 14 |
+| Sceptic: apply / do not apply | 10 / 4 |
+| Applied (one apply held by me, below) | **9** |
+
+All nine came from the 0.5-and-above band; the 0.3 to 0.5 band gave two
+(PrNiAsO, ScSe) and the held row. Records:
+`data/benchmarks/learning-cycles/cycle6-evidence.json`.
+
+**Applied** (all development rows, 0 to 1, nothing moved between splits):
+
+| Row (fold) | Paper | Tc used (K) | Read from | Note |
+| --- | --- | --- | --- | --- |
+| Ir0.9Pt0.1Te2 (0) | Adv. Mater. 30, 1801556 (2018) | 1.7 | full text (arXiv) | Self-flux single crystals, zero resistance; resistive only, nominal x. The zero is from polycrystals measured to 2.0 K |
+| Ir0.8Pt0.2Te2 (0) | same | 0.65 | full text | Stated; zero resistance |
+| Ir0.85Pt0.15Te2 (0) | same | 1.18 | full text | **Bracketed** by x = 0.1 and 0.2 (each 1.67 at.% away); the Tc is an interpolation, not a measurement |
+| CeOs2 (1) | J. Appl. Phys. 57, 3137 (1985) | 1.1 | full text (author manuscript) | Hexagonal C14 form, made by annealing; the cubic C15 form does not superconduct above 70 mK. A later group agrees |
+| Pd0.1HoTe3 (4) | arXiv:1301.3032 (Supercond. Sci. Technol. 29, 065018, 2016; journal version not read) | 2.6 | full text (arXiv) | One member of a measured series; zero resistance, strong diamagnetism |
+| (Li0.8Fe0.2)OH·Fe(S0.08Se0.92) (1) | Chem. Commun. 51, 4689 (2015) | 36 | full text (arXiv) | Exact member of a single-phase series, composition by EDX, ICP and elemental analysis |
+| BaFe1.5Ru0.5As2 (3) | Phys. Rev. B 82, 014534 (2010) | 14 | full text (arXiv) | **Bracketed** by WDS-analysed crystals 0.4 and 1.6 at.% away; a 2012 crystal at exactly this composition superconducts. One nominal polycrystal (2010) found nothing to 4 K |
+| PrNiAsO (2) | J. Phys.: Condens. Matter 26, 425701 (2014) | 0.93 | **abstract only** | Specific heat reported; a second group reports it at 1.6 K |
+| ScSe (0) | J. Low Temp. Phys. 33, 175 (1978) | 3.7 | first two pages only (publisher preview) | Stated as a discovery of this work; composition analysis and the source of the table's three zeros not seen |
+
+**Held by me, not applied: DyRh4B4.** Both readers and the sceptic say it
+superconducts (4.7 K, Acta Phys. Pol. A 114, 83, 2008), but only in a
+metastable body-centred form made at about 8 GPa; ordinary arc-melted
+DyRh4B4 is a 12 K ferromagnet. That is the open rule question that cycle 5's
+sceptic cited when refusing Bi2OS2 (do samples made under high pressure and
+measured at ambient count?). Applying one and not the other would be
+inconsistent, so both wait for the owner's answer. Precedent: cycle 3's
+LaPt1.7Au0.3B2C was held by me after its verifier said apply.
+
+**Refused by the sceptic although both readers confirmed:**
+
+| Row | Reason |
+| --- | --- |
+| LaFeAsO0.96F0.04 | Two primary papers on the same nominal composition (Dresden) find full SDW order and no superconductivity; x = 0.04 is the SDW/superconductor boundary and the groups' F scales differ by about 0.02 |
+| Sr0.6La0.4FBiS2 | Sakai et al. 2014 measured the same nominal composition and found nothing to 1.8 K; steep insulator-superconductor boundary |
+| Ba(Fe0.965Co0.035)2As2 | Hardy et al. 2010 report a crystal at exactly this composition with no specific-heat anomaly to 0.4 K; the underdoped edge of the dome |
+| Ba(Fe0.85Co0.15)2As2 | Hardy et al. 2010: EDX-analysed crystal at this composition, nothing to 0.4 K; the overdoped edge |
+
+Verified nulls (evidence file only; no label changes): LaH1.96 to 0.33 K,
+hydrated Na0.3CoO2 at this water content to 2.0 K, one (Ce,Pr)Pt4Ge12 row
+and one Ca(Fe,Co)AsH row to 2.0 K.
+
+**Scores, non-cuprates** (paired difference: this model minus cycle 5's,
+both on today's labels):
+
+| Run (nine labels changed) | AUC | Paired AUC difference (median, 95% interval) | Tc error, log scale | Top 10 / 50 / 200 kept | Zr6Ga2Ni (was 32) |
+| --- | --- | --- | --- | --- | --- |
+| **Cycle 6** | **0.7882** | **+0.0034 (−0.0021 to +0.0094)** | 0.3868 | 9 / 40 / 166 | 102 |
+| Placebo 1 (seed 61) | 0.7829 | −0.0023 | 0.3848 | 7 / 40 / 162 | 53 |
+| Placebo 2 (seed 62) | 0.7852 | +0.0009 | 0.3869 | 8 / 41 / 166 | 52 |
+| Placebo 3 (seed 63) | 0.7879 | +0.0028 | 0.3919 | 8 / 37 / 154 | 41 |
+
+Made metals sharing at least two elements with a corrected row (285
+compounds): median rise 42 places, against 41, 5 and 15 in the placebos.
+
+**Against the predictions written before the result:**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| 0 to 4 corrections | 65% | **No** (9) |
+| 5 or more | 35% | Yes |
+| Pass rate per row screened below cycle 5's (1.53%) | 80% | Yes, barely: 9 of 620 = 1.45% (1.61% if the held row counted) |
+| AUC changes by less than 0.005 from cycle 5's 0.7852 | 90% | Yes (+0.0030) |
+| Fold 4 supplies at least half of two or more corrections | 30% | No (1 of 9) |
+
+**What it shows.**
+
+- [Certain] Rows with no automatic lead were not cleaner than rows with
+  one: the pass rate was about the same (1.45% against 1.53%). The search
+  missed them for reasons of naming (doping series, intercalates,
+  polymorphs), not because they were right. I expected fewer.
+- [Certain] Cycle 5's fold-4 pattern did not repeat (1 of 9). Taken with
+  cycle 5, 7 of 16 corrections are in fold 4, which held about 17 to 27% of
+  the rows screened. [Speculative] That is still somewhat high, but most
+  likely chance.
+- [Likely] Cycle 6's AUC change beat all three placebos, as cycle 5's did
+  not. With three placebos this is weak evidence either way.
+- [Certain] The local effect is not distinguishable from placebo 1. Several
+  corrections are in families the table already knows well (iron arsenides,
+  Ir-Te), so there was less for the model to learn.
+- Four of the five refusals in this cycle, and three of cycle 5's eight, sit
+  on the edge of a doping dome, where groups' composition scales disagree
+  by more than the rule's 0.15 at.%. The rule is doing its job there.
+- Zr6Ga2Ni fell from 32nd to 102nd (placebos: 41st to 53rd). It is the
+  benchmark for its published calculation, not its rank.
+
+**For the owner's veto**, in addition to cycle 5's list: CeOs2 (polymorph,
+as FeS), ScSe (two pages read), BaFe1.5Ru0.5As2 (one nominal null at the
+exact composition), Ir0.85Pt0.15Te2 (interpolated Tc), PrNiAsO (abstract
+only).
+
+**What becomes the ranking of record.** Cycle 6, if the owner merges the
+pull request holding cycles 5 and 6.
+
+### Cycle 7: plan, written before any cycle 7 result, 2026-11-21 07:05 UTC
+
+The 399 development non-cuprate negatives below 0.3 that no cycle has
+screened, with cycle 6's method, most suspicious first, while tokens last.
+DyRh4B4 and Bi2OS2 stay held until the owner rules on pressure-synthesised
+samples. Predictions [Speculative]: 0 to 4 corrections, 70%; pass rate below
+cycle 6's 1.45%, 75%; AUC changes by less than 0.005 from cycle 6's 0.7882,
+90%. Placebos, rebuild and retraining as in cycle 6, if anything passes.
