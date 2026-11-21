@@ -1097,3 +1097,26 @@ DyRh4B4 and Bi2OS2 stay held until the owner rules on pressure-synthesised
 samples. Predictions [Speculative]: 0 to 4 corrections, 70%; pass rate below
 cycle 6's 1.45%, 75%; AUC changes by less than 0.005 from cycle 6's 0.7882,
 90%. Placebos, rebuild and retraining as in cycle 6, if anything passes.
+
+## Cycle 7: stopped by the usage limit, 2026-11-21 18:01 UTC
+
+**Main result:** no corrections. The model usage limit stopped the readers
+partway through, so cycle 7 is incomplete and the table is unchanged; no
+placebos or retraining were run, and cycle 6 stays the latest cycle.
+
+| | Rows |
+| --- | --- |
+| In the batch (development non-cuprate negatives below 0.3, never screened) | 399 |
+| Screened | 240 |
+| Screen: unlikely / needs a full text / likely wrong | 237 / 2 / 1 |
+| Not screened (the limit stopped those agents) | 159 |
+| Sent to readers but not read (limit) | 3: Y0.75Ce0.25Ni2B2C (likely wrong), and two Be-Fe alloys, Be0.95Fe0.05 and Be0.977Fe0.023 (needs a full text) |
+
+- [Certain] Against the predictions: 0 corrections falls in the 0-to-4 band
+  (70%); the AUC prediction does not apply because nothing changed. The
+  pass-rate prediction cannot be judged on an incomplete batch.
+- [Likely] The low band is mostly real nulls: the screen called 237 of 240
+  unlikely to be wrong, a higher share than in cycle 6 (570 of 620).
+- Records: `data/benchmarks/learning-cycles/cycle7-evidence.json` (the 240
+  screens). The 159 unscreened rows and the 3 unread ones are the place to
+  resume.
