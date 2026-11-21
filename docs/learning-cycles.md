@@ -802,7 +802,7 @@ Reasoning:
   reader still works only from the task file and the literature.
 - Nothing here changes the rule, the batch, or the predictions above.
 
-## Cycle 5: result, 2026-11-21 05:30 UTC
+## Cycle 5: result, 2026-11-21 05:10 UTC
 
 **Main result:** seven labels corrected. As predicted, the overall score does
 not move beyond noise: the three placebos (seven random flips each) moved it
@@ -929,3 +929,52 @@ LuNiSi2 1,218th to 843rd, BaGa4 2,209th to 1,557th, Nb3Si2 2,962nd to
 pull request. Its models are `data/processed/learning-cycles/models/cycle5/`
 (not committed), trained on the corrected table plus the 851 NIMS rows.
 Shortlist 2 and the Hazel packages stay as they are (chosen with cycle 3).
+
+## Cycle 6: plan and predictions, written before any cycle 6 result, 2026-11-21 05:14 UTC
+
+(Correction to the heading above: the cycle 5 result was written at about
+05:10 UTC, not 05:30 as first typed.)
+
+**Why.** The owner's request of 2026-11-21 stands: keep going while tokens
+last. Cycle 5 used the rows that had an automatic lead. This cycle takes the
+rest.
+
+**Batch.** The 1,019 development non-cuprate negatives that neither cycle 3
+nor cycle 5 sent to a screen: 672 whose OpenAlex search found no lead and 347
+the search did not reach (its free daily budget ran out). They are taken
+most suspicious first by cycle 5's out-of-fold probability, starting with
+the 381 at 0.5 or above, and continued down the list while tokens last.
+
+**What differs from cycle 5.** These rows have no automatic lead, so the
+screen runs its own searches (a few per row, through the literature
+connectors). Everything after the screen is cycle 5's: two independent
+readers, then a sceptic, under the owner's rule of 2026-11-16 with option B.
+Screens and readers are not shown the model's score or the row's fold.
+
+**Not in this cycle:** development cuprate negatives (318; their labels hang
+on oxygen content, which needs its own rule), locked-row negatives (439;
+never scored again) and train-only negatives (973).
+
+**Run order.** As in cycle 5: three placebos with as many random flips as
+there are corrections (seeds 61 to 63, with `--additions`), then the
+corrections, a rebuild of both tables, and
+`python scripts/run_learning_cycle.py --name cycle6 --previous cycle5 --additions data/processed/learning-cycles/nims-additions.csv.gz`.
+If cycle 5 is vetoed in part before then, cycle 6 is rerun on the table that
+results.
+
+**Predictions** [Speculative]:
+
+| Outcome | Chance |
+| --- | --- |
+| Corrections that pass: 0 to 4 | 65% |
+| 5 or more | 35% |
+| Pass rate per row screened is below cycle 5's (7 of 457 with leads, 1.5%) | 80% |
+| Cross-validated non-cuprate AUC changes by less than 0.005 from cycle 5's 0.7852 | 90% |
+| If there are at least two corrections, fold 4 supplies at least half of them (it holds 174 of the 1,019 rows, 17%) | 30% |
+
+Reasoning:
+- A row with no lead has had the most obvious search done already and
+  found nothing, so fewer of these zeros should be wrong.
+- The fold-4 line tests cycle 5's unexplained pattern (six of seven
+  corrections in fold 4). With no real effect, fold 4 would supply half of
+  two or more corrections well under one time in five.
