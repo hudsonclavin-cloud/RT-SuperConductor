@@ -790,3 +790,14 @@ Reasoning:
   needs-full-text rows are now read.
 - A dozen corrected rows among about 9,400 cannot move a pooled score much.
   The gain to expect is a cleaner top of the order, not a higher AUC.
+
+### Cycle 5: a note on the readers, 2026-11-21 02:41 UTC (before any correction was applied)
+
+- [Certain] The reader agents started on one model (Claude Fable 5.2). At
+  about 02:40 UTC that model's usage limit stopped roughly 30 of them
+  mid-task. They are being rerun on Claude Opus 5.5 from the saved results:
+  agents that had finished are kept, and only the stopped ones run again.
+- So one row's readers may run on different models. The rule asks for two
+  independent readings and a sceptic; it does not ask for one model. Each
+  reader still works only from the task file and the literature.
+- Nothing here changes the rule, the batch, or the predictions above.
