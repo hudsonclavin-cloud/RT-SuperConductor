@@ -801,3 +801,131 @@ Reasoning:
   independent readings and a sceptic; it does not ask for one model. Each
   reader still works only from the task file and the literature.
 - Nothing here changes the rule, the batch, or the predictions above.
+
+## Cycle 5: result, 2026-11-21 05:30 UTC
+
+**Main result:** seven labels corrected. As predicted, the overall score does
+not move beyond noise: the three placebos (seven random flips each) moved it
+a little more. The corrections do move the made metals of their own
+chemistries up, more than the placebos do.
+
+**The check, by numbers.**
+
+| Stage | Rows |
+| --- | --- |
+| Development non-cuprate negatives cycle 3 did not reach | 1,476 |
+| Searched in OpenAlex (the rest hit the free daily budget; least suspicious first) | 1,129 |
+| With at least one lead | 457 |
+| Screen: unlikely to be wrong / needs a full text / likely wrong | 412 / 31 / 14 |
+| Backlog papers from cycle 3 retried (lane 2) | 39 papers, about 65 rows |
+| Reader A confirmed / verified null / not confirmed | 16 / 5 / 89 |
+| Reader B confirmed (of reader A's confirmations) | 15 |
+| Sceptic: apply / do not apply | **7** / 8 |
+
+Records: `data/benchmarks/learning-cycles/cycle5-evidence.json` (screen,
+both readers and the sceptic for every row; short quotes only),
+`cycle5-triage-leads.json` (lead titles and DOIs) and
+`cycle5-library-requests.csv` (43 papers that could settle 65 rows the
+readers could not open from here).
+
+**Applied** (recorded in `data/training/negative_evidence.csv`; all are
+development rows, each changed from 0 to 1, nothing moved between splits):
+
+| Row | Paper | Sample | Tc used (K) | Read from | Where the zero probably came from |
+| --- | --- | --- | --- | --- | --- |
+| BaGa2 (fold 4) | Phys. Rev. B 105, 214517 (2022) | Self-flux single crystals; zero resistance, diamagnetism, field-suppressed specific-heat jump | 0.36 | full text (arXiv) | Specific heat and transport that stopped at 1.8 K |
+| WBe2 (fold 4) | J. Alloys Compd. 1010, 177756 (2025) | Arc-melted bulk, 90-95% WBe2 with W metal; resistive onset, bulk specific-heat jump | 1.05 | full text (arXiv) | A 1963 search that stopped at 1.68 K |
+| NbGe2 (fold 4) | Phys. Rev. B 102, 064507 (2020) | Single crystals, single-phase C40; >100% shielding, specific-heat jump. Also arc-melted 1978 (2.09 K) and 2024 polycrystals | 2.0 | full text (arXiv) | Hardy and Hulm 1954, "normal to 1.2 K" (contradicted by every later bulk report) |
+| NbSi2 (fold 2) | J. Low Temp. Phys. 92, 335 (1993) | C40 single crystals, specific heat | 0.13 | **abstract only** (option B) | Searches that stopped at 1.2 K |
+| FeS (fold 4) | Phys. Rev. B 93, 094522 (2016) | Single crystals of **tetragonal (mackinawite) FeS**, full site occupancy; shielding 60-90%, specific-heat jump. Replicated by several groups | 3.9 | full text (arXiv) | NIMS 2014 papers on Fe1.08S, 1.9 at.% off, measured to 2 K |
+| Nb0.4Hf0.2Zr0.2Ti0.2 (fold 4) | Acta Mater. 261, 119420 (2023) | Arc-melted bulk; specific-heat jump 3.3 | 7.99 | **abstract only** (option B) | Probably Raevskii et al. 1969/1971 (not readable) |
+| Lu2Ni3Si5 (fold 4) | Phys. Rev. B 50, 13879 (1994) | Polycrystal; zero resistance at 2.0 K, specific-heat jump | 2.1 | **abstract only** (option B) | Not identified. Approved on 2026-11-16; confirmed again by this cycle's readers and sceptic |
+
+**Refused by the sceptic although both readers confirmed** (reasons of
+substance, as option B requires):
+
+| Row | Reason |
+| --- | --- |
+| MoB2 | The one positive sample's composition was not determined and boron-rich Mo-B superconducts in the same range; four other MoB2 samples (two papers plus the same paper's arc-melted one) found nothing |
+| CeFeAsO0.94F0.06 | On the edge of the dome; two primary papers measured samples written this way and found no superconductivity; the positive sample's F content is uncertain by more than the 0.15 at.% limit |
+| Ir3Te8 | The measured crystal refines to about Ir0.80Te2, 1.4 at.% off; incomplete transition; not reproduced |
+| NbB2.24 | Bracket from a series described only as ">94% NbB2"; two other groups find only trace superconductivity at this boron content |
+| EuFe2(As0.64P0.36)2 | Single crystals bracketing the row (EDX compositions) do not superconduct; the polycrystal bracket shows partial drops only |
+| Ir0.75Pt0.25Te2 | The only direct measurement at this composition finds nothing above 0.3 K, below what the bracket implies |
+| Fe1.03Se | McQueen et al. report this exact composition as a bulk non-superconductor to 0.6 K in two papers; the positive match rests on a refined occupancy at the limit |
+| Bi2OS2 | Superconducts only after treatment at 2 GPa; made at ambient pressure it does not. Cycle 3 flagged pressure-processed samples as a rule question for the owner, still open |
+
+Verified nulls found by readers (recorded in the evidence file; no label
+changes): Al3Nb to 0.012 K, HfW2 to 0.03 K, LaB2C2 to 1.8 K, Ti2Rh to 1.2 K,
+and one Eu-Fe-As-P row to 2.0 K.
+
+**Scores on the development rows, non-cuprates** (paired difference: this
+model minus cycle 4's, both on today's labels, 300 resamples):
+
+| Run (seven labels changed) | AUC | Paired AUC difference (median, 95% interval) | Tc error, log scale | Top 10 / 50 / 200 kept | Rank correlation | Zr6Ga2Ni (was 63) |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Cycle 5 (seven corrections)** | **0.7852** | **+0.0005 (−0.0058 to +0.0057)** | 0.3904 (was 0.3964) | 9 / 38 / 165 | 0.991 | 32 |
+| Placebo 1 (seed 51) | 0.7868 | +0.0009 | 0.3888 | 9 / 38 / 166 | 0.991 | 56 |
+| Placebo 2 (seed 52) | 0.7884 | +0.0033 | 0.3900 | 8 / 38 / 164 | 0.991 | 47 |
+| Placebo 3 (seed 53) | 0.7876 | +0.0023 | 0.3904 | 8 / 39 / 167 | 0.990 | 75 |
+
+**Made metals in the corrected chemistries** (sharing at least two elements
+with a corrected row; 175 compounds): median rise **102 places** in cycle 5,
+against −29, +17 and +3 in the three placebos. The four in exactly a
+corrected element system rose a median of 514 places (placebos 51, 254, 27):
+LuNiSi2 1,218th to 843rd, BaGa4 2,209th to 1,557th, Nb3Si2 2,962nd to
+2,703rd, LuNi2Si2 4,139th to 3,357th.
+
+**Against the predictions written before the result:**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| Corrections that pass, both lanes: 5 to 20 | 60% | Yes (7) |
+| Fewer than 5 | 25% | No |
+| Lane 2 gives at least 2 | 50% | Yes, but only by counting Lu2Ni3Si5, approved before; 1 new |
+| AUC changes by less than 0.005 from cycle 4 | 85% | Yes (−0.0004) |
+| The paired difference includes zero | 80% | Yes |
+| Top 50 keeps 30 to 45 of cycle 4's | 70% | Yes (38) |
+| Cycle 5's AUC change is larger than each placebo's | 40% | **No**: smaller than all three |
+
+**What it shows.**
+
+- [Certain] Seven corrected rows among 9,399 do not change a pooled score.
+  The placebos moved it more. As the plan said, no score decides a label
+  correction.
+- [Likely] The corrections do what they should locally: made metals sharing
+  chemistry with a corrected row rose about 100 places, where random flips
+  of the same size moved them by −29 to +17.
+- [Certain] In three of seven (BaGa2, WBe2, NbSi2) the zero comes from a
+  search that stopped above the Tc found later (floors of 1.2 to 1.8 K
+  against Tc of 0.13 to 1.05 K). For FeS it comes from a sample 1.9 at.%
+  off; for NbGe2 from a 1954 null that every later bulk report contradicts.
+  For the other two the source was not found. SuperCon's "not a
+  superconductor" often means "not above the lowest temperature reached".
+- [Speculative] Six of the seven are in fold 4. Readers never saw the fold,
+  and fold 4 supplied only 79 of the 457 rows sent to the screen. By chance
+  this is about a 0.5% event. Fold 4's negatives also carry the highest mean
+  out-of-fold suspicion of the five folds (0.60 against 0.50 to 0.55). One
+  reading is that fold 4 happens to hold more wrong zeros. Cycle 6 could test
+  that by screening fold 4's remaining negatives first.
+- Zr6Ga2Ni rose from 63rd to 32nd. Two placebos moved it less, one moved it
+  down; it stays the benchmark for its published calculation, not its rank.
+
+**For the owner's veto** (each row can be vetoed before merging):
+
+- **FeS.** Only the metastable tetragonal polymorph superconducts; the common
+  hexagonal one does not. The table works by composition, so the rule
+  corrects the row. Veto it if a composition label should follow the stable
+  polymorph.
+- **WBe2.** The paper names the phase WBe2 without a chemical analysis and
+  places it on the W-rich side of a range whose edge is 0.7 at.% away. The
+  excess tungsten is seen as a separate phase. This is close to the cycle 1
+  question about off-ratio samples (ScS, W3Re2C), which those rows failed.
+- **NbSi2, Nb0.4Hf0.2Zr0.2Ti0.2, Lu2Ni3Si5** were read from abstracts only,
+  under option B. Each abstract states the exact composition, a Tc and a
+  bulk signature (specific heat).
+
+**What becomes the ranking of record.** Cycle 5, if the owner merges this
+pull request. Its models are `data/processed/learning-cycles/models/cycle5/`
+(not committed), trained on the corrected table plus the 851 NIMS rows.
+Shortlist 2 and the Hazel packages stay as they are (chosen with cycle 3).
