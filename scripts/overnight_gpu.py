@@ -134,8 +134,11 @@ class Run:
             self.log(f"[skip] {name}: the pretraining job did not finish")
             return job
         folder = self.out / name
-        if folder.exists():
-            shutil.rmtree(folder)                          # an unfinished attempt; start it again
+        if folder.exists():                                # an unfinished attempt; start it again
+            try:
+                shutil.rmtree(folder)
+            except OSError:                                # a file still open (Windows): keep it aside instead
+                folder.rename(folder.with_name(f"{name}-unfinished-{int(now())}"))
         folder.mkdir(parents=True)
         batch = None
         for attempt in (1, 2):
