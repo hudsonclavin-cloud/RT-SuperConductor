@@ -142,3 +142,14 @@ that lies above zero, about +0.02 better than this run.
   15%.
 - Better odds lie with inputs boosting cannot use, such as crystal
   structures. That is a different bundle, not yet built.
+
+## Next: crystal-structure networks overnight, 2026-11-22
+
+The owner asked for a structure bundle and an 8-hour run. That run is set
+up in `docs/overnight-gpu.md`:
+- `scripts/structure_gpu.py`;
+- `scripts/structure_gpu_train.py`;
+- `scripts/overnight_gpu.py`.
+
+It includes the two 20-network tabular banks that this section's
+baseline left as the next step.

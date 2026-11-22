@@ -212,7 +212,10 @@ def main(argv=None) -> int:
            "torch": torch.__version__, "python": platform.python_version(),
            "settings": {k: (list(v) if isinstance(v, tuple) else str(v) if isinstance(v, Path) else v)
                         for k, v in vars(args).items()},
-           "folds": fold_info, "minutes": round((time.time() - started) / 60.0, 2)}
+           "folds": fold_info, "minutes": round((time.time() - started) / 60.0, 2), "bundle_kind": "formula",
+           "mean_validation_bce": round(float(np.mean([n["best_validation_bce"] for f in fold_info for n in f["networks"]])), 5),
+           "seconds_per_network": round(sum(f["seconds"] for f in fold_info) / max(1, sum(len(f["networks"]) for f in fold_info)), 1),
+           "complete": True}
     (args.out / "run.json").write_text(json.dumps(run, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {args.out} in {run['minutes']} min on {run['device']} ({run['device_name']})")
     return 0
