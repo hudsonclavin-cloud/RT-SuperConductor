@@ -137,3 +137,67 @@ well judged.
 3. **For shortlist 4:** read "made or not" for the top 30 before
    applying the caps. Otherwise most of each new top 10 will be made
    compounds again.
+
+## Quantum ESPRESSO pre-check of LiGaIr and SrAl3Ag: plan, written before any result, 2026-11-22
+
+The owner asked for it on 2026-11-22. The two compounds are the never-made
+compounds of the top 10 with 6 atoms or fewer.
+
+**Method:** as for shortlist 2 (`docs/rung4-shortlist2.md`, step 4). The
+packages are `ligair` and `sral3ag`, built by
+`scripts/prepare_phonon_candidate.py`.
+
+**Setup**
+- Starting structures: the Materials Project's (`mp-aaacqrxq`,
+  `mp-aaacrihz`), symmetrised.
+- Same pseudopotential set as every package (ONCV PBE, scalar
+  relativistic). Sr, Al and Ag are added from the same source; the Ga file
+  fetched again matches the one already in `pp/` byte for byte.
+- 90 Ry, smearing 0.02 Ry.
+- Each compound is relaxed (vc-relax) first. The package's own `scf.in`
+  is then used unchanged:
+  - LiGaIr: k 12×12×8;
+  - SrAl3Ag: k 10×10×12, in the body-centred primitive cell.
+
+**Points**
+- The zone centre, plus one point from each symmetry-distinct
+  zone-boundary point with components 0 or ½ in reciprocal-lattice units.
+  That is all of them.
+- This is more than shortlist 2's two points per compound. Shortlist 2
+  chose its second point from the force field, and that screen has since
+  failed its validation.
+
+| Compound | Space group | Points, in reciprocal-lattice units of the package cell |
+| --- | --- | --- |
+| LiGaIr | P6₃/mmc | Γ; A (0 0 ½); M (0 ½ 0); L (0 ½ ½) |
+| SrAl3Ag | I4mm | Γ; (0 ½ 0), star of 4; (0 0 ½), star of 2; (½ ½ ½), star of 1 |
+
+**Order and stopping**
+- Both zone centres run first, then the boundary points in the order
+  above.
+- A compound stops at its first failure: one failure is enough under the
+  rule.
+
+**Rule:** unchanged. A mode below −5 cm⁻¹ fails, except the three
+whole-crystal translations at the zone centre.
+
+**Predictions [Speculative]**
+
+| Outcome | Chance |
+| --- | --- |
+| LiGaIr passes at every point | 45% |
+| SrAl3Ag passes at every point | 35% |
+| At least one of the two passes everywhere | 60% |
+| The relaxed cell volume is within 3% of the Materials Project's, for both | 80% |
+
+**Why SrAl3Ag gets the lower chance**
+- Its I4mm structure is polar, with free z coordinates on every site.
+- No compound of this family has been made with Al as the main element
+  ([Likely], from the shortlist 3 reading).
+
+**What a pass means, and does not mean**
+- A pass means the compound is stable at these points, at these settings.
+- It does not show the compound can be made.
+- It does not give the size of its Tc. The coupling would come from a
+  full Hazel run.
+- A full run waits on the owner's say-so and on ORC.

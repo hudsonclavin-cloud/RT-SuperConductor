@@ -43,6 +43,12 @@ CANDIDATES = {
                 "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
     "csir2p2": {"mp_id": "mp-aaacqsbd", "formula": "CsIr2P2", "k": (8, 8, 8), "q": (4, 4, 4),
                 "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
+    # Shortlist 3 (docs/rung4-shortlist3.md): the two never-made compounds with six atoms or fewer. k spacing about
+    # 0.15 per angstrom (2 pi / (|a_i| k_i)) on the symmetrised cell.
+    "ligair": {"mp_id": "mp-aaacqrxq", "formula": "LiGaIr", "k": (12, 12, 8), "q": (4, 4, 2),
+               "smoke_k": (6, 6, 4), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 16), "ph_time": "24:00:00"},
+    "sral3ag": {"mp_id": "mp-aaacrihz", "formula": "SrAl3Ag", "k": (10, 10, 12), "q": (2, 2, 2),
+                "smoke_k": (4, 4, 6), "smoke_q": (2, 2, 2), "matdyn_k": (20, 20, 24), "ph_time": "24:00:00"},
     # The layered tetragonal NaMgPb2 (P4/mmm), lower in energy than the cubic form in "namgpb2"
     # (docs/rung4-shortlist2.md, "Alexandria check"). Not in the Materials Project snapshot, so the starting
     # structure is Alexandria's. k spacing about 0.14 per angstrom, a little denser than the cubic package's 0.18.
