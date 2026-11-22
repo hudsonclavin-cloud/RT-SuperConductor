@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'ligair.dyn'
+    flfrc  = 'ligair.fc'
+    la2F   = .true.
+ /

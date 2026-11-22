@@ -1,0 +1,47 @@
+{
+ "name": "ligair",
+ "formula": "LiGaIr",
+ "mp_id": "mp-aaacqrxq",
+ "atoms": 6,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  12,
+  12,
+  8
+ ],
+ "fit_k_mesh": [
+  24,
+  24,
+  16
+ ],
+ "q_mesh": [
+  4,
+  4,
+  2
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   4.081235296364726,
+   0.0,
+   0.0
+  ],
+  [
+   -2.040617648182363,
+   3.5344534454735648,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   5.464065124
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Ga_ONCV_PBE_sr.upf": "3d7223874277e7dfdf5dab4b3acbc5da916b43b16051d10ecc2535daab87d700",
+  "Ir_ONCV_PBE_sr.upf": "93302cc5592571d9bb6a0e87dcf7dbf0f9b178e6b06ca7f77dc271dccd2b846a",
+  "Li_ONCV_PBE_sr.upf": "c618f91dc57000278fdc6db70b87c73b37a96b2c30ccd1074c0e1920a2032faa"
+ },
+ "relaxed_from": "Materials Project structure, vc-relax with these pseudopotentials and cutoff"
+}
