@@ -614,3 +614,17 @@ SbTe2, then cubic NaMgPb2 last.
 - The first version of this section (2026-11-19, written before M had
   finished) put the tetragonal package second in the queue. That is
   withdrawn.
+
+## Update, 2026-11-22: the request to the Office of Research Commercialization is sent
+
+The owner reports that the email to NC State's Office of Research
+Commercialization has been sent. Nothing changes until the Office says it
+has reviewed the results:
+- Hazel results for candidate compounds stay under `data/raw/hazel/`.
+- They are not committed or quoted (AGENTS.md).
+- The Zr6Ga2Ni benchmark stays exempt.
+
+The queue is also unchanged: CsIr2P2, then SbTe2, then cubic NaMgPb2.
+Cycle 6 moved CsIr2P2 from cycle 3's top 50 to 107th of shortlist 3's 571.
+That is a mark against it, not a reason to reorder: it is in the queue
+for its family and its calculation (`docs/rung4-shortlist3.md`).
