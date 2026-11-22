@@ -201,3 +201,37 @@ whole-crystal translations at the zone centre.
 - It does not give the size of its Tc. The coupling would come from a
   full Hazel run.
 - A full run waits on the owner's say-so and on ORC.
+
+### Pre-check results so far, 2026-11-22 10:45 UTC
+
+**Interruption and reordering**
+- The container restarted while the session was idle and stopped both
+  runs. The finished LiGaIr relaxation and ground state were kept on disk.
+- The runs were restarted at 08:46 UTC with LiGaIr's points first.
+  SrAl3Ag's relaxation alone takes several hours here: its mesh has 319
+  k-points against LiGaIr's 95.
+- The points and the rule are unchanged; only the order is.
+
+**LiGaIr, relaxed**
+- Settles at 0.0 kbar after 6 steps: a = 4.081 Å, c = 5.464 Å.
+- The volume is 78.8 Å³, 2.4% above the Materials Project's 77.0 Å³.
+- That is within the 3% predicted.
+
+**LiGaIr at the zone centre: passes**
+
+| Point | Lowest counted mode (cm⁻¹) | Imaginary? |
+| --- | --- | --- |
+| Γ (0 0 0) | 63.7 (B₁g) | No |
+
+- [Certain] The three lowest raw modes, −5.5 (×2, E₁u) and −4.2
+  (A₂u), are the three whole-crystal translations.
+  - E₁u plus A₂u is the acoustic set in D₆h.
+  - With the acoustic sum rule (`dynmat.x`, `asr='crystal'`) all three
+    go to 0.00, and every other mode is unchanged to within 1.2 cm⁻¹.
+- Every other mode is positive: 63.7 to 543.1 cm⁻¹.
+- [Likely] This rules out the buckling of the honeycomb Ga–Li layers,
+  which would lower the symmetry to P6₃mc (the LiGaGe type). That
+  distortion is a zone-centre mode.
+
+**Next:** A (0 0 ½), M (0 ½ 0) and L (0 ½ ½), started 10:40 UTC; then
+SrAl3Ag.
