@@ -235,3 +235,13 @@ whole-crystal translations at the zone centre.
 
 **Next:** A (0 0 ½), M (0 ½ 0) and L (0 ½ ½), started 10:40 UTC; then
 SrAl3Ag.
+
+**LiGaIr at A (0 0 ½): passes, 2026-11-22 14:08 UTC**
+- [Certain] All 18 modes are positive: 65.2 cm⁻¹ (×4) to 541.9 cm⁻¹.
+- This point was rerun from the start. The first attempt stopped at
+  11:27 UTC when this machine's disk filled with phonon scratch files.
+  - Older scratch was cleared, and each point's scratch is now deleted
+    once it finishes.
+  - The runner also had a fault that would have skipped M and L: the MPI
+    launcher read the point list from standard input. That is fixed.
+- M (0 ½ 0) started 14:08 UTC; L (0 ½ ½) follows.
