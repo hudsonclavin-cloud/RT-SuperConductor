@@ -245,3 +245,10 @@ SrAl3Ag.
   - The runner also had a fault that would have skipped M and L: the MPI
     launcher read the point list from standard input. That is fixed.
 - M (0 ½ 0) started 14:08 UTC; L (0 ½ ½) follows.
+
+**LiGaIr at M (0 ½ 0): passes, 2026-11-22 19:21 UTC**
+- [Certain] All 18 modes are positive: 42.4 to 550.2 cm⁻¹.
+- The lowest, 42.4 cm⁻¹, is the softest mode found in LiGaIr so far.
+  It is well above the line, and above the 13.0 cm⁻¹ the layered NaMgPb2
+  had at A.
+- That is 3 of 4 points passed. L (0 ½ ½), the last, started 19:21 UTC.
