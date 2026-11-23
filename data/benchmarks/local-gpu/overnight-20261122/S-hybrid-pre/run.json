@@ -1,0 +1,204 @@
+{
+ "bundle_kind": "structure",
+ "bundle_content_sha256": "42bd135e4432252048b7c2cb8591eb5e3e8b0ce579afd49d7bf069d3eba20f3e",
+ "formula_bundle_content_sha256": null,
+ "device": "cuda",
+ "torch": "2.15.0+cu132",
+ "python": "3.12.10",
+ "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+ "memory_gb": 7.96,
+ "capability": "12.0",
+ "cuda": "13.2",
+ "peak_memory_gb": 0.617,
+ "settings": {
+  "command": "train",
+  "bundle": "C:\\Users\\hudso\\RT-SuperConductor\\data\\processed\\local-gpu\\structures.npz",
+  "out": "C:\\Users\\hudso\\RT-SuperConductor\\runs\\overnight-20261122\\S-hybrid-pre",
+  "device": "cuda",
+  "conv": 4,
+  "hidden": 128,
+  "embed": 64,
+  "rbf": 41,
+  "cutoff": 8.0,
+  "head": 128,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch": 128,
+  "epochs": 200,
+  "patience": 25,
+  "seed_base": 0,
+  "model": "hybrid",
+  "formula_bundle": null,
+  "pretrained": "C:\\Users\\hudso\\RT-SuperConductor\\runs\\overnight-20261122\\pretrain\\encoder.pt",
+  "encoder_lr_scale": 0.3,
+  "x_hidden": 128,
+  "dropout": 0.1,
+  "aux_weight": 0.3,
+  "seeds": 3,
+  "folds": "",
+  "candidates": ""
+ },
+ "pretrain_config": {
+  "conv": 4,
+  "hidden": 128,
+  "embed": 64,
+  "rbf": 41,
+  "cutoff": 8.0
+ },
+ "folds": [
+  {
+   "fold": 0,
+   "fit_items": 3824,
+   "valid_items": 361,
+   "test_items": 746,
+   "test_compositions": 743,
+   "networks": [
+    {
+     "seed": 0,
+     "best_epoch": 2,
+     "epochs_run": 27,
+     "best_validation_bce": 0.5771,
+     "seconds": 17.2
+    },
+    {
+     "seed": 1,
+     "best_epoch": 2,
+     "epochs_run": 27,
+     "best_validation_bce": 0.57014,
+     "seconds": 16.1
+    },
+    {
+     "seed": 2,
+     "best_epoch": 2,
+     "epochs_run": 27,
+     "best_validation_bce": 0.58926,
+     "seconds": 16.1
+    }
+   ]
+  },
+  {
+   "fold": 1,
+   "fit_items": 3685,
+   "valid_items": 420,
+   "test_items": 826,
+   "test_compositions": 820,
+   "networks": [
+    {
+     "seed": 1000,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.57556,
+     "seconds": 16.1
+    },
+    {
+     "seed": 1001,
+     "best_epoch": 4,
+     "epochs_run": 29,
+     "best_validation_bce": 0.56692,
+     "seconds": 15.9
+    },
+    {
+     "seed": 1002,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.55427,
+     "seconds": 15.3
+    }
+   ]
+  },
+  {
+   "fold": 2,
+   "fit_items": 3758,
+   "valid_items": 295,
+   "test_items": 878,
+   "test_compositions": 865,
+   "networks": [
+    {
+     "seed": 2000,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.55106,
+     "seconds": 16.0
+    },
+    {
+     "seed": 2001,
+     "best_epoch": 7,
+     "epochs_run": 32,
+     "best_validation_bce": 0.55477,
+     "seconds": 18.8
+    },
+    {
+     "seed": 2002,
+     "best_epoch": 4,
+     "epochs_run": 29,
+     "best_validation_bce": 0.58561,
+     "seconds": 17.4
+    }
+   ]
+  },
+  {
+   "fold": 3,
+   "fit_items": 3694,
+   "valid_items": 353,
+   "test_items": 884,
+   "test_compositions": 875,
+   "networks": [
+    {
+     "seed": 3000,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.50605,
+     "seconds": 16.2
+    },
+    {
+     "seed": 3001,
+     "best_epoch": 4,
+     "epochs_run": 29,
+     "best_validation_bce": 0.49126,
+     "seconds": 16.9
+    },
+    {
+     "seed": 3002,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.49072,
+     "seconds": 15.5
+    }
+   ]
+  },
+  {
+   "fold": 4,
+   "fit_items": 3506,
+   "valid_items": 458,
+   "test_items": 967,
+   "test_compositions": 960,
+   "networks": [
+    {
+     "seed": 4000,
+     "best_epoch": 5,
+     "epochs_run": 30,
+     "best_validation_bce": 0.47027,
+     "seconds": 16.2
+    },
+    {
+     "seed": 4001,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.49902,
+     "seconds": 15.3
+    },
+    {
+     "seed": 4002,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.497,
+     "seconds": 14.9
+    }
+   ]
+  }
+ ],
+ "mean_validation_bce": 0.5386,
+ "seconds_per_network": 16.3,
+ "minutes": 4.35,
+ "complete": true
+}

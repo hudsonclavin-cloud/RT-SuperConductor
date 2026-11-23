@@ -1,0 +1,3 @@
+01:28:23 cgcnn: 4931 items, folds [0], device cuda, pretrained=False
+01:28:29   fold 0 seed 0: best epoch 1 of 2, validation BCE 0.65328, 3.1 s
+01:28:29 wrote C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122\check: mean validation BCE 0.65328, 0.11 min

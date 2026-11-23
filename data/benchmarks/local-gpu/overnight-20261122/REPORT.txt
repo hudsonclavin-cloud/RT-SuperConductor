@@ -1,0 +1,27 @@
+job                      status    minutes  val BCE
+check                    done         0.21   0.6533
+tab-default-s20          done        18.35   0.4430
+tab-wide-s20             done        16.27   0.4442
+A-formula_all            done         6.05   0.4443
+A-hybrid_all             done        17.05   0.4697
+pretrain                 done         1.51         
+A-hybrid_all-pre         done        14.33   0.4839
+S-formula                done         2.03   0.5026
+S-cgcnn                  done         4.52   0.5689
+S-hybrid                 done          4.8   0.5255
+S-cgcnn-pre              done         4.26   0.5602
+S-hybrid-pre             done         4.41   0.5386
+sweep-conv3              done        10.86   0.4676
+sweep-conv6              done        13.25   0.4684
+sweep-h96                done         11.2   0.4689
+sweep-h192               done        11.85   0.4657
+sweep-lr5e-4             done        11.18   0.4771
+sweep-lr2e-3             done        10.63   0.4699
+sweep-drop0              done        10.38   0.4673
+sweep-drop0.25           done        10.78   0.4650
+sweep-aux0               done          9.7   0.4682
+sweep-xh256              done         9.98   0.4645
+sweep-batch64            done         20.8   0.4616
+sweep-wd1e-3             done        11.28   0.4674
+final-A                  done       102.78   0.4644
+final-S                  done         9.44   0.5329

@@ -197,3 +197,96 @@ this file. In short:
      `data\benchmarks\local-gpu\overnight-20261122`.
    - Commit it on a new branch, `gpu-results-20261122`, and push it.
    - It holds predictions and logs only: no weights, no Hazel results.
+
+## Results, 2026-11-23
+
+**Main idea:** crystal structure does not help.
+- [Certain, on these rows and folds] No network beat cycle 6, and no
+  blend with cycle 6 did either.
+- Adding the crystal graph to the formula features made no measurable
+  difference to the AUC, in either track.
+- The rule is not met, so cycle 6 stays the ranking of record.
+
+**The run:** the owner's RTX 5070 Laptop GPU (8 GB, compute capability
+12.0; PyTorch 2.15.0+cu132 on Windows 11).
+- Ran 01:28 to 07:16 local time (5.8 hours), exit code 0.
+- All 26 jobs finished; none was skipped.
+- Results: `data/benchmarks/local-gpu/overnight-20261122/`.
+- Comparison: `docs/local-gpu/overnight-20261122.json`, from
+  `python scripts/structure_gpu.py compare data/benchmarks/local-gpu/overnight-20261122`.
+- The checksums match the bundles exported here.
+
+### Against cycle 6, non-cuprate AUC (positive favours the job)
+
+The `check` job is left out: it was the 2-epoch test.
+
+| Job | Rows | Early-stopping loss | AUC | Cycle 6 on the same rows | Job minus cycle 6 (95%) | 50/50 blend minus cycle 6 (95%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| **final-A** (from `sweep-batch64`, 10 networks per fold) | 9,765 | 0.4644 | 0.766 | 0.788 | −0.022 (−0.035, −0.012) | +0.002 (−0.004, +0.006) |
+| A-formula_all (control) | 9,765 | 0.4443 | 0.767 | 0.788 | −0.020 (−0.032, −0.011) | +0.001 (−0.004, +0.006) |
+| A-hybrid_all | 9,765 | 0.4697 | 0.759 | 0.788 | −0.029 (−0.040, −0.016) | +0.001 (−0.005, +0.007) |
+| A-hybrid_all-pre | 9,765 | 0.4839 | 0.751 | 0.788 | −0.036 (−0.053, −0.022) | −0.000 (−0.008, +0.006) |
+| tab-default-s20 | 9,765 | 0.4430 | 0.770 | 0.788 | −0.018 (−0.031, −0.009) | +0.001 (−0.004, +0.006) |
+| tab-wide-s20 | 9,765 | 0.4442 | 0.770 | 0.788 | −0.018 (−0.030, −0.009) | +0.001 (−0.004, +0.005) |
+| **final-S** (from `S-hybrid`, 6 networks per fold) | 4,263 | 0.5329 | 0.757 | 0.802 | −0.045 (−0.061, −0.027) | −0.009 (−0.017, +0.000) |
+| S-formula (control) | 4,263 | 0.5026 | 0.755 | 0.802 | −0.047 (−0.067, −0.029) | −0.010 (−0.019, −0.001) |
+| S-hybrid | 4,263 | 0.5255 | 0.760 | 0.802 | −0.042 (−0.061, −0.022) | −0.007 (−0.015, +0.003) |
+| S-hybrid-pre | 4,263 | 0.5386 | 0.762 | 0.802 | −0.040 (−0.060, −0.020) | −0.002 (−0.012, +0.008) |
+| S-cgcnn (structure only) | 4,263 | 0.5689 | 0.725 | 0.802 | −0.077 (−0.102, −0.054) | −0.017 (−0.028, −0.007) |
+| S-cgcnn-pre | 4,263 | 0.5602 | 0.732 | 0.802 | −0.069 (−0.101, −0.042) | −0.011 (−0.025, +0.001) |
+
+The 12 sweep jobs all lie between −0.029 and −0.041 against cycle 6, and
+none has a blend interval above zero. Every row is in the JSON.
+
+### The questions fixed before the run
+
+| Question | Result |
+| --- | --- |
+| Does `final-A` beat cycle 6 (the rule)? | **No.** −0.022 (−0.035, −0.012); the interval lies below zero |
+| Does its blend with cycle 6 beat cycle 6? | **No.** +0.002 (−0.004, +0.006) |
+| Does structure add anything in track A (`final-A` minus `A-formula_all`)? | **No.** −0.002 (−0.011, +0.007) |
+| Does structure add anything in track S (`final-S` minus `S-formula`)? | **No, for ranking:** AUC +0.002 (−0.014, +0.018). Tc error on the log scale is lower by 0.035 (0.003 to 0.080), but still 0.10 worse than cycle 6's |
+| Does `final-S` beat cycle 6 on its own rows? | **No.** −0.045 (−0.061, −0.027) |
+
+### Predictions against results
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| `final-A` beats cycle 6 under the rule | 10% | no |
+| The blend of `final-A` and cycle 6 beats cycle 6 | 20% | no |
+| `final-A` beats `A-formula_all` | 30% | no |
+| `final-S` beats `S-formula` | 35% | no |
+| `final-S` beats cycle 6 on its rows | 15% | no |
+| Pretraining lowers validation loss (`S-cgcnn-pre` below `S-cgcnn`) | 65% | yes: 0.560 against 0.569 |
+| The 20-network tabular bank still trails cycle 6 | 85% | yes |
+| Every core job finishes within 8 hours | 75% | yes: 5.8 hours in all |
+
+All eight landed on the side given more than 50%. Eight predictions are
+too few to judge calibration.
+
+### What I make of it
+
+- [Certain] **The graph adds no ranking information beyond what the
+  formula features already carry.**
+  - Structure alone (`S-cgcnn`) is the worst model in the table.
+  - Pretraining on 29,913 Materials Project structures helped the
+    structure-only network a little, and hurt the track A network.
+  - [Likely] The reason is the data. Many 3DSC structures are one doped
+    parent shared by a whole series of compositions, so the graph mostly
+    repeats the formula.
+- [Certain] **The network family as a whole trails cycle 6** by about
+  0.02 AUC on all rows and about 0.045 on the rows that have structures.
+  - The best network is still the plain tabular bank (−0.018), which
+    matches the CPU baseline (`docs/local-gpu.md`).
+  - Twenty networks per fold instead of five, a wider network and an
+    overnight sweep moved it by less than 0.002.
+- [Likely] **Compute was not the limit.** Five times more networks,
+  pretraining and a 12-setting sweep left the gap where it was.
+- **Selection worked as intended.** The configuration chosen by
+  early-stopping loss (`sweep-batch64`) was not the one with the best
+  test AUC (`sweep-wd1e-3`, −0.029). The difference is inside the noise,
+  and the test rows were never used to choose.
+
+**Decision:** cycle 6 stays the ranking of record. The structure networks
+are not added as a second opinion: they trail the tabular network, which
+already fills that role.

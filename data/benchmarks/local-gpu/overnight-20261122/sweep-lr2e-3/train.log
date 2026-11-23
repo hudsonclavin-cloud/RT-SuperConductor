@@ -1,0 +1,12 @@
+04:00:29 hybrid_all: 14986 items, folds [0, 1, 2, 3, 4], device cuda, pretrained=False
+04:01:28   fold 0 seed 0: best epoch 6 of 31, validation BCE 0.50871, 56.9 s
+04:02:36   fold 0 seed 1: best epoch 15 of 40, validation BCE 0.49878, 68.5 s
+04:03:30   fold 1 seed 0: best epoch 3 of 28, validation BCE 0.50175, 51.7 s
+04:04:30   fold 1 seed 1: best epoch 8 of 33, validation BCE 0.49298, 59.8 s
+04:05:31   fold 2 seed 0: best epoch 11 of 36, validation BCE 0.49937, 58.5 s
+04:06:43   fold 2 seed 1: best epoch 15 of 40, validation BCE 0.48987, 72.7 s
+04:08:00   fold 3 seed 0: best epoch 17 of 42, validation BCE 0.44917, 74.8 s
+04:09:05   fold 3 seed 1: best epoch 12 of 37, validation BCE 0.43411, 64.3 s
+04:10:01   fold 4 seed 0: best epoch 4 of 29, validation BCE 0.41907, 53.7 s
+04:11:01   fold 4 seed 1: best epoch 10 of 35, validation BCE 0.4049, 60.0 s
+04:11:03 wrote C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122\sweep-lr2e-3: mean validation BCE 0.46987, 10.57 min

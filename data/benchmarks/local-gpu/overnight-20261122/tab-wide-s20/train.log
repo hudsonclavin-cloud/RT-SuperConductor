@@ -1,0 +1,6 @@
+fold 0: 12014 fit, 932 valid, 1719 test; best epochs [9, 17, 13, 12, 11, 11, 15, 11, 10, 11, 9, 16, 13, 17, 7, 12, 17, 7, 12, 12]; 183.2 s
+fold 1: 11875 fit, 921 valid, 1854 test; best epochs [13, 11, 12, 6, 10, 12, 5, 12, 9, 14, 8, 8, 10, 9, 6, 5, 3, 17, 11, 9]; 171.0 s
+fold 2: 11835 fit, 716 valid, 2058 test; best epochs [19, 13, 14, 17, 15, 14, 12, 16, 16, 19, 11, 16, 14, 18, 13, 12, 14, 13, 11, 14]; 191.5 s
+fold 3: 11838 fit, 833 valid, 1968 test; best epochs [28, 21, 13, 26, 15, 20, 13, 20, 18, 15, 16, 11, 21, 11, 23, 20, 27, 25, 15, 15]; 213.5 s
+fold 4: 11626 fit, 895 valid, 2166 test; best epochs [19, 20, 20, 21, 23, 15, 20, 16, 20, 16, 33, 22, 17, 22, 29, 18, 16, 18, 15, 19]; 212.7 s
+wrote C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122\tab-wide-s20 in 16.21 min on cuda (NVIDIA GeForce RTX 5070 Laptop GPU)
