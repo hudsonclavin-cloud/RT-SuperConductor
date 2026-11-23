@@ -252,3 +252,58 @@ SrAl3Ag.
   It is well above the line, and above the 13.0 cm⁻¹ the layered NaMgPb2
   had at A.
 - That is 3 of 4 points passed. L (0 ½ ½), the last, started 19:21 UTC.
+
+**LiGaIr at L (0 ½ ½): passes, 2026-11-23 01:04 UTC**
+- [Certain] All 18 modes are positive: 87.7 to 545.5 cm⁻¹.
+
+### Pre-check verdict: LiGaIr passes at every point; SrAl3Ag not run here
+
+| Point | Lowest counted mode (cm⁻¹) | Imaginary? |
+| --- | --- | --- |
+| Γ (0 0 0) | 63.7 | No (the three translations go to 0 under the sum rule) |
+| A (0 0 ½) | 65.2 | No |
+| M (0 ½ 0) | 42.4 | No |
+| L (0 ½ ½) | 87.7 | No |
+
+**What the pass means**
+- [Certain] LiGaIr in P6₃/mmc, relaxed with the package settings, has no
+  imaginary mode at the zone centre or at any of the three
+  symmetry-distinct zone-boundary points with components 0 or ½.
+- Its softest mode anywhere checked is 42.4 cm⁻¹, at M.
+
+**What it does not show**
+- [Likely] Stability at points that are not of that kind.
+  - K (⅓ ⅓ 0) was not checked. A √3 × √3 distortion would show there
+    first.
+  - The full Hazel run's 4 × 4 × 2 phonon mesh does not hold K either.
+    Its phonon interpolation would hint at a soft mode near K, but not
+    prove one.
+- That LiGaIr can be made. No synthesis has been reported, and its
+  relative LiGa2Ir has been made and superconducts at 2.94 K.
+- Its coupling or its Tc. That needs the full run, and the result stays
+  private under the 2026-11-19 rule.
+
+**SrAl3Ag**
+- Not run here. Its relaxation alone takes several hours on this
+  machine: 319 k-points against LiGaIr's 95.
+- The container restarts whenever the session is idle, and a relaxation
+  cannot resume after a restart.
+- A Hazel package (`sral3ag`) is registered in
+  `scripts/prepare_phonon_candidate.py`. It needs a relaxed cell first,
+  which the owner can run on Hazel or ask for here.
+
+**Predictions against results**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| LiGaIr passes at every point | 45% | **yes** |
+| SrAl3Ag passes at every point | 35% | not run |
+| At least one of the two passes everywhere | 60% | **yes** (LiGaIr) |
+| Relaxed volume within 3% of the Materials Project's, both | 80% | LiGaIr yes (+2.4%); SrAl3Ag not relaxed |
+
+**Next, if the owner agrees**
+1. Add LiGaIr to the Hazel queue for its full run (phonons and coupling).
+   Place it after CsIr2P2 and before SbTe2, because it passed its
+   pre-check at all four points.
+2. Optional: a one-point check at K (⅓ ⅓ 0) here, about 6 hours of this
+   machine, before Hazel time is spent.
