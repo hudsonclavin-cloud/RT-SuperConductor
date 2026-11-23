@@ -1,0 +1,56 @@
+2026-11-23 01:28:13 === overnight run, profile full, 8.0 h, device cuda, out C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122
+2026-11-23 01:28:18 environment: {"python": "3.12.10", "platform": "Windows-11-10.0.26200-SP0", "profile": "full", "torch": "2.15.0+cu132", "cuda_available": true, "cuda": "13.2", "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU", "gpu_memory_gb": 7.96, "capability": "12.0"}
+2026-11-23 01:28:18 [start] check (attempt 1; about 3 min; 8.00 h left)
+2026-11-23 01:28:31 [done] check: 0.21 min, mean validation BCE 0.65328
+2026-11-23 01:28:31 [start] tab-default-s20 (attempt 1; about 12 min; 8.00 h left)
+2026-11-23 01:46:52 [done] tab-default-s20: 18.35 min, mean validation BCE 0.44296
+2026-11-23 01:46:52 [start] tab-wide-s20 (attempt 1; about 21 min; 7.69 h left)
+2026-11-23 02:03:08 [done] tab-wide-s20: 16.27 min, mean validation BCE 0.44422
+2026-11-23 02:03:08 [start] A-formula_all (attempt 1; about 5 min; 7.42 h left)
+2026-11-23 02:09:11 [done] A-formula_all: 6.05 min, mean validation BCE 0.4443
+2026-11-23 02:09:11 [start] A-hybrid_all (attempt 1; about 52 min; 7.32 h left)
+2026-11-23 02:26:14 [done] A-hybrid_all: 17.05 min, mean validation BCE 0.46965
+2026-11-23 02:26:14 [start] pretrain (attempt 1; about 15 min; 7.03 h left)
+2026-11-23 02:27:45 [done] pretrain: 1.51 min, mean validation BCE None
+2026-11-23 02:27:45 [start] A-hybrid_all-pre (attempt 1; about 20 min; 7.01 h left)
+2026-11-23 02:42:05 [done] A-hybrid_all-pre: 14.33 min, mean validation BCE 0.4839
+2026-11-23 02:42:05 [start] S-formula (attempt 1; about 7 min; 6.77 h left)
+2026-11-23 02:44:07 [done] S-formula: 2.03 min, mean validation BCE 0.50256
+2026-11-23 02:44:07 [start] S-cgcnn (attempt 1; about 1 min; 6.74 h left)
+2026-11-23 02:48:38 [done] S-cgcnn: 4.52 min, mean validation BCE 0.56891
+2026-11-23 02:48:38 [start] S-hybrid (attempt 1; about 3 min; 6.66 h left)
+2026-11-23 02:53:25 [done] S-hybrid: 4.8 min, mean validation BCE 0.5255
+2026-11-23 02:53:25 [start] S-cgcnn-pre (attempt 1; about 4 min; 6.58 h left)
+2026-11-23 02:57:41 [done] S-cgcnn-pre: 4.26 min, mean validation BCE 0.56021
+2026-11-23 02:57:41 [start] S-hybrid-pre (attempt 1; about 4 min; 6.51 h left)
+2026-11-23 03:02:06 [done] S-hybrid-pre: 4.41 min, mean validation BCE 0.5386
+2026-11-23 03:02:06 [start] sweep-conv3 (attempt 1; about 12 min; 6.44 h left)
+2026-11-23 03:12:57 [done] sweep-conv3: 10.86 min, mean validation BCE 0.4676
+2026-11-23 03:12:57 [start] sweep-conv6 (attempt 1; about 12 min; 6.25 h left)
+2026-11-23 03:26:12 [done] sweep-conv6: 13.25 min, mean validation BCE 0.4684
+2026-11-23 03:26:12 [start] sweep-h96 (attempt 1; about 13 min; 6.03 h left)
+2026-11-23 03:37:24 [done] sweep-h96: 11.2 min, mean validation BCE 0.46895
+2026-11-23 03:37:24 [start] sweep-h192 (attempt 1; about 13 min; 5.85 h left)
+2026-11-23 03:49:16 [done] sweep-h192: 11.85 min, mean validation BCE 0.46566
+2026-11-23 03:49:16 [start] sweep-lr5e-4 (attempt 1; about 13 min; 5.65 h left)
+2026-11-23 04:00:26 [done] sweep-lr5e-4: 11.18 min, mean validation BCE 0.4771
+2026-11-23 04:00:26 [start] sweep-lr2e-3 (attempt 1; about 13 min; 5.46 h left)
+2026-11-23 04:11:04 [done] sweep-lr2e-3: 10.63 min, mean validation BCE 0.46987
+2026-11-23 04:11:04 [start] sweep-drop0 (attempt 1; about 13 min; 5.29 h left)
+2026-11-23 04:21:27 [done] sweep-drop0: 10.38 min, mean validation BCE 0.46734
+2026-11-23 04:21:27 [start] sweep-drop0.25 (attempt 1; about 13 min; 5.11 h left)
+2026-11-23 04:32:14 [done] sweep-drop0.25: 10.78 min, mean validation BCE 0.46503
+2026-11-23 04:32:14 [start] sweep-aux0 (attempt 1; about 13 min; 4.93 h left)
+2026-11-23 04:41:56 [done] sweep-aux0: 9.7 min, mean validation BCE 0.46823
+2026-11-23 04:41:56 [start] sweep-xh256 (attempt 1; about 13 min; 4.77 h left)
+2026-11-23 04:51:55 [done] sweep-xh256: 9.98 min, mean validation BCE 0.46446
+2026-11-23 04:51:55 [start] sweep-batch64 (attempt 1; about 13 min; 4.61 h left)
+2026-11-23 05:12:43 [done] sweep-batch64: 20.8 min, mean validation BCE 0.46157
+2026-11-23 05:12:43 [start] sweep-wd1e-3 (attempt 1; about 13 min; 4.26 h left)
+2026-11-23 05:24:00 [done] sweep-wd1e-3: 11.28 min, mean validation BCE 0.46741
+2026-11-23 05:24:00 final-A: sweep-batch64 has the lowest mean validation BCE (0.46157); retraining it with 10 new networks per fold
+2026-11-23 05:24:00 [start] final-A (attempt 1; about 66 min; 4.07 h left)
+2026-11-23 07:06:47 [done] final-A: 102.78 min, mean validation BCE 0.46436
+2026-11-23 07:06:47 final-S: S-hybrid has the lowest mean validation BCE (0.5255); retraining it with 6 new networks per fold
+2026-11-23 07:06:47 [start] final-S (attempt 1; about 8 min; 2.36 h left)
+2026-11-23 07:16:13 [done] final-S: 9.44 min, mean validation BCE 0.53289

@@ -1,0 +1,17 @@
+02:03:10 formula_all: 14861 items, folds [0, 1, 2, 3, 4], device cuda, pretrained=False
+02:03:38   fold 0 seed 0: best epoch 17 of 42, validation BCE 0.46784, 26.4 s
+02:04:04   fold 0 seed 1: best epoch 16 of 41, validation BCE 0.46184, 25.2 s
+02:04:25   fold 0 seed 2: best epoch 13 of 38, validation BCE 0.48011, 21.5 s
+02:04:42   fold 1 seed 0: best epoch 4 of 29, validation BCE 0.48477, 16.4 s
+02:05:01   fold 1 seed 1: best epoch 8 of 33, validation BCE 0.46875, 19.6 s
+02:05:24   fold 1 seed 2: best epoch 15 of 40, validation BCE 0.47393, 22.8 s
+02:05:47   fold 2 seed 0: best epoch 16 of 41, validation BCE 0.47524, 23.1 s
+02:06:09   fold 2 seed 1: best epoch 13 of 38, validation BCE 0.47566, 21.8 s
+02:06:33   fold 2 seed 2: best epoch 15 of 40, validation BCE 0.47214, 24.2 s
+02:07:00   fold 3 seed 0: best epoch 18 of 43, validation BCE 0.41565, 26.5 s
+02:07:21   fold 3 seed 1: best epoch 14 of 39, validation BCE 0.41303, 20.8 s
+02:07:51   fold 3 seed 2: best epoch 27 of 52, validation BCE 0.42051, 29.9 s
+02:08:20   fold 4 seed 0: best epoch 26 of 51, validation BCE 0.39137, 28.3 s
+02:08:46   fold 4 seed 1: best epoch 22 of 47, validation BCE 0.3834, 26.1 s
+02:09:09   fold 4 seed 2: best epoch 17 of 42, validation BCE 0.38024, 23.5 s
+02:09:10 wrote C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122\A-formula_all: mean validation BCE 0.4443, 6.0 min

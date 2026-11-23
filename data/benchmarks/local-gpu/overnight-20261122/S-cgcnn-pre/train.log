@@ -1,0 +1,17 @@
+02:53:28 cgcnn: 4931 items, folds [0, 1, 2, 3, 4], device cuda, pretrained=True
+02:53:47   fold 0 seed 0: best epoch 4 of 29, validation BCE 0.60561, 16.8 s
+02:54:02   fold 0 seed 1: best epoch 2 of 27, validation BCE 0.60894, 15.1 s
+02:54:18   fold 0 seed 2: best epoch 4 of 29, validation BCE 0.60594, 16.1 s
+02:54:35   fold 1 seed 0: best epoch 1 of 26, validation BCE 0.59419, 14.3 s
+02:54:51   fold 1 seed 1: best epoch 3 of 28, validation BCE 0.57482, 15.8 s
+02:55:06   fold 1 seed 2: best epoch 3 of 28, validation BCE 0.57214, 15.1 s
+02:55:26   fold 2 seed 0: best epoch 6 of 31, validation BCE 0.59071, 17.4 s
+02:55:41   fold 2 seed 1: best epoch 1 of 26, validation BCE 0.60073, 14.6 s
+02:55:55   fold 2 seed 2: best epoch 1 of 26, validation BCE 0.59745, 14.1 s
+02:56:13   fold 3 seed 0: best epoch 3 of 28, validation BCE 0.51968, 15.3 s
+02:56:30   fold 3 seed 1: best epoch 6 of 31, validation BCE 0.51925, 16.1 s
+02:56:46   fold 3 seed 2: best epoch 6 of 31, validation BCE 0.50258, 16.7 s
+02:57:05   fold 4 seed 0: best epoch 6 of 31, validation BCE 0.48667, 16.2 s
+02:57:22   fold 4 seed 1: best epoch 6 of 31, validation BCE 0.51741, 16.2 s
+02:57:37   fold 4 seed 2: best epoch 3 of 28, validation BCE 0.507, 15.2 s
+02:57:40 wrote C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122\S-cgcnn-pre: mean validation BCE 0.56021, 4.2 min

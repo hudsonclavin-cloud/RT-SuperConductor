@@ -1,0 +1,64 @@
+{
+ "bundle_kind": "structure",
+ "bundle_content_sha256": "42bd135e4432252048b7c2cb8591eb5e3e8b0ce579afd49d7bf069d3eba20f3e",
+ "formula_bundle_content_sha256": null,
+ "device": "cuda",
+ "torch": "2.15.0+cu132",
+ "python": "3.12.10",
+ "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+ "memory_gb": 7.96,
+ "capability": "12.0",
+ "cuda": "13.2",
+ "peak_memory_gb": 0.505,
+ "settings": {
+  "command": "train",
+  "bundle": "C:\\Users\\hudso\\RT-SuperConductor\\data\\processed\\local-gpu\\structures.npz",
+  "out": "C:\\Users\\hudso\\RT-SuperConductor\\runs\\overnight-20261122\\check",
+  "device": "cuda",
+  "conv": 4,
+  "hidden": 128,
+  "embed": 64,
+  "rbf": 41,
+  "cutoff": 8.0,
+  "head": 128,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch": 128,
+  "epochs": 2,
+  "patience": 1,
+  "seed_base": 0,
+  "model": "cgcnn",
+  "formula_bundle": null,
+  "pretrained": null,
+  "encoder_lr_scale": 0.3,
+  "x_hidden": 128,
+  "dropout": 0.1,
+  "aux_weight": 0.3,
+  "seeds": 1,
+  "folds": "0",
+  "candidates": "shortlist_pool"
+ },
+ "pretrain_config": null,
+ "folds": [
+  {
+   "fold": 0,
+   "fit_items": 3824,
+   "valid_items": 361,
+   "test_items": 746,
+   "test_compositions": 743,
+   "networks": [
+    {
+     "seed": 0,
+     "best_epoch": 1,
+     "epochs_run": 2,
+     "best_validation_bce": 0.65328,
+     "seconds": 3.1
+    }
+   ]
+  }
+ ],
+ "mean_validation_bce": 0.65328,
+ "seconds_per_network": 3.1,
+ "minutes": 0.11,
+ "complete": true
+}

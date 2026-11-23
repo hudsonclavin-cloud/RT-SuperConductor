@@ -1,0 +1,376 @@
+{
+ "profile": "full",
+ "hours": 8.0,
+ "device": "cuda",
+ "started": "2026-11-23 01:28:13",
+ "updated": "2026-11-23 07:16:13",
+ "exit_code": 0,
+ "env": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "profile": "full",
+  "torch": "2.15.0+cu132",
+  "cuda_available": true,
+  "cuda": "13.2",
+  "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "gpu_memory_gb": 7.96,
+  "capability": "12.0"
+ },
+ "final": "final-A",
+ "final_secondary": "final-S",
+ "formula_control": "A-formula_all",
+ "secondary_control": "S-formula",
+ "selection": "lowest mean validation BCE (early-stopping rows only) within each track; controls excluded",
+ "jobs": [
+  {
+   "name": "check",
+   "kind": "structure",
+   "model": "cgcnn",
+   "family": "S",
+   "status": "done",
+   "minutes": 0.21,
+   "mean_validation_bce": 0.65328,
+   "seconds_per_network": 3.1
+  },
+  {
+   "name": "tab-default-s20",
+   "kind": "tabular",
+   "family": "tabular",
+   "status": "done",
+   "minutes": 18.35,
+   "mean_validation_bce": 0.44296,
+   "seconds_per_network": 10.9
+  },
+  {
+   "name": "tab-wide-s20",
+   "kind": "tabular",
+   "family": "tabular",
+   "status": "done",
+   "minutes": 16.27,
+   "mean_validation_bce": 0.44422,
+   "seconds_per_network": 9.7
+  },
+  {
+   "name": "A-formula_all",
+   "kind": "structure",
+   "model": "formula_all",
+   "track": "A",
+   "family": "formula",
+   "control": true,
+   "status": "done",
+   "minutes": 6.05,
+   "mean_validation_bce": 0.4443,
+   "seconds_per_network": 23.7
+  },
+  {
+   "name": "A-hybrid_all",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "status": "done",
+   "minutes": 17.05,
+   "mean_validation_bce": 0.46965,
+   "seconds_per_network": 66.7
+  },
+  {
+   "name": "pretrain",
+   "kind": "pretrain",
+   "family": "pretrain",
+   "status": "done",
+   "minutes": 1.51,
+   "mean_validation_bce": null,
+   "seconds_per_network": null
+  },
+  {
+   "name": "A-hybrid_all-pre",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": true,
+   "status": "done",
+   "minutes": 14.33,
+   "mean_validation_bce": 0.4839,
+   "seconds_per_network": 55.9
+  },
+  {
+   "name": "S-formula",
+   "kind": "structure",
+   "model": "formula",
+   "track": "S",
+   "family": "formula",
+   "control": true,
+   "status": "done",
+   "minutes": 2.03,
+   "mean_validation_bce": 0.50256,
+   "seconds_per_network": 7.7
+  },
+  {
+   "name": "S-cgcnn",
+   "kind": "structure",
+   "model": "cgcnn",
+   "track": "S",
+   "family": "S",
+   "status": "done",
+   "minutes": 4.52,
+   "mean_validation_bce": 0.56891,
+   "seconds_per_network": 16.7
+  },
+  {
+   "name": "S-hybrid",
+   "kind": "structure",
+   "model": "hybrid",
+   "track": "S",
+   "family": "S",
+   "status": "done",
+   "minutes": 4.8,
+   "mean_validation_bce": 0.5255,
+   "seconds_per_network": 17.8
+  },
+  {
+   "name": "S-cgcnn-pre",
+   "kind": "structure",
+   "model": "cgcnn",
+   "track": "S",
+   "family": "S",
+   "pretrained": true,
+   "status": "done",
+   "minutes": 4.26,
+   "mean_validation_bce": 0.56021,
+   "seconds_per_network": 15.7
+  },
+  {
+   "name": "S-hybrid-pre",
+   "kind": "structure",
+   "model": "hybrid",
+   "track": "S",
+   "family": "S",
+   "pretrained": true,
+   "status": "done",
+   "minutes": 4.41,
+   "mean_validation_bce": 0.5386,
+   "seconds_per_network": 16.3
+  },
+  {
+   "name": "sweep-conv3",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 10.86,
+   "mean_validation_bce": 0.4676,
+   "seconds_per_network": 63.7,
+   "change": [
+    "--conv",
+    "3"
+   ]
+  },
+  {
+   "name": "sweep-conv6",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 13.25,
+   "mean_validation_bce": 0.4684,
+   "seconds_per_network": 77.4,
+   "change": [
+    "--conv",
+    "6"
+   ]
+  },
+  {
+   "name": "sweep-h96",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 11.2,
+   "mean_validation_bce": 0.46895,
+   "seconds_per_network": 65.8,
+   "change": [
+    "--hidden",
+    "96"
+   ]
+  },
+  {
+   "name": "sweep-h192",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 11.85,
+   "mean_validation_bce": 0.46566,
+   "seconds_per_network": 68.8,
+   "change": [
+    "--hidden",
+    "192"
+   ]
+  },
+  {
+   "name": "sweep-lr5e-4",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 11.18,
+   "mean_validation_bce": 0.4771,
+   "seconds_per_network": 65.4,
+   "change": [
+    "--lr",
+    "5e-4"
+   ]
+  },
+  {
+   "name": "sweep-lr2e-3",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 10.63,
+   "mean_validation_bce": 0.46987,
+   "seconds_per_network": 62.1,
+   "change": [
+    "--lr",
+    "2e-3"
+   ]
+  },
+  {
+   "name": "sweep-drop0",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 10.38,
+   "mean_validation_bce": 0.46734,
+   "seconds_per_network": 60.7,
+   "change": [
+    "--dropout",
+    "0.0"
+   ]
+  },
+  {
+   "name": "sweep-drop0.25",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 10.78,
+   "mean_validation_bce": 0.46503,
+   "seconds_per_network": 63.1,
+   "change": [
+    "--dropout",
+    "0.25"
+   ]
+  },
+  {
+   "name": "sweep-aux0",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 9.7,
+   "mean_validation_bce": 0.46823,
+   "seconds_per_network": 56.6,
+   "change": [
+    "--aux-weight",
+    "0.0"
+   ]
+  },
+  {
+   "name": "sweep-xh256",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 9.98,
+   "mean_validation_bce": 0.46446,
+   "seconds_per_network": 58.2,
+   "change": [
+    "--x-hidden",
+    "256"
+   ]
+  },
+  {
+   "name": "sweep-batch64",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 20.8,
+   "mean_validation_bce": 0.46157,
+   "seconds_per_network": 123.0,
+   "change": [
+    "--batch",
+    "64"
+   ]
+  },
+  {
+   "name": "sweep-wd1e-3",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 11.28,
+   "mean_validation_bce": 0.46741,
+   "seconds_per_network": 66.0,
+   "change": [
+    "--weight-decay",
+    "1e-3"
+   ]
+  },
+  {
+   "name": "final-A",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "track": "A",
+   "family": "A",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 102.78,
+   "mean_validation_bce": 0.46436,
+   "seconds_per_network": 122.1,
+   "chosen_from": "sweep-batch64",
+   "chosen_validation_bce": 0.46157
+  },
+  {
+   "name": "final-S",
+   "kind": "structure",
+   "model": "hybrid",
+   "track": "S",
+   "family": "S",
+   "pretrained": false,
+   "status": "done",
+   "minutes": 9.44,
+   "mean_validation_bce": 0.53289,
+   "seconds_per_network": 17.5,
+   "chosen_from": "S-hybrid",
+   "chosen_validation_bce": 0.5255
+  }
+ ]
+}

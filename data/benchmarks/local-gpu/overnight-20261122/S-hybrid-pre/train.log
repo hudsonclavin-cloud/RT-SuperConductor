@@ -1,0 +1,17 @@
+02:57:44 hybrid: 4931 items, folds [0, 1, 2, 3, 4], device cuda, pretrained=True
+02:58:02   fold 0 seed 0: best epoch 2 of 27, validation BCE 0.5771, 17.2 s
+02:58:18   fold 0 seed 1: best epoch 2 of 27, validation BCE 0.57014, 16.1 s
+02:58:35   fold 0 seed 2: best epoch 2 of 27, validation BCE 0.58926, 16.1 s
+02:58:54   fold 1 seed 0: best epoch 3 of 28, validation BCE 0.57556, 16.1 s
+02:59:10   fold 1 seed 1: best epoch 4 of 29, validation BCE 0.56692, 15.9 s
+02:59:25   fold 1 seed 2: best epoch 3 of 28, validation BCE 0.55427, 15.3 s
+02:59:44   fold 2 seed 0: best epoch 3 of 28, validation BCE 0.55106, 16.0 s
+03:00:03   fold 2 seed 1: best epoch 7 of 32, validation BCE 0.55477, 18.8 s
+03:00:20   fold 2 seed 2: best epoch 4 of 29, validation BCE 0.58561, 17.4 s
+03:00:39   fold 3 seed 0: best epoch 3 of 28, validation BCE 0.50605, 16.2 s
+03:00:56   fold 3 seed 1: best epoch 4 of 29, validation BCE 0.49126, 16.9 s
+03:01:12   fold 3 seed 2: best epoch 3 of 28, validation BCE 0.49072, 15.5 s
+03:01:31   fold 4 seed 0: best epoch 5 of 30, validation BCE 0.47027, 16.2 s
+03:01:46   fold 4 seed 1: best epoch 3 of 28, validation BCE 0.49902, 15.3 s
+03:02:01   fold 4 seed 2: best epoch 3 of 28, validation BCE 0.497, 14.9 s
+03:02:05 wrote C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122\S-hybrid-pre: mean validation BCE 0.5386, 4.35 min
