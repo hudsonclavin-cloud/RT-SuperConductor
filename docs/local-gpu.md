@@ -153,3 +153,13 @@ up in `docs/overnight-gpu.md`:
 
 It includes the two 20-network tabular banks that this section's
 baseline left as the next step.
+
+## Next: one test of a tabular foundation model, 2026-11-23
+
+A literature search for better training methods found one family with
+independent evidence at this data size: tabular foundation models. The
+review, the planned test and its commands are in
+`docs/training-methods-review.md`.
+- The runner is `scripts/foundation_gpu_train.py`.
+- Its output is judged by `python scripts/local_gpu.py compare`, like
+  every run in this document.
