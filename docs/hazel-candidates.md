@@ -628,3 +628,70 @@ The queue is also unchanged: CsIr2P2, then SbTe2, then cubic NaMgPb2.
 Cycle 6 moved CsIr2P2 from cycle 3's top 50 to 107th of shortlist 3's 571.
 That is a mark against it, not a reason to reorder: it is in the queue
 for its family and its calculation (`docs/rung4-shortlist3.md`).
+
+## LiGaIr added to the Hazel queue, 2026-11-23 18:14 UTC
+
+**Main idea:** the owner asked for LiGaIr to be queued (2026-11-23). It
+passed its stability pre-check at all four points, and its package ran
+the whole six-step chain here in smoke mode with nothing to fix.
+
+| Folder in `data/benchmarks/candidates/` | Compound | Structure | Atoms | Status |
+| --- | --- | --- | --- | --- |
+| `ligair` | LiGaIr, rank 35 of shortlist 3's 571 (`docs/rung4-shortlist3.md`) | P6₃/mmc, from the Materials Project (`mp-aaacqrxq`), relaxed at the package settings | 6 | **queued.** Passed the pre-check at Γ, A, M and L (lowest counted mode 42.4 cm⁻¹, at M). Rehearsed end to end in smoke mode |
+
+**Package**
+- Meshes: k 12×12×8 for the ground state, 24×24×16 for the dense ground
+  state, q 4×4×2 for phonons, 24×24×16 for the interpolation.
+- 90 Ry; phonon job limit 24 hours.
+- The package's `run/scf.in` is the file the pre-check used, unchanged.
+- The pseudopotentials are the shared ONCV set in `pp/`.
+
+**Smoke rehearsal on this machine** (`LOCAL=1`, 4 cores, coarse meshes)
+
+| Step | Time |
+| --- | --- |
+| Dense ground state | 217 s |
+| Ground state | 51 s |
+| Phonons with electron-phonon coupling (4 coarse points) | 3 h 49 min |
+| Force constants | 2 s |
+| a2F and λ | 34 s |
+| Report | 3 s |
+| **Whole chain** | **about 3 h 55 min** |
+
+- The report says `"verdict": "smoke run: checks the tools only, no
+  verdict"`, as it should.
+- Its zone-centre translations (−5.7, −5.7, −4.2 cm⁻¹) were set aside, and
+  no mode was called imaginary.
+- The smoke coupling numbers are not quoted. Smoke runs give no verdict,
+  and candidate coupling values stay out of the repository under the
+  2026-11-19 rule.
+
+**Time on Hazel** [Speculative, scaled from the full-mesh pre-check here]
+- The full phonon step has about 8 to 10 irreducible points on the 4×4×2
+  grid. The four pre-check points took 2 to 6 hours each on 4 cores.
+- Estimate: 12 to 24 hours on 16 cores.
+- If the job hits its 24-hour limit, resubmit with `START_AT=ph`. It
+  continues where it stopped.
+
+**Candidate order after the benchmark passes (changed 2026-11-23):**
+CsIr2P2, then **LiGaIr**, then SbTe2, then cubic NaMgPb2 last.
+- LiGaIr goes ahead of SbTe2 because it passed its pre-check at four
+  points against SbTe2's one.
+- Its relative LiGa2Ir has been made and superconducts at 2.94 K.
+- It stays behind CsIr2P2, which was queued first for its family.
+- The order before this change is kept above, in "Tetragonal NaMgPb2" and
+  "Update, 2026-11-22".
+
+**Commands on Hazel**, the same as for every candidate ("Running it on
+Hazel", steps 1 to 8):
+
+```bash
+DRY_RUN=1 scripts/hpc/submit_phonon_chain.sh data/benchmarks/candidates/ligair /share/<group>/<unity_id>/rtsc/ligair-full compute normal 16
+```
+```bash
+CHAIN_MODE=full scripts/hpc/submit_phonon_chain.sh data/benchmarks/candidates/ligair /share/<group>/<unity_id>/rtsc/ligair-full compute normal 16
+```
+
+Its `report.json` and output files go under `results/ligair/`, which Git
+ignores. Like every candidate result, they stay private until NC State's
+Office of Research Commercialization has reviewed them.
