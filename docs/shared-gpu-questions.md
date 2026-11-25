@@ -195,3 +195,41 @@ propose, for its own side only:
 
 Any change on the NCSU-Hackathon side is for that project's agent to propose
 and the owner to approve.
+
+## Answers received, and the decision, 2026-11-25
+
+The NCSU-Hackathon agent answered from its code and past run records (its
+HEAD was `17c2a83`, not the snapshot's `65a6d4e`). The owner pasted the reply
+into this session. The figures that decide the plan:
+
+| | NCSU-Hackathon | RT-SuperConductor |
+| --- | --- | --- |
+| Next GPU work | Cycle 3: about 7 to 8 hours with 2 GPU jobs at once, about 11 hours with 1 (their forecast); nightly runs only if the owner registers them | One TabICLv2 run, about 10 to 30 minutes ([Speculative]) |
+| GPU busy, alone | about 19% with one job (measured mean); about 66% with two (derived) | not measured |
+| Peak GPU memory | 1,735 MiB for two jobs plus the desktop (measured); cycle 3's wider search unknown, under 4 GB per job ([Speculative]) | at most 0.77 GB per past job; TabICLv2 unknown |
+| On out of memory | retries the same command once; the job can be lost, but its results never change | crystal-graph jobs retry with half the batch, which changes results |
+| Heat guard | ends a GPU job after about 30 s at 92 °C or more; measured peak 63 °C | none |
+| Python | must keep torch 2.15.0+cu132, numpy, scikit-learn and pandas as they are | needs `tabicl` added |
+
+**Decision: run the two one after the other, not at once** [my
+recommendation; the owner decides].
+- RT-SuperConductor's only GPU work now is one short run. Sharing would cost
+  the other pipeline far more than it saves here:
+  - at 1 GPU slot, cycle 3 takes about 3 to 4 hours longer;
+  - at 2 slots, the unknown TabICLv2 memory could push the card past 8 GB.
+    The other side's jobs would then fail and be retried, and could be lost.
+  - Waiting for the other pipeline costs this project about 30 minutes.
+- So run TabICLv2 when no NCSU-Hackathon job is on the GPU: before cycle 3,
+  or after it.
+- **RT-SuperConductor gets its own Python environment**,
+  `C:\Users\hudso\RT-SuperConductor\.venv`.
+  - `tabicl` 2.2.0 asks only for `torch>=2.2` and `scikit-learn>=1.3.0`
+    (checked on PyPI today). So installing it into `.venv-gpu` would probably
+    not move the pinned packages ([Likely]).
+  - A separate environment removes the coupling both ways for the cost of one
+    download.
+- The TabICLv2 run logs `nvidia-smi` every 5 seconds. That measures this
+  project's GPU use and memory, the missing figures above.
+- The shared lock file the other agent offered is not needed for one short
+  run. Revisit it if this project ever gets a long or recurring GPU job.
+- Commands: `docs/training-methods-review.md`, "Update, 2026-11-25".

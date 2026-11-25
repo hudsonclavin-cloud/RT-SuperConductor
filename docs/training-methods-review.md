@@ -300,3 +300,88 @@ git commit -m "TabICLv2 on cycle 6's folds: predictions and run record"
 ```powershell
 git push -u origin fm-results-20261123
 ```
+
+## Update, 2026-11-25: run TabICLv2 in this project's own environment
+
+The commands above install `tabicl` into `C:\Users\hudso\NCSU-Hackathon\.venv-gpu`.
+That environment belongs to the other project, which needs torch 2.15.0+cu132,
+numpy, scikit-learn and pandas kept exactly as they are
+(`docs/shared-gpu-questions.md`). Use the commands below instead; the rest of
+the plan, the rule and the predictions are unchanged.
+
+**Before starting:** check the other project is not using the GPU. The list
+should show no `python.exe`. If it does, wait for that run to finish rather
+than stopping it.
+
+```powershell
+nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv
+```
+
+**One-time setup** (a fresh PowerShell window, no environment active; the
+torch download is large):
+
+```powershell
+cd C:\Users\hudso\RT-SuperConductor
+```
+```powershell
+git checkout claude/practical-tesla-ctf6oq
+```
+```powershell
+git pull origin claude/practical-tesla-ctf6oq
+```
+```powershell
+py -3.12 -m venv .venv
+```
+
+If `py` is not found, use the other project's Python only to create the new
+environment. This changes nothing in `.venv-gpu`:
+
+```powershell
+C:\Users\hudso\NCSU-Hackathon\.venv-gpu\Scripts\python.exe -m venv .venv
+```
+```powershell
+.venv\Scripts\python.exe -m pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cu132
+```
+```powershell
+.venv\Scripts\python.exe -m pip install numpy scipy scikit-learn tabicl
+```
+
+This must print `2.15.0+cu132 True`:
+
+```powershell
+.venv\Scripts\python.exe -c "import torch, tabicl; print(torch.__version__, torch.cuda.is_available())"
+```
+
+`.venv/` is already in `.gitignore`, so the environment is never committed.
+
+**The run.** Window 2 logs the GPU every 5 seconds. Start it first:
+
+```powershell
+cd C:\Users\hudso\RT-SuperConductor
+```
+```powershell
+New-Item -ItemType Directory -Force runs\fm-20261123 | Out-Null
+```
+```powershell
+nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used,temperature.gpu --format=csv -l 5 -f runs\fm-20261123\gpu-log.csv
+```
+
+Window 1 runs the test:
+
+```powershell
+cd C:\Users\hudso\RT-SuperConductor
+```
+```powershell
+.venv\Scripts\python.exe scripts\foundation_gpu_train.py data\processed\local-gpu\bundle.npz --model tabicl --out runs\fm-20261123\tabicl --device cuda
+```
+
+- When it finishes, press Ctrl+C in window 2.
+- If it runs out of GPU memory, run it again with `--max-context 8000` added.
+- Then put the GPU log next to the predictions:
+
+```powershell
+Copy-Item runs\fm-20261123\gpu-log.csv runs\fm-20261123\tabicl\
+```
+
+Send the results back with the same six commands as above, from
+`git checkout -b fm-results-20261123` on.
