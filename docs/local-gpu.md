@@ -163,3 +163,10 @@ review, the planned test and its commands are in
 - The runner is `scripts/foundation_gpu_train.py`.
 - Its output is judged by `python scripts/local_gpu.py compare`, like
   every run in this document.
+
+## Sharing the laptop GPU with the NCSU-Hackathon pipeline, 2026-11-25
+
+The owner wants to run this project's training and the NCSU-Hackathon
+pipeline on the laptop at the same time. Before that, the other project's
+agent answers the read-only questions in `docs/shared-gpu-questions.md`.
+The deciding answer is how busy the GPU is when each pipeline runs alone.
