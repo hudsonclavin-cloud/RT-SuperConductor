@@ -250,7 +250,33 @@ def parse_args(argv=None):
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--folds", default="", help="only these folds, comma separated (default: all)")
     parser.add_argument("--candidates", default="", help="only these candidate lists, comma separated (default: all)")
+    parser.add_argument("--extra-candidates", type=Path, default=None,
+                        help="an .npz holding more lists to predict (candidates_<name>_X and _keys, nothing else), "
+                             "for example the locked rows' features from scripts/lockbox_blend.py export")
     return parser.parse_args(argv)
+
+
+def load_extra_candidates(path: Path, bundle) -> dict:
+    """More compounds to predict, from a separate file. Only features and keys are accepted, so no label can arrive this
+    way; the columns must be the bundle's own features, and a name the bundle already uses is refused."""
+    extra = np.load(path, allow_pickle=False)
+    allowed = {"feature_names"} | {k for k in extra.files if k.startswith("candidates_") and k.endswith(("_X", "_keys"))}
+    if set(extra.files) - allowed:
+        raise SystemExit(f"{path} holds more than features and keys: {sorted(set(extra.files) - allowed)}")
+    if "feature_names" not in extra.files or "feature_names" not in bundle.files or \
+            list(extra["feature_names"]) != list(bundle["feature_names"]):
+        raise SystemExit(f"{path} does not carry the bundle's feature names; re-export it from the same table")
+    lists = {}
+    for key in extra.files:
+        if key.endswith("_X"):
+            name = key[len("candidates_"):-len("_X")]
+            if f"candidates_{name}_X" in bundle.files:
+                raise SystemExit(f"the bundle already has a candidate list called {name!r}")
+            X, keys = extra[key], extra[f"candidates_{name}_keys"]
+            if X.shape[1] != bundle["X"].shape[1] or len(keys) != len(X):
+                raise SystemExit(f"{path}: list {name!r} has the wrong shape")
+            lists[name] = (X, keys)
+    return lists
 
 
 def main(argv=None) -> int:
@@ -264,7 +290,17 @@ def main(argv=None) -> int:
     folds = [int(f) for f in bundle["folds"]]
     if args.folds:
         folds = [f for f in folds if str(f) in args.folds.split(",")]
-    names = sorted(k[len("candidates_"):-len("_X")] for k in bundle.files if k.startswith("candidates_") and k.endswith("_X"))
+    lists = {k[len("candidates_"):-len("_X")]: (bundle[k], bundle[k[:-len("_X")] + "_keys"])
+             for k in bundle.files if k.startswith("candidates_") and k.endswith("_X")}
+    extra_raw = args.extra_candidates.read_bytes() if args.extra_candidates else b""
+    if args.extra_candidates:
+        extra_lists = load_extra_candidates(args.extra_candidates, bundle)
+        held = set(keys.tolist())
+        for name, (_, extra_keys) in extra_lists.items():
+            if held & set(extra_keys.tolist()):
+                raise SystemExit(f"list {name!r} shares compounds with the training bundle; refusing")
+        lists.update(extra_lists)
+    names = sorted(lists)
     if args.candidates:
         names = [n for n in names if n in args.candidates.split(",")]
     pair_class = PAIRS[args.model]
@@ -287,7 +323,7 @@ def main(argv=None) -> int:
         oof_p.append(p)
         oof_tc.append(tc)
         for name in names:
-            candidate_parts[name].append(pair.predict(bundle[f"candidates_{name}_X"]))
+            candidate_parts[name].append(pair.predict(lists[name][0]))
         fold_info.append({"fold": fold, **data["counts"], "fit_seconds": round(fitted, 1),
                           "seconds": round(time.time() - fold_started, 1)})
         log(f"  fold {fold}: {data['counts']}, {fold_info[-1]['seconds']} s")
@@ -299,7 +335,7 @@ def main(argv=None) -> int:
     for name, parts in candidate_parts.items():
         p = np.mean([a for a, _ in parts], axis=0)
         tc = np.expm1(np.mean([np.log1p(b) for _, b in parts], axis=0))
-        np.savez_compressed(args.out / f"candidates_{name}.npz", keys=bundle[f"candidates_{name}_keys"], p=p, tc=tc)
+        np.savez_compressed(args.out / f"candidates_{name}.npz", keys=lists[name][1], p=p, tc=tc)
     device_name = platform.processor() or platform.machine()
     try:
         import torch
@@ -315,6 +351,9 @@ def main(argv=None) -> int:
            "device": args.device, "device_name": device_name, "python": platform.python_version(),
            "settings": {k: (str(v) if isinstance(v, Path) else v) for k, v in vars(args).items()},
            "folds": fold_info, "minutes": round((time.time() - started) / 60.0, 2), "complete": True}
+    if args.extra_candidates:
+        run["extra_candidates"] = {"file": args.extra_candidates.name, "sha256": hashlib.sha256(extra_raw).hexdigest(),
+                                   "lists": {n: int(len(lists[n][1])) for n in names}}
     (args.out / "run.json").write_text(json.dumps(run, indent=1) + "\n", encoding="utf-8")
     log(f"wrote {args.out} in {run['minutes']} min")
     return 0

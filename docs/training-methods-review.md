@@ -502,3 +502,9 @@ record.**
     model weights from Hugging Face;
   - this cloud session has neither, so it could no longer redo the ranking
     of record alone.
+
+## The owner's decision, 2026-11-26: test the blend on the locked rows
+
+The owner chose option A. The plan, rule and predictions are in
+`docs/lockbox-blend.md`, fixed before any look. Cycle 6 stays the ranking
+of record until that one scoring is done and the owner accepts the result.
