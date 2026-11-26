@@ -92,3 +92,13 @@ def test_missing_library_fails_before_any_work(tmp_path, monkeypatch):
     with pytest.raises(ImportError):
         F.main([str(path), "--model", "tabicl", "--out", str(tmp_path / "x")])
     assert not (tmp_path / "x").exists()
+
+
+def test_version_falls_back_to_the_installed_package():
+    import types
+    from importlib import metadata
+
+    assert F.package_version("numpy", np) == np.__version__
+    bare = types.ModuleType("numpy")                                     # like tabicl 2.2.0: no __version__
+    assert F.package_version("numpy", bare) == metadata.version("numpy")
+    assert F.package_version("no-such-package-here", types.ModuleType("x")) == "unknown"

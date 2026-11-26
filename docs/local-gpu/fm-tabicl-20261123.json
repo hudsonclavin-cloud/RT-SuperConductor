@@ -1,0 +1,227 @@
+{
+ "tag": "fm-tabicl-20261123",
+ "record": "cycle6",
+ "run": {
+  "bundle_kind": "formula",
+  "bundle_sha256": "1327a6d6756b81f3bb4f9bf41354961a61773722feb1c11b89c8d8208d8e2b2d",
+  "bundle_content_sha256": "daed58cb32f4a25f50cfa5a39a321926f79a59b42f5751bc72e8042df844eb01",
+  "model": "tabicl",
+  "libraries": {
+   "tabicl": "unknown"
+  },
+  "context": "fit and validation rows together; no early stopping",
+  "device": "cuda",
+  "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "python": "3.12.10",
+  "settings": {
+   "bundle": "data\\processed\\local-gpu\\bundle.npz",
+   "model": "tabicl",
+   "out": "runs\\fm-20261123\\tabicl",
+   "device": "cuda",
+   "estimators": 8,
+   "max_context": 0,
+   "predict_batch": 4096,
+   "patience": 50,
+   "catboost_gpu": false,
+   "seed": 0,
+   "folds": "",
+   "candidates": ""
+  },
+  "folds": [
+   {
+    "fold": 0,
+    "classifier_rows": 12654,
+    "regressor_rows": 9660,
+    "validation_rows": 0,
+    "test_rows": 1719,
+    "fit_seconds": 11.2,
+    "seconds": 286.0
+   },
+   {
+    "fold": 1,
+    "classifier_rows": 12512,
+    "regressor_rows": 9523,
+    "validation_rows": 0,
+    "test_rows": 1854,
+    "fit_seconds": 4.1,
+    "seconds": 268.6
+   },
+   {
+    "fold": 2,
+    "classifier_rows": 12249,
+    "regressor_rows": 9387,
+    "validation_rows": 0,
+    "test_rows": 2058,
+    "fit_seconds": 4.0,
+    "seconds": 262.7
+   },
+   {
+    "fold": 3,
+    "classifier_rows": 12367,
+    "regressor_rows": 9460,
+    "validation_rows": 0,
+    "test_rows": 1968,
+    "fit_seconds": 4.2,
+    "seconds": 263.8
+   },
+   {
+    "fold": 4,
+    "classifier_rows": 12239,
+    "regressor_rows": 9330,
+    "validation_rows": 0,
+    "test_rows": 2166,
+    "fit_seconds": 3.9,
+    "seconds": 262.7
+   }
+  ],
+  "minutes": 22.48,
+  "complete": true
+ },
+ "rows_compared": 9765,
+ "development_rows": 9765,
+ "scores": {
+  "all": {
+   "network": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7125,
+    "auc": 0.7965,
+    "brier": 0.1516,
+    "tc_mae_k": 3.6895,
+    "tc_log_mae": 0.3669,
+    "tc_spearman": 0.8535,
+    "expected_tc_spearman": 0.6633,
+    "top_decile_recall": 0.6383
+   },
+   "cycle6": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7125,
+    "auc": 0.7899,
+    "brier": 0.144,
+    "tc_mae_k": 3.9541,
+    "tc_log_mae": 0.3852,
+    "tc_spearman": 0.8411,
+    "expected_tc_spearman": 0.6414,
+    "top_decile_recall": 0.6755
+   },
+   "blend": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7125,
+    "auc": 0.8027,
+    "brier": 0.1424,
+    "tc_mae_k": 3.697,
+    "tc_log_mae": 0.3642,
+    "tc_spearman": 0.8576,
+    "expected_tc_spearman": 0.6647,
+    "top_decile_recall": 0.6777
+   }
+  },
+  "not cuprates": {
+   "network": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6642,
+    "auc": 0.7949,
+    "brier": 0.1465,
+    "tc_mae_k": 3.1607,
+    "tc_log_mae": 0.3689,
+    "tc_spearman": 0.8315,
+    "expected_tc_spearman": 0.7024,
+    "top_decile_recall": 0.6965
+   },
+   "cycle6": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6642,
+    "auc": 0.7882,
+    "brier": 0.1393,
+    "tc_mae_k": 3.3859,
+    "tc_log_mae": 0.3868,
+    "tc_spearman": 0.8182,
+    "expected_tc_spearman": 0.6868,
+    "top_decile_recall": 0.6977
+   },
+   "blend": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6642,
+    "auc": 0.8008,
+    "brier": 0.1379,
+    "tc_mae_k": 3.176,
+    "tc_log_mae": 0.3664,
+    "tc_spearman": 0.8364,
+    "expected_tc_spearman": 0.7093,
+    "top_decile_recall": 0.7023
+   }
+  }
+ },
+ "paired": {
+  "all": {
+   "network_minus_record": {
+    "auc": {
+     "low": -0.0055,
+     "median": 0.0068,
+     "high": 0.0217,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0348,
+     "median": -0.0177,
+     "high": -0.0026,
+     "resamples": 300
+    }
+   },
+   "blend_minus_record": {
+    "auc": {
+     "low": 0.0063,
+     "median": 0.0129,
+     "high": 0.0211,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0292,
+     "median": -0.0208,
+     "high": -0.0142,
+     "resamples": 300
+    }
+   }
+  },
+  "not cuprates": {
+   "network_minus_record": {
+    "auc": {
+     "low": -0.004,
+     "median": 0.0072,
+     "high": 0.0203,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0323,
+     "median": -0.0179,
+     "high": -0.004,
+     "resamples": 300
+    }
+   },
+   "blend_minus_record": {
+    "auc": {
+     "low": 0.0067,
+     "median": 0.013,
+     "high": 0.02,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0277,
+     "median": -0.0203,
+     "high": -0.0136,
+     "resamples": 300
+    }
+   }
+  }
+ },
+ "reading": {
+  "network_beats_record": false,
+  "blend_beats_record": true,
+  "rule": "A model replaces or joins the ranking of record only if its paired non-cuprate AUC interval against the record is above zero, and the owner accepts it. Otherwise it is a second opinion."
+ }
+}

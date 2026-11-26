@@ -94,6 +94,19 @@ class SklearnStyle(Pair):
         return p.astype(float), np.clip(np.expm1(t.astype(float)), 0.0, None)
 
 
+def package_version(name: str, module) -> str:
+    """The module's own ``__version__``, else the installed package's version (tabicl 2.2.0 has no ``__version__``)."""
+    found = getattr(module, "__version__", None)
+    if found:
+        return str(found)
+    from importlib import metadata
+
+    try:
+        return metadata.version(name)
+    except metadata.PackageNotFoundError:
+        return "unknown"
+
+
 class TabICL(SklearnStyle):
     def make(self) -> tuple:
         from tabicl import TabICLClassifier, TabICLRegressor
@@ -106,7 +119,7 @@ class TabICL(SklearnStyle):
     def versions() -> dict:
         import tabicl
 
-        return {"tabicl": getattr(tabicl, "__version__", "unknown")}
+        return {"tabicl": package_version("tabicl", tabicl)}
 
 
 class TabPFN(SklearnStyle):
@@ -121,7 +134,7 @@ class TabPFN(SklearnStyle):
         import os
         import tabpfn
 
-        return {"tabpfn": getattr(tabpfn, "__version__", "unknown"),
+        return {"tabpfn": package_version("tabpfn", tabpfn),
                 "TABPFN_MODEL_VERSION": os.environ.get("TABPFN_MODEL_VERSION", "library default")}
 
 

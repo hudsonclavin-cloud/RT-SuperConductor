@@ -233,3 +233,15 @@ recommendation; the owner decides].
 - The shared lock file the other agent offered is not needed for one short
   run. Revisit it if this project ever gets a long or recurring GPU job.
 - Commands: `docs/training-methods-review.md`, "Update, 2026-11-25".
+
+## This project's GPU use, measured 2026-11-25
+
+The TabICLv2 run logged the GPU every 5 seconds (269 readings over 22.5
+minutes, `data/benchmarks/local-gpu/fm-tabicl-20261123/gpu-log.csv`).
+- Busy: mean 89%, median 99%.
+- Memory: median 4.7 GB, peak 7.8 GB of the card's 8 GB.
+- Temperature: at most 69 °C.
+
+That settles it for this kind of job: it fills the card, so it runs alone.
+Running beside the other pipeline (about 1.7 GB for its two jobs) would have
+gone past 8 GB. The decision above, one after the other, stands.

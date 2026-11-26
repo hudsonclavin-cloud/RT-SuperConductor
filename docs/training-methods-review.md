@@ -385,3 +385,120 @@ Copy-Item runs\fm-20261123\gpu-log.csv runs\fm-20261123\tabicl\
 
 Send the results back with the same six commands as above, from
 `git checkout -b fm-results-20261123` on.
+
+## Result, 2026-11-26
+
+**Main result:** TabICLv2 alone does not pass the rule. Its 50/50 blend with
+cycle 6 beats cycle 6 on the development rows, with an interval above zero.
+No model in this project had done that before. The blend was a secondary
+result, and by the rule fixed before the run a secondary result cannot change
+the ranking of record on its own. **Cycle 6 stays the ranking of record.**
+
+**The run**
+- On the owner's laptop, 2026-11-25 from 23:14 to 23:37: 22.5 minutes, no
+  context cap, default settings.
+- tabicl 2.2.0, from `pip show tabicl`. The run record says "unknown"
+  because tabicl has no `__version__`; the runner now reads the installed
+  version instead.
+- The bundle checksum matches. All 9,765 development rows were scored.
+- Comparison: `python scripts/local_gpu.py compare fm-tabicl-20261123`,
+  written to `docs/local-gpu/fm-tabicl-20261123.json`.
+
+**Scores, non-cuprate development rows** (8,942 rows, 8,598 labelled)
+
+| | TabICLv2 | Cycle 6 | 50/50 blend |
+| --- | --- | --- | --- |
+| AUC | 0.795 | 0.788 | 0.801 |
+| Brier score (lower is better) | 0.147 | 0.139 | 0.138 |
+| Tc error, log scale (lower is better) | 0.369 | 0.387 | 0.366 |
+| Share of superconductors in the top tenth | 0.697 | 0.698 | 0.702 |
+
+**Paired against cycle 6** (median, 95% interval, 300 resamples of whole
+groups)
+
+| | Non-cuprates | All rows |
+| --- | --- | --- |
+| TabICLv2 AUC | +0.007 (−0.004 to +0.020) | +0.007 (−0.006 to +0.022) |
+| Blend AUC | **+0.013 (+0.007 to +0.020)** | +0.013 (+0.006 to +0.021) |
+| TabICLv2 Tc error | −0.018 (−0.032 to −0.004) | −0.018 (−0.035 to −0.003) |
+| Blend Tc error | −0.020 (−0.028 to −0.014) | −0.021 (−0.029 to −0.014) |
+
+**Against the rule**
+- Step 1: TabICLv2's interval includes zero, so it fails. Steps 2 and 3 are
+  not reached, and the locked rows stay untouched.
+- The blend passes the same test, but it was listed as a secondary result
+  that cannot trigger adoption alone.
+
+**What it shows**
+- [Certain] The blend is the first model that adds measurable value to
+  cycle 6. The earlier blends, with networks, did not:
+  - the tabular network bank: +0.001 (−0.004 to +0.006);
+  - the overnight run's best network: +0.002 (−0.004 to +0.006).
+- [Likely] The two models make different mistakes, so their average is
+  better than either. They disagree a lot about candidates: in shortlist 3's
+  571 compounds, TabICLv2 keeps only 13 of cycle 6's top 50, and the rank
+  correlation is 0.78.
+- [Certain] TabICLv2 ranks better but its probabilities are less well
+  calibrated (Brier score 0.147 against 0.139). The blend is as well
+  calibrated as cycle 6.
+- [Likely] TabICLv2 predicts Tc better. Its error interval lies below zero.
+- Caveat: two results were looked at (alone, and the blend), both named
+  before the run. That is a small selection effect, not a search, but it is
+  why the blend needs the locked rows before adoption.
+
+**GPU use** (`gpu-log.csv`, 269 readings taken 5 seconds apart during the
+run)
+- Busy: mean 89%, median 99%.
+- Memory: median 4.7 GB, peak 7.8 GB of the card's 8 GB.
+- Temperature: at most 69 °C.
+- So this job must run alone, as decided in `docs/shared-gpu-questions.md`.
+  Run beside the other project, it would have run out of memory.
+
+**Candidates, as a second opinion only.** Ranks among shortlist 3's 571
+compounds. The Hazel queue does not change.
+
+| Compound | Cycle 6 | TabICLv2 | Blend |
+| --- | --- | --- | --- |
+| SbTe2 | 1 | 1 | 1 |
+| NaMgPb2 (`mp-aaabxftj`) | 2 | 51 | 11 |
+| LiMgPb2 | 3 | 33 | 9 |
+| LiGaIr | 35 | 118 | 64 |
+| SrAl3Ag | 44 | 130 | 76 |
+| CsIr2P2 | 107 | 168 | 141 |
+
+- The blend's top 10 keeps 5 of cycle 6's top 10. Its top 50 keeps 23 of
+  cycle 6's top 50.
+
+**Predictions against results**
+
+| Outcome | Chance given | Result |
+| --- | --- | --- |
+| TabICLv2 beats cycle 6 under step 1 (interval above zero) | 25% | No: +0.007 (−0.004 to +0.020) |
+| TabICLv2's non-cuprate AUC is within ±0.01 of cycle 6's | 55% | Yes (0.795 against 0.788) |
+| The blend beats cycle 6 (interval above zero) | 40% | **Yes**: +0.013 (+0.007 to +0.020) |
+| TabICLv2 beats the 20-network tabular bank (0.770) | 75% | Yes (0.795; not a paired comparison) |
+| Its Tc error is lower than cycle 6's | 35% | Yes: −0.018 (−0.032 to −0.004) |
+| It runs on the 8 GB GPU without the context cap | 70% | Yes, with about 0.3 GB to spare at its peak |
+
+- Four of six went the favoured way, and the two least likely both came out
+  yes.
+
+**What follows. The owner decides; nothing here changes the ranking of
+record.**
+- **A, recommended:** a new plan, fixed before any look:
+  - score the blend and cycle 6 once on the 1,950 locked rows;
+  - the blend becomes the ranking of record if its non-cuprate AUC there is
+    at least cycle 6's, the same test as step 2, and the owner accepts.
+  - This would be the second use of the locked rows; the first is
+    `docs/scratchnet-lockbox.json`.
+  - 1,730 of the locked rows are not cuprates, so the interval there
+    will be roughly twice as wide as here. The test can confirm the
+    direction, not the size.
+  - [Speculative] Chance the blend passes: 80%.
+- **B:** keep the blend as a second opinion beside cycle 6, and do not spend
+  the locked rows.
+- **Cost of adopting it:**
+  - every new ranking needs the laptop's GPU (about 25 minutes) and the
+    model weights from Hugging Face;
+  - this cloud session has neither, so it could no longer redo the ranking
+    of record alone.
