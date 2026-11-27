@@ -155,3 +155,67 @@ checking Hazel, not training the ranking.
 4. **BETE-NET as a Hazel method cross-check.**
 5. After round 2: a short list of ambient-pressure high-Tc candidates with
    published structures, for the Hazel queue after the benchmark.
+
+## Round 2: the 27 sources round 1 left unverified (2026-11-27)
+
+All 27 exist. None raises the ranking's AUC much. Nine matter for the
+room-temperature goal. Records: `docs/data-swarm/survey-2026-11-27-round2.json`.
+
+**Two corrections to round 1:**
+- **The 20,000-metal calculated set (Gao et al.) is reachable from here.**
+  - It is the Alexandria phonon and electron-phonon release of 2025.08.11:
+    93 files, 5.06 GB, CC BY 4.0.
+  - Each entry has λ, ωlog and Tc by McMillan, Allen-Dynes and Eliashberg.
+  - The download needs the owner's approval because of its size.
+- **BEE-NET's public files are about 12 GB of model weights**, not 60 MB. Its
+  data duplicates what we hold.
+
+**The central fact for the room-temperature goal** [Likely, from Gao et al.
+and the hydride papers]:
+- The calculated high-Tc compounds at ambient pressure are thermodynamically
+  unstable.
+- The ones that are stable have modest Tc.
+- Where synthesis has been tried, it has failed or needed pressure.
+
+| Compound | Calculated Tc at ambient (method) | Stability | Tried in a lab? |
+| --- | --- | --- | --- |
+| Mg2IrH6 | 59–175 K (Allen-Dynes to anisotropic Eliashberg) | 60 meV/atom above the hull | Yes, and failed: only insulating Mg2IrH5 and Mg2IrH7 formed |
+| Mg2RhH6 | 45–59 K | 30 meV/atom above | **Made at 30–74 GPa: measured 18–29 K**. Lost below about 28 GPa |
+| Li0.5BC (delithiated LiBC) | about 65 K | metastable | **Made: no superconductivity**. A calculated high Tc that failed |
+| Mg4Pt3H6 | 0.9 K | on the hull | **Made: 2.9 K at ambient after a pressure quench** |
+| LiZrH6Ru (GNoME) | 17–32 K | **on the hull** | Not reported |
+| SrAuH3 | 132 K (Allen-Dynes) | stable above about 7 GPa only | No |
+| KInH3 | 73 K | 77 meV/atom above; dynamical stability disputed | No |
+| Li2AgH6 | 110–132 K | 319 meV/atom above; unstable in molecular-dynamics tests | No |
+| CaB8C, KPbB6C6 (B-C cages) | 77–88 K | metastable, or unstable at 1 atm | No |
+| SrB3C3 | — | — | **Made: about 20 K at 40 GPa** |
+
+## A room-temperature track for Hazel, proposed after the benchmark
+
+The current queue tests the pipeline on ordinary compounds. A second track
+would point it at the chemistries that theory says could reach high Tc.
+
+**Calibration first.** The method's error on hydrides and boron-carbon
+frameworks needs to be known before any high-Tc number from it can be
+trusted, so the first runs are cases with a measured answer:
+1. **Mg2RhH6 at about 50 GPa:** measured 29 K, calculated about 60 K. 9 atoms.
+2. **Ordered Li0.5BC:** calculated about 65 K, measured nothing. The
+   false-positive check.
+3. **SrB3C3 at 40 GPa:** measured about 20 K. A covalent framework, 14 atoms.
+
+**Then the candidates,** cheapest and most checkable first:
+1. **SrAuH3:** 5 atoms; CIF in HTSC-2025.
+2. **KInH3:** 5 atoms; a dense phonon grid settles its disputed stability.
+3. **LiZrH6Ru:** 9 atoms. The one candidate on the hull, so the most likely
+   to be makeable.
+
+**Limits** [Certain about the method, Speculative about the size of the
+effect]:
+- **Hydrogen needs anharmonic phonons.** The Hazel chain is harmonic, and
+  published anharmonic corrections change hydride Tc by tens of percent.
+- **Pressure runs need a new input.** They need pressure-relaxed cells,
+  which the current packages do not include.
+- **Expect upper bounds.** The calculated Tc from this chain should be read
+  as an upper bound, as for the benchmark.
+- **Results stay private.** Candidate results stay under `data/raw/hazel/`
+  (AGENTS.md).
