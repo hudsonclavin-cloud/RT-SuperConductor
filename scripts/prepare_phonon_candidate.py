@@ -70,12 +70,32 @@ CANDIDATES = {
     "kinh3": {"alexandria_id": "agm002490653", "formula": "KInH3", "k": (12, 12, 12), "q": (4, 4, 4),
               "smoke_k": (6, 6, 6), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 24), "ph_time": "24:00:00"},
 }
-ALEXANDRIA_2025 = ROOT / "data/processed/alexandria-eph-2025"
 
 # Starting structures that are not in the Materials Project snapshot: the Alexandria PBE database
 # (alexandria.icams.rub.de, OPTIMADE endpoint /pbe/v1/structures), copied as published. Cell rows in angstrom,
 # positions in crystal coordinates.
 ALEXANDRIA = {
+    # Room-temperature track: the Alexandria PBEsol phonon release 2025.08.11 (CC BY 4.0), copied as published.
+    "agm002153628": {
+        "cell": [[-3.2751100223097764, 0.0, 3.2751100223097764], [0.0, 3.2751100223097764, 3.2751100223097764], [-3.2751100223097764, 3.2751100223097764, 0.0]],
+        "sites": [('Mg', [0.25, 0.24999999999999997, 0.25]), ('Mg', [0.7499999999999999, 0.75, 0.7499999999999999]), ('H', [0.2600666000000001, 0.7399333999999999, 0.7399334]), ('H', [0.2600666, 0.7399334, 0.2600665999999999]), ('H', [0.7399333999999999, 0.7399333999999999, 0.2600666000000001]), ('H', [0.7399334, 0.2600666, 0.2600665999999999]), ('H', [0.7399333999999999, 0.2600666000000001, 0.7399333999999997]), ('H', [0.2600666, 0.2600666, 0.7399334000000001]), ('Rh', [0.0, 0.0, 0.0])],
+    },
+    "agm005413625": {
+        "cell": [[2.712538557045877, 0.0, 0.0], [-1.3562692785229384, 2.3491262038656555, 0.0], [0.0, 0.0, 6.3829612798184785]],
+        "sites": [('Li', [0.0, 0.0, 0.500000084993107]), ('B', [0.6666667244017205, 0.33333344880344107, 0.7756535120001767]), ('B', [0.33333350653849486, 0.6666670130769897, 0.22434665798603734]), ('C', [0.6666667244017205, 0.33333344880344107, 0.23400123749963878]), ('C', [0.33333350653849486, 0.6666670130769897, 0.7659988899900217])],
+    },
+    "agm000999969": {
+        "cell": [[4.846409136504156, 0.0, 0.0], [0.0, 4.846409136504156, 0.0], [0.0, 0.0, 4.846409136504156]],
+        "sites": [('Sr', [0.5, 0.5, 0.5]), ('Sr', [0.0, 0.0, 0.0]), ('B', [0.25, 0.0, 0.5]), ('B', [0.0, 0.5, 0.25]), ('B', [0.5, 0.75, 0.0]), ('B', [0.75, 0.0, 0.5]), ('B', [0.0, 0.5, 0.75]), ('B', [0.5, 0.25, 0.0]), ('C', [0.0, 0.25, 0.5]), ('C', [0.0, 0.75, 0.5]), ('C', [0.5, 0.0, 0.75]), ('C', [0.75, 0.5, 0.0]), ('C', [0.5, 0.0, 0.25]), ('C', [0.25, 0.5, 0.0])],
+    },
+    "agm002494931": {
+        "cell": [[4.2604723807826135, 0.0, 0.0], [0.0, 4.2604723807826135, 0.0], [0.0, 0.0, 4.2604723807826135]],
+        "sites": [('Sr', [0.0, 0.0, 0.0]), ('H', [0.0, 0.5, 0.0]), ('H', [0.0, 0.0, 0.5]), ('H', [0.5, 0.0, 0.0]), ('Au', [0.5, 0.5, 0.5])],
+    },
+    "agm002490653": {
+        "cell": [[4.1854980247258755, 0.0, 0.0], [0.0, 4.1854980247258755, 0.0], [0.0, 0.0, 4.1854980247258755]],
+        "sites": [('K', [0.5, 0.5, 0.5]), ('In', [0.0, 0.0, 0.0]), ('H', [0.0, 0.5, 0.0]), ('H', [0.0, 0.0, 0.5]), ('H', [0.5, 0.0, 0.0])],
+    },
     "agm001144382": {
         "cell": [[3.76869961, 0.0, 0.0], [0.0, 3.76869961, 0.0], [0.0, 0.0, 7.76526153]],
         "sites": [("Pb", [0.0, 0.0, 0.77283445]), ("Pb", [0.0, 0.0, 0.22716555]),
@@ -97,30 +117,15 @@ def initial_structure(spec: dict):
     """The unrelaxed cell and sites: from the Materials Project snapshot, or from ``ALEXANDRIA``."""
     if "mp_id" in spec:
         return from_mp(load_structure(spec["mp_id"]))
-    if spec["alexandria_id"] in ALEXANDRIA:
-        entry = ALEXANDRIA[spec["alexandria_id"]]
-        return [list(row) for row in entry["cell"]], [(element, list(xyz)) for element, xyz in entry["sites"]]
-    for path in sorted(ALEXANDRIA_2025.glob("structures-*.jsonl.gz")):          # the 2025 phonon release
-        with gzip.open(path, "rt", encoding="utf-8") as handle:
-            for line in handle:
-                row = json.loads(line)
-                if row["mat_id"] == spec["alexandria_id"]:
-                    st = row["structure"]
-                    return ([list(v) for v in st["lattice"]["matrix"]],
-                            [(site["species"][0]["element"], list(site["abc"])) for site in st["sites"]])
-    raise SystemExit(f"{spec['alexandria_id']} is in neither ALEXANDRIA nor {ALEXANDRIA_2025}")
+    entry = ALEXANDRIA[spec["alexandria_id"]]
+    return [list(row) for row in entry["cell"]], [(element, list(xyz)) for element, xyz in entry["sites"]]
 
 
 def source_fields(spec: dict) -> dict:
     """Where a package's structure came from, for package.json."""
     if "mp_id" in spec:
         return {"mp_id": spec["mp_id"]}
-    out = {"alexandria_id": spec["alexandria_id"]}
-    if spec["alexandria_id"] not in ALEXANDRIA:
-        out["alexandria_release"] = "PBEsol phonon release 2025.08.11 (CC BY 4.0)"
-    if spec.get("press_kbar"):
-        out["target_pressure_kbar"] = spec["press_kbar"]
-    return out
+    return {"alexandria_id": spec["alexandria_id"]}
 
 
 def snap(x: float) -> float:
@@ -293,7 +298,8 @@ def cmd_package(name: str, relax_out: Path) -> None:
         f"CHAIN_NAME={name}", f"PREFIX={name}", "RUN_DIR=run", 'COPY_ITEMS="../pp run"',
         f"FULL_PH_TIME={spec['ph_time']}", ""]), encoding="utf-8")
     source = "Materials Project" if "mp_id" in spec else "Alexandria"
-    meta = {"name": name, "formula": spec["formula"], **source_fields(spec), "atoms": len(sites),
+    meta = {"name": name, "formula": spec["formula"], **source_fields(spec),
+            **({"target_pressure_kbar": spec["press_kbar"]} if spec.get("press_kbar") else {}), "atoms": len(sites),
             "ecutwfc_ry": ECUTWFC, "smearing": SMEARING, "degauss_ry": DEGAUSS, "k_mesh": spec["k"], "fit_k_mesh": fit,
             "q_mesh": spec["q"], "relaxed_cell_angstrom": cell, "pseudopotential_sha256": checksums,
             "relaxed_from": f"{source} structure, vc-relax with these pseudopotentials and cutoff"}
