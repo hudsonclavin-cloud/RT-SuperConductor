@@ -1,0 +1,84 @@
+{
+ "bundle_kind": "formula",
+ "bundle_sha256": "1327a6d6756b81f3bb4f9bf41354961a61773722feb1c11b89c8d8208d8e2b2d",
+ "bundle_content_sha256": "daed58cb32f4a25f50cfa5a39a321926f79a59b42f5751bc72e8042df844eb01",
+ "model": "tabicl",
+ "libraries": {
+  "tabicl": "2.2.0"
+ },
+ "context": "fit and validation rows together; no early stopping",
+ "device": "cuda",
+ "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+ "python": "3.12.10",
+ "settings": {
+  "bundle": "data\\processed\\local-gpu\\bundle.npz",
+  "model": "tabicl",
+  "out": "runs\\lockbox-tabicl",
+  "device": "cuda",
+  "estimators": 8,
+  "max_context": 0,
+  "predict_batch": 4096,
+  "patience": 50,
+  "catboost_gpu": false,
+  "seed": 0,
+  "folds": "",
+  "candidates": "locked",
+  "extra_candidates": "data\\processed\\local-gpu\\locked-features.npz"
+ },
+ "folds": [
+  {
+   "fold": 0,
+   "classifier_rows": 12654,
+   "regressor_rows": 9660,
+   "validation_rows": 0,
+   "test_rows": 1719,
+   "fit_seconds": 5.2,
+   "seconds": 85.9
+  },
+  {
+   "fold": 1,
+   "classifier_rows": 12512,
+   "regressor_rows": 9523,
+   "validation_rows": 0,
+   "test_rows": 1854,
+   "fit_seconds": 5.4,
+   "seconds": 77.0
+  },
+  {
+   "fold": 2,
+   "classifier_rows": 12249,
+   "regressor_rows": 9387,
+   "validation_rows": 0,
+   "test_rows": 2058,
+   "fit_seconds": 5.1,
+   "seconds": 75.0
+  },
+  {
+   "fold": 3,
+   "classifier_rows": 12367,
+   "regressor_rows": 9460,
+   "validation_rows": 0,
+   "test_rows": 1968,
+   "fit_seconds": 5.3,
+   "seconds": 75.6
+  },
+  {
+   "fold": 4,
+   "classifier_rows": 12239,
+   "regressor_rows": 9330,
+   "validation_rows": 0,
+   "test_rows": 2166,
+   "fit_seconds": 4.6,
+   "seconds": 67.9
+  }
+ ],
+ "minutes": 6.66,
+ "complete": true,
+ "extra_candidates": {
+  "file": "locked-features.npz",
+  "sha256": "028d92a2ec1d8c234d39032ebd281449fcca771734b7751268fa06a934ac0e1d",
+  "lists": {
+   "locked": 1950
+  }
+ }
+}
