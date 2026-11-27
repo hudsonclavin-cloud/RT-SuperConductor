@@ -842,7 +842,8 @@ check first):
 | --- | --- | --- | --- |
 | `kinh3` | a = 4.264 Å, relaxation 23 min, residual 0.01 kbar | a = 4.185 Å (+1.9%) | built |
 | `srauh3` | a = 4.381 Å, relaxation 81 min, residual 0.09 kbar | a = 4.26 Å (+2.8%) | built |
-| `lib2c2`, `mg2rhh6` (50 GPa), `srb3c3` (40 GPa) | relaxing | — | pending |
+| `lib2c2` | a = 2.711 Å, **c = 7.268 Å**; 14 steps, residual 1.04 kbar | a = 2.713 Å, c = 6.383 Å (**c +14%**) | **built but not usable**: plain PBE has no van der Waals attraction, so the layered cell swells along c. To be relaxed again with a D3 correction |
+| `mg2rhh6` (50 GPa), `srb3c3` (40 GPa) | relaxing | — | pending |
 
 - **Why the cells differ.** PBE cells come out a few per cent larger than
   PBEsol ones.

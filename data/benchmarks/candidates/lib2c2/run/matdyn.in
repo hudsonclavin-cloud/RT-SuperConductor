@@ -1,0 +1,12 @@
+ &input
+    asr    = 'simple'
+    flfrc  = 'lib2c2.fc'
+    flfrq  = 'lib2c2.freq'
+    dos    = .true.
+    fldos  = 'lib2c2.phdos'
+    nk1 = 32
+    nk2 = 32
+    nk3 = 16
+    ndos   = 500
+    la2F   = .true.
+ /
