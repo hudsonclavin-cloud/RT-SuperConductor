@@ -156,3 +156,24 @@ def test_nemad_parsing():
     text, fractions = ND.formula_of({"Material_Name": "MgB2 (Tc~39K)"})
     assert text == "MgB2" and abs(fractions["B"] - 2 / 3) < 1e-9
     assert ND.formula_of({"Material_Name": "High-Tc superconductor family"}) == (None, None)
+
+
+def test_nemad_name_cleaning():
+    import nemad_download as ND
+
+    assert ND.clean_name("Nb₃Sn") == "Nb3Sn"
+    assert ND.clean_name("YBa2Cu3O7−δ (untreated)") == "YBa2Cu3O7"
+    assert ND.clean_name("Bi2Sr2CaCu2O8+δ") == "Bi2Sr2CaCu2O8"
+    assert ND.clean_name("2H-Li0.096TaS2") == "Li0.096TaS2"
+    assert ND.clean_name("HfV2 (polycrystalline, pc1)") == "HfV2"
+    assert ND.clean_name("La2-xSrxCuO4 (x=0.15)") == "La1.85Sr0.15CuO4"
+    assert ND.clean_name("(Hg0.7Tl0.3)2Ba2CuO4") == "(Hg0.7Tl0.3)2Ba2CuO4"       # a leading bracket is formula
+    assert ND.formula_of({"Material_Name": "BaFe2-xNixAs2"}) == (None, None)       # x unknown: not usable
+    assert ND.formula_of({"Material_Name": "Lead Bismuth"}) == (None, None)
+    assert ND.formula_of({"Material_Name": "Cu1234"}) == (None, None)                # a nickname, not copper
+    assert ND.formula_of({"Material_Name": "Bi2212"}) == (None, None)
+    assert ND.formula_of({"Material_Name": "BaFe2As2 (K-doped)"}) == (None, None)    # the note changes the compound
+    assert ND.formula_of({"Material_Name": "YbBa2Cu3O6+x"}) == (None, None)          # x is not small here
+    assert ND.formula_of({"Material_Name": "Nb"})[1] == {"Nb": 1.0}                  # a plain element still parses
+    text, fractions = ND.formula_of({"Material_Name": "La2-xSrxCuO4 (x=0.15)"})
+    assert abs(fractions["Sr"] - 0.15 / 7) < 1e-9

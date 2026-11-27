@@ -123,6 +123,34 @@ def ambient(pressure) -> bool | None:
     return False
 
 
+_SUBSCRIPTS = str.maketrans("₀₁₂₃₄₅₆₇₈₉₊₋", "0123456789+-")
+
+
+def clean_name(name: str) -> str:
+    """A record name made readable as a formula, conservatively:
+    * subscript digits to plain digits, and Unicode minus signs to '-';
+    * trailing notes in brackets dropped ('HfV2 (polycrystalline)'), and polytype prefixes ('2H-', '1T-');
+    * oxygen off-stoichiometry set to its ideal value ('YBa2Cu3O7-δ' -> 'YBa2Cu3O7');
+    * a doping variable replaced only when the name gives it exactly one value ('La2-xSrxCuO4 (x=0.15)').
+    Anything else (words, ranges, unknown x) is left as it is and fails to parse later."""
+    t = str(name).translate(_SUBSCRIPTS).replace("\u2212", "-").replace("\u2013", "-").replace("\u2009", "").strip()
+    t = re.sub(r"\(.*?Tc.*?\)", "", t).strip()                                   # 'X (Tc~30K)'
+    values = dict(re.findall(r"\b([xyz])\s*=\s*(\d*\.?\d+)\b(?![\s,]*(?:\d|and|to|-))", t))
+    while re.search(r"\s+\([^()]*\)\s*$", t):
+        note = re.search(r"\s+\(([^()]*)\)\s*$", t).group(1)
+        if re.search(r"(?i)dop|substitut|intercal|added|addition|with|\+|annealed in|irradiat", note):
+            return ""                                    # the note changes the composition: not usable
+        t = re.sub(r"\s+\([^()]*\)\s*$", "", t)
+    t = re.sub(r"^\d+[A-Za-z]{1,2}-(?=[A-Z(])", "", t)
+    t = re.sub(r"[-+±]\s*δ", "", t)                       # δ marks a small off-stoichiometry: use the ideal value
+    for var, val in values.items():
+        v = float(val)
+        t = re.sub(rf"(\d*\.?\d+)\s*-\s*{var}(?![a-z])", lambda m: f"{float(m.group(1)) - v:g}", t)
+        t = re.sub(rf"(\d*\.?\d+)\s*\+\s*{var}(?![a-z])", lambda m: f"{float(m.group(1)) + v:g}", t)
+        t = re.sub(rf"(?<=[A-Za-z)]){var}(?![a-z])", f"{v:g}", t)
+    return t.strip()
+
+
 def formula_of(record: dict) -> tuple[str | None, dict | None]:
     """The record's formula as atomic fractions, from Chemical_Composition, else Material_Name; None if it does not parse."""
     sys.path.insert(0, str(ROOT / "scripts"))
@@ -132,8 +160,12 @@ def formula_of(record: dict) -> tuple[str | None, dict | None]:
         text = record.get(field)
         if not text:
             continue
-        text = re.sub(r"\(.*?Tc.*?\)", "", str(text)).strip()     # names such as 'X (Tc~30K)'
+        text = clean_name(text)
+        if not text or re.search(r"[a-z]{3,}|\s", text):        # words or spaces left: not a formula
+            continue
         fractions = M.fractions(text)
+        if fractions and len(fractions) == 1 and re.search(r"\d{2,}", text):
+            continue                                             # nicknames such as 'Cu1234', 'Sm123', 'Bi2212'
         if fractions:
             return text, fractions
     return None, None
