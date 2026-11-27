@@ -229,12 +229,14 @@ def test_outside_test_reading_and_once_only(tmp_path):
     assert same["reading"]["main"]["blend_at_least_cycle6"] and same["reading"]["outside"]["blend_at_least_cycle6"]
     assert not same["reading"]["propose_going_back_to_cycle6"] and same["rows"] == len(keys)
     assert same["rows_in_groups_with_no_training_row"] == int(new_group.sum()) and same["groups"] == 4
-    assert set(same["scores"]) == {"all", "not cuprates", "intermetallic", "not cuprates, groups with no training row",
+    assert set(same["scores"]) == {"all", "not cuprates", O.OTHER, "not cuprates, groups with no training row",
                                    "not cuprates, groups with training rows"}
+    assert same["reading"]["outcome"] == "supported"
     worse = O.score_rows(keys, labels, good, (1.0 - good[0], tc), groups, new_group)  # anti-correlated TabICLv2
     assert not worse["reading"]["main"]["blend_at_least_cycle6"]
     assert worse["paired"]["all"]["blend_minus_cycle6"]["auc"]["median"] < 0
     assert worse["reading"]["main"]["interval_entirely_below_zero"] and worse["reading"]["propose_going_back_to_cycle6"]
+    assert worse["reading"]["outcome"] == "propose going back"
     done = tmp_path / "nemad-outside-test.json"
     O.refuse_if_scored(done)
     done.write_text("{}")
@@ -258,5 +260,68 @@ def test_outside_test_refuses_runs_unlike_the_record():
     test = ["La:0.200;Ni:0.250;O:0.500;Sr:0.050", "La:0.210;Ni:0.250;O:0.500;Sr:0.040", "Nb:0.750;Sn:0.250",
             "V:0.750;Ga:0.250"]
     groups, new_group = O.grouping(test, ["Nb:0.760;Sn:0.240"])
-    assert groups[0] == groups[1] != groups[2] != groups[3]
+    assert groups[0] == groups[1] != groups[2] != groups[3] and groups[0] != groups[3]
     assert new_group.tolist() == [True, True, False, True]
+    # test rows chained through training rows share one group and are not new; the old rule (test rows alone, "new"
+    # when the main-element group is absent from training) would split them and call the third row new
+    groups, new_group = O.grouping(["Nb:0.600;Sn:0.360;Zr:0.040", "Ge:0.300;Nb:0.400;Sn:0.300",
+                                    "Nb:0.600;Sn:0.350;Zr:0.050", "Ga:0.250;V:0.750"],
+                                   ["Ge:0.040;Nb:0.750;Sn:0.210", "Ge:0.050;Nb:0.750;Sn:0.200"])
+    assert groups[0] == groups[1] == groups[2] != groups[3]
+    assert new_group.tolist() == [False, False, False, True]
+    # only labelled bundle rows count as training: neither trainer fits a row with no label
+    bundle = {"keys": np.array(["Nb:0.750;Sn:0.250", "Mo:0.500;Re:0.500"]), "label": np.array([1.0, np.nan])}
+    assert O.training_keys(bundle) == ["Nb:0.750;Sn:0.250"]
+
+
+def test_outside_test_outcome_order():
+    import nemad_outside_test as O
+
+    def block(main_ok, main_below, out_ok, out_below):
+        return {"main": {"blend_at_least_cycle6": main_ok, "interval_entirely_below_zero": main_below},
+                "outside": {"blend_at_least_cycle6": out_ok, "interval_entirely_below_zero": out_below}}
+    assert O.outcome(block(True, False, True, False)) == "supported"
+    assert O.outcome(block(True, False, False, False)) == "supported on main, mark on outside"
+    assert O.outcome(block(False, False, True, False)) == "mark against the blend"
+    assert O.outcome(block(True, False, False, True)) == "propose going back"     # outside alone overrides main
+    assert O.outcome(block(False, True, True, False)) == "propose going back"
+    assert set(O.OUTCOMES) == {"supported", "supported on main, mark on outside", "mark against the blend",
+                               "propose going back"}
+
+
+def test_outside_test_outside_reading_alone_can_propose():
+    import nemad_outside_test as O
+
+    rng = np.random.default_rng(3)
+    elements = ["Nb", "Mo", "Ta", "V", "W", "Re", "Ti", "Zr", "Hf", "Cr"]
+    keys, labels = [], {}
+    for e in elements:
+        for i in range(40):
+            key = f"{e}:{0.2 + 0.6 * i / 40:.3f};Sn:{0.8 - 0.6 * i / 40:.3f}"
+            keys.append(key)
+            labels[key] = (int(rng.uniform() < 0.7), None)
+    keys = sorted(keys)
+    y = np.array([labels[k][0] for k in keys], float)
+    tc = np.full(len(keys), np.nan)
+    groups = np.array([k.split(":")[0] for k in keys])
+    new_group = np.isin(groups, ["Nb", "Mo", "Ta"])                # 3 of 10 groups are new
+    record = (np.clip(0.3 * y + rng.uniform(0, 0.7, len(keys)), 0, 1), tc)
+    tabicl = np.where(new_group, 1.0 - y, np.clip(0.8 * y + rng.uniform(0, 0.2, len(keys)), 0, 1))  # wrong only there
+    out = O.score_rows(keys, labels, record, (tabicl, tc), groups, new_group)
+    assert not out["reading"]["main"]["interval_entirely_below_zero"]
+    assert out["reading"]["outside"]["interval_entirely_below_zero"]
+    assert out["reading"]["outcome"] == "propose going back"
+
+
+def test_outside_test_made_metals_reproduction(tmp_path, monkeypatch):
+    import nemad_outside_test as O
+
+    np.savez(tmp_path / "candidates_made_metals.npz", keys=np.array(["Nb3Sn", "MgB2"]), p=np.array([0.9, 0.8]),
+             tc=np.array([18.0, 39.0]))
+    monkeypatch.setattr(O.G, "result_folder", lambda name: tmp_path)
+    bundle = {"candidates_made_metals_keys": np.array(["Nb3Sn", "MgB2"])}
+    keys = [O.B.composition_key(O.M.fractions("Nb3Sn")), "Mo:0.500;Re:0.500"]
+    same = O.made_metals_reproduction(keys, (np.array([0.905, 0.1]), None), bundle)
+    assert same["rows"] == 1 and same["reproduced"] and abs(same["largest_gap"] - 0.005) < 1e-9
+    off = O.made_metals_reproduction(keys, (np.array([0.5, 0.1]), None), bundle)
+    assert not off["reproduced"]

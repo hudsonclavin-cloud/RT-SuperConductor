@@ -43,10 +43,21 @@ MANIFEST = G.WORK / "nemad-features.json"
 OUT = G.DOCS / "nemad-outside-test.json"
 LIST = "nemad"
 RECORD_SETTINGS = {"estimators": 8, "max_context": 0, "seed": 0}   # as in fm-tabicl-20261123, the ranking of record
-RULE = ("A check, not an adoption test: the ranking of record is already the blend. Main reading: does the blend's "
-        "non-cuprate AUC equal or beat cycle 6's? Outside reading: the same on non-cuprates whose group holds no "
-        "training row. If either paired interval lies entirely below zero, propose going back to cycle 6 alone; the "
-        "owner decides. Scored once.")
+RECORD_TABICL = "fm-tabicl-20261123"   # the ranking of record's TabICLv2 run; it predicted the made-metals list
+REPRODUCED_GAP = 0.02                  # largest probability gap on the made-metals overlap that counts as reproduced
+OTHER = "other families (mostly intermetallic)"   # build_mp_candidates.family "Other": no Cu+O, not iron-based, no O
+RULE = ("A check, not an adoption test: the ranking of record is already the blend. Two readings, blend minus cycle 6 "
+        "in AUC: main = all non-cuprates; outside = non-cuprates whose group holds no training row. Outcome, first "
+        "match wins: (1) either paired interval entirely below zero: propose going back to cycle 6 alone, the owner "
+        "decides; (2) main and outside both at least cycle 6's: supported; (3) main at least cycle 6's, outside lower: "
+        "supported on the main reading, a mark on the outside one; (4) otherwise: a mark against the blend. Scored once.")
+OUTCOMES = {"propose going back": "Either paired interval lies entirely below zero: propose going back to cycle 6 alone; "
+                                  "the owner decides.",
+            "supported": "Main and outside readings are both at least cycle 6's: the decision is supported; nothing changes.",
+            "supported on main, mark on outside": "Main at least cycle 6's, outside lower (interval includes zero): "
+                                                  "nothing changes; recorded as a mark on the outside reading.",
+            "mark against the blend": "Main lower (interval includes zero): nothing changes; recorded as a mark against "
+                                      "the blend."}
 
 
 def outside_rows() -> tuple[list[str], dict[str, tuple[int, float | None]]]:
@@ -115,6 +126,39 @@ def grouping(keys: list[str], training_keys: list[str]) -> tuple[np.ndarray, np.
     return groups, np.array([g not in trained for g in groups])
 
 
+def training_keys(bundle) -> list[str]:
+    """The compositions the models fit: labelled bundle rows (both trainers drop rows with no label)."""
+    return [str(k) for k, label in zip(bundle["keys"], bundle["label"]) if np.isfinite(label)]
+
+
+def outcome(reading: dict) -> str:
+    """The plan's outcome for a reading block; the first matching row of the plan's table wins."""
+    main, outside = reading["main"], reading["outside"]
+    if main["interval_entirely_below_zero"] or outside["interval_entirely_below_zero"]:
+        return "propose going back"
+    if main["blend_at_least_cycle6"]:
+        return "supported" if outside["blend_at_least_cycle6"] else "supported on main, mark on outside"
+    return "mark against the blend"
+
+
+def made_metals_reproduction(keys: list[str], tabicl: tuple, bundle) -> dict:
+    """How closely this run's TabICLv2 matches the record run's on test rows that are also made-metals candidates."""
+    record = np.load(G.result_folder(RECORD_TABICL) / "candidates_made_metals.npz", allow_pickle=False)
+    position = {k: i for i, k in enumerate(keys)}
+    found = {}
+    for formula, p in zip(bundle["candidates_made_metals_keys"], record["p"]):
+        fractions = M.fractions(str(formula))
+        key = B.composition_key(fractions) if fractions else None
+        if key in position:
+            found[position[key]] = float(p)
+    if not found:
+        return {"rows": 0}
+    rows = np.array(sorted(found))
+    gap = np.abs(tabicl[0][rows] - np.array([found[i] for i in rows]))
+    return {"rows": int(len(rows)), "largest_gap": float(gap.max()), "median_gap": float(np.median(gap)),
+            "reproduced": bool(gap.max() <= REPRODUCED_GAP), "threshold": REPRODUCED_GAP, "record_run": RECORD_TABICL}
+
+
 def check_run(run: dict, bundle_manifest: dict) -> None:
     """Refuse a run that is not the ranking of record's TabICLv2: all five folds, the same settings, the same bundle."""
     if run.get("model") != "tabicl" or not run.get("complete"):
@@ -141,7 +185,7 @@ def score_rows(keys: list[str], labels: dict, record: tuple, tabicl: tuple, grou
            "scores": {}, "paired": {}}
     not_cuprate = family != "Cuprates"
     for name, keep in (("all", np.ones(len(y), bool)), ("not cuprates", not_cuprate),
-                       ("intermetallic", family == "Other"),
+                       (OTHER, family == "Other"),
                        ("not cuprates, groups with no training row", not_cuprate & new_group),
                        ("not cuprates, groups with training rows", not_cuprate & ~new_group)):
         out["scores"][name] = {m: T.score(y[keep], tc[keep], p[0][keep], p[1][keep])
@@ -156,6 +200,8 @@ def score_rows(keys: list[str], labels: dict, record: tuple, tabicl: tuple, grou
                                  "interval_entirely_below_zero": bool(high < 0)}
     out["reading"]["propose_going_back_to_cycle6"] = any(out["reading"][k]["interval_entirely_below_zero"]
                                                          for k in ("main", "outside"))
+    out["reading"]["outcome"] = outcome(out["reading"])
+    out["reading"]["what_follows"] = OUTCOMES[out["reading"]["outcome"]]
     return out
 
 
@@ -177,12 +223,15 @@ def cmd_score(name: str) -> dict:
         tabicl = LB.aligned(keys, saved["keys"], saved["p"], saved["tc"])
     with np.load(G.WORK / "bundle.npz", allow_pickle=False) as bundle:
         gap = LB.check_record_models(bundle)
-        groups, new_group = grouping(keys, [str(k) for k in bundle["keys"]])
+        groups, new_group = grouping(keys, training_keys(bundle))
+        reproduction = made_metals_reproduction(keys, tabicl, bundle)
     report = {"plan": "docs/nemad-outside-test.md", "tag": folder.name, "record_models_check_largest_gap": gap,
+              "tabicl_reproduces_record_on_made_metals_overlap": reproduction,
               "run": run, **score_rows(keys, labels, record, tabicl, groups, new_group)}
     G.DOCS.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(L.rounded(report), indent=1) + "\n", encoding="utf-8")
-    print(json.dumps(L.rounded({k: report[k] for k in ("rows", "scores", "reading")}), indent=1))
+    print(json.dumps(L.rounded({k: report[k] for k in ("rows", "tabicl_reproduces_record_on_made_metals_overlap",
+                                                        "scores", "reading")}), indent=1))
     print(f"wrote {OUT}")
     return report
 
