@@ -335,3 +335,47 @@ def test_outside_test_made_metals_reproduction(tmp_path, monkeypatch):
     assert abs(same["largest_gap_where_inputs_differ"] - 0.5) < 1e-9               # V3Si, reported apart
     off = O.made_metals_reproduction(keys, (np.array([0.1, 0.7, 0.5]), None), bundle, X)
     assert not off["reproduced"]
+
+
+def test_label_audit_never_reads_locked_rows_and_counts_signals():
+    import label_audit as A
+
+    class D:  # a tiny stand-in for the dataset: one locked row whose label must never surface
+        rows = [{"composition": k, "group": g} for k, g in (("Nb:0.750;Sn:0.250", "Nb-Sn"), ("Nb:0.752;Sn:0.248", "Nb-Sn"),
+                                                           ("Mo:0.500;Re:0.500", "Mo-Re"), ("La:0.286;Cu:0.143;O:0.571", "Cu-La-O"),
+                                                           ("V:0.750;Si:0.250", "Si-V"))]
+        split = np.array(["dev", "dev", "dev", "dev", "lockbox"])
+        family = np.array(["Other", "Other", "Other", "Cuprates", "Other"])
+        class arrays:
+            label = np.array([1.0, 0.0, 0.0, 0.0, 1.0])
+            tc_k = np.array([18.0, np.nan, np.nan, np.nan, 17.0])
+    rows = A.table_rows(D)
+    assert [r["key"] for r in rows] == ["Nb:0.750;Sn:0.250", "Nb:0.752;Sn:0.248", "Mo:0.500;Re:0.500",
+                                        "La:0.286;Cu:0.143;O:0.571"]                     # the locked V3Si is gone
+    sources = {"NEMAD": {"Mo:0.500;Re:0.500": 1, "Nb:0.750;Sn:0.250": 0}, "absent": None}
+    oof = {"Mo:0.500;Re:0.500": 0.95, "Nb:0.750;Sn:0.250": 0.05}
+    report = A.audit(rows, sources, oof, reviewed=set())
+    fn = {x["composition"]: x for x in report["possible false negatives"]}
+    fp = {x["composition"]: x for x in report["possible false positives"]}
+    assert fn["Mo:0.500;Re:0.500"]["signals"] == 2                  # another source, and the blend
+    assert fn["Nb:0.752;Sn:0.248"]["signals"] == 1                  # one signal however many twins disagree
+    assert fp["Nb:0.750;Sn:0.250"]["signals"] == 3                  # twin, NEMAD nulls only, low blend score
+    assert report["probable duplicates"][0]["distance"] <= A.DUPLICATE
+    assert report["sources"]["absent"] is None
+    assert list(fn)[0] == "Mo:0.500;Re:0.500"                       # most signals first
+    hidden = A.audit(rows, sources, oof, reviewed={"Mo:0.500;Re:0.500"})
+    assert "Mo:0.500;Re:0.500" not in {x["composition"] for x in hidden["possible false negatives"]}
+    assert hidden["already_reviewed_skipped"]["possible false negatives"] == 1
+    assert "lockbox" not in A.markdown(report) and "V:0.750" not in A.markdown(report)
+
+
+def test_label_audit_twin_rule_skips_cuprates_and_dopant_twins():
+    import label_audit as A
+
+    rows = [{"key": "Ti:0.500;Zr:0.500", "label": 1, "family": "Other", "group": "g", "tc": 1.0, "split": "dev"},
+            {"key": "Mn:0.002;Ti:0.499;Zr:0.499", "label": 0, "family": "Other", "group": "g", "tc": None, "split": "dev"},
+            {"key": "Cu:0.143;La:0.270;O:0.571;Sr:0.016", "label": 0, "family": "Cuprates", "group": "c", "tc": None,
+             "split": "dev"},
+            {"key": "Cu:0.143;La:0.265;O:0.571;Sr:0.021", "label": 1, "family": "Cuprates", "group": "c", "tc": 30.0,
+             "split": "dev"}]
+    assert A.twin_conflicts(rows) == []      # a dopant twin and a cuprate doping step are physics, not label errors
