@@ -695,3 +695,26 @@ CHAIN_MODE=full scripts/hpc/submit_phonon_chain.sh data/benchmarks/candidates/li
 Its `report.json` and output files go under `results/ligair/`, which Git
 ignores. Like every candidate result, they stay private until NC State's
 Office of Research Commercialization has reviewed them.
+
+## Queue order changed by the owner, 2026-11-27
+
+The ranking of record is now the blend of cycle 6 and TabICLv2
+(`docs/lockbox-blend.md`). The owner approved the reordering proposed from
+it.
+
+**Candidate order after the benchmark passes (changed 2026-11-27):**
+SbTe2, then LiGaIr, then CsIr2P2, then cubic NaMgPb2 last.
+
+| Candidate | Rank under the blend (shortlist 3, 571 compounds) | Rank under cycle 6 |
+| --- | --- | --- |
+| SbTe2 | 1 | 1 |
+| LiGaIr | 64 | 36 |
+| CsIr2P2 | 141 | 106 |
+| Cubic NaMgPb2 | 12 | 2 |
+
+- The Zr6Ga2Ni benchmark still runs first, and the cubic NaMgPb2 smoke run
+  stays the first Hazel job, to check the tools.
+- Cubic NaMgPb2 stays last, despite its rank. Its cubic form is probably not
+  NaMgPb2's stable structure (2026-11-19 and 2026-11-20 sections above).
+- Nothing else changes. Candidate results stay private under
+  `data/raw/hazel/` (AGENTS.md).
