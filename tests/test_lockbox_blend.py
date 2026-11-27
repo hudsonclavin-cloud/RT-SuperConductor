@@ -130,3 +130,29 @@ def test_blend_ranking_refuses_a_different_candidate_set_and_ranks_highest_first
     assert np.allclose(p, [0.3, 0.8]) and list(BR.ranks(p)) == [2, 1]
     with pytest.raises(SystemExit):
         BR.blended(np.array(["x", "y"]), record, {"x": (0.4, 1.0)})
+
+
+def test_novelty_classes():
+    import novelty_check as N
+
+    held = {"Nb:1.000": {"Nb": 1.0}, "Ge:0.250;Nb:0.750": {"Ge": 0.25, "Nb": 0.75}}
+    new = {"Nb:1.000": {"Nb": 1.0},                                       # held
+           "Ge:0.260;Nb:0.740": {"Ge": 0.26, "Nb": 0.74},               # a doping step away
+           "Ge:0.400;Nb:0.600": {"Ge": 0.4, "Nb": 0.6},                 # same major elements
+           "Mg:0.333;B:0.667": {"Mg": 1 / 3, "B": 2 / 3}}                # elements we do not hold
+    got = N.classify(held, new)
+    assert got == {"Nb:1.000": "held", "Ge:0.260;Nb:0.740": "near twin", "Ge:0.400;Nb:0.600": "known parent",
+                   "Mg:0.333;B:0.667": "new system"}
+
+
+def test_nemad_parsing():
+    import nemad_download as ND
+
+    assert ND.tc_value("30 K") == 30.0 and ND.tc_value("4.2") == 4.2
+    assert ND.tc_value("20-30 K") is None and ND.tc_value("<2 K") is None and ND.tc_value(None) is None
+    assert ND.label_of({"Material_Type": "SC"}) == 1 and ND.label_of({"Material_Type": "NSC"}) == 0
+    assert ND.label_of({"Material_Type": "?"}) is None
+    assert ND.ambient("ambient") is True and ND.ambient("5 GPa") is False and ND.ambient(None) is None
+    text, fractions = ND.formula_of({"Material_Name": "MgB2 (Tc~39K)"})
+    assert text == "MgB2" and abs(fractions["B"] - 2 / 3) < 1e-9
+    assert ND.formula_of({"Material_Name": "High-Tc superconductor family"}) == (None, None)
