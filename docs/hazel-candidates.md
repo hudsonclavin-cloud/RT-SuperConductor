@@ -789,3 +789,49 @@ Written before any package is built or run. Nothing here has run anywhere.
   compounds are published, but their results stay private under
   `data/raw/hazel/` unless the owner extends the exemption to them.
   Candidate results stay private under the same rule.
+
+## Re-ranked by expected Tc, owner approved 2026-11-27: proposed queue order
+
+**Why:**
+- The 10 K test (`docs/high-tc-target.md`) found that ranking by chance of
+  superconducting, the order used until now, scores AUC 0.67 on the
+  high-Tc question.
+- Ranking by expected Tc (probability × predicted Tc) scores 0.94.
+- The owner approved re-ranking shortlist 3 by expected Tc and a proposed
+  queue order.
+
+**The queued and packaged candidates, by expected Tc** (571 in shortlist 3):
+
+| Candidate | Rank by chance | Rank by expected Tc | Predicted Tc |
+| --- | --- | --- | --- |
+| LiMgPb2 (packaged, pre-checked, not queued) | 9 | 7 | 5.0 K |
+| Cubic NaMgPb2 | 12 | 9 | 5.0 K |
+| LiGaIr | 64 | 30 | 4.3 K |
+| SbTe2 | 1 | 33 | 3.5 K |
+| CsIr2P2 | 141 | 143 | 2.5 K |
+
+**Proposed order after the Zr6Ga2Ni benchmark:**
+1. LiGaIr.
+2. SbTe2.
+3. CsIr2P2.
+4. Cubic NaMgPb2, last, as before: its cubic form is probably not the stable
+   structure.
+
+LiMgPb2 has the same structural concern as NaMgPb2, so it stays out.
+
+**The new top of the list, for packaging next** (each needs the literature
+check first):
+
+| Compound | Rank by expected Tc | Predicted Tc |
+| --- | --- | --- |
+| Nb2GeC | 1 | 7.6 K |
+| ScTaN2 | 2 | 8.4 K |
+| V2GaN | 3 | 7.5 K |
+| LiRuN | 4 | 7.0 K |
+| TaNbRe2 | 5 | 5.9 K |
+
+- [Certain] Every predicted Tc here is below 10 K. Rung 4 looks for new
+  superconductors in known families. The room-temperature track is the
+  route to high Tc.
+- This order is a proposal; the queue above stays as it was until the owner
+  confirms it.

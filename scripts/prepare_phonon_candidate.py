@@ -54,7 +54,23 @@ CANDIDATES = {
     # structure is Alexandria's. k spacing about 0.14 per angstrom, a little denser than the cubic package's 0.18.
     "namgpb2tet": {"alexandria_id": "agm001144382", "formula": "NaMgPb2", "k": (12, 12, 6), "q": (4, 4, 2),
                    "smoke_k": (4, 4, 2), "smoke_q": (2, 2, 1), "matdyn_k": (24, 24, 12), "ph_time": "24:00:00"},
+    # Room-temperature track (docs/hazel-candidates.md, "Room-temperature track"): starting structures from the
+    # Alexandria PBEsol phonon release 2025.08.11 (CC BY 4.0; data/processed/alexandria-eph-2025/), relaxed again here
+    # at the package settings. press_kbar is the pressure of the variable-cell relaxation (10 kbar = 1 GPa).
+    "mg2rhh6": {"alexandria_id": "agm002153628", "formula": "Mg2RhH6", "k": (8, 8, 8), "q": (4, 4, 4),
+                "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "24:00:00",
+                "press_kbar": 500.0},
+    "lib2c2": {"alexandria_id": "agm005413625", "formula": "LiB2C2", "k": (16, 16, 8), "q": (4, 4, 2),
+               "smoke_k": (8, 8, 4), "smoke_q": (2, 2, 1), "matdyn_k": (32, 32, 16), "ph_time": "24:00:00"},
+    "srb3c3": {"alexandria_id": "agm000999969", "formula": "SrB3C3", "k": (8, 8, 8), "q": (2, 2, 2),
+               "smoke_k": (4, 4, 4), "smoke_q": (1, 1, 1), "matdyn_k": (16, 16, 16), "ph_time": "24:00:00",
+               "press_kbar": 400.0},
+    "srauh3": {"alexandria_id": "agm002494931", "formula": "SrAuH3", "k": (12, 12, 12), "q": (4, 4, 4),
+               "smoke_k": (6, 6, 6), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 24), "ph_time": "24:00:00"},
+    "kinh3": {"alexandria_id": "agm002490653", "formula": "KInH3", "k": (12, 12, 12), "q": (4, 4, 4),
+              "smoke_k": (6, 6, 6), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 24), "ph_time": "24:00:00"},
 }
+ALEXANDRIA_2025 = ROOT / "data/processed/alexandria-eph-2025"
 
 # Starting structures that are not in the Materials Project snapshot: the Alexandria PBE database
 # (alexandria.icams.rub.de, OPTIMADE endpoint /pbe/v1/structures), copied as published. Cell rows in angstrom,
@@ -81,15 +97,30 @@ def initial_structure(spec: dict):
     """The unrelaxed cell and sites: from the Materials Project snapshot, or from ``ALEXANDRIA``."""
     if "mp_id" in spec:
         return from_mp(load_structure(spec["mp_id"]))
-    entry = ALEXANDRIA[spec["alexandria_id"]]
-    return [list(row) for row in entry["cell"]], [(element, list(xyz)) for element, xyz in entry["sites"]]
+    if spec["alexandria_id"] in ALEXANDRIA:
+        entry = ALEXANDRIA[spec["alexandria_id"]]
+        return [list(row) for row in entry["cell"]], [(element, list(xyz)) for element, xyz in entry["sites"]]
+    for path in sorted(ALEXANDRIA_2025.glob("structures-*.jsonl.gz")):          # the 2025 phonon release
+        with gzip.open(path, "rt", encoding="utf-8") as handle:
+            for line in handle:
+                row = json.loads(line)
+                if row["mat_id"] == spec["alexandria_id"]:
+                    st = row["structure"]
+                    return ([list(v) for v in st["lattice"]["matrix"]],
+                            [(site["species"][0]["element"], list(site["abc"])) for site in st["sites"]])
+    raise SystemExit(f"{spec['alexandria_id']} is in neither ALEXANDRIA nor {ALEXANDRIA_2025}")
 
 
 def source_fields(spec: dict) -> dict:
     """Where a package's structure came from, for package.json."""
     if "mp_id" in spec:
         return {"mp_id": spec["mp_id"]}
-    return {"alexandria_id": spec["alexandria_id"]}
+    out = {"alexandria_id": spec["alexandria_id"]}
+    if spec["alexandria_id"] not in ALEXANDRIA:
+        out["alexandria_release"] = "PBEsol phonon release 2025.08.11 (CC BY 4.0)"
+    if spec.get("press_kbar"):
+        out["target_pressure_kbar"] = spec["press_kbar"]
+    return out
 
 
 def snap(x: float) -> float:
@@ -169,7 +200,8 @@ def masses() -> dict[str, float]:
     return {el.symbol: float(el.atomic_mass) for el in Element}
 
 
-def pw_input(name: str, calculation: str, cell, sites, kmesh, la2f: bool, pseudo_dir: str = "../pp/") -> str:
+def pw_input(name: str, calculation: str, cell, sites, kmesh, la2f: bool, pseudo_dir: str = "../pp/",
+             press_kbar: float = 0.0) -> str:
     species = sorted({s for s, _ in sites})
     mass = masses()
     lines = [" &control", f"    calculation = '{calculation}'", f"    prefix      = '{name}'",
@@ -181,7 +213,8 @@ def pw_input(name: str, calculation: str, cell, sites, kmesh, la2f: bool, pseudo
         lines.append("    la2F        = .true.")
     lines += [" /", " &electrons", "    mixing_beta = 0.4", "    conv_thr    = 1.0d-12", " /"]
     if calculation == "vc-relax":
-        lines += [" &ions", " /", " &cell", "    press_conv_thr = 0.1", " /"]
+        lines += [" &ions", " /", " &cell"] + ([f"    press = {press_kbar}"] if press_kbar else []) + \
+                 ["    press_conv_thr = 0.1", " /"]
     lines.append("ATOMIC_SPECIES")
     lines += [f" {s} {mass[s]:.5f} {s}_ONCV_PBE_sr.upf" for s in species]
     lines.append("CELL_PARAMETERS angstrom")
@@ -224,7 +257,8 @@ def cmd_relax_input(name: str, directory: Path) -> None:
     cell, sites = symmetrise(*initial_structure(spec))
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "relax.in").write_text(pw_input(name, "vc-relax", cell, sites, spec["k"], la2f=False,
-                                                 pseudo_dir=str(PP_SOURCE) + "/"), encoding="utf-8")
+                                                 pseudo_dir=str(PP_SOURCE) + "/",
+                                                 press_kbar=spec.get("press_kbar", 0.0)), encoding="utf-8")
     print(directory / "relax.in")
 
 
