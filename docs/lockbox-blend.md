@@ -145,3 +145,93 @@ git push -u origin lockbox-results-20261126
 ```bash
 python scripts/lockbox_blend.py score lockbox-tabicl-20261126
 ```
+
+## Result, 2026-11-27
+
+**Main result: the blend passes.** Its non-cuprate AUC on the locked rows is
+0.827, against cycle 6's 0.820. By the rule above it becomes the ranking of
+record if the owner accepts it. Until then, cycle 6 stays.
+
+**The run**
+- The owner's laptop: 6.7 minutes, tabicl 2.2.0 (now recorded by the runner
+  itself), no context cap.
+- Same training bundle (`daed58cb…`) and the locked-features file exported
+  here (`028d92a2…`).
+- [Certain] Its fold models are the development run's. Its development
+  predictions match that run's exactly (largest difference in probability
+  0.0).
+- [Certain] Cycle 6's saved models reproduced its published shortlist to
+  within 0.0005 before scoring.
+- Scored once: `python scripts/lockbox_blend.py score lockbox-tabicl-20261126`,
+  written to `docs/local-gpu/lockbox-blend.json`.
+
+**Scores on the locked rows**
+
+| | Cycle 6 | TabICLv2 | Blend |
+| --- | --- | --- | --- |
+| AUC, not cuprates (1,730 rows, 1,663 labelled): **the rule** | 0.820 | 0.823 | **0.827** |
+| AUC, all 1,950 rows | 0.824 | 0.827 | 0.832 |
+| Brier score, not cuprates (lower is better) | 0.127 | 0.129 | 0.125 |
+| Tc error, log scale, not cuprates (lower is better) | 0.321 | 0.325 | 0.316 |
+| Rank correlation of probability × Tc with true Tc, not cuprates | 0.742 | 0.750 | 0.755 |
+| Share of the true highest-Tc tenth found in the model's own top tenth, not cuprates | 0.759 | 0.705 | 0.723 |
+
+**Paired against cycle 6** (median, 95% interval, 300 resamples of whole
+groups; reported, not deciding)
+
+| | Not cuprates | All rows |
+| --- | --- | --- |
+| Blend AUC | +0.007 (−0.002 to +0.016) | +0.008 (+0.0002 to +0.017) |
+| TabICLv2 AUC | +0.004 (−0.015 to +0.019) | +0.003 (−0.013 to +0.019) |
+| Blend Tc error | −0.004 (−0.011 to +0.003) | −0.008 (−0.015 to −0.0002) |
+
+**What it shows**
+- [Certain] The direction seen on the development rows holds on rows that
+  no one had tuned on. The blend gained +0.013 there and +0.007 here.
+- [Likely] The gain is real but small: about +0.01 AUC. Here, the interval
+  on all rows just clears zero, and the non-cuprate interval just includes
+  it, as the plan expected for this many rows.
+- [Certain] Every model scores higher here than on the development rows
+  (cycle 6: 0.820 against 0.788). The locked rows seem easier. The
+  comparison is paired, so this does not favour either model.
+- **The one figure that went the other way:** the share of the true
+  highest-Tc tenth that the blend puts in its own top tenth. It is −0.036
+  against cycle 6.
+  - This check was not planned. Its interval is −0.075 to +0.048, so it is
+    within noise.
+  - On the development rows the blend was slightly ahead on the same figure
+    (0.702 against 0.698).
+  - [Likely] It is noise, but it is the figure closest to what a shortlist
+    uses, so it is worth watching.
+- Ranked by probability alone, the top tenth is all superconductors for
+  both the blend and cycle 6. That figure cannot tell them apart.
+
+**Predictions against results**
+
+| Outcome | Chance given | Result |
+| --- | --- | --- |
+| The blend's non-cuprate AUC is at least cycle 6's (the rule) | 80% | **Yes** (0.827 against 0.820) |
+| The blend's paired interval lies above zero | 35% | No (−0.002 to +0.016) |
+| TabICLv2 alone is at least cycle 6 | 60% | Yes (0.823 against 0.820) |
+| Cycle 6's locked AUC is within ±0.03 of its development 0.788 | 75% | No (0.820, 0.032 above) |
+| The blend's Tc error is lower than cycle 6's | 75% | Yes (0.316 against 0.321) |
+| The laptop run takes under 10 minutes | 80% | Yes (6.7 minutes) |
+
+- Four of six went the favoured way. The miss on cycle 6's own score was
+  in the direction of easier locked rows, not of a weaker model.
+
+**Correction to "Result, 2026-11-26" in
+`docs/training-methods-review.md`** (labelled here, original kept): its
+table row "Share of superconductors in the top tenth" is the same figure as
+the last row of the scores table above. It is the share of the true
+highest-Tc tenth that a model puts in its own top tenth by probability × Tc.
+
+**What follows**
+- The owner decides whether to accept the blend as the ranking of record.
+- If accepted:
+  - the made metals and shortlist 3 are re-ranked with the blend, from the
+    predictions the laptop has already made;
+  - any change to the Hazel queue is proposed separately;
+  - each new blend ranking needs the laptop's GPU, about 25 minutes.
+- The locked rows have now been used twice. They are not used again for
+  this question.
