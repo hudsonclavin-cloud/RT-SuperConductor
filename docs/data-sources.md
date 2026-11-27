@@ -166,3 +166,13 @@ assumed negatives, but only with a filter (for example Curie temperature of
 300 K or more, and a magnetic element making up a real share of the
 formula) and only as a planned learning cycle judged on the development
 rows. Nothing was added to any training table here.
+
+## The NEMAD superconductor database, downloaded and checked 2026-11-27
+
+With the owner's API key, the whole superconductor database was downloaded
+and checked against this project's data and, for a random sample, against
+the source papers (`docs/nemad-superconductor.md`).
+- About 2,900 of its compositions are new to us and pass a filter that
+  proved reliable in the paper check: NEMAD's own experimental flag, at
+  normal or unstated pressure.
+- Records without that flag were never right in the sample.

@@ -110,6 +110,21 @@ def main() -> int:
         "examples_new_superconductors": [C.formula_text(usable[k]) for k in sorted(fresh) if comps[k]["label"] == 1][:30],
         "examples_new_nulls": [C.formula_text(usable[k]) for k in sorted(fresh) if comps[k]["label"] == 0][:30],
     }
+    report["new_by_filter"] = {}
+    for name, keep in (("all records", lambda r: True),
+                       ("drop superconductor reports at known high pressure",
+                        lambda r: not (r["label"] == "1" and r["ambient"] == "False")),
+                       ("ambient-or-unknown pressure and flagged experimental (the usable subset)",
+                        lambda r: r["ambient"] != "False" and r["experimental_flag"] == "True")):
+        sub = per_composition([r for r in rows if keep(r)])
+        keys = [k for k in sub if k in usable]
+        new = [k for k in keys if where[k] in ("known parent", "new parent", "new system")]
+        report["new_by_filter"][name] = {
+            "new_compositions": len(new),
+            "superconductor": sum(sub[k]["label"] == 1 for k in new), "not superconductor": sum(sub[k]["label"] == 0 for k in new),
+            "intermetallic_superconductor": sum(sub[k]["label"] == 1 and family[k] == "Other" for k in new),
+            "intermetallic_not_superconductor": sum(sub[k]["label"] == 0 and family[k] == "Other" for k in new),
+            "near_twins": sum(where[k] == "near twin" for k in keys)}
     OUT.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if not k.startswith(("examples", "disagreement"))}, indent=1))
     return 0

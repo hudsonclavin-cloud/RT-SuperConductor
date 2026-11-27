@@ -1,0 +1,1145 @@
+{
+ "what": "A fixed random sample (seed 20261127) of 40 NEMAD superconductor records checked against their source papers by 8 reader agents; every 'wrong' verdict re-checked by a skeptic agent. Quotes are short excerpts from the papers.",
+ "records": [
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Al0.125Nb0.750Sb0.125",
+    "material_name": "Nb₃Al₀.₅Sb₀.₅",
+    "nemad_label": "superconductor",
+    "tc_text": "13.94 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRev.152.341",
+    "our_label": null,
+    "id": "r01"
+   },
+   "verdict": {
+    "id": "r01",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "not applicable",
+    "evidence": "Abstract (OpenAlex; APS full text is paywalled): 'The Nb3Al1-xSbx system was studied... A complete series of solid solutions... was found to exist'. Tc was measured from the self-inductance change of a coil and 'falls parabolically from Tc(0)=17.77 K for Nb3Al to Tc(0.9)=3.92 K for Nb3Al0.1Sb0.9'. The fit Tc(x)=[Tc(0)-Tc(1)](1-x^2)+Tc(1) 'fits the experimental points closely'. So x=0.5 lies inside a series measured to superconduct at ambient pressure. The record's 13.94 K for x=0.5 does not appear in the abstract and could not be checked."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "H0.750La0.125S0.125",
+    "material_name": "LaSH6",
+    "nemad_label": "superconductor",
+    "tc_text": "35",
+    "pressure_text": "300 GPa",
+    "doi": "10.1016/j.solidstatesciences.2024.107551",
+    "our_label": null,
+    "id": "r02"
+   },
+   "verdict": {
+    "id": "r02",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "no",
+    "what_paper_reports": "mentioned only, not studied",
+    "reported_tc_k": 35,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "Read the full text of the arXiv preprint of the same paper (2401.11121). It is a DFT study of ScYH6 at 0-25 GPa, with McMillan Tc of about 31-41 K. LaSH6 appears only once, in an introduction list of predicted ternary hydrides (p.2): 'LaSH6 with a superconducting transition temperature of ~35 K at 300 GPa [24]'. That 35 K is a value cited from another paper, a prediction at 300 GPa, and is not studied or measured here."
+   },
+   "skeptic": {
+    "id": "r02",
+    "outcome": "upheld",
+    "reason": "LaSH6 appears once, in the introduction's list of predicted ternary hydrides, with a Tc cited from another paper at 300 GPa. This paper is a DFT study of ScYH6 and does not study or measure LaSH6.",
+    "evidence": "arXiv 2401.11121v1, the preprint of the Solid State Sciences paper (same title on OpenAlex), p.2: 'there are a large number of ternary hydrides predicted to possess very good superconducting properties under pressure such as: ... LaSH6 with a superconducting transition temperature of ~35 K at 300 GPa [24]'. Abstract: 'We have investigated ... properties of ScYH6 under uniform hydrostatic pressures up to 25 GPa, using the density functional theory (DFT) formalism.' The only Tc values the paper itself reports are McMillan estimates for ScYH6 (Table 11)."
+   }
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Ba0.318Cu0.514Y0.169",
+    "material_name": "YBa₁.₈₈Cu₃.₀₄",
+    "nemad_label": "superconductor",
+    "tc_text": "89 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevLett.81.1933",
+    "our_label": null,
+    "id": "r03"
+   },
+   "verdict": {
+    "id": "r03",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Abstract and APS landing page (full text paywalled; no arXiv copy found): 'Narrow YBa2Cu3O7 films, excited by pulses of supercritical current... phase-slip centers (PSC), are observed at all temperatures', so superconducting YBCO bridges were measured at ambient pressure. The record's composition YBa1.88Cu3.04 (cation-only, off-stoichiometric, no oxygen) and its 89 K Tc do not appear in the readable text. The oxygen-free formula as written is not the oxide the paper measured."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "N0.750Ti0.250",
+    "material_name": "TiN3",
+    "nemad_label": "superconductor",
+    "tc_text": "0.45 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevLett.101.157006",
+    "our_label": null,
+    "id": "r04"
+   },
+   "verdict": {
+    "id": "r04",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": 0.45,
+    "lowest_temperature_measured_k": 0.05,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "not applicable",
+    "evidence": "Full text (arXiv 0805.1356v2), p.1-2: 'TiN1 was a 3.6 nm thick film... TiN2 and TiN3 were 5.0 nm thick films... TiN3 was then slightly plasma etched'. Table I gives TiN3: R300 3.5 kOhm, Tc 0.45 K (from fits to the measured R(T) superconducting transition), mean gap 160 ueV. The LDOS was measured at 50 mK. Formula caveat: 'TiN3' is the paper's name for sample 3, a disordered TiN thin film, not a Ti:N 1:3 compound (bulk TiN Tc is 4.7 K per the paper). The label is right for that sample, but the composition should be TiN."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Bi0.650Ni0.350",
+    "material_name": "Bi₆₅Ni₃₅",
+    "nemad_label": "superconductor",
+    "tc_text": "4.2 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.36.1996",
+    "our_label": null,
+    "id": "r05"
+   },
+   "verdict": {
+    "id": "r05",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Abstract (OpenAlex and APS page; full text paywalled): 'Binary and ternary compounds of Bi formed with 3d transition elements Ni, Co, Fe, and Cr have been studied. Resistance behavior at low temperatures shows two superconducting transitions, one between 4 and 5 K and the other at 10.3 K.' Bi-Ni binaries were measured and the record's 4.2 K fits the 4-5 K transition. But the composition Bi65Ni35 and the Tc of each sample are not given in the readable text."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Ge0.250Pb0.250Sn0.250Te0.250",
+    "material_name": "GeSnPbTe",
+    "nemad_label": "superconductor",
+    "tc_text": "5.5 K",
+    "pressure_text": "30.1 GPa",
+    "doi": "10.1016/j.jallcom.2024.173906",
+    "our_label": null,
+    "id": "r06"
+   },
+   "verdict": {
+    "id": "r06",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting only under high pressure, measured",
+    "reported_tc_k": 5.5,
+    "lowest_temperature_measured_k": 1.8,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "Full text (NIMS open-access PDF), title 'Pressure-induced superconductivity...in (Ge,Sn,Pb)Te'. The sample is Ge1/3Sn1/3Pb1/3Te. At ambient pressure it is metallic (Fig. 1b, Bloch-Gruneisen fit; Hall measured at 1.8 K) and no transition is reported. Results section: 'the R-T curve exhibits a sharp drop at 20.1 GPa and reaches zero at 1.8 K at 21.1 GPa ... the emergence of pressure-induced superconductivity'; 'Tc ... reaching a plateau at 30.1 GPa, where it remains nearly constant at 5.5 K.' So it superconducts only under pressure, and a 'superconductor' label at normal pressure is wrong."
+   },
+   "skeptic": {
+    "id": "r06",
+    "outcome": "upheld",
+    "reason": "Ge1/3Sn1/3Pb1/3Te is metallic at ambient pressure and superconducts only above about 20 GPa. The 5.5 K is the plateau value at 30.1 GPa and above.",
+    "evidence": "NIMS open-access PDF. Ambient pressure: 'The rho-T curve in the low-temperature region is well-fitted with the Bloch-Gruneisen equation ... indicates that Ge1/3Sn1/3Pb1/3Te exhibits metallic transport nature'; Hall resistivity measured 'at 1.8 K'. Under pressure: 'Notably, the R-T curve exhibits a sharp drop at 20.1 GPa and reaches zero at 1.8 K at 21.1 GPa. This drastic change in R-T curve indicates the emergence of pressure-induced superconductivity ... The Tc ... reaching a plateau at 30.1 GPa, where it remains nearly constant at 5.5 K.'"
+   }
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Nb0.400Ni0.600",
+    "material_name": "Nb40Ni60",
+    "nemad_label": "superconductor",
+    "tc_text": "0.254 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.49.9716",
+    "our_label": null,
+    "id": "r07"
+   },
+   "verdict": {
+    "id": "r07",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Only the abstract was reachable (OpenAlex and APS landing page; the full text is paywalled). Abstract: 'The superconducting transition temperature and the upper critical magnetic field of amorphous Zr67Co33-xPx, x=0,5,11, are studied. Comparison of critical-field parameters for several different amorphous alloys...' and 'published results for H-doped samples and neutron-irradiated samples'. Nb40Ni60 is not named. The authors' own measured samples appear to be only Zr-Co-P, so if Nb40Ni60 appears at all it is probably a literature comparison value, but I could not read that part. The 0.254 K Tc is unverified."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "B0.238Ir0.343Nb0.419",
+    "material_name": "Nb₃₅.₂Ir₂₈.₈B₂₀",
+    "nemad_label": "superconductor",
+    "tc_text": "2.89-2.32 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.22.5213",
+    "our_label": null,
+    "id": "r08"
+   },
+   "verdict": {
+    "id": "r08",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Only the abstract was reachable (OpenAlex and APS landing page; the full text is paywalled). Abstract: 'Tc has been measured for amorphous T5T9 alloys (T5=Nb or Ta, T9=Rh or Ir) as a function of composition ... Tc for Nb alloys ~4.8-5.1 K and Tc for Ta alloys ~3.1-3.3 K', plus (Nb1-xTax)55Rh45 and (Nb1-xTax)55Ir45. Boron is never mentioned. The record's 2.89-2.32 K does not match the Nb-alloy range in the abstract. Its Nb:Ir ratio of 35.2:28.8 is 55:45, and its subscripts sum to 84, not 100, so the composition may be garbled. I cannot confirm that a Nb-Ir-B alloy was measured."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "B0.333Ce0.167Rh0.125Ru0.375",
+    "material_name": "Ce(Ru0.75Rh0.25)3B2",
+    "nemad_label": "superconductor",
+    "tc_text": "0.375 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.41.9013",
+    "our_label": null,
+    "id": "r09"
+   },
+   "verdict": {
+    "id": "r09",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "not applicable",
+    "evidence": "Only the abstract was reachable (OpenAlex and APS landing page; the full text is paywalled). Abstract: 'We have investigated the alloy system Ce(Ru1-xRhx)3B2 ... We report the results of transport, magnetic, crystallographic, and electron-spectroscopy measurements ... Superconductivity exists in the range 0<x<0.38.' x=0.25 (Ce(Ru0.75Rh0.25)3B2) falls inside the superconducting range set by the authors' own measurements at ambient pressure, which supports the label. The abstract does not give the 0.375 K Tc for x=0.25, so that value is unverified."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Bi0.250Ta0.750",
+    "material_name": "Ta3Bi",
+    "nemad_label": "superconductor",
+    "tc_text": "1.16 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.109.075119",
+    "our_label": null,
+    "id": "r10"
+   },
+   "verdict": {
+    "id": "r10",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "theoretical prediction only",
+    "reported_tc_k": 1.16,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "Full text (arXiv 2310.18245, alphaXiv). Abstract: 'Using first-principle calculations, we investigate ... Ta3Y (Y = As, Sb, Bi) A15 compounds.' Page 8: Ta3As and Ta3Bi have 'superconducting critical temperatures of 3.0 K and 1.16 K respectively.' Appendix B: Tc 'was calculated using Allen-Dynes modification of the McMillan formula', and Ta3Bi has lambda = 0.45 (Appendix D). The 1.16 K is a calculated value, not a measurement, so the 'superconductor' label is wrong."
+   },
+   "skeptic": {
+    "id": "r10",
+    "outcome": "upheld",
+    "reason": "The 1.16 K for Ta3Bi is an Allen-Dynes estimate from DFT electron-phonon coupling. The paper reports and cites no experimental Tc for Ta3Bi.",
+    "evidence": "arXiv 2310.18245v3. Abstract: 'Using first-principle calculations, we investigate ... Ta3Y (Y = As, Sb, Bi) A15 compounds.' p.8: 'Ta3As and Ta3Bi ... with superconducting critical temperatures of 3.0 K and 1.16 K respectively.' Appendix B: 'the superconducting critical temperature (Tc) was calculated using Allen-Dynes modification of the McMillan formula'. Appendix D: 'lambda(omega) for Ta3As, Ta3Sb, Ta3Bi and Nb3Sb are 0.56, 0.41, 0.45 and 0.47'."
+   }
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Ce0.081Pt0.622Si0.297",
+    "material_name": "Ce3Pt23Si11",
+    "nemad_label": "superconductor",
+    "tc_text": "0.46 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.77.134517",
+    "our_label": null,
+    "id": "r11"
+   },
+   "verdict": {
+    "id": "r11",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "no",
+    "what_paper_reports": "mentioned only, not studied",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "The DOI resolves to Measson et al., 'Double superconducting transition in the filled skutterudite PrOs4Sb12 and sample characterizations' (full text read as arXiv cond-mat/0703694). The only mention of Ce3Pt23Si11 is in Sec. III.B: 'As for CePt3Si, Kim et al. pointed out to a spurious double transition due to a second phase of Ce3Pt23Si11, and Tc decreases from 0.75 K to 0.46 K with increasing quality of the sample.' The 0.46 K belongs to CePt3Si, not Ce3Pt23Si11. The paper reports no measurement or Tc for Ce3Pt23Si11; its measurements are on PrOs4Sb12 (Tc about 1.7-1.89 K)."
+   },
+   "skeptic": {
+    "id": "r11",
+    "outcome": "upheld",
+    "reason": "Ce3Pt23Si11 is mentioned only as the spurious second phase in CePt3Si samples. The 0.75 K to 0.46 K change belongs to CePt3Si, and the paper measures only PrOs4Sb12.",
+    "evidence": "arXiv cond-mat/0703694, Sec. III.B: 'As for CePt3Si, Kim et al. pointed out to a spurious double transition [23] due to a second phase of Ce3Pt23Si11, and Tc decreases from 0.75 K to 0.46 K with increasing quality of the sample [24].' All measured samples (Table I) are PrOs4Sb12, with Tc about 1.68-1.90 K."
+   }
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "B0.667W0.333",
+    "material_name": "WB2",
+    "nemad_label": "superconductor",
+    "tc_text": "~17 K",
+    "pressure_text": "near 90 GPa",
+    "doi": "10.1103/PhysRevB.108.094501",
+    "our_label": null,
+    "id": "r12"
+   },
+   "verdict": {
+    "id": "r12",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "no",
+    "what_paper_reports": "mentioned only, not studied",
+    "reported_tc_k": 17,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "The DOI resolves to Lim et al., 'Niobium substitution suppresses the superconducting critical temperature of pressurized MoB2' (full text read as arXiv 2302.13936v2). WB2 appears only in the introduction, citing the authors' earlier paper (ref. 13, Nat. Commun. 13, 7901): 'In a recent paper [13], we reported that WB2 reaches a maximum Tc of ~17 K at pressures near 90 GPa.' This paper measures Nb0.25Mo0.75B2 only (8 K at ambient pressure). The cited WB2 superconductivity is high-pressure only, and this paper does not measure it."
+   },
+   "skeptic": {
+    "id": "r12",
+    "outcome": "upheld",
+    "reason": "WB2 appears only as a citation of the authors' earlier high-pressure result (about 17 K near 90 GPa). This paper measures Nb0.25Mo0.75B2.",
+    "evidence": "arXiv 2302.13936v2, introduction: 'In a recent paper [13], we reported that WB2 reaches a maximum Tc of ~17 K at pressures near 90 GPa. Unlike MoB2, bulk WB2 adopts a P63/mmc structure over the entire measured pressure range to at least 145 GPa.' Ref. 13 is Lim et al., Nat. Commun. 13, 7901 (2022). Methods and results concern 'the Nb0.25Mo0.75B2 sample' only, with ambient Tc 8 K."
+   }
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Be0.250Li0.750",
+    "material_name": "Li3Be",
+    "nemad_label": "superconductor",
+    "tc_text": "0.1-0.6",
+    "pressure_text": "110",
+    "doi": "10.1016/j.commatsci.2014.02.032",
+    "our_label": null,
+    "id": "r13"
+   },
+   "verdict": {
+    "id": "r13",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "theoretical prediction only",
+    "reported_tc_k": 0.6,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "Read the ScienceDirect abstract, highlights, introduction and section snippets. It is a first-principles (CALYPSO/DFT) study of Li3Be at 80-120 GPa. The Allen-Dynes modified McMillan equation gives Tc of 13-15 K and 15-18 K for the C2/m phase at 82 and 90 GPa. For the P21/c phase, 'superconductivity is almost vanished with Tc as low as 0.1-0.6 K at 110 GPa.' All values are calculated and all are at high pressure. There is no measurement."
+   },
+   "skeptic": {
+    "id": "r13",
+    "outcome": "upheld",
+    "reason": "Every Tc for Li3Be is a computed Allen-Dynes value at 82-120 GPa, and the 0.1-0.6 K is the calculated value for the P21/c phase at 110 GPa. No measurement is reported.",
+    "evidence": "ScienceDirect abstract and highlights: 'by using particle-swarm optimization algorithms for crystal structure prediction. The application of the Allen-Dynes modified McMillan equation reveals ... Tc of 13-15K and 15-18K for the C2/m phase at 82GPa and 90GPa ... In the high pressure P21/c phase, superconductivity is almost vanished with Tc as low as 0.1-0.6K at 110GPa'. Highlight: 'High superconducting temperatures were predicted for C2/m Li3Be at high pressures.'"
+   }
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "As0.125Li0.875",
+    "material_name": "AsLi7",
+    "nemad_label": "superconductor",
+    "tc_text": "38.4 K",
+    "pressure_text": "150 GPa",
+    "doi": "10.1103/PhysRevB.108.054102",
+    "our_label": null,
+    "id": "r14"
+   },
+   "verdict": {
+    "id": "r14",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "no",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "The DOI resolves to Song et al., 'Superconductivity and Wilson transition behaviors of lithium-rich oxides LimO (m=1-8) under pressure based on ab initio calculations'. Only the abstract was readable (APS full text is paywalled; not on arXiv/alphaXiv). The abstract says the work does 'ab initio structural relaxations of LimOn compounds (m<=8, n<=2) ... from 1 atm to 200 GPa'. Its headline result is calculated Tc = 5.54 K for C2/c Li8O at 100 GPa. Li7As/AsLi7 is not in the abstract, and I could not check whether the body mentions it. The paper is purely computational, so it cannot hold an ambient-pressure measurement supporting the label."
+   },
+   "skeptic": {
+    "id": "r14",
+    "outcome": "upheld",
+    "reason": "Whether Li7As is mentioned in the body cannot be checked, but the label cannot rest on a normal-pressure measurement. The title and abstract say the paper is purely ab initio, and the record's own Tc of 38.4 K is given at 150 GPa.",
+    "evidence": "APS landing page and OpenAlex. Title: '...lithium-rich oxides LimO (m=1-8) under pressure based on ab initio calculations'. Abstract: 'conducting ab initio structural relaxations of LimOn compounds (m<=8, n<=2) at selected pressures ranging from 1 atm to 200 GPa using density-functional theory ... The C2/c phase of Li8O ... is found to be superconducting at a temperature of 5.54 K under an applied pressure of 100 GPa.' Full text is paywalled (the APS PDF link redirects to the abstract). Li7As/AsLi7 is not in the abstract."
+   }
+  },
+  {
+   "record": {
+    "stratum": "A: new superconductor, intermetallic",
+    "formula_as_read": "Mo0.625N0.375",
+    "material_name": "Mo2N1.2",
+    "nemad_label": "superconductor",
+    "tc_text": "6.6 K",
+    "pressure_text": "",
+    "doi": "10.1016/j.matlet.2017.12.045",
+    "our_label": null,
+    "id": "r15"
+   },
+   "verdict": {
+    "id": "r15",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": 6.6,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "not applicable",
+    "evidence": "Read the full text (arXiv 1708.05219v1) and the published abstract (ScienceDirect). The paper is on sputtered gamma-Mo2Nx thin films, with four-probe resistance measurements. Table I lists [MoN20%] with Tc = 6.6 (0.1) K and Hc2(0) = 11.8 T. The published abstract says films going from 5% to 30% N2 change 'from Mo2N to Mo2N1+x (0 <= x < 0.4)', with Tc falling from 8 K to 5.8 K. Mo2N1.2 (x = 0.2) fits that range. I could not read the exact x for the 20% film because it is in Fig. 1c (RBS) rather than in the text, but the Tc matches."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "Eu0.500O0.500",
+    "material_name": "EuO",
+    "nemad_label": "not superconductor",
+    "tc_text": "",
+    "pressure_text": "~1e-9 to 5e-9 mbar (growth)",
+    "doi": "10.1103/PhysRevB.109.054509",
+    "our_label": null,
+    "id": "r16"
+   },
+   "verdict": {
+    "id": "r16",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Abstract (OpenAlex and APS landing page; full text is paywalled and has no arXiv copy): 'we report the observation of quasi-2D superconductivity at the EuO/BaBiO3 (001) interface with the superconducting transition temperature of ~3.5 K.' EuO appears only as the overlayer of the superconducting heterostructure. The abstract does not say whether a bare EuO film was measured as a control or what such a control showed, so the text I could read cannot confirm a measured 'not superconductor' label for EuO. The ~3.5 K Tc belongs to the interface, not to EuO. our_label is JSON null, not the string 'not superconductor (null)', so I answered not applicable."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "Bi0.091Cu0.091La0.091O0.545Pb0.091Sr0.091",
+    "material_name": "BiPbSrLaCuO6",
+    "nemad_label": "not superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.43.8686",
+    "our_label": null,
+    "id": "r17"
+   },
+   "verdict": {
+    "id": "r17",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "measured, not superconducting",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "evidence": "Abstract (OpenAlex; 1991 PRB, closed access): 'Modulation-free BiPbSrLCuO6 (L=La, Pr, Nd) ... have been prepared and characterized. These parent compounds are nonsuperconducting, but when doped with holes by substitution chemistry give modulation-free superconducting cuprates ... BiPbSr1+xL1-xCuO6 ... exhibiting maximum Tc's of 24 ... K.' The undoped parent BiPbSrLaCuO6 is nonsuperconducting, so NEMAD's label fits this composition. The 24 K Tc applies only to the hole-doped Sr1+xLa1-x samples. The abstract gives no lowest measurement temperature. our_label is null, so not applicable; read as a null, the paper would support it.",
+    "nemad_label_correct": "correct",
+    "our_null_correct": "not applicable"
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "Fe0.316K0.231Se0.453",
+    "material_name": "K0.51Fe0.698Se",
+    "nemad_label": "not superconductor",
+    "tc_text": "NSC",
+    "pressure_text": "ambient",
+    "doi": "10.1103/PhysRevB.86.184511",
+    "our_label": null,
+    "id": "r18"
+   },
+   "verdict": {
+    "id": "r18",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "measured, not superconducting",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "not applicable",
+    "evidence": "Full text (arXiv 1209.1650), Table I: the oxidized PbClF-type phase refines to 'K0.51(5)Fe0.698(19)Se', which matches the record. The p.5 text says 'No superconducting behavior was seen in any samples after conversion to the oxidized phase', and the conclusions say 'It is not relevant to superconducting behavior.' Measurements were made at ambient pressure on a PPMS. The paper gives no lowest temperature for this phase (2 K is stated only for a different phase, KFe1.6Se2). The ~28-31 K Tc belongs to the separate KxFe2Se2 minority phase, not this composition. our_label is null, so not applicable; read as a null, the paper would support it."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "B0.857Si0.143",
+    "material_name": "B6Si",
+    "nemad_label": "not superconductor",
+    "tc_text": "NSC",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.101.014112",
+    "our_label": null,
+    "id": "r19"
+   },
+   "verdict": {
+    "id": "r19",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "theoretical prediction only",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Full text (open-access PDF on digital.csic.es) is a purely computational study (CALYPSO and DFT) with no measurements. B6Si is discussed in two ways. First, from the literature: 'α-B3Si, β-B3Si, and B6Si are all semiconductors with band gaps of 0.2, 2.0, and 1.2 eV' (Intro, citing refs 14,15). Second, its own calculations: 'Cmcm B6Si is the most stable phase between 0 and 17.5 GPa', 'all the predicted structures for B4Si and B6Si are metastable', and the layered B6Si is 'unstable over the whole studied pressure range'. No Tc is calculated for B6Si; calculated Tcs at 1 atm are given only for P-3m1 B2Si (21 K, up to 30 K), B3Si and B4Si. Nothing contradicts 'not superconductor', but nothing measured in the paper supports it either. our_label is null, so not applicable."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "Co0.142Fe0.214K0.179Se0.465",
+    "material_name": "K0.77Fe0.92Co0.61Se2",
+    "nemad_label": "not superconductor",
+    "tc_text": "NSC",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.92.174522",
+    "our_label": null,
+    "id": "r20"
+   },
+   "verdict": {
+    "id": "r20",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "measured, not superconducting",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": 1.8,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "not applicable",
+    "evidence": "Full text (arXiv 1604.03545), Table I: for nominal 1:1:1:2 the measured composition is K 0.77(2), Fe 0.92(4), Co 0.61(6), Se 2, which matches the record. The abstract and Results say 'By 3.5% of Co doping superconductivity is suppressed', and 'By 3.5% of Co-doping not only is superconductivity completely suppressed...' For z=0.61(6) the paper reports a semiconductor-to-metal crossover and spin glass, not superconductivity. Resistivity, heat capacity and magnetization were measured, with M-H curves for z=0.61(6) taken at 1.8 K (Fig. 4 caption). The ~30 K Tc refers only to the undoped z~0 parent. our_label is null, so not applicable; read as a null, the paper would support it."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "Bi0.157Ca0.024Cu0.071O0.571Sr0.143Y0.034",
+    "material_name": "Bi2.2Sr2(Y0.47Ca0.33)CuO8",
+    "nemad_label": "not superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.46.14928",
+    "our_label": null,
+    "id": "r21"
+   },
+   "verdict": {
+    "id": "r21",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Abstract (OpenAlex/FastTrack; paper is closed access): Obertelli, Cooper & Tallon, 'Systematics in the thermoelectric power of high-Tc oxides'. They report TEP versus hole concentration p 'for a number of oxides' and note 'continuity in the TEP when doping across the two superconducting-nonsuperconducting boundaries'. The abstract names no compositions, so I cannot confirm this sample or whether it superconducts. A non-superconducting, heavily Y-substituted Bi-2212 sample is plausible, but the text I could read does not settle it. The record's formula also looks garbled: 'CuO8' where Bi-2212 is Cu2O8, and Y+Ca sums to 0.80."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "B0.444Dy0.111Rh0.178Ru0.267",
+    "material_name": "Dy(Ru0.60Rh0.40)4B4",
+    "nemad_label": "not superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.30.3743",
+    "our_label": null,
+    "id": "r22"
+   },
+   "verdict": {
+    "id": "r22",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": 0.3,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Abstract (APS landing page; full text paywalled), title 'Neutron-diffraction study of the magnetic superconductors Dy(RuxRh1-x)4B4'. For x=0.15, antiferromagnetic order 'coexists with the superconducting state'. 'The nonsuperconducting x=1.00 compound' orders magnetically. For x=0.60 (this record) the abstract says only 'no long-range magnetic order for T>0.3 K', with a broad short-range peak. It does not say whether x=0.60 superconducts, so I cannot judge the 'not superconductor' label. 0.3 K is the lowest temperature the abstract implies for the diffraction runs."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "C0.351H0.351Ni0.018S0.281",
+    "material_name": "Ni(C₁₀H₁₀S₈)₂",
+    "nemad_label": "not superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.65.081104",
+    "our_label": null,
+    "id": "r23"
+   },
+   "verdict": {
+    "id": "r23",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "theoretical prediction only",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Full text (published version in the Univ. Barcelona repository), p.3: 'Narvor et al. previously reported that the very strongly related nickel bis(dithiolene) material Ni(C10H10S8)2 is a semiconductor with a small energy gap (approximately 0.10 eV as deduced from the conductivity measurements). Our calculations fully agree ... HOMO and LUMO bands ... separated by a small energy gap of 0.054 eV.' This is a DFT-only paper. The compound appears in Fig. 1b and in a band calculation, and its semiconducting behaviour comes from a cited measurement. The paper never addresses or tests for superconductivity. The 'not superconductor' label agrees with the paper but is not backed by any measurement of its own."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "Pt0.833U0.167",
+    "material_name": "UPt5",
+    "nemad_label": "not superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.102.125114",
+    "our_label": null,
+    "id": "r24"
+   },
+   "verdict": {
+    "id": "r24",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "not applicable",
+    "evidence": "Abstract (OpenAlex and APS landing page; full text paywalled, not on arXiv). They grew single crystals of 'the noncentrosymmetric cubic heavy-fermion paramagnet UPt5' and report 'electrical resistivity, heat capacity, and magnetization measurements' plus dHvA, describing it as a 'paramagnetic cubic heavy-fermion' compound. No superconducting transition is mentioned. However, the abstract neither rules out superconductivity explicitly nor gives a lowest temperature. The label is likely right, but the abstract does not settle it."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "B: new null",
+    "formula_as_read": "Cr0.200Gd0.200O0.600",
+    "material_name": "GdCrO3",
+    "nemad_label": "not superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.100.104301",
+    "our_label": null,
+    "id": "r25"
+   },
+   "verdict": {
+    "id": "r25",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "no",
+    "what_paper_reports": "mentioned only, not studied",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "not applicable",
+    "evidence": "The DOI is a Raman study of CrAs (Sen et al., arXiv 1908.10908, full text read). GdCrO3 appears only once, in the Discussion (p.5), citing other work: 'Recent experimental studies on antiferromagnetic Pr1-xCaxMnO3 [41], SmCrO3 and GdCrO3 [42,43] reported similar phonon broadenings below TN'. The paper does not study GdCrO3 or test it for superconductivity, so it gives no basis for the 'not superconductor' label. I marked the label 'wrong' because the record does not come from the paper, not because GdCrO3 superconducts. The compound the paper does study, CrAs, superconducts only under pressure ('maximum SC transition temperature of Tc ≈ 2 K')."
+   },
+   "skeptic": {
+    "id": "r25",
+    "outcome": "upheld",
+    "reason": "GdCrO3 appears only in a citation about phonon broadening in antiferromagnets. The paper never tests it for superconductivity, so it gives no basis for the 'not superconductor' label. The label is unsupported by this paper, not shown false.",
+    "evidence": "arXiv 1908.10908v2 (Sen et al., Raman study of CrAs), p.5: 'Recent experimental studies on antiferromagnetic Pr1-xCaxMnO3 [41], SmCrO3 and GdCrO3 [42,43] reported similar phonon broadenings below TN'. The only superconductivity discussed is CrAs under pressure: 'bulk SC emerges and displays a dome-like pressure dependence with a maximum SC transition temperature of Tc ≈ 2 K [13-15]'."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "Li0.171O0.571Ti0.257",
+    "material_name": "Li1.2Ti1.8O4",
+    "nemad_label": "superconductor",
+    "tc_text": "10-12 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.39.4217",
+    "our_label": "not superconductor (null)",
+    "id": "r26"
+   },
+   "verdict": {
+    "id": "r26",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "cannot tell",
+    "evidence": "Full text is paywalled (APS returned 401). I read the abstract only, from OpenAlex and the APS landing page. It describes an analysis, not an experiment: 'the average electronegativity χ of all the oxide superconductors found up until now lie between 2.5 and 2.65 ... the pressures required to drive some of the elemental metals to become superconductors have been calculated ... other oxide systems which are likely to become superconductors have been suggested.' Li1.2Ti1.8O4 is not named in the abstract, so I could not confirm it appears in the paper. If it does, it can only be a literature value in a compiled list (the record's '10-12 K' looks like a tabulated value), not the authors' own measurement. By the rule given, the 'superconductor' label is therefore not supported. Whether our null is right cannot be settled from this paper."
+   },
+   "skeptic": {
+    "id": "r26",
+    "outcome": "upheld only on the first reader's reading",
+    "reason": "The full text is paywalled, so I could not see whether or how Li1.2Ti1.8O4 appears. The abstract shows the paper is an electronegativity analysis of already-known oxide superconductors, with no measurements of its own. If the compound is in the paper's table as a literature superconductor at 10-12 K, the label would be a faithful literature value, and whether that counts depends on the rule applied.",
+    "evidence": "OpenAlex and APS abstract: 'the average electronegativity chi of all the oxide superconductors found up until now lie between 2.5 and 2.65 ... the pressures required to drive some of the elemental metals to become superconductors have been calculated ... Based on the concept of electronegativity the other oxide systems which are likely to become superconductors have been suggested.' Li1.2Ti1.8O4, LiTi2O4 and Li-Ti-O are not named. The APS PDF link (link.aps.org/pdf/10.1103/PhysRevB.39.4217) redirected to the abstract page."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "Ba0.162Cu0.244O0.513Y0.081",
+    "material_name": "YBa2Cu3O6.32",
+    "nemad_label": "superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.61.15450",
+    "our_label": "not superconductor (null)",
+    "id": "r27"
+   },
+   "verdict": {
+    "id": "r27",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "wrong",
+    "evidence": "Full text read on arXiv (cond-mat/0003077), page 3 and Fig. 1. The paper studies YBa2Cu3O6+k pairs with 0.28 ≤ k ≤ 0.32 using resistivity, electron diffraction and NQR. Quote: 'Panels 4 likewise show the corresponding lower limit (k=0.32) for the existence of a partially OII-ordered superconducting phase ... and the coincidence of Tc in the [I] and [D] curves A4.' So YBa2Cu3O6.32 shows a resistive superconducting transition at ambient pressure. The text gives no Tc number; it is only in the Fig. 1 resistivity curves (0-250 K axis). By contrast, k=0.28 is non-superconducting and tetragonal, and k=0.30 is phase-separated."
+   },
+   "skeptic": {
+    "id": "r27",
+    "outcome": "upheld",
+    "reason": "The paper shows the k=0.32 pair (YBa2Cu3O6.32), measured at ambient pressure, as the lower limit of a superconducting OII phase, with matching Tc in both samples of the pair. Our null is therefore wrong.",
+    "evidence": "arXiv cond-mat/0003077, p.3: 'Panels 4 likewise show the corresponding lower limit (k=0.32) for the existence of a partially OII-ordered superconducting phase. Note the diffuse (1/2 0 0) peak in diffraction patterns B4 ... and the coincidence of Tc in the [I] and [D] curves A4.' By contrast, k=0.28 is 'a non-superconducting tetragonal phase' and k=0.30 is phase-separated. The text gives no Tc number; the transition is in the Fig. 1 A4 resistivity curves, 0-250 K axis."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "B0.444Ce0.111Co0.444",
+    "material_name": "CeCo4B4",
+    "nemad_label": "superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.27.6703",
+    "our_label": "not superconductor (null)",
+    "id": "r28"
+   },
+   "verdict": {
+    "id": "r28",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "cannot tell",
+    "evidence": "Full text is paywalled (APS). I read the abstract only, from OpenAlex, FastTrack and the APS landing page. It covers only the bct superconducting system Y(Rh1-xRux)4B4: 'A sharp drop in the superconducting critical temperature Tc from 9.5 K to below 1.0 K near a critical concentration ...'. CeCo4B4 is not mentioned in the abstract or title. It may appear in the body, for example as the primitive-tetragonal structure-type reference, but I could not read the body to check."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "B0.333C0.167Ir0.333La0.167",
+    "material_name": "LaIr2B2C",
+    "nemad_label": "superconductor",
+    "tc_text": "0.22 K",
+    "pressure_text": "",
+    "doi": "10.1016/j.physc.2019.1353585",
+    "our_label": "not superconductor (null)",
+    "id": "r29"
+   },
+   "verdict": {
+    "id": "r29",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "theoretical prediction only",
+    "reported_tc_k": 0.22,
+    "lowest_temperature_measured_k": 1.4,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "correct",
+    "evidence": "Read the abstract and introduction on the ScienceDirect landing page. This is a DFT/GGA electron-phonon (Quantum ESPRESSO) study: 'By integrating Eliashberg spectral function, the superconducting transition temperature for LaIr2B2C and LaRh2B2C are obtained as 0.22 K and 0.20 K.' So 0.22 K is a calculated Tc, not a measurement. The introduction cites earlier experiments (refs 50, 51): 'They could not find the superconductivity for these compounds down to 1.4 K.' The 1.4 K lowest temperature therefore comes from those cited experiments, not from this paper. No measured superconductivity is reported, so the 'superconductor' label is wrong and our null agrees with the cited measurement."
+   },
+   "skeptic": {
+    "id": "r29",
+    "outcome": "upheld",
+    "reason": "The 0.22 K for LaIr2B2C comes from integrating a DFT Eliashberg function, and the cited experiments found no superconductivity down to 1.4 K. The 'superconductor' label is unsupported and the null agrees with the cited measurement.",
+    "evidence": "ScienceDirect abstract: '...investigated by using the generalised gradient approximation of the density functional theory and the planewave pseudopotential method ... By integrating Eliashberg spectral function, the superconducting transition temperature for LaIr2B2C and LaRh2B2C are obtained as 0.22 K and 0.20 K, respectively.' Introduction snippet about earlier experiments: 'They could not find the superconductivity for these compounds down to 1.4 K.'"
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "As0.250Ce0.250Fe0.250O0.250",
+    "material_name": "CeOFeAs",
+    "nemad_label": "superconductor",
+    "tc_text": "41 K",
+    "pressure_text": "",
+    "doi": "10.1016/j.jmmm.2012.02.071",
+    "our_label": "not superconductor (null)",
+    "id": "r30"
+   },
+   "verdict": {
+    "id": "r30",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting only with doping or treatment not in the formula",
+    "reported_tc_k": 41,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "correct",
+    "evidence": "Full text read on arXiv (1106.3707). This is a review with LDA calculations; the authors measure nothing. Table 1, p. 3, lists 'CeOFeAs 1.351 4.66 48 41': anion height, LDA N(EF), BCS-estimated Tc of 48 K, and an experimental Tc of 41 K taken from the literature. The introduction, p. 1, says this class is 'Doped RE1111 (RE=La,Ce,Pr,Nd,Sm,Tb,Dy) Fe pnictides with Tc about 25–55 K, with chemical compositions like REO1-xFxFeAs'. So the 41 K belongs to F-doped samples, not the undoped CeOFeAs named in the record, and the 48 K is a calculation. The 'superconductor' label is not supported. Our null is consistent with this paper, which ties superconductivity to doping, but the paper itself does not measure undoped CeOFeAs."
+   },
+   "skeptic": {
+    "id": "r30",
+    "outcome": "upheld",
+    "reason": "This is a review with LDA estimates. Table 1's 41 K for 'CeOFeAs' is a literature value, which the paper's own classification ties to F-doped REO1-xFxFeAs, not the undoped parent. The 48 K is a BCS estimate from the calculated density of states.",
+    "evidence": "arXiv 1106.3707, the preprint of the JMMM paper (DOI checked on OpenAlex). Table 1, 'LDA total DOS N(EF), calculated and experimental Tc': 'CeOFeAs 1.351 4.66 48 41'. Sec. 1: '1. Doped RE1111 (RE=La,Ce,Pr,Nd,Sm,Tb,Dy) Fe pnictides with Tc about 25-55 K, with chemical compositions like RE O1-xFxFeAs [1,4-11].' Sec. 3: the T_BCS values are obtained by 'fixing the value of g as for Ba122 ... taking into account only the appropriate change of the density of states'. The authors make no measurements."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "As0.250Fe0.250O0.250Tb0.250",
+    "material_name": "TbOFeAs",
+    "nemad_label": "superconductor",
+    "tc_text": "54 K",
+    "pressure_text": "",
+    "doi": "10.1016/j.jmmm.2012.02.071",
+    "our_label": "not superconductor (null)",
+    "id": "r31"
+   },
+   "verdict": {
+    "id": "r31",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting only with doping or treatment not in the formula",
+    "reported_tc_k": 54,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "correct",
+    "evidence": "This is a review/LDA paper (arXiv 1106.3707). Table 1 lists 'TbOFeAs ... T_c^BCS 52 K, T_c^exp 54 K'. The 54 K is a literature value, not a measurement made in this paper. Section 1 says the 1111 superconductors are 'Doped RE1111 (RE=La,Ce,Pr,Nd,Sm,Tb,Dy) Fe pnictides with Tc about 25-55 K, with chemical compositions like REO1-xFxFeAs'. So the paper ties the 54 K to doped (F-substituted) TbOFeAs, not to the undoped formula. The 52 K figure is a BCS estimate from the calculated density of states. No measurement in the paper shows undoped TbOFeAs superconducting. That is consistent with the null, though the paper does not report a measurement of the undoped parent either."
+   },
+   "skeptic": {
+    "id": "r31",
+    "outcome": "upheld",
+    "reason": "As with r30, the 54 K for 'TbOFeAs' is a tabulated literature value for the doped 1111 class, and 52 K is a BCS estimate. The paper does not measure undoped TbOFeAs.",
+    "evidence": "arXiv 1106.3707, Table 1: 'TbOFeAs 1.373 4.85 52 54' (columns: anion height, N(EF), T_BCS, T_exp). Sec. 1: 'Doped RE1111 (RE=La,Ce,Pr,Nd,Sm,Tb,Dy) Fe pnictides with Tc about 25-55 K, with chemical compositions like RE O1-xFxFeAs'. The paper is a review plus LDA calculations."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "Ce0.019Cu0.143Nd0.267O0.571",
+    "material_name": "Nd1.87Ce0.13CuO4",
+    "nemad_label": "superconductor",
+    "tc_text": "",
+    "pressure_text": "ambient",
+    "doi": "10.1103/PhysRevB.82.014506",
+    "our_label": "not superconductor (null)",
+    "id": "r32"
+   },
+   "verdict": {
+    "id": "r32",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "no",
+    "what_paper_reports": "mentioned only, not studied",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "cannot tell",
+    "evidence": "The open-access PDF on the Tohoku repository is a muSR study of Pr0.86LaCe0.14Cu1-yZnyO4+alpha-delta, measured down to 0.3 K, with Tc about 16-22 K depending on the oxygen reduction. Nd1.87Ce0.13CuO4 itself never appears. The only Nd-Ce-Cu-O mention is in the introduction and cites the literature (Takagi et al., ref. 1): 'In the electron-doped system of Nd2-xCexCuO4, the long-range antiferromagnetic order survives up to x~0.13'. The paper does not measure NCCO, so it cannot support the 'superconductor' label. It also does not settle whether the x=0.13 composition superconducts, so the null cannot be judged from this paper."
+   },
+   "skeptic": {
+    "id": "r32",
+    "outcome": "upheld",
+    "reason": "The paper measures only Pr0.86LaCe0.14Cu1-yZnyO4. Nd2-xCexCuO4 appears once, in a literature citation about antiferromagnetic order up to x≈0.13, so the paper neither supports the label nor tests the null.",
+    "evidence": "Tohoku repository PDF of PRB 82, 014506. Introduction: 'In the electron-doped system of Nd2-xCexCuO4, the long-range antiferromagnetic order survives up to x~0.13 [1], while it survives only up to x~0.02 in the hole-doped system of La2-xSrxCuO4.' Measured samples: 'The samples with small and large delta values show superconductivity with Tc ranging from 15 to 17 K ... and from 18 to 22 K ..., while the samples with delta = 0 and very small delta values are nonsuperconducting above 4.2 K' (all Pr0.86LaCe0.14Cu1-yZnyO4+alpha-delta)."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "Bi0.133Ca0.033Cu0.133Gd0.033O0.533Sr0.133",
+    "material_name": "Bi₂Sr₂Ca₀.₅Gd₀.₅Cu₂O₈",
+    "nemad_label": "superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.45.7436",
+    "our_label": "not superconductor (null)",
+    "id": "r33"
+   },
+   "verdict": {
+    "id": "r33",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": 1.6,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "cannot tell",
+    "evidence": "Abstract only (OpenAlex; the APS full text is closed). Resistivity, susceptibility and specific heat were measured on Bi2Sr2Ca1-xMxCu2O8 (M=Y, Gd, Pr) 'for concentrations 0<=x<=1.0 and temperatures 1.6 K<=T<=300 K'. The abstract adds that 'All three dopants ... cause a depression of Tc observable in the resistivity and susceptibility' and that Cu 3d holes localize at higher doping. So the Gd series covering x=0.5 was measured. The abstract does not say whether the Gd x=0.5 sample still superconducts or what its Tc is, so neither the label nor the null can be settled."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "Ca0.250Cu0.250O0.500",
+    "material_name": "CaCuO2",
+    "nemad_label": "superconductor",
+    "tc_text": "60 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevLett.89.156402",
+    "our_label": "not superconductor (null)",
+    "id": "r34"
+   },
+   "verdict": {
+    "id": "r34",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting only with doping or treatment not in the formula",
+    "reported_tc_k": 60,
+    "lowest_temperature_measured_k": 4.2,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "correct",
+    "evidence": "From the abstract (OpenAlex/PubMed): 'Ultrathin artificial high temperature superconducting structures, consisting of (Ba0.9Nd0.1)CuO2+x and CaCuO2 layers ... Intralayer superconductivity at 60 K was obtained for a structure consisting of a single (CaCuO2) block sandwiched between two (Ba0.9Nd0.1)CuO2+x charge reservoir blocks.' The critical current was measured at 4.2 K. So the 60 K belongs to the CaCuO2/(Ba,Nd)CuO2 heterostructure with charge-reservoir layers, not to plain CaCuO2. The paper never reports CaCuO2 alone as a superconductor at ambient pressure. The abstract does not say whether a bare CaCuO2 film was measured."
+   },
+   "skeptic": {
+    "id": "r34",
+    "outcome": "upheld",
+    "reason": "The 60 K belongs to a CaCuO2 block sandwiched between (Ba0.9Nd0.1)CuO2+x charge-reservoir layers in an artificial heterostructure. The paper does not report plain CaCuO2 as superconducting.",
+    "evidence": "OpenAlex abstract (PRL 89, 156402): 'Ultrathin artificial high temperature superconducting structures, consisting of (Ba0.9Nd0.1)CuO2+x and CaCuO2 layers, were grown by pulsed laser deposition. Intralayer superconductivity at 60 K was obtained for a structure consisting of a single (CaCuO2) block sandwiched between two (Ba0.9Nd0.1)CuO2+x charge reservoir blocks. The purely intralayer critical current density was measured at 4.2 K'. Full text is paywalled; I read the abstract only."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "Cu0.071La0.286Li0.071O0.571",
+    "material_name": "La2Li0.5Cu0.5O4",
+    "nemad_label": "superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.57.1259",
+    "our_label": "not superconductor (null)",
+    "id": "r35"
+   },
+   "verdict": {
+    "id": "r35",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "cannot tell",
+    "our_null_correct": "cannot tell",
+    "evidence": "Abstract only (OpenAlex, FastTrack and the APS landing page; the APS PDF returned 401). The paper is an in situ Cu K-edge XANES study of Hg0.5Tl0.5Ba2(Ca0.86Sr0.14)2Cu3O8+delta (Tc=128 K) and of the series Hg1-xTlxBa2(Ca0.86Sr0.14)n-1CunO2n+2+delta. The abstract does not mention La2Li0.5Cu0.5O4. It may appear in the closed full text as a Cu(III) XANES reference, but I could not read that, so its role and whether it superconducts cannot be determined."
+   },
+   "skeptic": null
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "Ge0.250Nb0.750",
+    "material_name": "Nb3Ge",
+    "nemad_label": "superconductor",
+    "tc_text": "5 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRev.154.399",
+    "our_label": "not superconductor (null)",
+    "id": "r36"
+   },
+   "verdict": {
+    "id": "r36",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "wrong",
+    "evidence": "Abstract (Testardi et al., Phys. Rev. 154, 399, 1967; paywalled, full text not reachable). The authors measured the elastic moduli of polycrystalline A-15 compounds on cooling. The abstract says the softening 'does not occur for the isostructural compounds V3Ge and Nb3Ge, which have comparatively low transition temperatures (Tc ~5-7 K).' So the paper studies Nb3Ge at normal pressure and calls it a superconductor. The Tc is given only as a range shared with V3Ge, so I left reported_tc_k empty; the record's 5 K sits in that range. Caveat: the abstract does not say whether the 5-7 K was measured on the authors' own samples or quoted from earlier work. Either way the paper contradicts our null."
+   },
+   "skeptic": {
+    "id": "r36",
+    "outcome": "upheld",
+    "reason": "The abstract calls Nb3Ge one of the isostructural A-15 superconductors with Tc about 5-7 K. Nothing I read supports a non-superconducting null, so our null is wrong.",
+    "evidence": "OpenAlex abstract (Testardi et al., Phys. Rev. 154, 399, 1967): 'This unusual behavior does not occur for the isostructural compounds V3Ge and Nb3Ge, which have comparatively low transition temperatures (Tc ~5-7 K).' Full text is paywalled. The same caveat as the first reader applies: the abstract does not say whether the 5-7 K was measured on the authors' own samples."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "C0.500V0.500",
+    "material_name": "VC",
+    "nemad_label": "superconductor",
+    "tc_text": "",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevLett.43.868",
+    "our_label": "not superconductor (null)",
+    "id": "r37"
+   },
+   "verdict": {
+    "id": "r37",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "unclear",
+    "what_paper_reports": "unclear",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "cannot tell",
+    "evidence": "Title and abstract (Weber et al., PRL 43, 868, 1979, 'Phonon Anomalies in VN and Their Electronic Origin'; paywalled, full text not reachable). The abstract says 'Phonon dispersion and density-of-states measurements are presented for VN' and compares them only with unnamed 'nine-valence-electron compounds'. VC is not named in the title or abstract, and the abstract reports no superconductivity measurement on any compound. No measurement of the paper's own supports labelling VC a superconductor (NEMAD's tc_text is also empty), so the NEMAD label is wrong. The paper does not test VC for superconductivity either, so it cannot confirm our null."
+   },
+   "skeptic": {
+    "id": "r37",
+    "outcome": "upheld only on the first reader's reading",
+    "reason": "The full text is paywalled. The abstract presents phonon measurements on VN only, does not name VC, and reports no superconductivity measurement, but I cannot see whether the body says anything about VC's superconductivity.",
+    "evidence": "APS abstract page (PRL 43, 868): 'Phonon dispersion and density-of-states measurements are presented for VN, a cubic transition-metal compound with ten valence electrons. The acoustic phonons differ strongly from those observed in nine-valence-electron compounds ...' The APS PDF link (link.aps.org/pdf/10.1103/PhysRevLett.43.868) redirected to the abstract page."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "C0.111Cu0.111O0.556Sr0.222",
+    "material_name": "Sr2CuO2(CO3)",
+    "nemad_label": "superconductor",
+    "tc_text": "30 K",
+    "pressure_text": "",
+    "doi": "10.1016/S0921-4534(98)00218-4",
+    "our_label": "not superconductor (null)",
+    "id": "r38"
+   },
+   "verdict": {
+    "id": "r38",
+    "paper_found": true,
+    "source_read": "abstract only",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting only with doping or treatment not in the formula",
+    "reported_tc_k": null,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "correct",
+    "evidence": "ScienceDirect abstract, plus the introduction and section snippets shown in the preview (Chang et al., Physica C 303, 11, 1998). Abstract: 'The resistivity of the undoped Sr2CuO2(CO3) thin films decreases from ~0.2 Ω cm to ~0.01 Ω cm upon post annealing in oxygen, but semiconducting behavior is observed. Doping has been achieved through partial substitution of BO3(3-) for CO3(2-). Superconductivity with a Tc(onset) of 34 K and a Tc(zero) of 20 K has been obtained.' NEMAD's 30 K matches a result the introduction cites, not one this paper measured: Feenstra et al. converted SrCuO2 films into Sr2CuO2(CO3) with Tc(onset) 30 K by annealing them in an oxidizing ambient. The undoped formula is not superconducting here, so reported_tc_k is left empty. The readable text does not state the lowest temperature measured."
+   },
+   "skeptic": {
+    "id": "r38",
+    "outcome": "upheld",
+    "reason": "In this paper the undoped Sr2CuO2(CO3) films are semiconducting. The 30 K matches Feenstra et al.'s cited result for films annealed in an oxidizing ambient, not a measurement made here.",
+    "evidence": "ScienceDirect abstract: 'The resistivity of the undoped Sr2CuO2(CO3) thin films decreases from ~0.2 Ω cm to ~0.01 Ω cm upon post annealing in oxygen, but semiconducting behavior is observed.' Introduction: 'Feenstra et al. [20] have successfully converted PLD-derived thin films of the SrCuO2 infinite-layer compound into Sr2CuO2(CO3) thin films with a Tc (onset) of 30 K by annealing in an oxidizing ambient with small amounts of CO2.'"
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "As0.117Fe0.250H0.037O0.212P0.133Sm0.250",
+    "material_name": "SmFeAs0.47P0.53O0.85H0.15",
+    "nemad_label": "superconductor",
+    "tc_text": "4 K",
+    "pressure_text": "",
+    "doi": "10.1103/PhysRevB.89.094510",
+    "our_label": "not superconductor (null)",
+    "id": "r39"
+   },
+   "verdict": {
+    "id": "r39",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "superconducting at ambient pressure, measured",
+    "reported_tc_k": 4,
+    "lowest_temperature_measured_k": 2,
+    "nemad_label_correct": "correct",
+    "our_null_correct": "wrong",
+    "evidence": "Full text, arXiv 1312.6747 (Matsuishi et al., PRB 89, 094510), Sec. III.B: 'A similar drop in Tc at x = 0.16 was also observed for y ≈ 0.53 (See Fig. 3(c)). Tc = 4 K was observed at x = 0.15 between x = 0.12 and 0.18 showing Tcmax = 14 K.' This is a resistivity measurement on SmFeAs1-yPyO1-xHx with y ≈ 0.53 and x = 0.15, which is the record's composition (As0.47P0.53O0.85H0.15). Sec. II: resistivity and susceptibility were measured from 2 to 300 K. The samples were synthesized at 2 GPa, but the measurements themselves were not under pressure."
+   },
+   "skeptic": {
+    "id": "r39",
+    "outcome": "upheld",
+    "reason": "The paper's own resistivity data give Tc = 4 K for SmFeAs1-yPyO1-xHx with y≈0.53 and x=0.15, the record's composition. Measurements were 2-300 K with no applied pressure (the 2 GPa was only for synthesis), so our null is wrong.",
+    "evidence": "arXiv 1312.6747, Sec. III.B: 'A similar drop in Tc at x = 0.16 was also observed for y ≈ 0.53 (See Fig. 3(c)). Tc = 4 K was observed at x = 0.15 between x = 0.12 and 0.18 showing Tcmax = 14 K.' Sec. II: 'heated at 1473 K and 2 GPa for 30 min' (synthesis); 'Four-probe dc resistivity and magnetic susceptibility were measured in the temperature range 2-300 K, using a ... PPMS'. The non-superconducting point (Tc < 2 K) is x ≈ 0.16, not x = 0.15."
+   }
+  },
+  {
+   "record": {
+    "stratum": "C: NEMAD superconductor where our table says null",
+    "formula_as_read": "B0.667Be0.333",
+    "material_name": "BeB2",
+    "nemad_label": "superconductor",
+    "tc_text": "0.72 K",
+    "pressure_text": "",
+    "doi": "10.1016/j.stam.2005.11.015",
+    "our_label": "not superconductor (null)",
+    "id": "r40"
+   },
+   "verdict": {
+    "id": "r40",
+    "paper_found": true,
+    "source_read": "full text",
+    "compound_in_paper": "yes",
+    "what_paper_reports": "mentioned only, not studied",
+    "reported_tc_k": 0.72,
+    "lowest_temperature_measured_k": null,
+    "nemad_label_correct": "wrong",
+    "our_null_correct": "cannot tell",
+    "evidence": "Full text PDF (Takagiwa et al., STAM 7, 22, 2006), Introduction, p. 22. The paper is about NbB2+x (Tc 2.2-5.8 K by SQUID susceptibility). BeB2 appears only in a citation: 'Although the superconductivities of TaB2 [8], ZrB2 [9] and BeB2 [10] have been reported ... the crystal structure of BeB2 is different from that of the AlB2 type, and the physical properties of this material are difficult to measure because of its low Tc (Tc = 0.72 K).' Ref. 10 is Young et al., cond-mat/0104063. The paper made no BeB2 samples and measured none. The 0.72 K comes from the cited work, so this paper cannot confirm our null, though the cited report argues against it."
+   },
+   "skeptic": {
+    "id": "r40",
+    "outcome": "upheld",
+    "reason": "The paper measures only NbB2+x and cites BeB2's 0.72 K from Young et al. The cited paper itself (which I read) assigns that 0.72 K to BeB2.75 and says the BeB2 stoichiometry does not exist, so the label for exact BeB2 is not supported.",
+    "evidence": "T&F PDF of STAM 7, 22 (2006): 'Although the superconductivities of TaB2 [8], ZrB2 [9] and BeB2 [10] have been reported, ... the crystal structure of BeB2 is different from that of the AlB2 type, and the physical properties of this material are difficult to measure because of its low Tc (Tc=0.72 K).' The measured samples are NbB2+x nos 1-5 (Tc 2.2-5.8 K, SQUID). The cited paper (Young et al., cond-mat/0104063): 'The structure has 110.5 atoms per unit cell and a stoichiometry BeB2.75. Polycrystalline Be(10.8B)2.75 is superconducting below Tc = 0.72K' and 'not only is BeB2 an unstable stoichiometry but that the correct stoichiometry BeB2.75 ...'; also 'Felner [5] has recently reported susceptibility measurements of BeB2 that show no sign of superconductivity down to 5K.'"
+   }
+  }
+ ]
+}
