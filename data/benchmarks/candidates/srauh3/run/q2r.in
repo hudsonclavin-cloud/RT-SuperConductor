@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'srauh3.dyn'
+    flfrc  = 'srauh3.fc'
+    la2F   = .true.
+ /

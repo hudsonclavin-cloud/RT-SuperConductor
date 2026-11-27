@@ -835,3 +835,18 @@ check first):
   route to high Tc.
 - This order is a proposal; the queue above stays as it was until the owner
   confirms it.
+
+**Room-temperature track: packages built so far (2026-11-27)**
+
+| Package | Relaxed here (PBE, ONCV, 90 Ry) | Alexandria (PBEsol) | Status |
+| --- | --- | --- | --- |
+| `kinh3` | a = 4.264 Å, relaxation 23 min, residual 0.01 kbar | a = 4.185 Å (+1.9%) | built |
+| `srauh3` | a = 4.381 Å, relaxation 81 min, residual 0.09 kbar | a = 4.26 Å (+2.8%) | built |
+| `lib2c2`, `mg2rhh6` (50 GPa), `srb3c3` (40 GPa) | relaxing | — | pending |
+
+- **Why the cells differ.** PBE cells come out a few per cent larger than
+  PBEsol ones.
+- **Why it matters.** For hydrides a looser cell softens the hydrogen modes,
+  which can shift both the stability verdict and λ. This is one reason the
+  calibration compounds run first.
+- **Before Hazel.** No pre-check has been run on these packages yet.

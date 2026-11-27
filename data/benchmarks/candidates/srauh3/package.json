@@ -1,0 +1,47 @@
+{
+ "name": "srauh3",
+ "formula": "SrAuH3",
+ "alexandria_id": "agm002494931",
+ "atoms": 5,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  12,
+  12,
+  12
+ ],
+ "fit_k_mesh": [
+  24,
+  24,
+  24
+ ],
+ "q_mesh": [
+  4,
+  4,
+  4
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   4.381397505,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   4.381397505,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   4.381397505
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "Au_ONCV_PBE_sr.upf": "c5866a5fc114b5fb0fd10d1a22d82b53720ea3401419cec0789da3b09a43ae5e",
+  "H_ONCV_PBE_sr.upf": "e5ee4b2f74aa051d63f35b53fccb2d9b78fdd987c65d720bba7919a991eca0aa",
+  "Sr_ONCV_PBE_sr.upf": "531fef8e269a7d4a690478d33267bef7c1d5675a5db87814b76b98ac6babffd9"
+ },
+ "relaxed_from": "Alexandria structure, vc-relax with these pseudopotentials and cutoff"
+}
