@@ -1129,3 +1129,85 @@ on the locked rows (`docs/lockbox-blend.md`).
 - Cycle 6 stays the boosting half of the blend, and the reference for future
   learning cycles.
 - Rankings: `python scripts/blend_ranking.py`.
+
+## Cycle 7: plan and predictions, written before any cycle 7 result, 2026-11-27
+
+**Main idea:** add the usable part of the NEMAD superconductor database to
+cycle 6's training, and fix three nulls that a paper check found wrong.
+The owner approved it on 2026-11-27 (`docs/nemad-superconductor.md`, "What
+would come next").
+
+**The assumption I am challenging.** By the learning curve
+(`docs/learning-curve.md`), a quarter more rows is worth about +0.01 AUC.
+That assumes the new rows are as good as the old ones. NEMAD's usable subset
+was right about 10 times in 11 in a small check, so part of the gain may
+not appear.
+
+**What changes**
+- **Added rows.**
+  - Cycle 6's 851 NIMS rows stay, unchanged.
+  - Added to them: 2,083 NEMAD compositions (1,572 superconductors, 511
+    non-superconductors), from records flagged experimental at normal or
+    unstated pressure.
+  - Each is new to the project: not in the table (locked rows included),
+    not in the NIMS file, and not a near twin of either.
+  - Placed by cycle 4's rule, with ties chained through the NIMS rows:
+    - 726 more were left out because they tie to a locked group;
+    - 24 were left out because they tie to more than one fold.
+  - Command: `python scripts/build_nemad_additions.py`, written to
+    `data/processed/learning-cycles/cycle7-additions.csv.gz`, with counts
+    in `docs/learning-cycles/cycle7-additions.json`.
+- **Corrections.** Three nulls (Nb3Ge, YBa2Cu3O6.32,
+  SmFeAs0.47P0.53O0.85H0.15) are being checked under the owner's rule: two
+  independent readers and a sceptical verifier.
+  - Only those that pass are recorded in
+    `data/training/negative_evidence.csv` and applied.
+  - The table is then rebuilt, and the added rows rebuilt against it,
+    before the run.
+  - A correction that fails is left out and listed.
+- **Nothing else.** Same boosting settings, folds and seeds as cycle 6.
+
+**Runs** (after the table rebuild):
+
+```bash
+python scripts/run_learning_cycle.py --name cycle7 --previous cycle6 --additions data/processed/learning-cycles/cycle7-additions.csv.gz
+```
+
+Three placebos use the same rows with the NEMAD labels shuffled among
+themselves, which keeps the rows, the features and the label balance:
+
+```bash
+python scripts/run_learning_cycle.py --name cycle7-placebo-1 --previous cycle6 --additions data/processed/learning-cycles/cycle7-additions.csv.gz --permute-added-labels nemad --placebo-seed 71
+```
+
+The other two use `--placebo-seed 72` and `73`.
+
+**Measures**
+
+| | Question | Rows | Measure |
+| --- | --- | --- | --- |
+| E1 | Do the NEMAD rows hold learnable information? | The NEMAD rows, each predicted by the round that held its fold out | AUC with all added rows minus without any, non-cuprates, 95% interval over groups |
+| E2 | Does it help at home? | The development rows, scored against today's labels | Cycle 7 minus cycle 6, paired, non-cuprates: median and 95% interval |
+
+**Rule, fixed now (cycle 4's)**
+
+| Result | What happens |
+| --- | --- |
+| E1's 95% interval is above zero **and** E2's median difference is not below −0.005 | Cycle 7 becomes the boosting half of the ranking of record. The bundle is rebuilt, and the owner's laptop reruns TabICLv2 on it. The new blend replaces the current one if its paired non-cuprate median difference against the current blend, on the development rows, is not below −0.005 |
+| Anything else | Cycle 6 stays, and so does the current blend. The added-rows file is kept |
+
+- The placebos are reported and do not decide.
+- The locked rows are not used: they have been scored twice already.
+
+**Predictions [Speculative]**
+
+| Outcome | Chance |
+| --- | --- |
+| E1's interval is above zero (NEMAD rows, non-cuprates) | 80% |
+| E2's median difference is at least 0 | 60% |
+| E2's median difference is at least +0.005 | 30% |
+| E2's interval lies above zero | 15% |
+| Cycle 7 is adopted under the rule | 75% |
+| Cycle 7's E2 is larger than each placebo's | 55% |
+| The made-metals top 50 keeps between 25 and 45 of cycle 6's | 70% |
+| All three corrections pass the owner's rule | 50% |

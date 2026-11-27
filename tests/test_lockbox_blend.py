@@ -177,3 +177,32 @@ def test_nemad_name_cleaning():
     assert ND.formula_of({"Material_Name": "Nb"})[1] == {"Nb": 1.0}                  # a plain element still parses
     text, fractions = ND.formula_of({"Material_Name": "La2-xSrxCuO4 (x=0.15)"})
     assert abs(fractions["Sr"] - 0.15 / 7) < 1e-9
+
+
+def test_shuffled_label_placebo_keeps_rows_and_balance():
+    import run_learning_cycle as L
+
+    extra = {"source": "x", "label": np.array([1.0, 1.0, 0.0, 1.0, 0.0, 1.0]), "tc_k": np.array([5.0, 6.0, np.nan, 7.0, np.nan, 8.0]),
+             "origin": np.array(["nims", "nims", "nemad", "nemad", "nemad", "nemad"]), "score": True}
+    out = L.permute_labels(extra, "nemad", seed=3)
+    assert list(out["label"][:2]) == [1.0, 1.0] and list(out["tc_k"][:2]) == [5.0, 6.0]   # other sources untouched
+    assert sorted(out["label"][2:]) == sorted(extra["label"][2:])                         # same balance
+    assert out["score"] is False and "permuted" in out["source"]
+    for l, t in zip(out["label"], out["tc_k"]):                                           # label and Tc move together
+        assert (l == 1.0) == np.isfinite(t)
+    with pytest.raises(SystemExit):
+        L.permute_labels(extra, "absent", seed=0)
+
+
+def test_added_rows_scored_by_source():
+    import run_learning_cycle as L
+
+    rng = np.random.default_rng(0)
+    n = 80
+    y = (rng.uniform(size=n) < 0.6).astype(float)
+    extra = {"label": y, "p_with": np.clip(y * 0.6 + rng.uniform(0, 0.4, n), 0, 1), "p_without": rng.uniform(size=n),
+             "group": np.array([f"g{i}" for i in range(n)]), "cuprate": np.zeros(n, bool),
+             "origin": np.array(["nims"] * 30 + ["nemad"] * 50)}
+    out = L.score_added_rows(extra, resamples=50)
+    assert {"all", "not cuprates", "source nemad", "source nims"} <= set(out)
+    assert out["source nemad"]["all"]["rows"] == 50 and out["source nims"]["all"]["rows"] == 30
