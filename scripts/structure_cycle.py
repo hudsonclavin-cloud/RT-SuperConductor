@@ -28,6 +28,7 @@ from scratchnet_common import T  # noqa: E402
 
 OUT = ROOT / "docs/structure-cycle.json"
 FEATURES = ROOT / "data/processed/structures/features.csv.gz"
+CACHE = ROOT / "data/processed/structures/structure-cycle-oof.npz"   # per-model files sit beside it (not committed)
 SYSTEMS = ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]
 
 
@@ -53,13 +54,25 @@ def main() -> int:
     S_table = structure_columns([row["composition"] for row in ds.rows])
     settings = L.boosting_settings()
     results = {}
+    only = sys.argv[1] if len(sys.argv) > 1 else None          # "A" or "B": fit one model's folds and stop
     for name, X_use in (("A", X), ("B", np.hstack([X, S_table]))):
+        cache = CACHE.with_name(f"structure-cycle-oof-{name}.npz")
+        if cache.is_file():                                     # predictions only; no score is computed here
+            with np.load(cache, allow_pickle=False) as d:
+                results[name] = (d["dev"], (d["p"], d["tc"]), json.loads(str(d["info"])))
+            continue
+        if only and name != only:
+            continue
         extra = L.load_additions(H.ADDITIONS, ds)
         if name == "B":
             extra["X"] = np.hstack([extra["X"], np.full((len(extra["X"]), 9), np.nan)])
         extra["score"] = False
         dev, pred, _, info = L.cross_validate(ds, X_use, settings, seed_offset=0, extra=extra)
+        np.savez(cache, dev=dev, p=pred[0], tc=pred[1], info=json.dumps(info))
         results[name] = (dev, pred, info)
+    if only:
+        print(f"model {only}: out-of-fold predictions cached; score with no argument once both exist")
+        return 0
     dev = results["A"][0]
     if not np.array_equal(dev, results["B"][0]):
         raise SystemExit("the two runs scored different rows")
