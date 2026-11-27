@@ -306,3 +306,78 @@ git push -u origin nemad-results-20261127
 ```bash
 python scripts/nemad_outside_test.py score nemad-tabicl-20261127
 ```
+
+## Result (scored once, 2026-11-27)
+
+**Outcome: supported** (amendment 4, row 2). Nothing changes: the blend of
+cycle 6 and TabICLv2 stays the ranking of record.
+Record: `docs/local-gpu/nemad-outside-test.json`.
+
+**Checks before reading, all passed.**
+- **The laptop run matched the record's:** same bundle, all five folds, the
+  same settings, and the features file sent. It took 5.4 minutes.
+- **TabICLv2 reproduced the record run exactly.**
+  - Largest gap 0.0000 on the 239 overlap rows with identical inputs.
+  - 0.0011 on the 6 rows whose inputs differ by rounding.
+- **Cycle 6's final models reproduced the published shortlist** (largest
+  gap 0.0005).
+
+**AUC, and the paired difference with its 95% interval.** Intervals
+resample 1,245 groups.
+
+| Slice | Rows | Cycle 6 | TabICLv2 | Blend | Blend − cycle 6 |
+| --- | --- | --- | --- | --- | --- |
+| All | 2,833 | 0.799 | 0.821 | 0.818 | +0.018 (+0.010 to +0.029) |
+| **Not cuprates (main reading)** | 2,004 | 0.779 | 0.805 | 0.799 | **+0.020 (+0.009 to +0.033)** |
+| **Not cuprates, groups with no training row (outside reading)** | 1,037 | 0.761 | 0.777 | 0.774 | **+0.012 (−0.000 to +0.025)** |
+| Not cuprates, groups with training rows | 967 | 0.796 | 0.833 | 0.826 | +0.030 (+0.014 to +0.050) |
+| Other families (mostly intermetallic) | 1,505 | 0.758 | 0.773 | 0.774 | +0.016 (+0.003 to +0.029) |
+
+**Tc.** The blend's error on the log scale is lower than cycle 6's on every
+slice, and every interval lies below zero. On the main reading:
+−0.017 (−0.025 to −0.007).
+
+**What it means.**
+- [Likely] This is the third set of rows on which the blend beats cycle 6,
+  after the development rows and the locked rows. It is the first set from
+  another source, and on the main reading the interval lies above zero.
+- [Likely] The gain is mostly near known chemistry.
+  - It is +0.030 where a composition's group holds training rows, and +0.012
+    where it holds none; the second interval only just reaches zero.
+  - This fits how TabICLv2 works: it predicts by comparing a compound with
+    the training rows it is given, so close relatives help it most.
+  - On shortlists of new compositions in known families, which is how the
+    ranking is used, that is the case that matters.
+- **TabICLv2 alone scored higher than the blend** (0.805 against 0.799 on the
+  main reading), with wider intervals.
+  - This was not an adoption test.
+  - TabICLv2 alone failed its own test on the development rows
+    (`docs/training-methods-review.md`).
+  - Switching on this result alone would be choosing after the fact. A
+    planned test would be needed first.
+- **Limits:**
+  - NEMAD's labels are about one in ten wrong.
+  - The test was not fully blind (amendment 2):
+    - cycle 6's side of the outside reading was mostly known;
+    - the models under test had committed values on 7 rows (the blend) and
+      11 rows (cycle 6).
+
+**Predictions against results.**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| The blend's non-cuprate AUC is at least cycle 6's | 65% | Yes |
+| Its paired non-cuprate interval lies above zero | 30% | Yes |
+| Its paired non-cuprate interval lies entirely below zero | 7% | No |
+| Outside reading: the blend is at least cycle 6 | 60% | Yes |
+| On either reading, the interval lies entirely below zero | 10% | No |
+| TabICLv2 alone is at least cycle 6 (non-cuprates) | 50% | Yes |
+| The blend is at least cycle 6 on the other families | 60% | Yes |
+| The laptop run takes under 12 minutes | 80% | Yes (5.4) |
+| TabICLv2 reproduces the record run on the overlap | 85% | Yes (gap 0.0000) |
+| Outcome 2, supported | 45% | Yes |
+
+- Ten of ten went the way I gave more than even odds, and the long shots
+  did not happen.
+- The 30% for an interval above zero was too low. I had expected NEMAD's
+  label noise to blur the difference more than it did.

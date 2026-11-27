@@ -1333,3 +1333,14 @@ saw the 2,083 NEMAD compositions. Its five final models score them at:
 - The added-rows file is kept (`cycle7-additions.csv.gz`, not committed).
 - The NEMAD rows are worth more as test data than as training data. A
   proposal for that goes to the owner separately.
+
+### Outside test of the ranking of record on NEMAD compositions (2026-11-27)
+
+- **Outcome: supported.** The blend stays the ranking of record.
+- On 2,004 non-cuprate NEMAD compositions new to the project:
+  - blend minus cycle 6, AUC: +0.020 (95% interval +0.009 to +0.033);
+  - on the 1,037 in groups with no training row: +0.012 (−0.000 to +0.025).
+- The gain is mostly near known chemistry. TabICLv2 alone scored higher
+  still, but that was not an adoption test.
+- Plan and result: `docs/nemad-outside-test.md`. Record:
+  `docs/local-gpu/nemad-outside-test.json`.
