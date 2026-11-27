@@ -1,0 +1,637 @@
+[
+ {
+  "id": "S00217",
+  "formula": "C4HfNb3",
+  "composition_key": "C:0.500;Hf:0.125;Nb:0.375",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1011323",
+   "parent_formula": "- C Nb -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Hf on Nb site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02771",
+  "formula": "Cr6Re",
+  "composition_key": "Cr:0.860;Re:0.140",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534885",
+   "parent_formula": "- Cr -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Re on Cr site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S02974",
+  "formula": "Al3Sb2V14",
+  "composition_key": "Al:0.146;Sb:0.113;V:0.741",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1527515",
+   "parent_formula": "- Sb V3 -",
+   "space_group": "P m -3 n",
+   "matched_as": "parent, with Al on Sb site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02358",
+  "formula": "C5MoTa4",
+  "composition_key": "C:0.500;Mo:0.100;Ta:0.400",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1010654",
+   "parent_formula": "- C Ta -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Mo on Ta site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02876",
+  "formula": "GaSn16",
+  "composition_key": "Ga:0.040;Sn:0.960",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534488",
+   "parent_formula": "- Sn -",
+   "space_group": "I 41/a m d :1",
+   "matched_as": "parent, with Ga on Sn site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S02789",
+  "formula": "Mo3OS3",
+  "composition_key": "Mo:0.429;O:0.143;S:0.429",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "4335444",
+   "parent_formula": "- Mo3 S4 -",
+   "space_group": "P -1",
+   "matched_as": "parent, with O on S site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S01482",
+  "formula": "C3Nb2W",
+  "composition_key": "C:0.500;Nb:0.350;W:0.150",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1011323",
+   "parent_formula": "- C Nb -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with W on Nb site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02661",
+  "formula": "Cs2Fe4Se5",
+  "composition_key": "Cs:0.178;Fe:0.378;Se:0.444",
+  "match": {
+   "source": "COD",
+   "entry": "7247026",
+   "space_group": "I 4/m m m",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S03247",
+  "formula": "Ir2RhSe6",
+  "composition_key": "Ir:0.218;Rh:0.102;Se:0.680",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "9009096",
+   "parent_formula": "- Ir Se2 -",
+   "space_group": "P n a m",
+   "matched_as": "parent, with Rh on Ir site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02665",
+  "formula": "As7Ba3CoFe6K",
+  "composition_key": "As:0.400;Ba:0.164;Co:0.069;Fe:0.331;K:0.036",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "4123003",
+   "parent_formula": "- As2 Ba0.83 Fe2 K0.17 -",
+   "space_group": "I 4/m m m",
+   "matched_as": "parent, with Co on Fe site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00911",
+  "formula": "Mo5S7Y",
+  "composition_key": "Mo:0.395;S:0.526;Y:0.079",
+  "match": {
+   "source": "Materials Project (ICSD-derived)",
+   "entry": "mp-aaackvgo",
+   "space_group": "R-3",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S00768",
+  "formula": "As6CoFe5Sr3",
+  "composition_key": "As:0.400;Co:0.068;Fe:0.332;Sr:0.200",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "9016374",
+   "parent_formula": "- As2 Fe2 Sr -",
+   "space_group": "I 4/m m m",
+   "matched_as": "parent, with Co on Fe site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02064",
+  "formula": "C7ThY4",
+  "composition_key": "C:0.574;Th:0.085;Y:0.340",
+  "match": {
+   "source": "parent structure (MP)",
+   "entry": "mp-aaaaanzv",
+   "parent_formula": "Y4C5",
+   "space_group": "Pbam",
+   "matched_as": "parent, with Th on Y site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S01293",
+  "formula": "Al3GeNb12",
+  "composition_key": "Al:0.180;Ge:0.060;Nb:0.760",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "4124630",
+   "parent_formula": "- Ge Nb3 -",
+   "space_group": "P m -3 n",
+   "matched_as": "parent, with Al on Ge site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00315",
+  "formula": "Al2GaNb9",
+  "composition_key": "Al:0.175;Ga:0.075;Nb:0.750",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1522559",
+   "parent_formula": "- Ga Nb3 -",
+   "space_group": "P m -3 n",
+   "matched_as": "parent, with Al on Ga site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00206",
+  "formula": "TiZr",
+  "composition_key": "Ti:0.497;Zr:0.503",
+  "match": {
+   "source": "COD",
+   "entry": "1539805",
+   "space_group": "P 63/m m c",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S01350",
+  "formula": "As6Ba3CoFe5",
+  "composition_key": "As:0.400;Ba:0.200;Co:0.048;Fe:0.352",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "4123005",
+   "parent_formula": "- As2 Ba Fe2 -",
+   "space_group": "I 4/m m m",
+   "matched_as": "parent, with Co on Fe site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S01522",
+  "formula": "B5Ba2Pt8",
+  "composition_key": "B:0.353;Ba:0.118;Pt:0.529",
+  "match": {
+   "source": "COD",
+   "entry": "1510617",
+   "space_group": "P 63/m m c",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S02133",
+  "formula": "NbZr6",
+  "composition_key": "Nb:0.130;Zr:0.870",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534901",
+   "parent_formula": "- Zr -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Nb on Zr site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S00248",
+  "formula": "Cu3S10Zn2",
+  "composition_key": "Cu:0.200;S:0.667;Zn:0.133",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "2101636",
+   "parent_formula": "- Cu S2 -",
+   "space_group": "P 1 21 1",
+   "matched_as": "parent, with Zn on Cu site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00199",
+  "formula": "Ir3Rh2Ru",
+  "composition_key": "Ir:0.483;Rh:0.345;Ru:0.172",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1523010",
+   "parent_formula": "- Ir Rh -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Ru on Rh site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S01025",
+  "formula": "Ir5RhSe12",
+  "composition_key": "Ir:0.279;Rh:0.041;Se:0.680",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "9009096",
+   "parent_formula": "- Ir Se2 -",
+   "space_group": "P n a m",
+   "matched_as": "parent, with Rh on Ir site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S03192",
+  "formula": "B2Nb",
+  "composition_key": "B:0.677;Nb:0.323",
+  "match": {
+   "source": "COD",
+   "entry": "1510778",
+   "space_group": "P 6/m m m",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S01441",
+  "formula": "HfTa5",
+  "composition_key": "Hf:0.160;Ta:0.840",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534932",
+   "parent_formula": "- Ta -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Hf on Ta site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S02483",
+  "formula": "C5NbW4",
+  "composition_key": "C:0.500;Nb:0.100;W:0.400",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1501516",
+   "parent_formula": "- C W -",
+   "space_group": "P -6 m 2",
+   "matched_as": "parent, with Nb on W site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02627",
+  "formula": "As8Ba4Fe7Ni",
+  "composition_key": "As:0.400;Ba:0.200;Fe:0.364;Ni:0.036",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "4123005",
+   "parent_formula": "- As2 Ba Fe2 -",
+   "space_group": "I 4/m m m",
+   "matched_as": "parent, with Ni on Fe site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00219",
+  "formula": "Bi2CoO6Sr2",
+  "composition_key": "Bi:0.178;Co:0.089;O:0.556;Sr:0.178",
+  "match": {
+   "source": "COD",
+   "entry": "1541038",
+   "space_group": "I 2 m b",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S02276",
+  "formula": "Cu5Ge",
+  "composition_key": "Cu:0.840;Ge:0.160",
+  "match": {
+   "source": "COD",
+   "entry": "1524231",
+   "space_group": "P 63/m m c",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S02454",
+  "formula": "CoZr5",
+  "composition_key": "Co:0.150;Zr:0.850",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534901",
+   "parent_formula": "- Zr -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Co on Zr site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S02554",
+  "formula": "B6ErRh6Y",
+  "composition_key": "B:0.444;Er:0.059;Rh:0.444;Y:0.052",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1511507",
+   "parent_formula": "- B4 Rh4 Y -",
+   "space_group": "P 42/n m c :1",
+   "matched_as": "parent, with Er on Y site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S02505",
+  "formula": "As6Ba3Fe5Ir",
+  "composition_key": "As:0.400;Ba:0.200;Fe:0.340;Ir:0.060",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "4123005",
+   "parent_formula": "- As2 Ba Fe2 -",
+   "space_group": "I 4/m m m",
+   "matched_as": "parent, with Ir on Fe site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00163",
+  "formula": "BaBi2KO6",
+  "composition_key": "Ba:0.093;Bi:0.207;K:0.114;O:0.586",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1541112",
+   "parent_formula": "- Ba Bi O3 -",
+   "space_group": "I 1 2/m 1",
+   "matched_as": "parent, with K on Ba site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S01469",
+  "formula": "SbSn16",
+  "composition_key": "Sb:0.040;Sn:0.960",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534488",
+   "parent_formula": "- Sn -",
+   "space_group": "I 41/a m d :1",
+   "matched_as": "parent, with Sb on Sn site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S00916",
+  "formula": "Ni3VZr2",
+  "composition_key": "Ni:0.500;V:0.160;Zr:0.340",
+  "match": {
+   "source": "COD",
+   "entry": "4031642",
+   "space_group": "F d -3 m :1",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S03255",
+  "formula": "InSn9Te10",
+  "composition_key": "In:0.031;Sn:0.466;Te:0.503",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1539753",
+   "parent_formula": "- Sn Te -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with In on Sn site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S01725",
+  "formula": "La4Ni2O9Sr",
+  "composition_key": "La:0.239;Ni:0.143;O:0.571;Sr:0.047",
+  "match": {
+   "source": "COD",
+   "entry": "1532373",
+   "space_group": "I 4/m m m",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S01504",
+  "formula": "B4La6N5Ni4",
+  "composition_key": "B:0.206;La:0.309;N:0.278;Ni:0.206",
+  "match": {
+   "source": "COD",
+   "entry": "1510742",
+   "space_group": "I 4/m m m",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S00831",
+  "formula": "Mo5S7Yb",
+  "composition_key": "Mo:0.395;S:0.526;Yb:0.079",
+  "match": {
+   "source": "COD",
+   "entry": "1530563",
+   "space_group": "R -3 :R",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S00530",
+  "formula": "CdHg8",
+  "composition_key": "Cd:0.100;Hg:0.900",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1523182",
+   "parent_formula": "- Hg -",
+   "space_group": "R -3 m :H",
+   "matched_as": "parent, with Cd on Hg site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S00873",
+  "formula": "Ir3Rh2Te11",
+  "composition_key": "Ir:0.180;Rh:0.142;Te:0.678",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1538719",
+   "parent_formula": "- Rh Te2 -",
+   "space_group": "P -3 m 1",
+   "matched_as": "parent, with Ir on Rh site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00443",
+  "formula": "LuRe2",
+  "composition_key": "Lu:0.333;Re:0.667",
+  "match": {
+   "source": "Materials Project (ICSD-derived)",
+   "entry": "mp-aaackutn",
+   "space_group": "P6_3/mmc",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S02702",
+  "formula": "C5Mo4Ti",
+  "composition_key": "C:0.500;Mo:0.400;Ti:0.100",
+  "match": {
+   "source": "parent structure (MP)",
+   "entry": "mp-aaaaadkr",
+   "parent_formula": "MoC",
+   "space_group": "P-6m2",
+   "matched_as": "parent, with Ti on Mo site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00957",
+  "formula": "LaSn6Th",
+  "composition_key": "La:0.125;Sn:0.750;Th:0.125",
+  "match": {
+   "source": "COD",
+   "entry": "1523801",
+   "space_group": "P m -3 m",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S00748",
+  "formula": "MoNbRe3",
+  "composition_key": "Mo:0.200;Nb:0.200;Re:0.600",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1522079",
+   "parent_formula": "- Mo0.2 Re0.8 -",
+   "space_group": "P 63/m m c",
+   "matched_as": "parent, with Nb on Re site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S01357",
+  "formula": "OsW8",
+  "composition_key": "Os:0.100;W:0.900",
+  "match": {
+   "source": "COD",
+   "entry": "1522991",
+   "space_group": "I m -3 m",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S01611",
+  "formula": "BaBi2KO6",
+  "composition_key": "Ba:0.114;Bi:0.201;K:0.086;O:0.599",
+  "match": {
+   "source": "COD",
+   "entry": "1541111",
+   "space_group": "P m -3 m",
+   "matched_as": "the compound itself"
+  },
+  "confidence_given": "high"
+ },
+ {
+  "id": "S03002",
+  "formula": "As4Ba2Fe3Ru",
+  "composition_key": "As:0.400;Ba:0.200;Fe:0.296;Ru:0.104",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "4123005",
+   "parent_formula": "- As2 Ba Fe2 -",
+   "space_group": "I 4/m m m",
+   "matched_as": "parent, with Ru on Fe site"
+  },
+  "confidence_given": "medium"
+ },
+ {
+  "id": "S00712",
+  "formula": "Ir11Re",
+  "composition_key": "Ir:0.930;Re:0.070",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534947",
+   "parent_formula": "- Ir -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Re on Ir site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S01189",
+  "formula": "HfNb8",
+  "composition_key": "Hf:0.100;Nb:0.900",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534903",
+   "parent_formula": "- Nb -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Hf on Nb site"
+  },
+  "confidence_given": "low"
+ },
+ {
+  "id": "S02772",
+  "formula": "Ir8Re",
+  "composition_key": "Ir:0.900;Re:0.100",
+  "match": {
+   "source": "parent structure (COD)",
+   "entry": "1534947",
+   "parent_formula": "- Ir -",
+   "space_group": "F m -3 m",
+   "matched_as": "parent, with Re on Ir site"
+  },
+  "confidence_given": "low"
+ }
+]

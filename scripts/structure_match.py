@@ -179,43 +179,76 @@ def mp_index() -> dict[tuple[str, ...], list[dict]]:
     return index
 
 
+def ground_state(fractions: dict[str, float], mp: dict) -> dict | None:
+    """The Materials Project's lowest-energy entry with an experimental (ICSD) source for this composition, if any."""
+    entries = [m for m in mp.get(tuple(sorted(fractions)), [])
+               if (m.get("icsd_ids") or m.get("theoretical") == "False") and distance(m["fractions"], fractions) <= CLOSE]
+    return min(entries, key=lambda m: float(m["energy_above_hull_ev_per_atom"] or 9)) if entries else None
+
+
+def choose(entries: list[dict], ground: dict | None) -> dict | None:
+    """Among matching COD entries, prefer the Materials Project ground state's space group (COD also holds
+    high-pressure, thin-film and hypothetical polymorphs); then the closest composition, then the newest."""
+    if not entries:
+        return None
+    if ground is not None:
+        same = [e for e in entries if str(e.get("sgNumber")) == str(ground["spacegroup_number"])]
+        if same:
+            entries = same
+        else:
+            return None                       # COD has only other polymorphs: the caller falls back to the ground state
+    return sorted(entries, key=lambda e: (e["distance"], -int(e.get("year") or 0)))[0]
+
+
 def parent_match(fractions: dict[str, float], mp: dict) -> dict | None:
-    """The closest experimental parent: COD first, then a Materials Project entry citing ICSD records."""
+    """The closest experimental parent. Among a parent's COD entries the Materials Project ground state's polymorph
+    is preferred; with no such COD entry, the ground state itself is used. ``ambiguous`` is set when the series'
+    other end member (the dopant's own compound) has a different structure, as for (Ir,Rh)Se2 or (W,Nb)C."""
     best = None
     for dopant, host, merged in parents(fractions):
         elements = tuple(sorted(merged))
         path = cache_path(elements)
+        cod = []
         for entry in json.loads(path.read_text(encoding="utf-8")) if path.is_file() else []:
             if entry.get("duplicateof") or entry.get("onhold"):
                 continue
             f = cod_fractions(entry)
             if f and tuple(sorted(f)) == elements:
                 d = distance(f, merged)
-                if d <= CLOSE and (best is None or (best["source"] != "COD") or d < best["distance"]):
-                    best = {"source": "COD", "entry": entry["file"], "formula": entry["formula"],
-                            "space_group": entry["sg"], "distance": round(d, 4), "dopant": dopant, "host": host}
-        if best and best["source"] == "COD":
+                if d <= CLOSE:
+                    cod.append({**entry, "distance": round(d, 4)})
+        ground = ground_state(merged, mp)
+        picked = choose(cod, ground)
+        if picked is not None:
+            found = {"source": "COD", "entry": picked["file"], "formula": picked["formula"], "space_group": picked["sg"],
+                     "sg_number": str(picked["sgNumber"]), "distance": picked["distance"]}
+        elif ground is not None:
+            found = {"source": "MP", "entry": ground["mp_id"], "formula": ground["formula"],
+                     "space_group": ground["spacegroup_symbol"], "sg_number": str(ground["spacegroup_number"]),
+                     "distance": round(distance(ground["fractions"], merged), 4)}
+        else:
             continue
-        for entry in mp.get(elements, []):
-            if not (entry.get("icsd_ids") or entry.get("theoretical") == "False"):
-                continue
-            d = distance(entry["fractions"], merged)
-            if d <= CLOSE and (best is None or (best["source"] == "MP" and d < best["distance"])):
-                best = {"source": "MP", "entry": entry["mp_id"], "formula": entry["formula"],
-                        "space_group": entry["spacegroup_symbol"], "distance": round(d, 4), "dopant": dopant,
-                        "host": host}
+        other = {e: v for e, v in fractions.items() if e != host}
+        other[dopant] += fractions[host]
+        other_ground = ground_state(other, mp)
+        found.update({"dopant": dopant, "host": host,
+                      "ambiguous": bool(other_ground and str(other_ground["spacegroup_number"]) != found["sg_number"])})
+        rank = (found["ambiguous"], found["source"] != "COD", found["distance"])
+        if best is None or rank < (best["ambiguous"], best["source"] != "COD", best["distance"]):
+            best = found
     return best
 
 
 def confidence(fractions: dict[str, float], parent: dict | None, cod: list, mp_exp: list) -> str:
     """high: a direct experimental match. medium: a compound parent. low: a pure-element parent (a dilute alloy can
-    take another phase than the element, as Rh-doped Ti takes the cubic beta phase), or a host at 85% or more."""
+    take another phase than the element, as Rh-doped Ti takes the cubic beta phase), a host at 85% or more, or an
+    ambiguous parent (the two end members of the series differ in structure)."""
     if cod or mp_exp:
         return "high"
     if parent is None:
         return ""
     elemental = len({e for e in fractions if e != parent["dopant"]}) == 1
-    return "low" if elemental or max(fractions.values()) >= 0.85 else "medium"
+    return "low" if elemental or max(fractions.values()) >= 0.85 or parent.get("ambiguous") else "medium"
 
 
 def best_cod(matches: list[dict]) -> dict:
@@ -271,7 +304,8 @@ def cmd_match() -> dict:
         status = ("experimental (COD)" if cod else "experimental via MP" if mp_exp
                   else f"parent structure ({parent['source']})" if parent
                   else "calculated only (MP)" if mps else "none" if fetched else "not fetched")
-        best = best_cod(cod) if cod else None
+        ground = ground_state(r["fractions"], mp)
+        best = (choose(cod, ground) or best_cod(cod)) if cod else None
         mp_best = sorted(mp_exp or mps, key=lambda m: (m["distance"], float(m["energy_above_hull_ev_per_atom"] or 9)))[0] \
             if mps else None
         summary.append({"id": r["id"], "formula": r["formula"], "composition_key": r["composition_key"], "status": status,
@@ -291,6 +325,7 @@ def cmd_match() -> dict:
                         "parent_entry": parent["entry"] if parent else "",
                         "parent_space_group": parent["space_group"] if parent else "",
                         "parent_distance": parent["distance"] if parent else "",
+                        "parent_ambiguous": bool(parent and parent.get("ambiguous")),
                         "confidence": confidence(r["fractions"], parent, cod, mp_exp)})
     MATCHES.parent.mkdir(parents=True, exist_ok=True)
     with gzip.open(MATCHES, "wt", newline="", encoding="utf-8") as handle:

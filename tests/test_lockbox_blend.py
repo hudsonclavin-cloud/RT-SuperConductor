@@ -410,3 +410,13 @@ def test_structure_parent_merges_are_chemically_guarded():
     assert S.may_substitute("Sr", "La") and S.may_substitute("K", "Ba")
     assert S.parents({"Nb": 0.5, "Ti": 0.5}) == []                    # 0.5 is not a substituent
     assert S.distance({"Nb": 0.75, "Sn": 0.25}, {"Nb": 0.76, "Sn": 0.24}) == pytest.approx(0.01)
+
+
+def test_structure_choice_prefers_the_ground_state_polymorph():
+    import structure_match as S
+
+    entries = [{"file": "1", "sgNumber": "225", "distance": 0.0, "year": "1993"},       # hypothetical fcc
+               {"file": "2", "sgNumber": "229", "distance": 0.0, "year": "1960"}]       # the real bcc metal
+    assert S.choose(entries, {"spacegroup_number": "229"})["file"] == "2"
+    assert S.choose(entries, {"spacegroup_number": "194"}) is None                     # fall back to the ground state
+    assert S.choose(entries, None)["file"] == "1"                                      # no arbiter: newest of the closest

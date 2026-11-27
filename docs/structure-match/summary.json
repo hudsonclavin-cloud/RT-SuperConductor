@@ -1,9 +1,9 @@
 {
  "compounds": 3345,
  "status": {
-  "parent structure (MP)": 160,
+  "parent structure (MP)": 187,
   "experimental (COD)": 265,
-  "parent structure (COD)": 829,
+  "parent structure (COD)": 802,
   "none": 2050,
   "experimental via MP": 22,
   "calculated only (MP)": 19
@@ -12,9 +12,9 @@
  "polymorphs": 62,
  "with_an_experimental_structure_or_parent": 1276,
  "confidence": {
-  "medium": 682,
+  "medium": 613,
   "high": 287,
-  "low": 307
+  "low": 376
  },
  "cod_exact": 143,
  "element_sets_fetched": 1378,
