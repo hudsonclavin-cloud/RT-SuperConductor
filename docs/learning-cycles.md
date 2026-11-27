@@ -1344,3 +1344,13 @@ saw the 2,083 NEMAD compositions. Its five final models score them at:
   still, but that was not an adoption test.
 - Plan and result: `docs/nemad-outside-test.md`. Record:
   `docs/local-gpu/nemad-outside-test.json`.
+
+### A "Tc of at least 10 K" target (2026-11-27)
+
+- The ranking of record, ordered by **expected Tc**, scores AUC 0.941 at
+  10 K and 0.963 at 20 K on non-cuprate development rows held out by group.
+- Ordered by chance of superconducting, it scores 0.668 at 10 K.
+- A model trained on the 10 K target did not beat expected Tc (−0.0045), so
+  no new model.
+- High-Tc work (the room-temperature track, Hazel candidates) should order
+  by expected Tc. See `docs/high-tc-target.md`.

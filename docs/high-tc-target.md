@@ -66,3 +66,66 @@ the new model is compared with it.
 | Expected Tc beats p as the incumbent's better score | 75% |
 | The new model meets the adoption rule | 30% |
 | At 20 K, the incumbent's better score reaches at least 0.88 | 55% |
+
+## Result (scored once, 2026-11-27)
+
+**Reading: the new model is not adopted.** The incumbent's expected Tc
+serves the high-Tc question. Record: `docs/high-tc-target.json`.
+
+**Non-cuprate development rows, held out by group** (8,598 scored; see the
+note on counts below):
+
+| Score | AUC, Tc ≥ 10 K (1,901 positives) | AUC, Tc ≥ 20 K (760) |
+| --- | --- | --- |
+| Incumbent, **p** (how shortlists are ordered today) | 0.668 | 0.606 |
+| Incumbent, **expected Tc** | **0.941** | **0.963** |
+| New, trained on Tc ≥ 10 K | 0.936 | 0.932 |
+
+- **New minus expected Tc: −0.0045** (95% interval −0.0145 to +0.0039).
+  Not a gain.
+- **All development rows, including cuprates, at 10 K:** expected Tc 0.931,
+  new 0.929, p 0.633.
+
+**Within each family** (descriptive; not part of the plan). This checks
+that the score does more than recognise high-Tc families:
+
+| Family | Rows | Tc ≥ 10 K | Expected Tc | p |
+| --- | --- | --- | --- | --- |
+| Other (mostly intermetallic) | 6,637 | 929 | 0.951 | 0.779 |
+| Iron-based | 1,311 | 870 | 0.734 | 0.634 |
+| Non-copper oxides | 650 | 102 | 0.915 | 0.780 |
+| Cuprates | 801 | 451 | 0.737 | 0.765 |
+
+Among non-cuprate superconductors alone, the predicted Tc separates 10 K
+and above from below 10 K at 0.946.
+
+**What it means**
+- [Likely] **The ranking already answers the room-temperature-relevant
+  question well, when it is ordered by expected Tc.**
+  - It scores 0.94 at 10 K and 0.96 at 20 K, held out by group.
+  - Ordered by chance of superconducting, as the shortlists and the Hazel
+    queue have been, it scores only 0.67 on the same question. The two
+    orderings answer different questions.
+  - So by the plan's rule, the room-temperature track and future Hazel
+    candidate choices use expected Tc. Re-ordering the current queue is the
+    owner's decision.
+- [Likely] **The weak spot is inside the iron-based family** (0.73), where
+  composition alone does not separate a 30 K pnictide from a 5 K one well.
+- [Certain] **These AUCs measure a different task from the 0.79**, and are
+  not an improvement on it.
+- [Certain] **They rank within the range of Tc in the data.** The highest
+  non-cuprate Tc in the table is in the 50s K. Nothing here says the score
+  can recognise a compound far above that.
+
+**Counts.** The plan gave "8,942 rows". That number includes 344 rows with
+no label, which no score can be judged on. Its own breakdown (1,901 +
+4,741 + 1,956) sums to the 8,598 that were scored.
+
+**Predictions against results**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| The incumbent's better score reaches at least 0.85 at 10 K | 70% | Yes (0.941) |
+| Expected Tc beats p | 75% | Yes, by a wide margin |
+| The new model meets the adoption rule | 30% | No (−0.0045) |
+| At 20 K, the incumbent's better score reaches at least 0.88 | 55% | Yes (0.963) |
