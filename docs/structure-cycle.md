@@ -7,7 +7,7 @@ atom.
 
 Written 2026-11-27, before any model with these features has been trained or
 scored. Owner approved (c) the same day. Features:
-`scripts/structure_features.py`. Test: `scripts/structure_cycle.py`.
+`scripts/table_structure_features.py`. Test: `scripts/structure_cycle.py`.
 
 ## Rows and features
 
