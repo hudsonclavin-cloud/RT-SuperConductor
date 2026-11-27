@@ -149,6 +149,7 @@ def made_metals_reproduction(keys: list[str], tabicl: tuple, bundle, X: np.ndarr
     with np.load(G.result_folder(RECORD_TABICL) / "candidates_made_metals.npz", allow_pickle=False) as record:
         p_record = dict(zip((str(k) for k in record["keys"]), record["p"].tolist()))
     position = {k: i for i, k in enumerate(keys)}
+    made_X = np.asarray(bundle["candidates_made_metals_X"])      # read once: an open .npz decompresses on every access
     same, rounded = [], []
     for j, formula in enumerate(str(f) for f in bundle["candidates_made_metals_keys"]):
         fractions = M.fractions(formula)
@@ -156,7 +157,7 @@ def made_metals_reproduction(keys: list[str], tabicl: tuple, bundle, X: np.ndarr
         if i is None or formula not in p_record:
             continue
         gap = abs(float(tabicl[0][i]) - p_record[formula])
-        (same if np.array_equal(bundle["candidates_made_metals_X"][j], X[i]) else rounded).append(gap)
+        (same if np.array_equal(made_X[j], X[i]) else rounded).append(gap)
     out = {"rows": len(same) + len(rounded), "rows_with_identical_inputs": len(same),
            "rows_whose_inputs_differ_by_rounding": len(rounded), "threshold": REPRODUCED_GAP, "record_run": RECORD_TABICL}
     if same:

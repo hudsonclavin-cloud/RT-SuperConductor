@@ -324,13 +324,14 @@ def test_outside_test_made_metals_reproduction(tmp_path, monkeypatch):
              p=np.array([0.8, 0.9, 0.7]), tc=np.array([39.0, 18.0, 17.0]))
     monkeypatch.setattr(O.G, "result_folder", lambda name: tmp_path)
     key = lambda formula: O.B.composition_key(O.M.fractions(formula))
-    keys = ["Mo:0.500;Re:0.500", key("Nb3Sn"), key("V3Si")]
-    X = np.array([[0.0, 0.0], [1.0, 2.0], [3.0, 4.0]])
-    bundle = {"candidates_made_metals_keys": np.array(["V3Si", "Nb3Sn", "MgB2"]),
-              "candidates_made_metals_X": np.array([[3.0, 4.0001], [1.0, 2.0], [5.0, 6.0]])}   # V3Si's inputs differ
-    same = O.made_metals_reproduction(keys, (np.array([0.1, 0.905, 0.2]), None), bundle, X)
+    # every row sits at a different position in each list, so mixed-up indices give different answers
+    keys = ["Mo:0.500;Re:0.500", key("V3Si"), key("Nb3Sn")]
+    X = np.array([[0.0, 0.0], [3.0, 4.0], [1.0, 2.0]])
+    bundle = {"candidates_made_metals_keys": np.array(["Nb3Sn", "V3Si", "MgB2"]),
+              "candidates_made_metals_X": np.array([[1.0, 2.0], [3.0, 4.0001], [5.0, 6.0]])}   # V3Si's inputs differ
+    same = O.made_metals_reproduction(keys, (np.array([0.1, 0.2, 0.905]), None), bundle, X)
     assert same["rows"] == 2 and same["rows_with_identical_inputs"] == 1 and same["rows_whose_inputs_differ_by_rounding"] == 1
     assert same["reproduced"] and abs(same["largest_gap"] - 0.005) < 1e-9          # Nb3Sn only
     assert abs(same["largest_gap_where_inputs_differ"] - 0.5) < 1e-9               # V3Si, reported apart
-    off = O.made_metals_reproduction(keys, (np.array([0.1, 0.5, 0.7]), None), bundle, X)
+    off = O.made_metals_reproduction(keys, (np.array([0.1, 0.7, 0.5]), None), bundle, X)
     assert not off["reproduced"]

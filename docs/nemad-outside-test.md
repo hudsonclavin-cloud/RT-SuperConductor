@@ -57,7 +57,19 @@ TabICLv2's or the blend's scores on these rows. That was wrong.
       750 rows cycle 7 left out.
   - (Third review.) Older committed lists print predictions by earlier models
     (earlier cycles, placebos, physics proxies, the provisional EPW lists) for
-    76 of the rows.
+    76 of the rows. (Superseded: see the fourth-review points below.)
+  - (Fourth review.) Committed rank lists add more, as probability ranks
+    among the untested made metals, which is the same order the AUC uses:
+    - the blend's rank for one more row, Bi2Rh3S2 (`blend6.json`);
+    - cycle 6's ranks for seven more: Bi2Rh3S2, LuNiC2, Ta2PdS6, Zr5Pt3,
+      HgTe, Ta2S2C and a Nb-Hg-F compound (`blend6.json`, `cycle7*.json`).
+    - In all, the blend has committed values (probabilities or ranks) on 7
+      rows, and cycle 6 on 11.
+  - (Fourth review.) Older models: readable committed lists print predictions
+    for 99 rows, not 76; `docs/bercx-made-metals-join.csv` was missed. Counting
+    compressed files too, every one of the 245 made-metals rows has an older
+    model's prediction (`data/candidates/mp-sc-classifier-scores.csv.gz` and
+    the `overnight-20261122` runs), plus CrC: 246 rows.
   - Nobody has compared any of these with NEMAD's labels.
 - **Cycle 6's side of the outside reading was mostly known when the reading
   was added.**
