@@ -718,3 +718,74 @@ SbTe2, then LiGaIr, then CsIr2P2, then cubic NaMgPb2 last.
   NaMgPb2's stable structure (2026-11-19 and 2026-11-20 sections above).
 - Nothing else changes. Candidate results stay private under
   `data/raw/hazel/` (AGENTS.md).
+
+## Room-temperature track, approved by the owner 2026-11-27
+
+**Main idea:** a second track that points the pipeline at the chemistries
+theory flags for high Tc at or near ambient pressure: hydrides and
+boron-carbon frameworks.
+- **It calibrates first.** It starts with three published compounds whose
+  measured answer is known, so the method's error on these chemistries is
+  measured before any candidate number is read.
+- **Where the compounds came from:** `docs/training-data-sources.md`
+  (round 2).
+- **When it runs:** it starts once the Zr6Ga2Ni benchmark passes, and runs
+  alongside the current queue if the allocation allows.
+
+Written before any package is built or run. Nothing here has run anywhere.
+
+**Order**
+
+| # | Compound | Pressure | Role | What is known [from the papers] |
+| --- | --- | --- | --- | --- |
+| C1 | Mg2RhH6 (Fm-3m, 9 atoms) | about 50 GPa | Calibration: a hydride with a measured Tc | Measured onset 18–29 K at 30–74 GPa (29 K at 53 GPa); published calculations about 60 K |
+| C2 | Ordered Li0.5BC | 0 | Calibration: a predicted high Tc that measured nothing | Calculated about 65 K; measured, no superconductivity |
+| C3 | SrB3C3 (Pm-3n, 14 atoms) | 40 GPa | Calibration: a covalent B-C framework with a measured Tc | Measured about 20 K at 40 GPa |
+| R1 | SrAuH3 (Pm-3m, 5 atoms) | 0 | Candidate | Calculated 132 K (Allen-Dynes); stable only above about 7 GPa |
+| R2 | KInH3 (Pm-3m, 5 atoms) | 0 | Candidate | Calculated 73 K; its dynamical stability at 0 GPa is disputed |
+| R3 | LiZrH6Ru (F-43m, 9 atoms) | 0 | Candidate: the one on the convex hull | Calculated 17–32 K |
+
+**Rules**
+1. **Calibration result:** calculated Tc (Allen-Dynes, μ* = 0.13, 0.020 Ry
+   broadening) divided by measured Tc, for C1 and C3.
+   - For C2 it is the calculated Tc itself. A high value shows how large a
+     false positive the method can give.
+2. **Candidates** go forward only if:
+   - they have no imaginary mode (nothing below −5 cm⁻¹), and
+   - their calculated Tc is still above 77 K after dividing by the
+     calibration ratio.
+3. **Smoke runs give no verdict.**
+
+**Predictions [Speculative]**
+
+| Outcome | Chance |
+| --- | --- |
+| C1: calculated / measured between 1.3 and 3 | 65% |
+| C2: calculated Tc above 30 K (the false positive reproduced) | 70% |
+| C3: calculated / measured between 1 and 2.5 | 55% |
+| R1 (SrAuH3) has an imaginary mode at 0 GPa in a harmonic run | 50% |
+| R2 (KInH3) has an imaginary mode at 0 GPa | 55% |
+| R3 (LiZrH6Ru) has no imaginary mode | 75% |
+| Any candidate passes rule 2 | 10% |
+
+**Building the packages: what is still needed**
+- **Pseudopotentials** for H, Rh, B, C, Au, K, In and Ru, from the same ONCV
+  set as the others. All are listed upstream (`pp-available.txt`).
+- **Structures:**
+  - Mg2RhH6: Mg 8c, Rh 4a, H 24e, x about 0.26, relaxed at pressure here.
+  - Li0.5BC: ordered model, from the published supplementary data.
+  - SrB3C3: Pm-3n, published.
+  - SrAuH3: Sr 1b, Au 1a, H 3d, a = 3.828 Å, published.
+  - KInH3: cubic perovskite.
+  - LiZrH6Ru: the GNoME CIF, which is under CC BY-NC.
+- **Pressure.** C1 and C3 need a variable-cell relaxation at pressure (`press`
+  in `pw.x`). The current packages do not have this, so the job script needs
+  a pressure option.
+- **Limits:**
+  - [Certain] The chain is harmonic. Hydrogen needs anharmonic phonons, and
+    published anharmonic corrections change hydride Tc by tens of percent.
+  - The calibration ratio is the guard against this.
+- **Privacy.** AGENTS.md exempts only the Zr6Ga2Ni benchmark. The calibration
+  compounds are published, but their results stay private under
+  `data/raw/hazel/` unless the owner extends the exemption to them.
+  Candidate results stay private under the same rule.

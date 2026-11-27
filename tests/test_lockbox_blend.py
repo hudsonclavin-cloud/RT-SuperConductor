@@ -389,3 +389,13 @@ def test_label_audit_extract_keeps_only_scanned_rows(tmp_path):
     path = tmp_path / "extract.csv.gz"
     assert A.write_extract(rows, sources, path) == 1          # the unscanned (e.g. locked) composition is left out
     assert A.load_extract(path) == {"NIMS SuperCon": {"Mo:0.500;Re:0.500": 1}}
+
+
+def test_high_tc_label():
+    import high_tc_target as H
+
+    label = np.array([1.0, 1.0, 1.0, 0.0, np.nan])
+    tc = np.array([12.0, 3.0, np.nan, np.nan, np.nan])
+    out = H.high_tc_label(label, tc)
+    assert out[0] == 1 and out[1] == 0 and np.isnan(out[2]) and out[3] == 0 and np.isnan(out[4])
+    assert H.high_tc_label(label, tc, 20.0)[0] == 0
