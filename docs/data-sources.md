@@ -117,3 +117,52 @@ than many small ones. In order of expected value:
    - They help a physics-based screen.
    - A formula-only model of them did not help predict experiments
      (`docs/physics-proxy2.md`).
+
+## NEMAD's magnetic datasets, checked 2026-11-27
+
+The owner supplied the paper (Itani, Zhang and Zang, "The northeast
+materials database for magnetic materials", *Nat. Commun.* 16, 9415, 2025,
+10.1038/s41467-025-64458-z) and its repository
+(github.com/sumanitani/NEMAD-MagneticML, also Zenodo 10.5281/zenodo.17042814).
+
+**What it holds.** No superconductor data. Three tables of compositions:
+
+| Table | Compositions usable here | Where the label comes from |
+| --- | --- | --- |
+| Ferromagnets, with Curie temperature | 16,337 | extracted from papers by language models |
+| Antiferromagnets, with Néel temperature | 6,791 | the same |
+| Non-magnetic | 11,136 | calculated (Materials Project), not measured |
+
+**Could ferromagnets serve as non-superconductors?** They would be
+*assumed* negatives: nobody cooled them to check. Measured here
+(`python scripts/magnetic_negatives_check.py`, results in
+`docs/magnetic-crosstab.json` and `docs/magnetic-ferromagnet-scores.json`):
+
+- [Certain] Nearly all are new to us. Of 13,160 ferromagnets with a Curie
+  temperature of 50 K or more, 12,721 are neither held nor a doping step
+  from a held composition.
+- [Certain] The assumption has real exceptions. Of the 122 ferromagnets we
+  hold with a label we may read, 37 (30%) are labelled superconductors.
+  - That sample is biased upward: a ferromagnet is in a superconductor
+    table because someone looked for superconductivity in it.
+  - Some are real coexistence (RuSr2GdCu2O8, ErNi2B2C). Some are a
+    pressure effect our table does not mark (iron, CrAs).
+  - Antiferromagnets are worse: 117 of 281 (42%). They are not usable as
+    negatives.
+- [Certain] Cycle 6 already discounts most ferromagnets. On 3,000 it has
+  never seen, its mean probability is 0.39. For scale, on the development
+  rows it gives known superconductors 0.79 and known nulls 0.53.
+  - 30% of the ferromagnets still score 0.5 or more, and 4% score 0.8 or
+    more.
+- [Likely] The ones it scores highest are mostly errors in the magnetic
+  table, not in the model. The top of the list holds Ba0.05Pb0.95 and
+  Pb0.95Sr0.05 with "Curie temperatures" of 263 K and 103 K. Lead with 5%
+  of a second metal is a superconductor.
+  - So adding every ferromagnet as a negative would put wrong labels
+    exactly where the model is being asked to decide.
+
+**Reading.** Not a source of superconductor rows. A possible source of
+assumed negatives, but only with a filter (for example Curie temperature of
+300 K or more, and a magnetic element making up a real share of the
+formula) and only as a planned learning cycle judged on the development
+rows. Nothing was added to any training table here.
