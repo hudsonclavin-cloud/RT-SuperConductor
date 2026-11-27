@@ -83,3 +83,26 @@ Written 2026-11-27, before any row has been read. Input:
 - **The main weakness:** with 50 rows per class and many unresolved, the
   intervals will be wide, roughly ±10 points. A second sample of 100 can be
   drawn the same way if the first is inconclusive.
+
+## Added before any reading (2026-11-27, later the same day): what backs the nulls
+
+A data-source review warned that in SuperCon-MTG's source, a blank Tc was
+often written as 0, and that 19% of the zeros MTG resolved by reading the
+paper were superconductors. Checked against the raw NIMS datasheet
+(`data/raw/nims-supercon/20240322_MDR_OAndM.txt`) for the 1,957 non-cuprate
+nulls this sample is drawn from:
+
+| Evidence in NIMS | Nulls |
+| --- | --- |
+| A measured floor: "not superconducting down to X K" | 1,691 (86%) |
+| Tc written as 0, no floor | 22 (1%) |
+| No NIMS null; the label comes from another source | 244 (12%) |
+
+- **The warning does not carry over.** The review read an older pipeline
+  file; [Likely] the current table's nulls are mostly measured floors.
+- **What a null means here.** The floor's median is 1.2 K, and 88% are at or
+  below 2 K. So "null" means "no superconductivity above about 1 to 2 K". A
+  compound with Tc of 0.5 K counts as a null by that definition; the
+  reading should record the floor so this is not scored as an error.
+- **The predictions above are unchanged.** This was learned before any
+  reading; it is recorded so the result can be read with it.
