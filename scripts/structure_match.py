@@ -207,6 +207,17 @@ def parent_match(fractions: dict[str, float], mp: dict) -> dict | None:
     return best
 
 
+def confidence(fractions: dict[str, float], parent: dict | None, cod: list, mp_exp: list) -> str:
+    """high: a direct experimental match. medium: a compound parent. low: a pure-element parent (a dilute alloy can
+    take another phase than the element, as Rh-doped Ti takes the cubic beta phase), or a host at 85% or more."""
+    if cod or mp_exp:
+        return "high"
+    if parent is None:
+        return ""
+    elemental = len({e for e in fractions if e != parent["dopant"]}) == 1
+    return "low" if elemental or max(fractions.values()) >= 0.85 else "medium"
+
+
 def best_cod(matches: list[dict]) -> dict:
     """Prefer exact composition, ambient pressure, the most common space group among the matches, then the newest."""
     common = Counter(m["sgNumber"] for m in matches)
@@ -279,7 +290,8 @@ def cmd_match() -> dict:
                         "parent_substitution": f"{parent['dopant']} on {parent['host']} site" if parent else "",
                         "parent_entry": parent["entry"] if parent else "",
                         "parent_space_group": parent["space_group"] if parent else "",
-                        "parent_distance": parent["distance"] if parent else ""})
+                        "parent_distance": parent["distance"] if parent else "",
+                        "confidence": confidence(r["fractions"], parent, cod, mp_exp)})
     MATCHES.parent.mkdir(parents=True, exist_ok=True)
     with gzip.open(MATCHES, "wt", newline="", encoding="utf-8") as handle:
         w = csv.DictWriter(handle, fieldnames=list(all_matches[0]) if all_matches else ["id"])
@@ -295,6 +307,7 @@ def cmd_match() -> dict:
               "polymorphs": sum(s["polymorphs"] for s in summary),
               "with_an_experimental_structure_or_parent": sum(s["status"].startswith(("experimental", "parent"))
                                                               for s in summary),
+              "confidence": dict(Counter(s["confidence"] for s in summary if s["confidence"])),
               "cod_exact": sum(1 for s in summary if s["cod_distance"] != "" and float(s["cod_distance"]) <= EXACT),
               "element_sets_fetched": sum(cache_path(e).is_file() for e in {r["elements"] for r in rows}),
               "element_sets": len({r["elements"] for r in rows}),

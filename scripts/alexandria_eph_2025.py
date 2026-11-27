@@ -114,14 +114,43 @@ def combine() -> dict:
         w = csv.DictWriter(handle, fieldnames=fields)
         w.writeheader()
         w.writerows(rows)
+    rows = list({r["mat_id"]: r for r in rows}.values())       # a few entries appear in two files
     with_tc = [r for r in rows if "lambda" in r and not r["imag"]]
     held = ROOT / "data/raw/alexandria-epc"
+    held_ids, held_keys = set(), set()
+    if held.is_dir():
+        import re
+
+        import build_mp_candidates as M
+        import build_scratchnet_data as B
+        import physics_proxy2 as P
+
+        for r in P.alexandria_rows()[0]:
+            found = re.search(r"agm\d+", r["id"])
+            if found:
+                held_ids.add(found.group(0))
+            fractions = M.fractions(r["formula"])
+            if fractions:
+                held_keys.add(B.composition_key(fractions))
+    # lambda above 5 or omega_log below 100 K is outside what harmonic DFPT describes reliably (e.g. a soft mode at the
+    # edge of instability); such rows are kept but flagged
+    suspect = [r for r in with_tc if r["lambda"] > 5 or r["wlog_k"] < 100]
     summary = {"source": BASE.format(0).rsplit("/", 1)[0], "release": "2025.08.11", "licence": "CC BY 4.0",
                "files_reduced": len(list(OUT.glob("part-*.jsonl.gz"))), "files_expected": FILES,
                "entries": len(rows), "stable_with_tc": len(with_tc),
                "unique_compositions_with_tc": len({r["composition"] for r in with_tc if r["composition"]}),
+               "held_before": {"rows": len(held_ids), "compositions": len(held_keys)},
+               "new_mat_ids_with_tc": sum(r["mat_id"] not in held_ids for r in with_tc),
+               "new_compositions_with_tc": len({r["composition"] for r in with_tc if r["composition"]} - held_keys),
+               "flagged_lambda_above_5_or_wlog_below_100K": len(suspect),
                "tc_allen_dynes_mu010_at_least": {str(t): sum((r.get("tc_allen_dynes_mu010") or 0) >= t for r in with_tc)
                                                  for t in (10, 20, 40, 77)},
+               "tc_allen_dynes_mu010_at_least_77K_not_flagged": sorted(
+                   ({"formula": r["formula"], "mat_id": r["mat_id"], "nsites": r["nsites"], "lambda": r["lambda"],
+                     "wlog_k": r["wlog_k"], "tc_allen_dynes_mu010": r["tc_allen_dynes_mu010"],
+                     "tc_eliashberg_mu010": r["tc_eliashberg_mu010"]}
+                    for r in with_tc if (r.get("tc_allen_dynes_mu010") or 0) >= 77 and r not in suspect),
+                   key=lambda x: -x["tc_allen_dynes_mu010"]),
                "held_alexandria_dir_present": held.is_dir(),
                "note": "Calculated values only (QE DFPT, PBEsol, harmonic). Not labels."}
     SUMMARY.write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
