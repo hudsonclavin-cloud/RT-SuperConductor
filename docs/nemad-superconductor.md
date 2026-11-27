@@ -153,3 +153,22 @@ plan and predictions would be written before any model is trained:
   so that the blend can be rebuilt;
 - the three null corrections above go in the same cycle, or in their own,
   as the owner prefers.
+
+## Outcome of cycle 7, 2026-11-27
+
+Cycle 7 added the usable subset to training and failed its rule: the
+model improved on NEMAD's own compounds (+0.08 AUC) and got slightly worse
+on the development rows (−0.007). It was not adopted. Details:
+`docs/learning-cycles.md`, "Cycle 7: result".
+
+**Correction to "Three of our nulls are wrong by their papers" above**
+(labelled here, original kept). That was one reader's finding. Under the
+owner's rule, with two independent readers and a sceptical verifier, only
+one of the three stands:
+- YBa2Cu3O6.32 was corrected to a superconductor.
+- Nb3Ge at exactly 3:1 superconducts only as a thin film; bulk samples are
+  germanium-poor. The null stays.
+- For the samarium compound the paper contradicts itself. The null stays.
+
+**The "worth to the model" estimate above did not hold.** It assumed rows
+from NEMAD behave like more rows from our own table. They do not.

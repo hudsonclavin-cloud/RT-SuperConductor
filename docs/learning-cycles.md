@@ -1211,3 +1211,125 @@ The other two use `--placebo-seed 72` and `73`.
 | Cycle 7's E2 is larger than each placebo's | 55% |
 | The made-metals top 50 keeps between 25 and 45 of cycle 6's | 70% |
 | All three corrections pass the owner's rule | 50% |
+
+## Cycle 7: result, 2026-11-27
+
+**Main result: cycle 7 fails the rule and is not adopted.** The NEMAD rows
+hold real information (E1 passes), but the model trained with them is
+slightly worse on the development rows: E2's median is −0.007, below the
+−0.005 limit. Cycle 6 stays the boosting half of the ranking of record, and
+the blend with TabICLv2 stays as it is.
+
+- **On the name.** This is the second use of "cycle 7". The first, on
+  2026-11-21 above, was a label screen stopped by the usage limit. It
+  trained no model and changed nothing, so the run name `cycle7` was free.
+
+Numbers are from `docs/learning-cycles/cycle7.json` and the three
+`cycle7-placebo-*.json` files (commands in the plan above).
+
+**Corrections: one of three passed the owner's rule**
+(`data/benchmarks/learning-cycles/cycle7-corrections-evidence.json`)
+
+| Composition | Two readers | Sceptical verifier | Outcome |
+| --- | --- | --- | --- |
+| YBa2Cu3O6.32 (train-only row) | both confirmed | could not refute | **Applied**: Tc 3 K, a bulk single crystal at ambient pressure (Broun et al., *Phys. Rev. Lett.* 99, 237003) |
+| Nb3Ge (development row) | both not confirmed | agreed | Not applied. Bulk Nb3Ge at exactly 3:1 does not form: the bulk A15 phase ends near 23 at.% Ge. The 23 K material is a thin film, which the rule excludes |
+| SmFeAs0.47P0.53O0.85H0.15 (development row) | both confirmed | refuted | Not applied. The paper's own phase diagram puts this sample in its non-superconducting region (Tc below 2 K), against a 4 K resistive feature |
+
+- After the rebuild, exactly one row of the table changed: the
+  YBa2Cu3O6.32 row. No row was added, removed or moved between splits.
+- The added rows, rebuilt against the new table, are unchanged: 851 NIMS
+  rows and 2,083 NEMAD rows.
+
+**E1: the added rows, each predicted by the round that held its fold out**
+(non-cuprates)
+
+| Rows | AUC without any added rows | With all of them | Difference (95% interval) |
+| --- | --- | --- | --- |
+| NEMAD rows, 1,826 (443 nulls) | 0.765 | 0.846 | **+0.081 (+0.055 to +0.108)** |
+| All added rows, 2,638 (626 nulls) | 0.742 | 0.826 | +0.084 (+0.059 to +0.108) |
+
+**E2: the development rows, cycle 7 against cycle 6** (non-cuprates, paired)
+
+| | Cycle 6 | Cycle 7 | Paired difference (median, 95% interval) |
+| --- | --- | --- | --- |
+| AUC | 0.7882 | 0.7806 | **−0.0068 (−0.0156 to +0.0012)** |
+| Tc error, log scale (lower is better) | 0.3868 | 0.3925 | +0.0056 (−0.0018 to +0.0145) |
+| Brier score (lower is better) | 0.1393 | 0.1421 | — |
+
+**Placebos: the same rows with the NEMAD labels shuffled**
+
+| Run | Non-cuprate AUC | E2 against cycle 6 | Made-metals top 50 kept |
+| --- | --- | --- | --- |
+| **Cycle 7** | **0.7806** | **−0.0068 (−0.0156 to +0.0012)** | 28 |
+| Placebo 1 (seed 71) | 0.7801 | −0.0075 (−0.0171 to +0.0001) | 23 |
+| Placebo 2 (seed 72) | 0.7759 | −0.0119 (−0.0207 to −0.0018) | 29 |
+| Placebo 3 (seed 73) | 0.7748 | −0.0130 (−0.0234 to −0.0040) | 29 |
+
+**Against the rule**
+
+| Condition | Value | Met |
+| --- | --- | --- |
+| E1's 95% interval above zero | +0.055 to +0.108 | Yes |
+| E2's median difference not below −0.005 | −0.0068 | **No** |
+
+**What it shows**
+- [Certain] The NEMAD labels carry information: a model given them
+  predicts held-out NEMAD compounds far better (+0.08).
+- [Likely] They do not help at home, and they cost a little.
+  - Every measure on the development rows moved the wrong way.
+  - None is outside its interval, but the AUC interval nearly is.
+- [Likely] True labels beat shuffled ones at home (−0.007 against −0.008,
+  −0.012 and −0.013), so the labels themselves are not the harm. The block
+  of rows is.
+- This repeats cycle 4: 851 NIMS rows gave +0.085 on their own kind and
+  −0.004 at home.
+  - **The learning curve does not carry over to rows from another source.**
+    It measured rows drawn from this table.
+- **Where the loss is** (looked at after the result, so not evidence for
+  any change):
+  - It is not concentrated in the 483 development groups that received
+    NEMAD rows: −0.008 there, −0.006 elsewhere.
+  - In the groups that received none, cycle 7 raised its probabilities for
+    nulls (+0.020 on average) more than for superconductors (+0.009).
+  - [Speculative] The added block is 75% superconductors, and that pulls
+    every score up.
+
+**A use the rows do have: a large outside test of cycle 6.** Cycle 6 never
+saw the 2,083 NEMAD compositions. Its five final models score them at:
+
+| NEMAD rows | Rows (nulls) | Cycle 6 AUC (95% interval) |
+| --- | --- | --- |
+| Not cuprates | 1,826 (443) | 0.784 (0.747 to 0.821) |
+| Intermetallic | 1,364 (225) | 0.761 (0.710 to 0.803) |
+
+- [Likely] This is the largest outside check the boosting half has had, and
+  it matches its development AUC (0.788). The labels are NEMAD's, with
+  roughly one in ten wrong, so the true figure is probably a little higher.
+- Record: `docs/learning-cycles/cycle6-on-nemad-rows.json`.
+
+**Predictions against results**
+
+| Outcome | Chance given | Result |
+| --- | --- | --- |
+| E1's interval is above zero | 80% | Yes |
+| E2's median difference is at least 0 | 60% | No (−0.0068) |
+| E2's median difference is at least +0.005 | 30% | No |
+| E2's interval lies above zero | 15% | No |
+| Cycle 7 is adopted under the rule | 75% | **No** |
+| Cycle 7's E2 is larger than each placebo's | 55% | Yes, narrowly against placebo 1 |
+| The made-metals top 50 keeps between 25 and 45 of cycle 6's | 70% | Yes (28) |
+| All three corrections pass the owner's rule | 50% | No (one of three) |
+
+- Three of eight. The 75% for adoption was overconfident: it leaned on the
+  learning curve and gave too little weight to cycle 4, which had already
+  shown that rows from another source do not help at home.
+
+**What follows**
+- Cycle 6 stays; the blend stays. No laptop run is needed.
+- The one correction stays in the table, so the next cycle trains on it.
+  Cycle 6's models were trained before it; one train-only cuprate row does
+  not change any development score.
+- The added-rows file is kept (`cycle7-additions.csv.gz`, not committed).
+- The NEMAD rows are worth more as test data than as training data. A
+  proposal for that goes to the owner separately.

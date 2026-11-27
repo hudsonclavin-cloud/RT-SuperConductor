@@ -1,9 +1,9 @@
 {
   "compositions": 15960,
-  "superconductors": 11841,
-  "negatives": 3686,
+  "superconductors": 11842,
+  "negatives": 3685,
   "unlabelled_hosono_only": 433,
-  "mixed_reports": 218,
+  "mixed_reports": 219,
   "element_systems": 4550,
   "major_groups": 3632,
   "groups": 3308,
@@ -40,8 +40,8 @@
     "train_only": {
       "rows": 4245,
       "groups": 1,
-      "superconductors": 3272,
-      "negatives": 973,
+      "superconductors": 3273,
+      "negatives": 972,
       "tc_above_40k": 2103,
       "families": {
         "Cuprates": 4244,
@@ -127,5 +127,13 @@
       }
     }
   },
-  "output_sha256": "017328b88ffdb649ee18b5310a7569dcf60769fde49e1b9c4bf011b33b73af07"
+  "elements_left_out_for_missing_properties": [
+    "He",
+    "Ne",
+    "Ar",
+    "At",
+    "Rn",
+    "Fr"
+  ],
+  "output_sha256": "2ebf1a2c9ed95b7120d0453539dda75129e71f2bca1ff96d222f366060fd3dc1"
 }

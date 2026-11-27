@@ -1,0 +1,60 @@
+{
+ "what": "cycle 6's five final models (the boosting half of the ranking of record) applied to the 2,083 NEMAD rows of cycle 7's additions, which it never trained on; labels are NEMAD's (flagged experimental)",
+ "scores": {
+  "all NEMAD rows": {
+   "rows": 2083,
+   "nulls": 511,
+   "auc": 0.7898584823451497,
+   "interval_95": {
+    "low": 0.7526429689727521,
+    "median": 0.7908432638266665,
+    "high": 0.8216542515429157,
+    "resamples": 300
+   }
+  },
+  "not cuprates": {
+   "rows": 1826,
+   "nulls": 443,
+   "auc": 0.7841281344412725,
+   "interval_95": {
+    "low": 0.7468170251225814,
+    "median": 0.7843343105520214,
+    "high": 0.8210246412727602,
+    "resamples": 300
+   }
+  },
+  "intermetallic (Other)": {
+   "rows": 1364,
+   "nulls": 225,
+   "auc": 0.7612252463174325,
+   "interval_95": {
+    "low": 0.7103173911389159,
+    "median": 0.7610922925554262,
+    "high": 0.8029289207966943,
+    "resamples": 300
+   }
+  },
+  "not cuprates, new groups": {
+   "rows": 859,
+   "nulls": 232,
+   "auc": 0.7772507287026343,
+   "interval_95": {
+    "low": 0.7283581563915839,
+    "median": 0.7808787155766201,
+    "high": 0.8264067417214627,
+    "resamples": 300
+   }
+  },
+  "not cuprates, joins a development group": {
+   "rows": 967,
+   "nulls": 211,
+   "auc": 0.7883347125053286,
+   "interval_95": {
+    "low": 0.718397797860648,
+    "median": 0.7836285216468901,
+    "high": 0.8391194773471257,
+    "resamples": 300
+   }
+  }
+ }
+}
