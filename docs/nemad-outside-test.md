@@ -14,6 +14,8 @@ approved the test the same day.
 TabICLv2's record run had already predicted 245 of these rows; see
 amendments 2 and 5. The owner's approval came before the amendments,
 which await the owner's OK.)
+The owner approved the amendments on 2026-11-27, after the laptop run and
+before any score.
 
 ## Amendments before the laptop run (2026-11-27)
 
