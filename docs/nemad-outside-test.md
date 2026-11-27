@@ -20,6 +20,25 @@ NIMS file, and not a near twin of either (`build_nemad_additions.select_new`).
 | All | 2,833 | 2,233 | 600 |
 | Not cuprates (the main reading) | 2,004 | 1,528 | 476 |
 | Intermetallic | 1,505 | 1,264 | 241 |
+| Not cuprates, groups with no training row (the outside reading) | 1,012 | 754 | 258 |
+| Not cuprates, groups with training rows | 992 | 774 | 218 |
+
+**What the selection guarantees, and what it does not.**
+- Guaranteed:
+  - no row matches a composition either model trained on, or any locked row;
+  - every row differs from each of those by more than 0.02 atomic fraction
+    on at least one element. The closest is 0.021.
+- Not guaranteed: that a row's group is new.
+  - Group here means the table's rule: main elements, tied together through
+    near twins, applied to the training and test compositions together.
+  - By that rule, 1,626 of the 2,833 rows share a group with training rows.
+    That includes 992 of the 2,004 non-cuprates.
+  - Development and locked rows never share a group with training rows.
+    Those rows are more like "new compositions in known families", which is
+    how the ranking is used on shortlists.
+- So the test has two readings, both fixed now: all non-cuprates, and the
+  1,012 non-cuprates in groups with no training row. This was found by an
+  independent review before the laptop run, and added then.
 
 - The 750 compositions cycle 7 left out are included here: 726 tied to
   locked groups and 24 tied to more than one fold. This test trains
@@ -53,9 +72,9 @@ The same way as for the locked rows (`docs/lockbox-blend.md`):
 - The labels are read here once, by
   `python scripts/nemad_outside_test.py score <folder>`, which refuses to
   run a second time.
-- Intervals resample whole groups. As in the table, a group is the
-  compositions that share their main elements, tied together through near
-  twins. That gives 1,316 groups for the 2,833 rows.
+- Intervals resample whole groups, formed by the table's rule over the
+  training and test compositions together. Test rows chained through a
+  training row therefore share a group: 1,245 groups for the 2,833 rows.
 - `score` accepts only a TabICLv2 run that matches the ranking of record's:
   - the same bundle;
   - all five folds;
@@ -64,13 +83,19 @@ The same way as for the locked rows (`docs/lockbox-blend.md`):
 ## Reading, fixed now
 
 This is a check, not an adoption test: the blend is already the ranking of
-record.
+record. There are two readings:
+- **main:** all non-cuprates;
+- **outside:** the non-cuprates in groups with no training row.
 
 | Result | What follows |
 | --- | --- |
-| The blend's non-cuprate AUC is at least cycle 6's | The decision is supported by a third, independent set of rows. Nothing changes |
+| On the main reading, the blend's AUC is at least cycle 6's | The decision is supported by a third set of rows, from outside the project's data. Nothing changes |
 | The blend's is lower, but its paired interval includes zero | Nothing changes. The result is recorded as a mark against the blend |
-| The blend's paired interval lies entirely below zero | I propose going back to cycle 6 alone. The owner decides |
+| On either reading, the blend's paired interval lies entirely below zero | I propose going back to cycle 6 alone. The owner decides |
+
+- The outside reading is reported beside the main one.
+- If the two point the opposite way, the write-up says so plainly. It does not
+  pick the reading that favours the blend.
 
 Also reported:
 - TabICLv2 alone;
@@ -84,6 +109,8 @@ Also reported:
 | The blend's non-cuprate AUC is at least cycle 6's | 65% |
 | The blend's paired non-cuprate interval lies above zero | 30% |
 | The blend's paired non-cuprate interval lies entirely below zero | 7% |
+| Outside reading: the blend's AUC is at least cycle 6's | 60% |
+| On either reading, the paired interval lies entirely below zero | 10% |
 | TabICLv2 alone is at least cycle 6 (non-cuprates) | 50% |
 | The blend is at least cycle 6 on the intermetallic rows | 60% |
 | The laptop run takes under 12 minutes | 80% |

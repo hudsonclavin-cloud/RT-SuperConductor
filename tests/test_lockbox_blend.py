@@ -223,12 +223,18 @@ def test_outside_test_reading_and_once_only(tmp_path):
     y = np.array([labels[k][0] for k in keys], float)
     tc = np.full(len(keys), 5.0)
     good = (np.clip(0.5 * y + rng.uniform(0, 0.5, len(keys)), 0, 1), tc)
-    same = O.score_rows(keys, labels, good, good)                 # the blend equals cycle 6: "at least"
-    assert same["reading"]["blend_at_least_cycle6"] and same["rows"] == len(keys)
-    assert set(same["scores"]) == {"all", "not cuprates", "intermetallic"}
-    worse = O.score_rows(keys, labels, good, (1.0 - good[0], tc))  # an anti-correlated TabICLv2 drags the blend down
-    assert not worse["reading"]["blend_at_least_cycle6"]
+    groups = np.array([k.split(":")[0] for k in keys])
+    new_group = np.array([g in ("Nb", "Mo") for g in groups])
+    same = O.score_rows(keys, labels, good, good, groups, new_group)    # the blend equals cycle 6: "at least"
+    assert same["reading"]["main"]["blend_at_least_cycle6"] and same["reading"]["outside"]["blend_at_least_cycle6"]
+    assert not same["reading"]["propose_going_back_to_cycle6"] and same["rows"] == len(keys)
+    assert same["rows_in_groups_with_no_training_row"] == int(new_group.sum()) and same["groups"] == 4
+    assert set(same["scores"]) == {"all", "not cuprates", "intermetallic", "not cuprates, groups with no training row",
+                                   "not cuprates, groups with training rows"}
+    worse = O.score_rows(keys, labels, good, (1.0 - good[0], tc), groups, new_group)  # anti-correlated TabICLv2
+    assert not worse["reading"]["main"]["blend_at_least_cycle6"]
     assert worse["paired"]["all"]["blend_minus_cycle6"]["auc"]["median"] < 0
+    assert worse["reading"]["main"]["interval_entirely_below_zero"] and worse["reading"]["propose_going_back_to_cycle6"]
     done = tmp_path / "nemad-outside-test.json"
     O.refuse_if_scored(done)
     done.write_text("{}")
@@ -248,7 +254,9 @@ def test_outside_test_refuses_runs_unlike_the_record():
                 {**good, "model": "tabpfn"}):
         with pytest.raises(SystemExit):
             O.check_run(bad, manifest)
-    # near twins across a major-element line are one group, as in the table
-    groups = O.independence_groups(["La:0.200;Ni:0.250;O:0.500;Sr:0.050", "La:0.210;Ni:0.250;O:0.500;Sr:0.040",
-                                    "Nb:0.750;Sn:0.250"])
-    assert groups[0] == groups[1] != groups[2]
+    # near twins across a major-element line are one group, as in the table, and a training row ties its twins in
+    test = ["La:0.200;Ni:0.250;O:0.500;Sr:0.050", "La:0.210;Ni:0.250;O:0.500;Sr:0.040", "Nb:0.750;Sn:0.250",
+            "V:0.750;Ga:0.250"]
+    groups, new_group = O.grouping(test, ["Nb:0.760;Sn:0.240"])
+    assert groups[0] == groups[1] != groups[2] != groups[3]
+    assert new_group.tolist() == [True, True, False, True]
