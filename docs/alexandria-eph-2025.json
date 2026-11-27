@@ -1,0 +1,18 @@
+{
+ "source": "https://alexandria.icams.rub.de/data/pbesol_ph/3d",
+ "release": "2025.08.11",
+ "licence": "CC BY 4.0",
+ "files_reduced": 1,
+ "files_expected": 93,
+ "entries": 197,
+ "stable_with_tc": 189,
+ "unique_compositions_with_tc": 143,
+ "tc_allen_dynes_mu010_at_least": {
+  "10": 122,
+  "20": 57,
+  "40": 9,
+  "77": 0
+ },
+ "held_alexandria_dir_present": true,
+ "note": "Calculated values only (QE DFPT, PBEsol, harmonic). Not labels."
+}

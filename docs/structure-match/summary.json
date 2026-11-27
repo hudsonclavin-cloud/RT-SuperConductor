@@ -1,0 +1,18 @@
+{
+ "compounds": 3345,
+ "status": {
+  "not fetched": 3217,
+  "calculated only (MP)": 51,
+  "experimental via MP": 70,
+  "none": 7
+ },
+ "with_an_experimental_structure": 70,
+ "polymorphs": 9,
+ "cod_exact": 0,
+ "element_sets_fetched": 5,
+ "element_sets": 1378,
+ "sources": {
+  "COD": "https://www.crystallography.net/cod/result (CC0)",
+  "Materials Project": "data/candidates/mp-stable-summary.csv.gz (CC BY 4.0)"
+ }
+}

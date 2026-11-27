@@ -73,31 +73,45 @@ def fetch_one(elements: tuple[str, ...]) -> list[dict]:
     params = {f"el{i + 1}": e for i, e in enumerate(elements)}
     params.update({"strictmin": len(elements), "strictmax": len(elements), "format": "json"})
     url = f"{COD_URL}?{urllib.parse.urlencode(params)}"
-    for attempt in range(5):
+    for attempt in range(4):                       # COD drops a connection now and then; a short retry is enough
         result = subprocess.run(["curl", "-sf", "--max-time", "180", url], capture_output=True)
         if result.returncode == 0:
             text = result.stdout.decode("utf-8", "replace").strip()
             data = json.loads(text) if text else []
             return [{k: e.get(k) for k in KEEP} for e in data]
-        time.sleep(2 ** (attempt + 1))
+        time.sleep(1.5 * (attempt + 1))
     raise RuntimeError(f"COD query failed: {url}")
 
 
-def cmd_fetch(pause: float = 1.0) -> None:
+def cmd_fetch(workers: int = 3, pause: float = 0.5, rounds: int = 3) -> None:
+    """Three polite workers; element sets that still fail are retried in later rounds, then reported."""
+    from concurrent.futures import ThreadPoolExecutor
+
     CACHE.mkdir(parents=True, exist_ok=True)
     sets = sorted({r["elements"] for r in compounds()})
-    todo = [s for s in sets if not cache_path(s).is_file()]
-    print(f"{len(sets)} element sets, {len(todo)} still to fetch", flush=True)
-    for i, elements in enumerate(todo, 1):
+
+    def one(elements):
         try:
             entries = fetch_one(elements)
-        except RuntimeError as error:
-            print(f"skip {'-'.join(elements)}: {error}", flush=True)
-            continue
+        except RuntimeError:
+            return elements, False
         cache_path(elements).write_text(json.dumps(entries), encoding="utf-8")
-        if i % 50 == 0:
-            print(f"{i}/{len(todo)} fetched", flush=True)
         time.sleep(pause)
+        return elements, True
+
+    for round_number in range(1, rounds + 1):
+        todo = [s for s in sets if not cache_path(s).is_file()]
+        print(f"round {round_number}: {len(sets)} element sets, {len(todo)} still to fetch", flush=True)
+        if not todo:
+            break
+        done = 0
+        with ThreadPoolExecutor(workers) as pool:
+            for _, ok in pool.map(one, todo):
+                done += ok
+                if done and done % 100 == 0:
+                    print(f"  {done}/{len(todo)} fetched", flush=True)
+    failed = [s for s in sets if not cache_path(s).is_file()]
+    print(f"done; {len(failed)} element sets could not be fetched: {['-'.join(s) for s in failed][:20]}", flush=True)
 
 
 def cod_fractions(entry: dict) -> dict[str, float] | None:
