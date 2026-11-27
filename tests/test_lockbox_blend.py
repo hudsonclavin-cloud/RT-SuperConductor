@@ -106,3 +106,27 @@ def test_second_scoring_is_refused(tmp_path):
     done.write_text("{}")
     with pytest.raises(SystemExit):
         LB.refuse_if_scored(done)
+
+
+def test_learning_curve_runs_and_its_full_fraction_is_the_plain_fit(tmp_path):
+    import learning_curve as LC
+
+    _, _, bundle_path, _ = files(tmp_path)
+    with np.load(bundle_path) as saved:
+        bundle = {k: saved[k] for k in saved.files}
+    points = LC.curve(bundle, fractions=(0.5, 1.0), seeds=2)
+    assert set(points) == {"0.5", "1.0"} and len(points["0.5"]["aucs"]) == 2 and len(points["1.0"]["aucs"]) == 1
+    assert points["0.5"]["training_rows"] < points["1.0"]["training_rows"]
+    assert all(0.0 <= a <= 1.0 for p in points.values() for a in p["aucs"])
+    rising = {"a": {"training_rows": 100, "auc_mean": 0.70}, "b": {"training_rows": 200, "auc_mean": 0.73}}
+    assert abs(LC.slope_per_doubling(rising) - 0.03) < 1e-9
+
+
+def test_blend_ranking_refuses_a_different_candidate_set_and_ranks_highest_first():
+    import blend_ranking as BR
+
+    record = (np.array([0.2, 0.9]), np.array([1.0, 2.0]))
+    p, tc = BR.blended(np.array(["x", "y"]), record, {"x": (0.4, 1.0), "y": (0.7, 2.0)})
+    assert np.allclose(p, [0.3, 0.8]) and list(BR.ranks(p)) == [2, 1]
+    with pytest.raises(SystemExit):
+        BR.blended(np.array(["x", "y"]), record, {"x": (0.4, 1.0)})

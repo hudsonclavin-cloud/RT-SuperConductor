@@ -92,3 +92,28 @@ unverified and are not part of the training corpus.
 The current pinned importer run sees 5,773 CSV rows and links 5,773 CIFs, so
 archive version and row-count definitions need reconciliation before those
 counts are combined.
+
+## What more data is worth, measured 2026-11-27
+
+A learning curve on the ranking learner (`docs/learning-curve.md`) found
+about +0.03 AUC for each doubling of the labelled training rows, with no
+sign yet of levelling off. That makes one large, new source worth far more
+than many small ones. In order of expected value:
+
+1. **NEMAD superconductor database** (Itani, Zhang, Itani and Zang, *J.
+   Magn. Magn. Mater.* 652, 174189, 2026; https://nemad.org).
+   - 78,203 records over 19,058 compositions, extracted from papers by
+     language models.
+   - The site describes its data as CC BY 4.0.
+   - A visitor who is not signed in sees 10 results per search, so getting
+     the bulk file means asking the authors or signing in.
+   - Every row needs the same checks as SuperCon2.
+2. **Measured nulls from full-text reading** (library text-mining access) and
+   from authors of make-and-measure papers. They are small in number, but
+   they fill the blind table and the negatives the curve cannot measure.
+3. **Larger calculated electron-phonon sets**, such as the 20,000+ metals in
+   Gao et al., *Nat. Commun.* 2025 (10.1038/s41467-025-63702-w), against
+   the 8,203 Alexandria calculations already here.
+   - They help a physics-based screen.
+   - A formula-only model of them did not help predict experiments
+     (`docs/physics-proxy2.md`).

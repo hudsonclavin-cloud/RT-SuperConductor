@@ -307,3 +307,11 @@ SrAl3Ag.
    pre-check at all four points.
 2. Optional: a one-point check at K (⅓ ⅓ 0) here, about 6 hours of this
    machine, before Hazel time is spent.
+
+## Re-ranked by the new ranking of record, 2026-11-27
+
+Shortlist 3's 571 compounds are re-ranked by the blend of cycle 6 and
+TabICLv2 in `data/benchmarks/rung4/shortlist3-blend-ranked.csv`, which
+shows both ranks side by side. The summary, including where the queued
+Hazel candidates moved, is in `docs/lockbox-blend.md`, "The owner accepted
+the blend". The ranking above, by cycle 6, is kept as it was.

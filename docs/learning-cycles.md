@@ -1120,3 +1120,12 @@ placebos or retraining were run, and cycle 6 stays the latest cycle.
 - Records: `data/benchmarks/learning-cycles/cycle7-evidence.json` (the 240
   screens). The 159 unscreened rows and the 3 unread ones are the place to
   resume.
+
+## The ranking of record from 2026-11-27: the blend of cycle 6 and TabICLv2
+
+The owner accepted the 50/50 blend of cycle 6 and TabICLv2 as the ranking of
+record, after it beat cycle 6 on the development rows and on its one scoring
+on the locked rows (`docs/lockbox-blend.md`).
+- Cycle 6 stays the boosting half of the blend, and the reference for future
+  learning cycles.
+- Rankings: `python scripts/blend_ranking.py`.

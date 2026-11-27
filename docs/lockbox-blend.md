@@ -235,3 +235,57 @@ highest-Tc tenth that a model puts in its own top tenth by probability × Tc.
   - each new blend ranking needs the laptop's GPU, about 25 minutes.
 - The locked rows have now been used twice. They are not used again for
   this question.
+
+## The owner accepted the blend, 2026-11-27
+
+**The ranking of record is now the 50/50 blend of cycle 6 and TabICLv2.**
+- `scripts/blend_ranking.py` builds it from:
+  - cycle 6's five saved final models, applied here;
+  - TabICLv2's candidate predictions from the owner's laptop
+    (`fm-tabicl-20261123`).
+- Outputs:
+  - `docs/learning-cycles/blend6-made-metals-top50.csv`;
+  - `docs/learning-cycles/blend6.json`;
+  - `data/benchmarks/rung4/shortlist3-blend-ranked.csv`.
+- Before ranking, the script checks that cycle 6's saved models still give
+  cycle 6's own made-metals order (the first 200 match).
+
+**Made metals** (7,693 untested made metals)
+- The blend keeps 4 of cycle 6's top 10, 27 of its top 50 and 120 of its
+  top 200. The rank correlation over all of them is 0.976.
+- The blend's top 10:
+  1. Nb5Pt3O
+  2. BiTe
+  3. ThCoC2
+  4. SbTe
+  5. Sb2Te
+  6. Ba(Mo3S4)2
+  7. Sr(Mo3S4)2
+  8. BaPb3
+  9. Th7Ru3
+  10. SrGe3Ir
+
+**Shortlist 3** (571 filtered compounds): the blend keeps 23 of cycle 6's
+top 50.
+
+| Compound | Cycle 6 rank | Blend rank |
+| --- | --- | --- |
+| SbTe2 | 1 | 1 |
+| ReIr3 | 8 | 2 |
+| Nb2GeC | 12 | 3 |
+| Re3Ir | 4 | 4 |
+| TaNbRe2 | 21 | 5 |
+| LiMgPb2 | 3 | 9 |
+| NaMgPb2 (`mp-aaabxftj`) | 2 | 12 |
+| LiGaIr | 36 | 64 |
+| SrAl3Ag | 43 | 76 |
+| CsIr2P2 | 106 | 141 |
+
+- These ranks use cycle 6's unrounded probabilities. The quick table in
+  "Result, 2026-11-26" (`docs/training-methods-review.md`) used the
+  published three-decimal values, so a few ranks there differ by one
+  (NaMgPb2 11, LiGaIr 35, SrAl3Ag 44, CsIr2P2 107). This table is the
+  record.
+- **The Hazel queue is not changed here.** A proposal goes to the owner
+  separately.
+- Every new blend ranking needs TabICLv2 predictions from the laptop.
