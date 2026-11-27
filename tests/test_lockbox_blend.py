@@ -379,3 +379,13 @@ def test_label_audit_twin_rule_skips_cuprates_and_dopant_twins():
             {"key": "Cu:0.143;La:0.265;O:0.571;Sr:0.021", "label": 1, "family": "Cuprates", "group": "c", "tc": 30.0,
              "split": "dev"}]
     assert A.twin_conflicts(rows) == []      # a dopant twin and a cuprate doping step are physics, not label errors
+
+
+def test_label_audit_extract_keeps_only_scanned_rows(tmp_path):
+    import label_audit as A
+
+    rows = [{"key": "Mo:0.500;Re:0.500"}]
+    sources = {"NIMS SuperCon": {"Mo:0.500;Re:0.500": 1, "V:0.750;Si:0.250": 1}, "NEMAD (usable subset)": None}
+    path = tmp_path / "extract.csv.gz"
+    assert A.write_extract(rows, sources, path) == 1          # the unscanned (e.g. locked) composition is left out
+    assert A.load_extract(path) == {"NIMS SuperCon": {"Mo:0.500;Re:0.500": 1}}

@@ -29,6 +29,8 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
+import io
 import json
 import re
 import sys
@@ -48,6 +50,9 @@ OUT = ROOT / "data/processed/label-audit"
 NIMS_TABLE = ROOT / "data/processed/children-knowledge/table.json"
 NEMAD_TABLE = ROOT / "data/processed/nemad/superconductor.csv"
 SUPERCON2 = ROOT / "data/raw/supercon2/supercon2_v22.12.03.csv"
+# NIMS and NEMAD labels for the scanned compositions only (no locked row), for runs without the raw files (CI).
+# Both sources are CC BY 4.0: NIMS SuperCon, doi:10.48505/nims.4487; NEMAD, Itani et al., J. Magn. Magn. Mater. 2026.
+EXTRACT = ROOT / "data/training/label-audit-external.csv.gz"
 OOF = {"cycle6": [ROOT / "data/benchmarks/learning-cycles/cycle6-oof.npz", ROOT / "data/processed/learning-cycles/cycle6-oof.npz"],
        "tabicl": [ROOT / "data/benchmarks/local-gpu/fm-tabicl-20261123/oof.npz"]}
 REVIEWED_FILES = [ROOT / "data/training/negative_evidence.csv", ROOT / "data/training/reviewed/reviewed_records.csv",
@@ -275,16 +280,49 @@ def write(report: dict, out: Path) -> None:
     (out / "label-audit.md").write_text(markdown(report), encoding="utf-8")
 
 
+def load_extract(path: Path = EXTRACT) -> dict[str, dict[str, int]]:
+    out: dict[str, dict[str, int]] = {}
+    if path.is_file():
+        with gzip.open(path, "rt", newline="", encoding="utf-8") as handle:
+            for row in csv.DictReader(handle):
+                out.setdefault(row["source"], {})[row["composition"]] = int(row["label"])
+    return out
+
+
+def write_extract(rows: list[dict], sources: dict[str, dict[str, int] | None], path: Path = EXTRACT) -> int:
+    """Keep only the scanned (unlocked) compositions, so no locked row's outside label is ever committed."""
+    keys = {r["key"] for r in rows}
+    n = 0
+    with gzip.GzipFile(path, "wb", mtime=0) as raw, io.TextIOWrapper(raw, encoding="utf-8", newline="") as handle:
+        w = csv.writer(handle)
+        w.writerow(["source", "composition", "label"])
+        for name in ("NIMS SuperCon", "NEMAD (usable subset)"):
+            for key, label in sorted((sources.get(name) or {}).items()):
+                if key in keys:
+                    w.writerow([name, key, label])
+                    n += 1
+    return n
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--out", type=Path, default=OUT)
     parser.add_argument("--summary", type=Path, default=None, help="append the Markdown report here (CI job summary)")
     parser.add_argument("--include-reviewed", action="store_true",
                         help="list compositions already reviewed or triaged too, instead of only counting them")
+    parser.add_argument("--write-extract", action="store_true",
+                        help=f"write the NIMS and NEMAD labels of the scanned compositions to {EXTRACT.name} and stop")
     args = parser.parse_args(argv)
     ds = C.load_dataset()        # refuses a table whose checksum differs from docs/scratchnet-data.json: the locked
     rows = table_rows(ds)        # rows would then differ from the real ones, and their labels must never be printed
     sources = {"NIMS SuperCon": nims_labels(), "NEMAD (usable subset)": nemad_labels(), "SuperCon2": supercon2_positive()}
+    if args.write_extract:
+        print(f"wrote {write_extract(rows, sources)} rows to {EXTRACT}")
+        return 0
+    extract = load_extract()
+    for name in ("NIMS SuperCon", "NEMAD (usable subset)"):
+        if sources[name] is None and name in extract:        # no raw file here: use the committed extract
+            sources[name] = extract[name]
     report = audit(rows, sources, blend_oof(), set() if args.include_reviewed else reviewed_keys())
     report["table_sha256"] = ds.sha256
     write(report, args.out)

@@ -71,6 +71,18 @@ whole, so no scanned row has a locked twin.
     here to stop it being listed again.
 - **Sources that are missing are skipped and named.** On GitHub that is NIMS
   and NEMAD: one is a manual download and the other needs an API key.
+  - So that GitHub sees the same evidence, their labels for the scanned
+    compositions only are committed in
+    `data/training/label-audit-external.csv.gz` (108 KB, 15,710 rows). The
+    scanner uses that file when the raw files are absent.
+  - The file holds no locked composition, and a test checks that.
+  - Refresh it with `python scripts/label_audit.py --write-extract` after the
+    table or either source changes.
+  - Both sources are CC BY 4.0: NIMS SuperCon (doi:10.48505/nims.4487) and
+    NEMAD (Itani et al., *J. Magn. Magn. Mater.* 652, 174189, 2026).
+  - The first GitHub run, before the extract, found 5 possible false
+    negatives against 130 here; with the extract the counts are the same as
+    here.
 - **The ranking of record's out-of-fold scores** come from two committed
   files: `data/benchmarks/learning-cycles/cycle6-oof.npz` and
   `data/benchmarks/local-gpu/fm-tabicl-20261123/oof.npz`. They cover
