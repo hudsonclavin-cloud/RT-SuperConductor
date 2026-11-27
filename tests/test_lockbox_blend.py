@@ -206,3 +206,49 @@ def test_added_rows_scored_by_source():
     out = L.score_added_rows(extra, resamples=50)
     assert {"all", "not cuprates", "source nemad", "source nims"} <= set(out)
     assert out["source nemad"]["all"]["rows"] == 50 and out["source nims"]["all"]["rows"] == 30
+
+
+def test_outside_test_reading_and_once_only(tmp_path):
+    import nemad_outside_test as O
+
+    rng = np.random.default_rng(1)
+    keys, labels = [], {}
+    for i in range(160):
+        a = 0.2 + 0.6 * (i % 40) / 40
+        key = f"{['Nb', 'Mo', 'Ta', 'V'][i // 40]}:{a:.3f};Sn:{1 - a:.3f}"
+        keys.append(key)
+        y = int(rng.uniform() < 0.7)
+        labels[key] = (y, 5.0 if y else None)
+    keys = sorted(set(keys))
+    y = np.array([labels[k][0] for k in keys], float)
+    tc = np.full(len(keys), 5.0)
+    good = (np.clip(0.5 * y + rng.uniform(0, 0.5, len(keys)), 0, 1), tc)
+    same = O.score_rows(keys, labels, good, good)                 # the blend equals cycle 6: "at least"
+    assert same["reading"]["blend_at_least_cycle6"] and same["rows"] == len(keys)
+    assert set(same["scores"]) == {"all", "not cuprates", "intermetallic"}
+    worse = O.score_rows(keys, labels, good, (1.0 - good[0], tc))  # an anti-correlated TabICLv2 drags the blend down
+    assert not worse["reading"]["blend_at_least_cycle6"]
+    assert worse["paired"]["all"]["blend_minus_cycle6"]["auc"]["median"] < 0
+    done = tmp_path / "nemad-outside-test.json"
+    O.refuse_if_scored(done)
+    done.write_text("{}")
+    with pytest.raises(SystemExit):
+        O.refuse_if_scored(done)
+
+
+def test_outside_test_refuses_runs_unlike_the_record():
+    import nemad_outside_test as O
+
+    manifest = {"folds": [0, 1, 2, 3, 4], "content_sha256": "abc"}
+    good = {"model": "tabicl", "complete": True, "bundle_content_sha256": "abc",
+            "folds": [{"fold": f} for f in range(5)], "settings": {"estimators": 8, "max_context": 0, "seed": 0}}
+    O.check_run(good, manifest)
+    for bad in ({**good, "folds": [{"fold": 0}, {"fold": 1}]},                  # a --folds run
+                {**good, "settings": {**good["settings"], "estimators": 4}},  # other settings
+                {**good, "model": "tabpfn"}):
+        with pytest.raises(SystemExit):
+            O.check_run(bad, manifest)
+    # near twins across a major-element line are one group, as in the table
+    groups = O.independence_groups(["La:0.200;Ni:0.250;O:0.500;Sr:0.050", "La:0.210;Ni:0.250;O:0.500;Sr:0.040",
+                                    "Nb:0.750;Sn:0.250"])
+    assert groups[0] == groups[1] != groups[2]
