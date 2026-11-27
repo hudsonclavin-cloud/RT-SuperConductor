@@ -88,3 +88,29 @@ measured on a fresh sample (round 2, below).
   none treated as missing.
 - **As Hazel inputs** (structures for calculations): high only, after a look
   at the specific entry.
+
+## How often a match is right: round 2 (35 fresh random matches, revised rules)
+
+Drawn after the rules were revised, excluding round 1's matches. Records:
+`docs/structure-match/verification-round2.json`.
+
+| Confidence | Right, or the same structure type | 95% interval |
+| --- | --- | --- |
+| High | 9 of 10 | 0.60–0.98 |
+| Medium | **23 of 24** (1 unclear) | 0.80–0.99 |
+
+**The two wrong matches:**
+- **InSn14**, a dilute alloy of In in Sn, really is the β-Sn solid solution.
+  It was matched directly to an In–Sn entry of a different phase.
+- **(Mo,W)C**, quenched from the melt, is cubic NaCl-type. It was matched to
+  hexagonal WC.
+
+**Over both rounds:** direct matches were right in 24 of 25 cases.
+
+**Reading** [Likely]:
+- The revised medium grade is about as reliable as the direct matches: 23
+  of 24, against 17 of 25 before the revision.
+- What is left wrong is the same kind of case each time: dilute alloys, and
+  solid solutions whose phase depends on how they were quenched.
+- So the 900 high and medium structures are fit to use as model inputs,
+  with a few percent wrong.

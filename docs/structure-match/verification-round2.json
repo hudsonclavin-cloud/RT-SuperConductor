@@ -1,0 +1,247 @@
+[
+ {
+  "id": "S02549",
+  "formula": "B4C2DyHoNi4",
+  "verdict": "correct",
+  "reported_structure": "(Ho1-xDyx)Ni2B2C, here x=0.6 (Dy0.6Ho0.4Ni2B2C): tetragonal LuNi2B2C type, I4/mmm, at room temperature. Both end members take this type.",
+  "evidence": "[Likely] Cho, Canfield and Johnston, PRL 77, 163 (1996) (doi:10.1103/PhysRevLett.77.163) grew (R1-xR'x)Ni2B2C single crystals. Doh et al., PRL 83, 5350 (1999) (arXiv cond-mat/9910214, which I read) plots that experimental Tc and TN data for Ho1-xDyxNi2B2C over 0<=x<=1, x=0.6 included, and treats the R ions as forming a regular lattice. Neither paper's text states a space group for the alloy. [Certain] The end members are I4/mmm: neutron powder diffraction on HoNi2B2C gives I4/mmm with a=3.517 and c=10.52 Angstrom (Huang et al., PRB 51, 3701 (1995)), and DyNi2B2C is isostructural. A Dy-on-Ho solid solution in the same cell is consistent with the matched HoNi2B2C I4/mmm parent."
+ },
+ {
+  "id": "S01210",
+  "formula": "As6CoFe5Sr3",
+  "verdict": "correct",
+  "reported_structure": "SrFe1.6Co0.4As2 (Sr(Fe0.8Co0.2)2As2): ThCr2Si2/BaAl4 type, I4/mmm, at room temperature.",
+  "evidence": "[Certain] Leithe-Jasper et al., PRL 101, 207004 (2008) (arXiv 0807.2223, read). Their Table I lists the nominal x=0.40 sample with a=3.9293 and c=12.2711 Angstrom. The Rietveld refinement of the x=0.2 sample gives the BaAl4 type, I4/mmm, with Fe/Co mixed on 4d. Superconductivity appears for 0.2<=x<=0.4. The COD 9016374 parent I downloaded is SrFe2As2, I4/mmm (J. Phys.: Condens. Matter 2008). The composition matches x=0.4 exactly."
+ },
+ {
+  "id": "S02213",
+  "formula": "Ba2Bi3KO9",
+  "verdict": "correct",
+  "reported_structure": "Ba0.6K0.4BiO3: cubic perovskite, Pm-3m, at room temperature. The composition key gives Ba0.6K0.4BiO2.93; the formula field is only a rounded integer formula.",
+  "evidence": "[Certain] The CIF for COD 1526628, downloaded from crystallography.net, is itself '(Ba0.6 K0.4)(Bi O3)', Pm-3m, a=4.27841 Angstrom, J. Korean Phys. Soc. 2001. That is the compound's own entry, at the same composition. [Likely] It agrees with the known Ba1-xKxBiO3 phase diagram, cubic at room temperature for x of about 0.37 and above (Pei et al., PRB 41, 4126 (1990); this one is from memory and I did not reopen it)."
+ },
+ {
+  "id": "S02473",
+  "formula": "As4Eu2Fe3Ru",
+  "verdict": "correct",
+  "reported_structure": "Eu(Fe0.75Ru0.25)2As2: ThCr2Si2 type, I4/mmm. It stays tetragonal; Ru suppresses the orthorhombic and SDW transition.",
+  "evidence": "[Certain] Single crystals were reported by Jiao et al., EPL 95, 67007 (2011). Zhou et al., arXiv 1904.07417 (read), refined single-crystal neutron data in I4/mmm at 30 K and 2 K (a=3.953, c=11.567 Angstrom; Ru occupancy 22(5)% on 4d). They found no tetragonal-orthorhombic distortion. The composition matches x=0.25 exactly. The COD 9015766 parent EuFe2As2 is I4/mmm."
+ },
+ {
+  "id": "S00615",
+  "formula": "O10Rh2RuSr5",
+  "verdict": "unclear",
+  "reported_structure": "Sr2Ru1/3Rh2/3O4 (x=2/3). It has been made as polycrystals and is described as K2NiF4 type, isostructural with Sr2RuO4 and Sr2RhO4. I could not find the space group for this composition. Sr2RuO4 is I4/mmm; the Rh end member Sr2RhO4 is I41/acd, with RhO6 rotations of about 10 degrees.",
+  "evidence": "[Certain] Battle, Gore and Frost, PRB 51, 8624 (1995) (doi:10.1103/PhysRevB.51.8624; abstract via OpenAlex) measured polycrystalline Sr2Ru1-xRhxO4 at x=1/2 and 2/3. They call it isostructural with Sr2RuO4 and Sr2RhO4, but the abstract gives no space group, and the full text was unreachable (journals.aps.org and ora.ox.ac.uk are blocked). [Certain] The COD 1542588 parent I downloaded is Sr2RuO4, I4/mmm, with no octahedral rotation. Sr2RhO4 is I41/acd (Itoh et al., JSSC 1995; Vogt and Buttrey, JSSC 1996). [Likely] A Rh-rich (2/3) composition probably keeps correlated RhO6/RuO6 rotations. In Sr2Ir1-xRuxO4 the I41/acd to I4/mmm change happens only near x=0.5 (Yuan et al., arXiv 1509.07772). That would make the match the unrotated aristotype, which falls under 'wrong but same structure type', and Sr2RhO4 would be the better parent. It is not confirmed for this composition, so the verdict stays unclear. The structure type (K2NiF4) is confirmed."
+ },
+ {
+  "id": "S00890",
+  "formula": "Bi2F2LaS4Sr",
+  "verdict": "correct",
+  "reported_structure": "Sr0.6La0.4FBiS2: tetragonal, P4/nmm (the SrFBiS2 / LaOBiS2 type), at room temperature.",
+  "evidence": "[Certain] Sakai et al., JPSJ 83, 014709 (2014) (arXiv 1311.5117, read) made Sr1-xLaxFBiS2 polycrystals for 0<=x<=0.6, x=0.4 included. Room-temperature XRD shows all main peaks indexed in P4/nmm. The c axis shrinks with x, showing a solid solution, with only minor Bi2S3 impurity. Lin et al., PRB 87, 020504 (2013) and Li et al., SuST 27, 035009 (2014) report the same series. The COD 4336114 parent is SrFBiS2, P4/nmm (Lei et al., Inorg. Chem. 2013)."
+ },
+ {
+  "id": "S00243",
+  "formula": "Fe5H4Li3O4S3Se",
+  "verdict": "correct",
+  "reported_structure": "(Li0.8Fe0.2)OHFe(Se0.34S0.66): tetragonal anti-PbO-derived (Li,Fe)OHFeSe type, P4/nmm, at room temperature.",
+  "evidence": "[Certain] Lu et al., PRB 90, 214520 (2014) (arXiv 1501.01157, read) made (Li0.8Fe0.2)OHFeSe1-xSx with EDX-measured x = 0, 0.08, ..., 0.53, 0.66, 0.77, 0.90 and 1.0. The x=0.66 sample is this exact composition. Room-temperature XRD of all samples indexes in P4/nmm, apart from a nanoscale FeS bump, and the lattice shrinks smoothly (Vegard). Pachmayr and Johrendt, Chem. Commun. 2015 (doi:10.1039/c5cc00038f) report the same [(Li0.8Fe0.2)OH]Fe(S1-xSex) series. The COD 4342290 parent (Inorg. Chem. 2015) is (Li,Fe)OHFeSe, P4/nmm. It was measured at 100 K, but the structure is the same type as at room temperature."
+ },
+ {
+  "id": "S02365",
+  "formula": "SiV3",
+  "verdict": "correct",
+  "reported_structure": "A15 (Cr3Si-type) V3Si, cubic Pm-3n, at ambient conditions",
+  "evidence": "[Certain] I downloaded COD 2300555 (J. Appl. Cryst. 1979). It is V3Si, Pm-3n, a = 4.732 A. V3Si is the textbook A15 superconductor. The listed composition, V0.764Si0.236, is slightly V-rich, but the A15 V3Si phase has a V-rich homogeneity range. My recollection of that range is about 19-25 at.% Si [Likely, not re-checked], which covers 23.6 at.% Si. The match is the compound's own entry."
+ },
+ {
+  "id": "S02856",
+  "formula": "B7Dy2Ir2Rh5",
+  "verdict": "correct",
+  "reported_structure": "Primitive tetragonal CeCo4B4-type RRh4B4 structure, P4_2/nmc. The composition is Dy(Rh0.7Ir0.3)4B4, which sits inside the pt Dy(IrxRh1-x)4B4 series.",
+  "evidence": "[Likely] The composition_key gives Dy(Rh0.7Ir0.3)4B4. The parent, DyRh4B4, is the primitive tetragonal (pt) CeCo4B4-type phase, P4_2/nmc (isostructural with pt ErRh4B4; Watanabe et al., Acta Cryst C 1984). Knauf, Adrian and Meinelt (Physica B 1985) give superconducting phase diagrams for 'primitive tetragonal (pt) R(Rh1-xIrx)4B4' (R = Ho, Y). Ku et al. (1987 book chapter) call the R(Rh1-yIry)4B4 systems isostructural with the pt R(Rh1-xCox)4B4 systems. The Dy series itself is reported in Ku and Acker, Solid State Commun. 35, 937 (1980), 'Superconducting Dy(IrxRh1-x)4B4 system', and in Yang, Lambert, Maple and Ku, JLTP 70 (1988), doi 10.1007/BF00683252, which covers x up to about 0.7 (I read only the abstracts). Kohori et al. (JPSJ 1985) report NMR on Dy(Ir0.7Rh0.3)4B4. Caveat: light-rare-earth RIr4B4 end members take the related NdCo4B4 type, P4_2/n (Rogl; COD 1511751 LaIr4B4 and COD 1511752 NdIr4B4). At 30% Ir the Rh-rich pt CeCo4B4 type should still hold, but I did not see an explicit x = 0.3 Dy refinement."
+ },
+ {
+  "id": "S02413",
+  "formula": "PdTe",
+  "verdict": "correct",
+  "reported_structure": "NiAs-type hexagonal PdTe, P6_3/mmc (No. 194), at ambient conditions",
+  "evidence": "[Certain] I downloaded COD 1538227 (Acta Chem. Scand. 1956). It is PdTe, P63/mmc, a = 4.1521 A, c = 5.6719 A. Chapai et al., arXiv 2304.14453 (Sci. Rep. 13, 6824, 2023), which I read via alphaXiv, report that all XRD peaks of the superconducting PdTe index to the NiAs-type hexagonal P63/mmc structure with a = 4.152(2) A and c = 5.671(2) A. These values match the COD entry. The slight Te excess (Pd0.481Te0.519) should lie within the NiAs-type PdTe1+x homogeneity range [Likely]."
+ },
+ {
+  "id": "S01172",
+  "formula": "Ca4Pb9Tl3",
+  "verdict": "correct",
+  "reported_structure": "Cubic Cu3Au (L1_2) type, Pm-3m. Both end members, CaPb3 and CaTl3, take this structure. The composition is Ca(Pb0.75Tl0.25)3.",
+  "evidence": "[Likely] The composition_key gives Ca(Pb0.75Tl0.25)3, with Tl on the Pb site. I downloaded COD 5910096: CaPb3, Pm-3m, a = 4.891 A, Cu3Au type. The other end member, CaTl3, is also a cubic AuCu3-type compound: Bagci and Uzunok (Annals of Physics 2023) treat CaTl3 as one of the 'Tl-rich cubic AuCu3-type superconductors'. Havinga, Damsma and van Maaren, J. Phys. Chem. Solids 31, 2653 (1970), measured Tc across many pseudobinary alloys with the Cu3Au structure. This is the likely source of such a composition, but I could not open it to confirm that Ca(Pb,Tl)3 is listed. Both ends share the same structure, with Pb and Tl on the same site, so a Cu3Au-type solid solution at 25% Tl is expected. However, I found no paper that states the structure for this exact composition."
+ },
+ {
+  "id": "S02519",
+  "formula": "As8Ba4CoFe7",
+  "verdict": "correct",
+  "reported_structure": "ThCr2Si2-type tetragonal Ba(Fe1-xCox)2As2, I4/mmm, at room temperature (x = 0.08)",
+  "evidence": "[Certain] The composition_key gives Co/(Fe+Co) = 0.08, i.e. Ba(Fe0.92Co0.08)2As2. I downloaded COD 4123005 (JACS 2014). It is BaFe2As2, I4/mmm, a = 3.961 A, c = 13.02 A, measured at 293 K. Co-doped BaFe2As2 keeps the ThCr2Si2-type I4/mmm structure at room temperature across the superconducting dome (Sefat et al., PRL 101, 117004, 2008; well established, not re-opened here). At x = 0.08 the low-temperature orthorhombic distortion is suppressed or absent, so the ambient phase is tetragonal I4/mmm. Substituting Co on the Fe site is the correct mapping."
+ },
+ {
+  "id": "S02800",
+  "formula": "Re3V",
+  "verdict": "correct",
+  "reported_structure": "Sigma phase (beta-CrFe / D8b type), tetragonal P4_2/mnm (No. 136), at about Re76V24. It forms in arc-melted samples and is retained at room temperature.",
+  "evidence": "[Certain] I downloaded COD 1523580 (1983). It is '(Re3.04V.96)7.5' = Re22.8V7.2 (Re0.76V0.24), P42/mnm, a = 9.44 A, c = 4.89 A, the sigma phase. Meena and Klimczuk, arXiv 2609.29354 (2026), which I read via alphaXiv, made Re0.76V0.24 by arc melting. EDS gave Re 74.0 and V 26.0 at.%. Le Bail refinement showed single-phase tetragonal beta-CrFe-type sigma, P42/mnm, a = 9.4656(1) A, c = 4.8916(2) A, with bulk Tc = 4.46 K. They note the sigma window is narrow, and small deviations give alpha-Mn or W-type secondary phases. Hammerschmidt et al., arXiv 1605.05188, cite experimental phase diagrams with a narrow sigma field at about V24Re76, observed only above about 1700 K, so room-temperature samples are retained (quenched) sigma. Re0.75V0.25 lies inside this window."
+ },
+ {
+  "id": "S02047",
+  "formula": "Fe5H4Li3O4S2Se2",
+  "verdict": "correct",
+  "reported_structure": "(Li0.8Fe0.2)OHFeSe-type layered tetragonal structure, P4/nmm (No. 129). It holds across the whole (Li0.8Fe0.2)OHFeSe1-xSx series, 0 <= x <= 1; here x is about 0.53.",
+  "evidence": "[Certain] Normalising the composition_key to O = 1 gives (Li0.8Fe0.2)OH Fe(Se0.47S0.53). I downloaded COD 4342290 (Inorg. Chem. 2015, hydrothermal). It is Li0.79Fe1.19HOSe, P4/nmm, a = 3.7709 A, c = 9.1562 A, measured at 100 K. Lu et al., arXiv 1501.01157 (PRB 2015), which I read via alphaXiv, made (Li0.8Fe0.2)OHFeSe1-xSx for 0 <= x <= 1 hydrothermally, with EDX x values that include 0.53. All room-temperature XRD reflections index to tetragonal P4/nmm (No. 129), and a and c fall linearly with S content (Vegard's law). Pachmayr and Johrendt, arXiv 1412.6475, also report single-phase [(Li0.8Fe0.2)OH]Fe(S1-xSex) isostructural with the selenide, and the FeS end member is P4/nmm (Zhang et al., RSC Adv. 2015). S on the Se site is the correct substitution."
+ },
+ {
+  "id": "S02521",
+  "formula": "B6LiMg2",
+  "reported_structure": "AlB2-type MgB2 structure, P6/mmm, for the Mg1-xLixB2 series up to x = 0.3. Composition key = Mg0.7Li0.3B2.",
+  "verdict": "correct",
+  "evidence": "[Certain] Zhao et al., 'Effect of Li doping on structure and superconducting transition temperature of Mg1-xLixB2' (arXiv cond-mat/0103077, full text read). They made x = 0, 0.1, 0.3, 0.5 and 1 by solid-state reaction: 'nearly single phased samples were obtained for x<=0.3', with XRD patterns matching MgB2. Lattice parameter a shrinks with Li while c stays the same, and Tc drops at x = 0.3. Samples with x >= 0.5 are multiphase. A 2009 SuST study (search snippet only) reports the AlB2 cell almost unchanged up to nominal x = 0.30 and finds only about 30% of the nominal Li enters, so the real Li content may be lower. Either way the phase is AlB2-type. The matched entry, COD 1526507, is pure MgB2 in P6/mmm (PRB 63, 224522, 2001), the right parent with Li on the Mg site."
+ },
+ {
+  "id": "S01006",
+  "formula": "La4PrSe7",
+  "reported_structure": "Cubic Th3P4-type, I-43d. Composition key = (La0.8Pr0.2)3Se4. Both end members, La3Se4 and Pr3Se4, are Th3P4-type at ambient conditions.",
+  "verdict": "correct",
+  "evidence": "[Likely] I found no paper on the (La,Pr)3Se4 series itself. Both end members are reported in the same structure: Dernier, Bucher and Longinotti, J. Solid State Chem. 1975 (DOI 10.1016/0022-4596(75)90247-9), 'Temperature induced symmetry transformation in the Th3P4 type compounds La3S4, La3Se4, Pr3S4 and Pr3Se4'. Naskar et al., PRB 105, 014513 (2022), give La3Se4 as Th3P4-type I-43d with Tc of about 8.5 K. A La/Pr trivalent solid solution between two isostructural end members is therefore expected to stay Th3P4-type. The low-temperature tetragonal distortion near about 60-100 K does not matter at ambient conditions. Matched entry COD 1537932: La3Se4, I-43d, a = 9.06 A, La on 12a and Se on 16c. This is the right parent with Pr on the La site."
+ },
+ {
+  "id": "S00107",
+  "formula": "Al17V2Y",
+  "reported_structure": "YV2Al20, cubic CeCr2Al20-type, Fd-3m (origin choice 2).",
+  "verdict": "correct",
+  "evidence": "[Certain] COD 1543138 is YV2Al20 from Winiarski et al., 'Rattling-enhanced superconductivity in MV2Al20 (M = Sc, Lu, Y) intermetallic cage compounds', PRB 93, 134507 (2016). It is a refined structure in Fd-3m:2 with a = 14.5378 A, Y on 8a, V on 16d and Al on 16c/48f/96g. Caveat: the formula string 'Al17V2Y' does not match the composition_key. Al 0.870, V 0.087, Y 0.043 is exactly 20:2:1, i.e. YV2Al20, whereas Al17V2Y would give Al 0.85. The match is correct for the composition_key (YV2Al20). If the formula string were meant literally, no Al17V2Y phase is known. The pipeline's formula rendering for this row should be checked."
+ },
+ {
+  "id": "S00725",
+  "formula": "Ce2CoIn10Ru",
+  "reported_structure": "HoCoGa5-type (CeCoIn5-type), P4/mmm, for Ce(Co1-xRux)In5 single crystals up to nominal x = 0.5. Composition key = Ce(Co0.5Ru0.5)In5.",
+  "verdict": "correct",
+  "evidence": "[Certain] Ou, Gofryk, Baumbach, ... Bauer, Ronning, Mar and Chen, 'Hole doping effect on superconductivity in Ce(Co1-xRux)In5', PRB 88, 195134 (2013), DOI 10.1103/PhysRevB.88.195134 (abstract read via OpenAlex). Single crystals were grown in In flux, and 'the crystal structure of these Ru-doped samples was identified by powder XRD as the HoCoGa5-type'. Tc falls monotonically with Ru; at the 'maximal nominal doping of x_nom = 0.5' Tc is 1.5 K and no magnetic order appears. The listed formula is this x_nom = 0.5 end point. The real Ru content may be below nominal, but the structure type does not change. Matched entry COD 1524640: CeCoIn5, P4/mmm, a = 4.601 A, c = 7.54 A (Kalychak et al., 1989). This is the right parent with Ru on the Co site."
+ },
+ {
+  "id": "S02272",
+  "formula": "B8Dy2IrRh7",
+  "reported_structure": "Primitive tetragonal CeCo4B4-type, P4_2/nmc (No. 137), for Dy(Rh1-xIrx)4B4 near x = 0.1. Composition key = Dy(Rh0.9Ir0.1)4B4.",
+  "verdict": "correct",
+  "evidence": "[Likely] DyRh4B4 made by ordinary arc melting is primitive tetragonal CeCo4B4-type. K\u00f6hler et al. (arXiv 0905.4032, full text read): 'DyRh4B4 has been known to crystallize in the primitive tetragonal (pt)-structure', with ferromagnetic order at 12 K. The bct LuRu4B4-type form appears only by high-pressure synthesis or with Ru/Si additions, and Si can also give an orthorhombic polytype. For the Ir series, a 1984 review in Bull. Mater. Sci. 6, 283-316 (search snippet only; the full text was unreachable) says 'Ln(Rh1-xIrx)4B4, Ln = Lu, Dy, Ho and Er solid solutions with the CeCo4B4-type structure'. The series is the Ku & Acker paper 'Superconducting Dy(IrxRh1-x)4B4 system', Solid State Commun. 35, 937 (1980); its structure section was not accessible. Yang, Lambert, Maple and Ku, J. Low Temp. Phys. 70 (1988), report ferromagnetic Dy compounds for x <= 0.15. The matched MP Dy(BRh)4 in P4_2/nmc is the CeCo4B4-type, the right parent with Ir on the Rh site."
+ },
+ {
+  "id": "S00471",
+  "formula": "InSn14",
+  "reported_structure": "Body-centred tetragonal beta-Sn (A5) solid solution, I4_1/amd, a of about 5.83 A and c of about 3.18 A. Composition key = Sn0.95In0.05.",
+  "verdict": "wrong structure",
+  "evidence": "[Certain] COD 1538141 (opened) comes from Helfrich & Dodd, 'Densities and lattice parameters of tin (indium) solid solutions', Acta Metall. 12, 667 (1964). The source paper is the right one: this composition is a beta-Sn solid solution, I4_1/amd. The CIF, however, encodes 'I 4/m m m' with a = 4.1206 A, c = 3.1814 A, Z = 1 and one mixed In/Sn site at (0,0,0). That a is 5.8274/sqrt(2), the beta-Sn a reduced to a primitive-like cell, and the diamond-like second site has been dropped. I checked this with a neighbour-shell calculation. The CIF as written gives a simple body-centred lattice with 2+8 neighbours at 3.18/3.32 A. Real beta-Sn at the same atomic volume (27.0 A^3/atom) has 4+2 neighbours at 3.02/3.18 A. The match therefore has the wrong space group and the wrong atom arrangement; it is not just a different setting of beta-Sn. The right structure is A5 beta-Sn (I4_1/amd, 4a site) with In substituting for Sn, using a = 5.8274 A and c = 3.1814 A from this same paper."
+ },
+ {
+  "id": "S00314",
+  "formula": "Au14Sn",
+  "reported_structure": "fcc (Au) substitutional solid solution, Fm-3m (Cu/A1-type). Composition key = Au0.95Sn0.05.",
+  "verdict": "correct",
+  "evidence": "[Certain] COD 1510546 (opened) is Au0.94Sn0.06, Fm-3m, a = 4.103 A, with a mixed Au/Sn site at 4a. It comes from Owen & O'Donnell Roberts, 'The solubility of certain metals in gold', J. Inst. Metals 71, 213 (1945). That is a lattice-parameter study of Sn dissolved in fcc gold, so a 6 at.% Sn alloy is reported as single fcc solid solution and 5 at.% Sn lies inside the same range. [Likely] The assessed maximum Sn solubility in (Au) is about 6.8 at.% near 500 C, recalled from the Okamoto assessment and not re-read here. The first intermediate phase (zeta, hexagonal) begins near 8.5-10 at.% Sn (Technology 1987 Au-rich diagram, search snippet). The composition differs from the entry by only 1 at.%, so this is the right structure."
+ },
+ {
+  "id": "S02089",
+  "formula": "As6Ba3Fe5Ir",
+  "verdict": "correct",
+  "reported_structure": "Ba(Fe0.8Ir0.2)2As2 = BaFe1.6Ir0.4As2: ThCr2Si2 type, tetragonal I4/mmm (a = 3.987 \u00c5, c = 12.981 \u00c5), measured by room-temperature powder XRD",
+  "evidence": "[Certain] The composition key (Ba 0.2, Fe 0.32, Ir 0.08, As 0.4) works out to BaFe1.6Ir0.4As2. Wang et al., Appl. Phys. Lett. 96, 012507 (2010), doi:10.1063/1.3290983 (arXiv 0912.4113), which I opened, made Ba(Fe1-xIrx)2As2 with x = 0.10, 0.15 and 0.20. Room-temperature Cu K\u03b1 XRD showed the samples 'almost of single phase' and the peaks 'well indexed with the tetragonal ThCr2Si2-type structure (space group I4/mmm)'. The NIMS SuperCon record for Ba1Fe1.6Ir0.4As2 (data no. 153337) cites the same paper with ThCr2Si2, I4/mmm, a = 3.987 \u00c5, c = 12.981 \u00c5. The parent, COD 4123005, is BaFe2As2 in I4/mmm (a = 3.961 \u00c5, c = 13.02 \u00c5, 293 K; JACS 2014, doi:10.1021/ja509907r), so Ir on the Fe site keeps the right structure."
+ },
+ {
+  "id": "S00574",
+  "formula": "OsRe9",
+  "verdict": "correct",
+  "reported_structure": "hcp (Mg type, P63/mmc) Re-Os solid solution; Re0.916Os0.084 lies inside the continuous hexagonal Re-Os solid solution",
+  "evidence": "[Certain] COD 1539182, whose CIF I downloaded, is Os0.2Re1.8 = Re0.9Os0.1 in P63/mmc (a = 2.753 \u00c5, c = 4.422 \u00c5). It comes from Savitskii, Tylkina and Khamidov, Russian Metallurgy 1969, 130, a study of transition-metal solubility in rhenium. That is 10 at.% Os against 8.4 at.% here, so it is the same hcp solid solution rather than the identical composition. The NIMS SuperCon record for Os0.084Re0.916 (Tc 1.88 K) cites Chu, Smith and Gardner, PRL 20, 198 (1968), on Re and Re-Os alloys. OSTI 4782242 (constitution diagram of Os-Re alloys, 1962) reports that X-ray work found only hexagonal solid solutions across the system."
+ },
+ {
+  "id": "S02215",
+  "formula": "Ba2Bi3KO9",
+  "verdict": "wrong but same structure type",
+  "reported_structure": "Ba0.65K0.35BiO3 is a cubic perovskite, Pm-3m (a = 4.295 \u00c5), at room temperature (Pei et al., PRB 41, 4126 (1990)). The matched I4/mcm cell is the low-temperature a0a0c- octahedral-tilt superstructure of that perovskite (\u221a2a \u00d7 \u221a2a \u00d7 2a)",
+  "evidence": "[Likely] COD 1525710, CIF downloaded: Braden et al., PRB 62, 6708 (2000), doi:10.1103/PhysRevB.62.6708, in I4/mcm with a = 6.047 \u00c5, c = 8.552 \u00c5. Its site occupancies give exactly Ba0.65K0.35BiO3, so this composition is reported in this space group. The paper's abstract describes a tilt of the BiO6 octahedra about cubic [001], space group I4/mcm. Two later papers place that distortion at low temperature: arXiv 1912.12112 (PRB 101, 014508) says 'at low temperatures, the distortion ... in superconducting BKBO with x ~ 0.32-0.4 is more consistent with a tetragonal symmetry', and Kang et al. (arXiv 1008.1204) find cubic Pm-3m at room temperature and a cubic-to-tetragonal (I4/mcm) transition near 200 K for x = 0.41. The NIMS SuperCon record that cites Pei et al. (1990, neutron powder) gives Ba0.65K0.35BiO3 as Pm-3m with a = 4.295 \u00c5. The COD cell's pseudocubic a = 4.276 \u00c5, smaller than that, also suggests a low-temperature refinement, but the CIF has no temperature tag. The match is the right perovskite with a small tilt variant, not the ambient cubic cell."
+ },
+ {
+  "id": "S02943",
+  "formula": "C5MoW4",
+  "verdict": "wrong structure",
+  "reported_structure": "Mo0.2W0.8C as measured is a cubic NaCl-type (B1, Fm-3m) carbide with a = 4.26 \u00c5, made by rapid quenching from the melt. It is not hexagonal WC type (P-6m2)",
+  "evidence": "[Certain] The raw NIMS SuperCon record behind this composition, which I read, is 'Mo0.2W0.8C1', Tc 10.1 K, lattice constant a = 4.26 \u00c5, from Willens, Buehler and Matthias, 'Superconductivity of the transition-metal carbides', Phys. Rev. 159, 327 (1967), doi:10.1103/PhysRev.159.327. The Stanev 2018 SuperCon file in 3DSC also lists Mo0.2W0.8C1 at 10.1 K. The abstract, read via OpenAlex, states that 'by rapid quenching from the melt, solid solutions having the NaCl-type structure can be obtained between binaries of NbC, TaC, WC, and MoC'. A single cubic a = 4.26 \u00c5 cannot be indexed on hexagonal WC (a = 2.906 \u00c5, c = 2.838 \u00c5). Hexagonal WC also does not superconduct near 10 K, so the 10 K phase is the quenched rocksalt phase. The matched COD 1501516 is hexagonal WC, P-6m2 (J. Appl. Phys. 108 (2010), doi:10.1063/1.3481667), which is the wrong phase for this sample."
+ },
+ {
+  "id": "S00580",
+  "formula": "B5C5Mo9Nb",
+  "verdict": "correct",
+  "reported_structure": "Mo1.85Nb0.15BC: Mo2BC type, orthorhombic Cmcm (a = 3.1043 \u00c5, b = 17.373 \u00c5, c = 3.0696 \u00c5)",
+  "evidence": "[Certain] The composition key (Mo 0.463, Nb 0.037, B 0.25, C 0.25) works out to Mo1.85Nb0.15BC. The NIMS SuperCon record for Mo1.85Nb0.15B1C1 (Tc 6.2 K, arc-melted) cites Lejay, Chevalier, Etourneau and Hagenmuller, 'Influence of some metal substitutions on the superconducting behaviour of molybdenum borocarbide', J. Less-Common Met. 82, 193 (1981), doi:10.1016/0022-5088(81)90219-8. It gives structure 'Mo2BC', space group Cmcm, a = 3.1043, b = 17.373, c = 3.0696 \u00c5. The matched parent, COD 5910217, is Mo2BC in Cmcm (a = 3.086, b = 17.35, c = 3.047 \u00c5), the same setting with slightly larger cell edges for Nb, so Nb on the Mo site keeps the right structure."
+ },
+ {
+  "id": "S02205",
+  "formula": "Nb6TaZr5",
+  "verdict": "correct",
+  "reported_structure": "bcc (W type, Im-3m) beta Nb-Zr-Ta solid-solution alloy (Nb48.15Zr42.5Ta9.35, a hard superconductor with Tc 10.4 K)",
+  "evidence": "[Likely] The raw records (NIMS no. 104416 and the Stanev 2018 file) give Nb48.15Zr42.5Ta9.35, Tc 10.4 K, from Savitskii et al., 'Superconducting Materials' (Plenum 1973). Neither record states a structure. The matched parent, COD 1537805, is Nb0.5Zr0.5 in Im-3m (a = 3.44 \u00c5) from Doi, Umezawa and Ishida, 'Study of the Nb-Zr-Ti phase diagram (Studies of hard superconductors, II)', J. Japan Inst. Metals 30, 139 (1966). That shows quenched Nb-Zr near 50/50 is bcc. Nb-Ta is a continuous bcc solid solution and Ta is bcc, so about 9 % Ta on the Nb/Zr site should not change the lattice. A Tc of about 10 K fits the bcc Nb-Zr superconductors. I found no paper giving the structure of this exact ternary. Physics caveat: annealed Nb-Zr near 40-50 % Zr can decompose into two bcc phases (beta-Nb + beta-Zr) or precipitate alpha-Zr, but the superconducting matrix is bcc."
+ },
+ {
+  "id": "S01407",
+  "formula": "IrRhSe4",
+  "verdict": "correct",
+  "reported_structure": "Ir0.44Rh0.5Se2 (Ir0.94-xRhxSe2, x = 0.5): cubic pyrite type, Pa-3 (No. 205), a = 6.0068 \u00c5. Made at high pressure (5 GPa, 1773 K) and studied at ambient pressure",
+  "evidence": "[Certain] The composition key (Ir 0.150, Rh 0.170, Se 0.680) is exactly Ir0.44Rh0.5Se2. The NIMS SuperCon record (no. 155321, Tc 9.24 K) cites Guo, Qi, Matsuishi and Hosono, 'Tc Maximum in Solid Solution of Pyrite IrSe2-RhSe2 Induced by Destabilization of Anion Dimers', JACS 134, 20001 (2012), doi:10.1021/ja309724w. It gives space group Pa-3 (No. 205), a = 6.0068 \u00c5, prepared in an h-BN capsule at 1773 K and 5 GPa. The abstract describes the series as pyrite Ir0.94-xRhxSe2. The matched parent, COD 1538722, is RhSe2 pyrite Pa-3 (a = 5.982 \u00c5; Kjekshus et al., Acta Chem. Scand. A 33, 719 (1979)), the right structure type with Ir on the Rh site. Caveat: ambient-pressure IrSe2 is not pyrite, but this series as made and measured is pyrite."
+ },
+ {
+  "id": "S01440",
+  "formula": "ThZr8",
+  "verdict": "correct",
+  "reported_structure": "hcp alpha-Zr-type (Mg-type), P6_3/mmc, a supersaturated solid solution retained by quenching. Th0.1Zr0.9 sits at the Zr-rich edge (90-100 at.% Zr) of the hcp single-phase region of quenched Th-Zr alloys. Tested at room temperature after quenching.",
+  "evidence": "[Certain] I downloaded COD 1541123 and read it. It is the compound's own entry, '(Th Zr9)0.2' (formula Th0.2Zr1.8), P 63/m m c, a=3.258 A, c=5.248 A. Its source is Peterson, Ostenson and Taylor, 'Superconducting temperatures of quenched thorium-zirconium alloys', J. Less-Common Met. 60 (1978) 115, doi:10.1016/0022-5088(78)90096-6 (OpenAlex W2023107731). [Certain] An independent check is Luo & Huber, 'Superconductivity in Th-Zr alloys', J. Less-Common Met. 1979, which I read as a preprint inside NASA report 19790014762. It says fast-quenched Th-Zr alloys have three single-phase regions: fcc at 0-15, bcc at 40-80 and hcp at 90-100 at.% Zr. It also says 'the range and the lattice parameters of the h.c.p. phase are essentially the same as those reported by Peterson et al.' Peterson et al. reported an orthorhombic phase at 80-85 at.% Zr, which is not this composition. [Likely] The hcp phase is metastable and supersaturated. Th has little solubility in alpha-Zr, so a long anneal would probably split it into two phases, but the samples that were made and measured are hcp."
+ },
+ {
+  "id": "S02297",
+  "formula": "As2BaFeNi",
+  "verdict": "correct",
+  "reported_structure": "Tetragonal ThCr2Si2-type, I4/mmm (Z=2), at room temperature. For BaFeNiAs2, a=4.0002(1) A and c=12.6767(3) A, with no structural transition on cooling.",
+  "evidence": "[Certain] COD 4123005 is BaFe2As2, I 4/m m m, at 293 K (Zaikina et al., JACS 2014). That is the parent with Ni substituted on the Fe site. [Certain] Sefat et al., 'Structure and anisotropic properties of BaFe2-xNixAs2 (x = 0, 1, 2) single crystals', PRB 79, 094508 (2009), arXiv:0901.0268, studied exactly this composition, BaFeNiAs2 (EDS gave Ba:Ni:Fe:As about 1:1:1:2). I read the full text. It says that at room temperature all three structures are tetragonal ThCr2Si2 (I4/mmm, Z=2), and it gives the BaFeNiAs2 lattice constants above. It also says BaFeNiAs2 shows no evidence of structural or magnetic transitions; only BaNi2As2 turns triclinic below 131 K."
+ },
+ {
+  "id": "S03104",
+  "formula": "Ir2Rh3Se10",
+  "verdict": "correct",
+  "reported_structure": "Cubic pyrite-type, Pa-3 (No. 205), across the whole defective-pyrite solid solution Ir0.94-xRhxSe2 (0 <= x <= 0.94). This composition is about Ir0.37Rh0.57Se2, or x of about 0.57. The samples were made at high pressure (about 5 GPa, 1773 K) and characterised by X-ray diffraction at ambient conditions.",
+  "evidence": "[Certain] COD 1538722 is RhSe2, P a -3, a=5.982 A (Acta Chem. Scand. A 1979). That is the parent with Ir substituted on the Rh site. The composition key (Ir 0.126, Rh 0.194, Se 0.680) works out to M0.94Se2, which matches the metal-deficient series. [Certain] Guo, Qi, Matsuishi & Hosono, 'Tc-maximum in solid solution of pyrite IrSe2-RhSe2 induced by destabilization of anion dimers', arXiv:1212.0604. I read the full text. It says 'all of the samples crystallized in a primitive lattice with a probable space group of Pa-3 (No. 205)', with Rietveld refinement confirming the pyrite structure. The lattice constant rises continuously with Rh content, and Tc peaks at 9.6 K at x=0.36. The end members Ir0.94Se2 and Rh0.94Se2 are also pyrite. (A different phase, the orthorhombic Pnam polymorph of IrSe2 listed in COD 9009096, is not the phase of this series.)"
+ },
+ {
+  "id": "S01120",
+  "formula": "B6Lu2Ru3Tm",
+  "verdict": "correct",
+  "reported_structure": "Orthorhombic LuRuB2-type, Pnma, for the pseudoternary series (Tm1-xLux)RuB2. This composition is (Lu0.6Tm0.4)RuB2. Both end members, LuRuB2 and TmRuB2, are LuRuB2-type.",
+  "evidence": "[Certain] COD 1510751 is LuRuB2, P n m a, a=5.809 A, b=5.229 A, c=6.284 A (Shelton et al., Mater. Res. Bull. 15, 1445 (1980)). That is the parent with Tm substituted on the Lu site. [Certain] Ku & Shelton, 'Reentrant superconductivity in the orthorhombic system (Tm1-xLux)RuB2', Solid State Commun. (1981), doi:10.1016/0038-1098(81)90748-1 (OpenAlex W2018061037). The title alone shows the Lu-Tm series is orthorhombic. Kishimoto et al., J. Phys. Conf. Ser. 176, 012039 (2009), cites it for reentrant superconductivity in (LuxTm1-x)RuB2, and their (Tm0.4Y0.6)RuB2 sample was single-phase LuRuB2-type. Salamakha et al. (2017), citing Ku & Shelton, Mater. Res. Bull. 15, 1441 (1980), says the RRuB2 compounds with R = Tb to Tm are isotypic with LuRuB2. [Likely] I could not read the full text of the 1981 paper, so I have not confirmed that x(Lu)=0.6 falls inside its single-phase range. Because the two end members are isotypic, it very probably does."
+ },
+ {
+  "id": "S01639",
+  "formula": "C6ErTh3",
+  "verdict": "correct",
+  "reported_structure": "Body-centred cubic Pu2C3-type sesquicarbide, I-43d. This composition is (Th0.7Er0.3)C1.5. It is a high-pressure phase (made at 20-35 kbar and 1050-1350 C) that is retained and studied at ambient conditions. The Th-Er series was made over the complete range x = 0.1 to 0.9, and is superconducting up to x = 0.5.",
+  "evidence": "[Certain] Giorgi, Szklarz & Krupka, 'Superconductivity of various ternary thorium compounds', LASL report OSTI 4693142 (also AIP Conf. Proc. 1972, doi:10.1063/1.2946182). I read the full text. It says 'Body-centered-cubic ternary sesquicarbides with the general formula Th1-xMxC1.5 with M = Sc, Lu, Er and Ho were also prepared', and 'A complete series of compositions in which x = 0.1 to 0.9 was prepared with erbium'. It also says a superconducting transition was observed up to Th0.5Er0.5C1.5. Th2C3 itself is described as the bcc Pu2C3-type high-pressure phase. The work was published as Krupka, Giorgi & Szklarz, 'High pressure thorium-rare-earth carbide superconductors', J. Less-Common Met. 30 (1973) 217. The matched parent, Th2C3 in I-43d, is the Pu2C3 type. [Speculative] I could not open the Materials Project entry mp-aaacpqec itself because the MP server was unreachable, so I am relying on the space group in the match record."
+ },
+ {
+  "id": "S01423",
+  "formula": "Co3InLa2Sn8",
+  "verdict": "correct",
+  "reported_structure": "Cubic Yb3Rh4Sn13-type, Pm-3n, at room temperature. This composition is La3Co4Sn11.7In1.3, i.e. 10% In on the Sn site, with a = 9.639 A.",
+  "evidence": "[Certain] COD 1528920 is La3Co4Sn13, P m -3 n, a=9.643 A (J. Solid State Chem. 179, 1642 (2006)). That is the parent with In substituted on the Sn site. [Certain] Neha et al., 'Improved superconducting properties of skutterudite La3Co4Sn13 with indium substitution', arXiv:1509.04892. I read the full text. It made La3Co4Sn13-xInx with x = 0, 0.65 and 1.3; x=1.3 is exactly this composition (EDAX: La 15.1, Co 20.21, Sn 58.32, In 6.37 at.%). It says 'All the samples were identified within the expected cubic Yb3Rh4Sn13-type phase (space group Pm-3n)', with a = 9.636, 9.637 and 9.639 A, and Tc of 5.1 K. There are minor La3Co2 and La3Co0.05In0.95 impurities. The parent's superlattice distortion near 150 K is a low-temperature effect and does not change the ambient phase."
+ },
+ {
+  "id": "S00337",
+  "formula": "C7Er2Th3",
+  "verdict": "correct",
+  "reported_structure": "Body-centred cubic Pu2C3-type sesquicarbide, I-43d. This composition is (Th0.6Er0.4)C1.5. It is a high-pressure phase (made at 20-35 kbar and 1050-1350 C) that is retained at ambient conditions, and it lies inside the complete Th1-xErxC1.5 series (x = 0.1 to 0.9).",
+  "evidence": "[Certain] The source is the same as for S01639: Giorgi, Szklarz & Krupka, OSTI 4693142 (AIP Conf. Proc. 1972) and Krupka, Giorgi & Szklarz, J. Less-Common Met. 30 (1973) 217. It reports bcc Pu2C3-type Th1-xMxC1.5 for M = Er over the complete range x = 0.1 to 0.9. The composition key gives Er/(Er+Th) = 0.4 and C/M = 1.5, so this is Th0.6Er0.4C1.5. The report says Er compositions superconduct up to x = 0.5 and turn magnetic at x = 0.6, so this composition is still a bcc superconductor. The matched parent, Th2C3 in I-43d, is the Pu2C3 type. [Speculative] I could not open the MP entry mp-aaacpqec itself because the MP server was unreachable."
+ }
+]
