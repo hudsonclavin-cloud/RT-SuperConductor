@@ -399,3 +399,14 @@ def test_high_tc_label():
     out = H.high_tc_label(label, tc)
     assert out[0] == 1 and out[1] == 0 and np.isnan(out[2]) and out[3] == 0 and np.isnan(out[4])
     assert H.high_tc_label(label, tc, 20.0)[0] == 0
+
+
+def test_structure_parent_merges_are_chemically_guarded():
+    import structure_match as S
+
+    merges = {(d, h) for d, h, _ in S.parents(S.fractions_of_key("B:0.333;C:0.167;Dy:0.058;Ho:0.108;Ni:0.333"))}
+    assert merges == {("Dy", "Ho"), ("Ho", "Dy")}                      # rare earth on rare earth only
+    assert not S.may_substitute("B", "Ni") and not S.may_substitute("O", "Fe")
+    assert S.may_substitute("Sr", "La") and S.may_substitute("K", "Ba")
+    assert S.parents({"Nb": 0.5, "Ti": 0.5}) == []                    # 0.5 is not a substituent
+    assert S.distance({"Nb": 0.75, "Sn": 0.25}, {"Nb": 0.76, "Sn": 0.24}) == pytest.approx(0.01)

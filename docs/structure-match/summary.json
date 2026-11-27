@@ -1,15 +1,15 @@
 {
  "compounds": 3345,
  "status": {
-  "not fetched": 3217,
-  "calculated only (MP)": 51,
-  "experimental via MP": 70,
-  "none": 7
+  "none": 3030,
+  "experimental (COD)": 265,
+  "experimental via MP": 22,
+  "calculated only (MP)": 28
  },
- "with_an_experimental_structure": 70,
- "polymorphs": 9,
- "cod_exact": 0,
- "element_sets_fetched": 5,
+ "with_an_experimental_structure": 287,
+ "polymorphs": 62,
+ "cod_exact": 143,
+ "element_sets_fetched": 1378,
  "element_sets": 1378,
  "sources": {
   "COD": "https://www.crystallography.net/cod/result (CC0)",

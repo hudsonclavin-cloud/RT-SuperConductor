@@ -12,6 +12,10 @@ within 0.005 it is "exact". COD entries flagged as duplicates or on hold are ski
 * "experimental via MP": a Materials Project entry that cites ICSD records matches;
 * "calculated only (MP)": only a Materials Project entry with no experimental source matches;
 * "none".
+A compound with no match of its own is tried against its parent (``python scripts/structure_match.py fetch --parents``
+fetches the parents' element sets): one element is merged into another of the same chemical class, as a substituent on
+the host's site ((Dy,Ho)Ni2B2C -> DyNi2B2C), and the merged composition is matched the same way. Only a substituent of
+at most 0.20 atomic fraction is merged, and only within a class, so a match cannot come from arithmetic coincidence.
 More than one space group among the experimental matches is reported as polymorphs. No label, Tc or score is read.
 COD data are CC0; Materials Project data are CC BY 4.0.
 """
@@ -44,6 +48,42 @@ CLOSE, EXACT = 0.02, 0.005
 KEEP = ("file", "formula", "calcformula", "sg", "sgNumber", "a", "b", "c", "alpha", "beta", "gamma", "Z", "vol", "year",
         "doi", "journal", "diffrtemp", "diffrpressure", "cellpressure", "method", "flags", "status", "duplicateof",
         "onhold", "mineral")
+
+
+RARE_EARTH = set("Sc Y La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu".split())
+CLASSES = {
+    "alkali": set("Li Na K Rb Cs".split()), "alkaline earth": set("Be Mg Ca Sr Ba".split()), "rare earth": RARE_EARTH,
+    "actinide": set("Th U Np Pu".split()),
+    "transition": set("Ti V Cr Mn Fe Co Ni Cu Zn Zr Nb Mo Tc Ru Rh Pd Ag Cd Hf Ta W Re Os Ir Pt Au Hg".split()),
+    "post-transition": set("Al Ga In Tl Sn Pb Bi".split()), "metalloid": set("B Si Ge As Sb Te".split()),
+    "chalcogen and pnictogen": set("N P O S Se".split()), "halogen": set("F Cl Br I".split()),
+}
+ALLOWED_ACROSS = {frozenset(("alkali", "alkaline earth")), frozenset(("alkaline earth", "rare earth")),
+                  frozenset(("rare earth", "actinide")), frozenset(("post-transition", "metalloid"))}
+MAX_SUBSTITUENT = 0.20
+
+
+def element_class(element: str) -> str | None:
+    return next((name for name, members in CLASSES.items() if element in members), None)
+
+
+def may_substitute(dopant: str, host: str) -> bool:
+    a, b = element_class(dopant), element_class(host)
+    return a is not None and b is not None and (a == b or frozenset((a, b)) in ALLOWED_ACROSS)
+
+
+def parents(fractions: dict[str, float]) -> list[tuple[str, str, dict[str, float]]]:
+    """(dopant, host, merged composition) for each allowed one-element merge."""
+    out = []
+    for dopant, x in fractions.items():
+        if x > MAX_SUBSTITUENT or len(fractions) < 2:
+            continue
+        for host in fractions:
+            if host != dopant and may_substitute(dopant, host):
+                merged = {e: v for e, v in fractions.items() if e != dopant}
+                merged[host] += x
+                out.append((dopant, host, merged))
+    return out
 
 
 def fractions_of_key(key: str) -> dict[str, float]:
@@ -83,12 +123,16 @@ def fetch_one(elements: tuple[str, ...]) -> list[dict]:
     raise RuntimeError(f"COD query failed: {url}")
 
 
-def cmd_fetch(workers: int = 3, pause: float = 0.5, rounds: int = 3) -> None:
+def cmd_fetch(workers: int = 3, pause: float = 0.5, rounds: int = 3, with_parents: bool = False) -> None:
     """Three polite workers; element sets that still fail are retried in later rounds, then reported."""
     from concurrent.futures import ThreadPoolExecutor
 
     CACHE.mkdir(parents=True, exist_ok=True)
-    sets = sorted({r["elements"] for r in compounds()})
+    rows = compounds()
+    sets = {r["elements"] for r in rows}
+    if with_parents:
+        sets |= {tuple(sorted(m)) for r in rows for _, _, m in parents(r["fractions"])}
+    sets = sorted(sets)
 
     def one(elements):
         try:
@@ -135,6 +179,34 @@ def mp_index() -> dict[tuple[str, ...], list[dict]]:
     return index
 
 
+def parent_match(fractions: dict[str, float], mp: dict) -> dict | None:
+    """The closest experimental parent: COD first, then a Materials Project entry citing ICSD records."""
+    best = None
+    for dopant, host, merged in parents(fractions):
+        elements = tuple(sorted(merged))
+        path = cache_path(elements)
+        for entry in json.loads(path.read_text(encoding="utf-8")) if path.is_file() else []:
+            if entry.get("duplicateof") or entry.get("onhold"):
+                continue
+            f = cod_fractions(entry)
+            if f and tuple(sorted(f)) == elements:
+                d = distance(f, merged)
+                if d <= CLOSE and (best is None or (best["source"] != "COD") or d < best["distance"]):
+                    best = {"source": "COD", "entry": entry["file"], "formula": entry["formula"],
+                            "space_group": entry["sg"], "distance": round(d, 4), "dopant": dopant, "host": host}
+        if best and best["source"] == "COD":
+            continue
+        for entry in mp.get(elements, []):
+            if not (entry.get("icsd_ids") or entry.get("theoretical") == "False"):
+                continue
+            d = distance(entry["fractions"], merged)
+            if d <= CLOSE and (best is None or (best["source"] == "MP" and d < best["distance"])):
+                best = {"source": "MP", "entry": entry["mp_id"], "formula": entry["formula"],
+                        "space_group": entry["spacegroup_symbol"], "distance": round(d, 4), "dopant": dopant,
+                        "host": host}
+    return best
+
+
 def best_cod(matches: list[dict]) -> dict:
     """Prefer exact composition, ambient pressure, the most common space group among the matches, then the newest."""
     common = Counter(m["sgNumber"] for m in matches)
@@ -172,6 +244,9 @@ def cmd_match() -> dict:
             if d <= CLOSE:
                 mps.append({**entry, "distance": round(d, 4)})
         mp_exp = [m for m in mps if m.get("icsd_ids") or m.get("theoretical") == "False"]
+        parent = None
+        if not cod and not mp_exp:
+            parent = parent_match(r["fractions"], mp)
         for m in cod:
             all_matches.append({"id": r["id"], "source": "COD", "entry": m["file"], "formula": m["formula"],
                                 "space_group": m["sg"], "sg_number": m["sgNumber"], "distance": m["distance"],
@@ -183,6 +258,7 @@ def cmd_match() -> dict:
                                 "doi": "ICSD" if m in mp_exp else "theoretical"})
         experimental_groups = {str(m["sgNumber"]) for m in cod} | {str(m["spacegroup_number"]) for m in mp_exp}
         status = ("experimental (COD)" if cod else "experimental via MP" if mp_exp
+                  else f"parent structure ({parent['source']})" if parent
                   else "calculated only (MP)" if mps else "none" if fetched else "not fetched")
         best = best_cod(cod) if cod else None
         mp_best = sorted(mp_exp or mps, key=lambda m: (m["distance"], float(m["energy_above_hull_ev_per_atom"] or 9)))[0] \
@@ -198,7 +274,12 @@ def cmd_match() -> dict:
                         "mp_e_above_hull": mp_best["energy_above_hull_ev_per_atom"] if mp_best else "",
                         "mp_experimental_source": bool(mp_best and mp_best in mp_exp),
                         "experimental_space_groups": len(experimental_groups),
-                        "polymorphs": len(experimental_groups) > 1})
+                        "polymorphs": len(experimental_groups) > 1,
+                        "parent_formula": parent["formula"] if parent else "",
+                        "parent_substitution": f"{parent['dopant']} on {parent['host']} site" if parent else "",
+                        "parent_entry": parent["entry"] if parent else "",
+                        "parent_space_group": parent["space_group"] if parent else "",
+                        "parent_distance": parent["distance"] if parent else ""})
     MATCHES.parent.mkdir(parents=True, exist_ok=True)
     with gzip.open(MATCHES, "wt", newline="", encoding="utf-8") as handle:
         w = csv.DictWriter(handle, fieldnames=list(all_matches[0]) if all_matches else ["id"])
@@ -212,6 +293,8 @@ def cmd_match() -> dict:
     report = {"compounds": len(rows), "status": dict(Counter(s["status"] for s in summary)),
               "with_an_experimental_structure": sum(s["status"].startswith("experimental") for s in summary),
               "polymorphs": sum(s["polymorphs"] for s in summary),
+              "with_an_experimental_structure_or_parent": sum(s["status"].startswith(("experimental", "parent"))
+                                                              for s in summary),
               "cod_exact": sum(1 for s in summary if s["cod_distance"] != "" and float(s["cod_distance"]) <= EXACT),
               "element_sets_fetched": sum(cache_path(e).is_file() for e in {r["elements"] for r in rows}),
               "element_sets": len({r["elements"] for r in rows}),
@@ -224,10 +307,11 @@ def cmd_match() -> dict:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("fetch")
+    fetch = sub.add_parser("fetch")
+    fetch.add_argument("--parents", action="store_true", help="also fetch the element sets of one-element parents")
     sub.add_parser("match")
     args = parser.parse_args(argv)
-    cmd_fetch() if args.command == "fetch" else cmd_match()
+    cmd_fetch(with_parents=args.parents) if args.command == "fetch" else cmd_match()
     return 0
 
 
