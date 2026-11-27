@@ -8,7 +8,11 @@ cannot be steered, and neither holds a locked row:
 * ``structures.csv``: compositions in the table with no 3DSC structure, limited to ordered non-cuprate compounds
   (whole-number ratios with at most 20 atoms per formula unit), in batches of 100 in a fixed random order;
 * ``label-reader-01.csv``: the label audit's strongest leads (two or more signals, and the closest probable
-  duplicates), for an independent first reading under the owner's correction rule.
+  duplicates), for an independent first reading under the owner's correction rule;
+* ``label-reader-02.csv``: a random sample of 50 labelled superconductors and 50 labelled nulls among the
+  non-cuprate development and train-only rows, shuffled together, to measure the table's label error rate
+  (plan: docs/label-error-rate.md). ``sample_02`` rebuilds which stratum each row came from, so no key file is kept.
+The label-reader files carry a ``batch`` column of 20 rows, a size a chat research tool can finish in one run.
 """
 from __future__ import annotations
 
@@ -31,6 +35,9 @@ import scratchnet_common as C  # noqa: E402
 OUT = ROOT / "docs/perplexity"
 AUDIT = ROOT / "data/processed/label-audit/label-audit.json"
 BATCH = 100
+READER_BATCH = 20                 # rows per run of a chat research tool (ChatGPT deep research, Perplexity)
+SAMPLE_PER_CLASS = 50
+SAMPLE_SEED = 20261127
 
 
 def whole_number_scale(fractions: dict[str, float], largest: int = 20) -> int | None:
@@ -101,7 +108,21 @@ def leads(report: dict) -> list[dict]:
             rows.append({"composition_key": key, "formula": readable(C.fractions_of(key))})
     rows.sort(key=lambda r: r["composition_key"])
     random.Random(1).shuffle(rows)                      # mixed order: the reader cannot tell which list a row came from
-    return [{"id": f"L{i + 1:03d}", **r} for i, r in enumerate(rows)]
+    return [{"batch": i // READER_BATCH + 1, "id": f"L{i + 1:03d}", **r} for i, r in enumerate(rows)]
+
+
+def sample_02(ds) -> list[dict]:
+    """The random error-rate sample, with its stratum (label) kept here and left out of the file written."""
+    pools = {0: [], 1: []}
+    for row, split, family, label in zip(ds.rows, ds.split, ds.family, ds.arrays.label):
+        if split != "lockbox" and np.isfinite(label) and family != "Cuprates":
+            pools[int(label)].append(row["composition"])
+    rng = random.Random(SAMPLE_SEED)
+    chosen = [(k, label) for label in (1, 0) for k in rng.sample(sorted(pools[label]), SAMPLE_PER_CLASS)]
+    rng.shuffle(chosen)
+    return [{"batch": i // READER_BATCH + 1, "id": f"R{i + 1:03d}", "composition_key": k,
+             "formula": readable(C.fractions_of(k)), "label": label, "pool_size": len(pools[label])}
+            for i, (k, label) in enumerate(chosen)]
 
 
 def write(path: Path, rows: list[dict]) -> None:
@@ -121,7 +142,12 @@ def main() -> int:
     if locked & {r["composition_key"] for r in ell} or locked & {r["composition_key"] for r in s}:
         raise SystemExit("a locked composition reached an output file; refusing")
     write(OUT / "label-reader-01.csv", ell)
-    print(json.dumps({"structures": len(s), "structure_batches": s[-1]["batch"], "label_reader_rows": len(ell)}))
+    r2 = sample_02(ds)
+    if locked & {r["composition_key"] for r in r2}:
+        raise SystemExit("a locked composition reached the random sample; refusing")
+    write(OUT / "label-reader-02.csv", [{k: r[k] for k in ("batch", "id", "composition_key", "formula")} for r in r2])
+    print(json.dumps({"structures": len(s), "structure_batches": s[-1]["batch"], "label_reader_rows": len(ell),
+                      "random_sample_rows": len(r2), "pools": {str(r["label"]): r["pool_size"] for r in r2}}))
     return 0
 
 
