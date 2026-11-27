@@ -1,5 +1,7 @@
 # An outside test of the ranking of record on NEMAD compounds: plan, fixed before any look
 
+*Amended before any score; the amendments below override the title and the opening paragraph too.*
+
 **Main idea:** test the ranking of record (the 50/50 blend of cycle 6 and
 TabICLv2) on 2,833 NEMAD compositions that neither model has seen. The
 question is whether the blend beats cycle 6 alone outside this project's
@@ -7,12 +9,18 @@ own data, as it did on the development rows and on the locked rows.
 
 Written 2026-11-27, before TabICLv2 has predicted these compounds. The owner
 approved the test the same day.
+(Superseded in part: "before any look" means before any score, and
+"outside this project's own data" means compositions new to the project.
+TabICLv2's record run had already predicted 245 of these rows; see
+amendments 2 and 5. The owner's approval came before the amendments,
+which await the owner's OK.)
 
 ## Amendments before the laptop run (2026-11-27)
 
 A second review found the problems below. It came before the laptop run and
 before any score. **This section overrides anything later in the plan that
-disagrees with it.** The earlier text is kept and marked "superseded".
+disagrees with it.** A third review extended it to the title and opening
+paragraph above, and added the points marked "(third review)". The earlier text is kept and marked "superseded".
 
 **1. Training rows are the labelled ones.**
 - 366 bundle rows have no label, and neither model fits them.
@@ -36,6 +44,18 @@ TabICLv2's or the blend's scores on these rows. That was wrong.
   - Four of the rows appear with their probabilities in the committed blend
     top 50 (`docs/learning-cycles/blend6-made-metals-top50.csv`), and two in
     cycle 6's.
+  - (Third review.) In full, committed files print predictions by the models
+    under test for 6 of the rows:
+    - the blend's for all 6: Ba(Mo3S4)2, LaGeIr, LaIr3 and NbPbS2 in the
+      blend top 50, and MgSbPd2 and Ti2Sb in
+      `data/benchmarks/rung4/shortlist3-blend-ranked.csv`, which also gives
+      cycle 6's and TabICLv2's;
+    - cycle 6's for 4: Ba(Mo3S4)2 and NbPbS2 in its top 50, and MgSbPd2 and
+      Ti2Sb in `shortlist3-ranked.csv`. Ba(Mo3S4)2 and NbPbS2 are among the
+      750 rows cycle 7 left out.
+  - (Third review.) Older committed lists print predictions by earlier models
+    (earlier cycles, placebos, physics proxies, the provisional EPW lists) for
+    76 of the rows.
   - Nobody has compared any of these with NEMAD's labels.
 - **Cycle 6's side of the outside reading was mostly known when the reading
   was added.**
@@ -52,6 +72,9 @@ TabICLv2's or the blend's scores on these rows. That was wrong.
 - `score` reports how far the laptop's TabICLv2 is from the record run on
   those rows.
 - "Reproduced" means the largest probability gap is at most 0.02.
+- (Third review.) The verdict uses the 239 rows whose features are identical
+  in both lists. In the other 6, rounding of the composition changes the
+  inputs slightly, so they are reported apart.
 - If the gap is larger, the result is still reported, flagged as not quite
   the record's TabICLv2.
 
@@ -133,8 +156,9 @@ NIMS file, and not a near twin of either (`build_nemad_additions.select_new`).
   rows cycle 7 added: AUC 0.784 on their 1,826 non-cuprates
   (`docs/learning-cycles/cycle6-on-nemad-rows.json`). Its scores on the
   other 750 have not been looked at, and nobody has seen TabICLv2's or the
-  blend's scores on any of the 2,833. (Superseded: wrong for 245 rows; see
-  amendment 2.)
+  blend's scores on any of the 2,833. (Superseded: wrong for 245 rows, and
+  cycle 6's probabilities for two of the other 750 are in its committed
+  top 50; see amendment 2.)
 - **Expected run time.** About 7 to 9 minutes on the laptop. The locked-row
   run, with 1,950 rows, took 6.66.
 - **The labels are NEMAD's.** The paper check found about one wrong in ten

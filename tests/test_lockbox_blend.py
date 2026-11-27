@@ -285,6 +285,9 @@ def test_outside_test_outcome_order():
     assert O.outcome(block(False, False, True, False)) == "mark against the blend"
     assert O.outcome(block(True, False, False, True)) == "propose going back"     # outside alone overrides main
     assert O.outcome(block(False, True, True, False)) == "propose going back"
+    # the cases where the order matters: point AUCs at least cycle 6's, but an interval entirely below zero
+    assert O.outcome(block(True, False, True, True)) == "propose going back"
+    assert O.outcome(block(True, True, True, False)) == "propose going back"
     assert set(O.OUTCOMES) == {"supported", "supported on main, mark on outside", "mark against the blend",
                                "propose going back"}
 
@@ -316,12 +319,18 @@ def test_outside_test_outside_reading_alone_can_propose():
 def test_outside_test_made_metals_reproduction(tmp_path, monkeypatch):
     import nemad_outside_test as O
 
-    np.savez(tmp_path / "candidates_made_metals.npz", keys=np.array(["Nb3Sn", "MgB2"]), p=np.array([0.9, 0.8]),
-             tc=np.array([18.0, 39.0]))
+    # the record file is read by its own keys, in its own order; the test rows sit at other positions
+    np.savez(tmp_path / "candidates_made_metals.npz", keys=np.array(["MgB2", "Nb3Sn", "V3Si"]),
+             p=np.array([0.8, 0.9, 0.7]), tc=np.array([39.0, 18.0, 17.0]))
     monkeypatch.setattr(O.G, "result_folder", lambda name: tmp_path)
-    bundle = {"candidates_made_metals_keys": np.array(["Nb3Sn", "MgB2"])}
-    keys = [O.B.composition_key(O.M.fractions("Nb3Sn")), "Mo:0.500;Re:0.500"]
-    same = O.made_metals_reproduction(keys, (np.array([0.905, 0.1]), None), bundle)
-    assert same["rows"] == 1 and same["reproduced"] and abs(same["largest_gap"] - 0.005) < 1e-9
-    off = O.made_metals_reproduction(keys, (np.array([0.5, 0.1]), None), bundle)
+    key = lambda formula: O.B.composition_key(O.M.fractions(formula))
+    keys = ["Mo:0.500;Re:0.500", key("Nb3Sn"), key("V3Si")]
+    X = np.array([[0.0, 0.0], [1.0, 2.0], [3.0, 4.0]])
+    bundle = {"candidates_made_metals_keys": np.array(["V3Si", "Nb3Sn", "MgB2"]),
+              "candidates_made_metals_X": np.array([[3.0, 4.0001], [1.0, 2.0], [5.0, 6.0]])}   # V3Si's inputs differ
+    same = O.made_metals_reproduction(keys, (np.array([0.1, 0.905, 0.2]), None), bundle, X)
+    assert same["rows"] == 2 and same["rows_with_identical_inputs"] == 1 and same["rows_whose_inputs_differ_by_rounding"] == 1
+    assert same["reproduced"] and abs(same["largest_gap"] - 0.005) < 1e-9          # Nb3Sn only
+    assert abs(same["largest_gap_where_inputs_differ"] - 0.5) < 1e-9               # V3Si, reported apart
+    off = O.made_metals_reproduction(keys, (np.array([0.1, 0.5, 0.7]), None), bundle, X)
     assert not off["reproduced"]

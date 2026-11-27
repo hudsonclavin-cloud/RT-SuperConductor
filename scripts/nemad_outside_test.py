@@ -141,22 +141,30 @@ def outcome(reading: dict) -> str:
     return "mark against the blend"
 
 
-def made_metals_reproduction(keys: list[str], tabicl: tuple, bundle) -> dict:
-    """How closely this run's TabICLv2 matches the record run's on test rows that are also made-metals candidates."""
-    record = np.load(G.result_folder(RECORD_TABICL) / "candidates_made_metals.npz", allow_pickle=False)
+def made_metals_reproduction(keys: list[str], tabicl: tuple, bundle, X: np.ndarray) -> dict:
+    """How closely this run's TabICLv2 matches the record run's on test rows that are also made-metals candidates.
+
+    The verdict uses only rows whose feature vectors are identical in both lists; rows whose features differ by
+    rounding of the composition are reported apart, so model drift is not mixed with input drift."""
+    with np.load(G.result_folder(RECORD_TABICL) / "candidates_made_metals.npz", allow_pickle=False) as record:
+        p_record = dict(zip((str(k) for k in record["keys"]), record["p"].tolist()))
     position = {k: i for i, k in enumerate(keys)}
-    found = {}
-    for formula, p in zip(bundle["candidates_made_metals_keys"], record["p"]):
-        fractions = M.fractions(str(formula))
-        key = B.composition_key(fractions) if fractions else None
-        if key in position:
-            found[position[key]] = float(p)
-    if not found:
-        return {"rows": 0}
-    rows = np.array(sorted(found))
-    gap = np.abs(tabicl[0][rows] - np.array([found[i] for i in rows]))
-    return {"rows": int(len(rows)), "largest_gap": float(gap.max()), "median_gap": float(np.median(gap)),
-            "reproduced": bool(gap.max() <= REPRODUCED_GAP), "threshold": REPRODUCED_GAP, "record_run": RECORD_TABICL}
+    same, rounded = [], []
+    for j, formula in enumerate(str(f) for f in bundle["candidates_made_metals_keys"]):
+        fractions = M.fractions(formula)
+        i = position.get(B.composition_key(fractions)) if fractions else None
+        if i is None or formula not in p_record:
+            continue
+        gap = abs(float(tabicl[0][i]) - p_record[formula])
+        (same if np.array_equal(bundle["candidates_made_metals_X"][j], X[i]) else rounded).append(gap)
+    out = {"rows": len(same) + len(rounded), "rows_with_identical_inputs": len(same),
+           "rows_whose_inputs_differ_by_rounding": len(rounded), "threshold": REPRODUCED_GAP, "record_run": RECORD_TABICL}
+    if same:
+        out.update({"largest_gap": float(max(same)), "median_gap": float(np.median(same)),
+                    "reproduced": bool(max(same) <= REPRODUCED_GAP)})
+    if rounded:
+        out["largest_gap_where_inputs_differ"] = float(max(rounded))
+    return out
 
 
 def check_run(run: dict, bundle_manifest: dict) -> None:
@@ -218,13 +226,14 @@ def cmd_score(name: str) -> dict:
     with np.load(FEATURES, allow_pickle=False) as saved:
         if [str(k) for k in saved[f"candidates_{LIST}_keys"]] != keys:
             raise SystemExit("the features file is out of date: the test rows have changed since the export")
-        record = LB.record_predict(saved[f"candidates_{LIST}_X"])
+        X = saved[f"candidates_{LIST}_X"]
+        record = LB.record_predict(X)
     with np.load(folder / f"candidates_{LIST}.npz", allow_pickle=False) as saved:
         tabicl = LB.aligned(keys, saved["keys"], saved["p"], saved["tc"])
     with np.load(G.WORK / "bundle.npz", allow_pickle=False) as bundle:
         gap = LB.check_record_models(bundle)
         groups, new_group = grouping(keys, training_keys(bundle))
-        reproduction = made_metals_reproduction(keys, tabicl, bundle)
+        reproduction = made_metals_reproduction(keys, tabicl, bundle, X)
     report = {"plan": "docs/nemad-outside-test.md", "tag": folder.name, "record_models_check_largest_gap": gap,
               "tabicl_reproduces_record_on_made_metals_overlap": reproduction,
               "run": run, **score_rows(keys, labels, record, tabicl, groups, new_group)}
