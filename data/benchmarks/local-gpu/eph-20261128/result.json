@@ -1,0 +1,39 @@
+{
+ "plan": "docs/eph-surrogate.md",
+ "bundle_sha256": "589e63818b26f420e5650a482cf3ca9dfcb82e82a246ecb9cf84dc7e5d160040",
+ "profile": "full",
+ "device": "cuda",
+ "torch": "2.15.0+cu132",
+ "python": "3.12.10",
+ "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+ "memory_gb": 7.96,
+ "capability": "12.0",
+ "cuda": "13.2",
+ "peak_memory_gb": 1.706,
+ "rows": {
+  "fit": 18119,
+  "valid": 2364,
+  "test": 3303
+ },
+ "members_trained": 41,
+ "ensemble": [
+  29,
+  1,
+  26,
+  19,
+  7
+ ],
+ "hours_spent": 5.75,
+ "test": {
+  "tc_mae_k": 2.095,
+  "tc_mae_k_fit_median_baseline": 5.376,
+  "tc_spearman": 0.8953,
+  "auc_tc_at_least_10k": 0.9507,
+  "auc_tc_at_least_20k": 0.9607,
+  "lambda_mae": 0.1116,
+  "ln_wlog_mae": 0.122
+ },
+ "fit_max_sites": 68,
+ "candidates_made_metals": 26911,
+ "candidates_shortlist_pool": 571
+}
