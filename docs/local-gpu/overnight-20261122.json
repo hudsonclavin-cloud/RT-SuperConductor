@@ -1,0 +1,2464 @@
+{
+ "folder": "data/benchmarks/local-gpu/overnight-20261122",
+ "record": "cycle6",
+ "env": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "profile": "full",
+  "torch": "2.15.0+cu132",
+  "cuda_available": true,
+  "cuda": "13.2",
+  "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "gpu_memory_gb": 7.96,
+  "capability": "12.0"
+ },
+ "reading": {
+  "final_job": "final-A",
+  "rule": "The final job (chosen before any test row was scored, by mean validation loss) joins the ranking of record only if its paired non-cuprate AUC interval against cycle 6, on the rows it scores, lies above zero, and the owner accepts it. Every other job is exploratory.",
+  "final_beats_record": false,
+  "final_blend_beats_record": false,
+  "final_minus_formula_control": {
+   "rows": 9765,
+   "all": {
+    "auc": {
+     "final-A": 0.7622,
+     "A-formula_all": 0.7657
+    },
+    "difference": {
+     "auc": {
+      "low": -0.0121,
+      "median": -0.0031,
+      "high": 0.005,
+      "resamples": 300
+     },
+     "tc_log_mae": {
+      "low": -0.0135,
+      "median": -0.0006,
+      "high": 0.0119,
+      "resamples": 300
+     }
+    }
+   },
+   "not cuprates": {
+    "auc": {
+     "final-A": 0.7658,
+     "A-formula_all": 0.7674
+    },
+    "difference": {
+     "auc": {
+      "low": -0.0109,
+      "median": -0.0015,
+      "high": 0.0067,
+      "resamples": 300
+     },
+     "tc_log_mae": {
+      "low": -0.0156,
+      "median": -0.0035,
+      "high": 0.0107,
+      "resamples": 300
+     }
+    }
+   }
+  },
+  "secondary_minus_formula_control": {
+   "rows": 4263,
+   "all": {
+    "auc": {
+     "final-S": 0.7557,
+     "S-formula": 0.7544
+    },
+    "difference": {
+     "auc": {
+      "low": -0.0159,
+      "median": 0.0016,
+      "high": 0.0168,
+      "resamples": 300
+     },
+     "tc_log_mae": {
+      "low": -0.0858,
+      "median": -0.0347,
+      "high": -0.0042,
+      "resamples": 300
+     }
+    }
+   },
+   "not cuprates": {
+    "auc": {
+     "final-S": 0.7573,
+     "S-formula": 0.7548
+    },
+    "difference": {
+     "auc": {
+      "low": -0.0136,
+      "median": 0.0018,
+      "high": 0.0177,
+      "resamples": 300
+     },
+     "tc_log_mae": {
+      "low": -0.0797,
+      "median": -0.0355,
+      "high": -0.0027,
+      "resamples": 300
+     }
+    }
+   }
+  },
+  "secondary_beats_record_on_its_rows": false
+ },
+ "runs": {
+  "check": {
+   "status": "done",
+   "kind": "structure",
+   "model": "cgcnn",
+   "mean_validation_bce": 0.6533,
+   "minutes": 0.11,
+   "compared": true,
+   "against_record": {
+    "rows": 743,
+    "all": {
+     "auc": {
+      "check": 0.6185,
+      "cycle6": 0.7928
+     },
+     "difference": {
+      "auc": {
+       "low": -0.2418,
+       "median": -0.1747,
+       "high": -0.1189,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0618,
+       "median": 0.1629,
+       "high": 0.2683,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "check": 0.6289,
+      "cycle6": 0.8022
+     },
+     "difference": {
+      "auc": {
+       "low": -0.2427,
+       "median": -0.1725,
+       "high": -0.1125,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0651,
+       "median": 0.1678,
+       "high": 0.31,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 743,
+     "all": {
+      "auc": {
+       "blend": 0.7774,
+       "cycle6": 0.7928
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0359,
+        "median": -0.0164,
+        "high": 0.0036,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": -0.0072,
+        "median": 0.0452,
+        "high": 0.0977,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7855,
+       "cycle6": 0.8022
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0374,
+        "median": -0.0164,
+        "high": 0.0028,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": -0.0036,
+        "median": 0.0485,
+        "high": 0.1184,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "tab-default-s20": {
+   "status": "done",
+   "kind": "formula",
+   "model": "tabular",
+   "mean_validation_bce": 0.443,
+   "minutes": 18.26,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "tab-default-s20": 0.7662,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0346,
+       "median": -0.0236,
+       "high": -0.0122,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0387,
+       "median": 0.0537,
+       "high": 0.0703,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "tab-default-s20": 0.7695,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0308,
+       "median": -0.0178,
+       "high": -0.0089,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0413,
+       "median": 0.0585,
+       "high": 0.0747,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7896,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0052,
+        "median": -0.0003,
+        "high": 0.0057,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0058,
+        "median": 0.0143,
+        "high": 0.023,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7893,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0036,
+        "median": 0.0014,
+        "high": 0.0056,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0077,
+        "median": 0.0173,
+        "high": 0.0256,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "tab-wide-s20": {
+   "status": "done",
+   "kind": "formula",
+   "model": "tabular",
+   "mean_validation_bce": 0.4442,
+   "minutes": 16.21,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "tab-wide-s20": 0.7664,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0338,
+       "median": -0.0233,
+       "high": -0.0122,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0392,
+       "median": 0.0539,
+       "high": 0.0698,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "tab-wide-s20": 0.77,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0302,
+       "median": -0.0177,
+       "high": -0.009,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.042,
+       "median": 0.0594,
+       "high": 0.0741,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7892,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0057,
+        "median": -0.0007,
+        "high": 0.0052,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0064,
+        "median": 0.0143,
+        "high": 0.0228,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.789,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0039,
+        "median": 0.001,
+        "high": 0.0048,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0077,
+        "median": 0.017,
+        "high": 0.0253,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "A-formula_all": {
+   "status": "done",
+   "kind": "structure",
+   "model": "formula_all",
+   "mean_validation_bce": 0.4443,
+   "minutes": 6.0,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "A-formula_all": 0.7657,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0343,
+       "median": -0.0245,
+       "high": -0.012,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0442,
+       "median": 0.0606,
+       "high": 0.075,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "A-formula_all": 0.7674,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0324,
+       "median": -0.0202,
+       "high": -0.0105,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.049,
+       "median": 0.0653,
+       "high": 0.082,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7899,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0044,
+        "median": -0.0003,
+        "high": 0.0059,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0083,
+        "median": 0.0168,
+        "high": 0.0253,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7892,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0042,
+        "median": 0.0013,
+        "high": 0.0059,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0102,
+        "median": 0.0191,
+        "high": 0.0287,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "A-hybrid_all": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4697,
+   "minutes": 16.99,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "A-hybrid_all": 0.7542,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0493,
+       "median": -0.0352,
+       "high": -0.0223,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.049,
+       "median": 0.0667,
+       "high": 0.0832,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "A-hybrid_all": 0.7594,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0401,
+       "median": -0.0289,
+       "high": -0.0164,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0516,
+       "median": 0.0698,
+       "high": 0.0892,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7876,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0092,
+        "median": -0.002,
+        "high": 0.0044,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0075,
+        "median": 0.0174,
+        "high": 0.026,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7886,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0047,
+        "median": 0.0006,
+        "high": 0.0065,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0101,
+        "median": 0.0193,
+        "high": 0.0286,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "pretrain": {
+   "status": "done",
+   "compared": false
+  },
+  "A-hybrid_all-pre": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4839,
+   "minutes": 14.28,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "A-hybrid_all-pre": 0.7457,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0616,
+       "median": -0.044,
+       "high": -0.0289,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0577,
+       "median": 0.0757,
+       "high": 0.0914,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "A-hybrid_all-pre": 0.7513,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0528,
+       "median": -0.0364,
+       "high": -0.0216,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0615,
+       "median": 0.079,
+       "high": 0.093,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7868,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0116,
+        "median": -0.0029,
+        "high": 0.0038,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0064,
+        "median": 0.0168,
+        "high": 0.0245,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7875,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0081,
+        "median": -0.0002,
+        "high": 0.0062,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0096,
+        "median": 0.0178,
+        "high": 0.0257,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "S-formula": {
+   "status": "done",
+   "kind": "structure",
+   "model": "formula",
+   "mean_validation_bce": 0.5026,
+   "minutes": 1.98,
+   "compared": true,
+   "against_record": {
+    "rows": 4263,
+    "all": {
+     "auc": {
+      "S-formula": 0.7544,
+      "cycle6": 0.8035
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0664,
+       "median": -0.0488,
+       "high": -0.0292,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0785,
+       "median": 0.1384,
+       "high": 0.2159,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "S-formula": 0.7548,
+      "cycle6": 0.8021
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0666,
+       "median": -0.047,
+       "high": -0.0291,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0836,
+       "median": 0.1373,
+       "high": 0.2087,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 4263,
+     "all": {
+      "auc": {
+       "blend": 0.7938,
+       "cycle6": 0.8035
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0178,
+        "median": -0.0094,
+        "high": -0.0002,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0179,
+        "median": 0.0467,
+        "high": 0.0859,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7922,
+       "cycle6": 0.8021
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0191,
+        "median": -0.01,
+        "high": -0.001,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0191,
+        "median": 0.0465,
+        "high": 0.0818,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "S-cgcnn": {
+   "status": "done",
+   "kind": "structure",
+   "model": "cgcnn",
+   "mean_validation_bce": 0.5689,
+   "minutes": 4.46,
+   "compared": true,
+   "against_record": {
+    "rows": 4263,
+    "all": {
+     "auc": {
+      "S-cgcnn": 0.7244,
+      "cycle6": 0.8035
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0994,
+       "median": -0.0791,
+       "high": -0.0554,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0575,
+       "median": 0.0875,
+       "high": 0.1244,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "S-cgcnn": 0.7249,
+      "cycle6": 0.8021
+     },
+     "difference": {
+      "auc": {
+       "low": -0.1016,
+       "median": -0.0767,
+       "high": -0.0535,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0507,
+       "median": 0.0804,
+       "high": 0.1143,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 4263,
+     "all": {
+      "auc": {
+       "blend": 0.786,
+       "cycle6": 0.8035
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0272,
+        "median": -0.0176,
+        "high": -0.0072,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": -0.0018,
+        "median": 0.0175,
+        "high": 0.0355,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7851,
+       "cycle6": 0.8021
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0282,
+        "median": -0.0171,
+        "high": -0.0067,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": -0.0035,
+        "median": 0.0147,
+        "high": 0.0318,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "S-hybrid": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid",
+   "mean_validation_bce": 0.5255,
+   "minutes": 4.74,
+   "compared": true,
+   "against_record": {
+    "rows": 4263,
+    "all": {
+     "auc": {
+      "S-hybrid": 0.7596,
+      "cycle6": 0.8035
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0606,
+       "median": -0.0444,
+       "high": -0.0258,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0723,
+       "median": 0.1088,
+       "high": 0.1525,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "S-hybrid": 0.7602,
+      "cycle6": 0.8021
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0605,
+       "median": -0.0424,
+       "high": -0.0223,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0693,
+       "median": 0.109,
+       "high": 0.1514,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 4263,
+     "all": {
+      "auc": {
+       "blend": 0.7968,
+       "cycle6": 0.8035
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0152,
+        "median": -0.0068,
+        "high": 0.0014,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0167,
+        "median": 0.037,
+        "high": 0.0606,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7958,
+       "cycle6": 0.8021
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0149,
+        "median": -0.0066,
+        "high": 0.003,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0171,
+        "median": 0.0367,
+        "high": 0.0592,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "S-cgcnn-pre": {
+   "status": "done",
+   "kind": "structure",
+   "model": "cgcnn",
+   "mean_validation_bce": 0.5602,
+   "minutes": 4.2,
+   "compared": true,
+   "against_record": {
+    "rows": 4263,
+    "all": {
+     "auc": {
+      "S-cgcnn-pre": 0.7314,
+      "cycle6": 0.8035
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0989,
+       "median": -0.071,
+       "high": -0.0444,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0805,
+       "median": 0.1141,
+       "high": 0.154,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "S-cgcnn-pre": 0.7323,
+      "cycle6": 0.8021
+     },
+     "difference": {
+      "auc": {
+       "low": -0.1005,
+       "median": -0.069,
+       "high": -0.0424,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0808,
+       "median": 0.1103,
+       "high": 0.1601,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 4263,
+     "all": {
+      "auc": {
+       "blend": 0.7913,
+       "cycle6": 0.8035
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0242,
+        "median": -0.0116,
+        "high": -0.0002,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0065,
+        "median": 0.0275,
+        "high": 0.0483,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7905,
+       "cycle6": 0.8021
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0249,
+        "median": -0.0114,
+        "high": 0.0012,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0074,
+        "median": 0.0271,
+        "high": 0.0494,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "S-hybrid-pre": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid",
+   "mean_validation_bce": 0.5386,
+   "minutes": 4.35,
+   "compared": true,
+   "against_record": {
+    "rows": 4263,
+    "all": {
+     "auc": {
+      "S-hybrid-pre": 0.7602,
+      "cycle6": 0.8035
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0641,
+       "median": -0.0426,
+       "high": -0.0214,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0525,
+       "median": 0.0748,
+       "high": 0.1055,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "S-hybrid-pre": 0.7624,
+      "cycle6": 0.8021
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0604,
+       "median": -0.0404,
+       "high": -0.0197,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0508,
+       "median": 0.0757,
+       "high": 0.1064,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 4263,
+     "all": {
+      "auc": {
+       "blend": 0.8004,
+       "cycle6": 0.8035
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0129,
+        "median": -0.0029,
+        "high": 0.0078,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0079,
+        "median": 0.0173,
+        "high": 0.0302,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.8003,
+       "cycle6": 0.8021
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0115,
+        "median": -0.0019,
+        "high": 0.0078,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0066,
+        "median": 0.018,
+        "high": 0.0296,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-conv3": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4676,
+   "minutes": 10.81,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-conv3": 0.7491,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0545,
+       "median": -0.0406,
+       "high": -0.0254,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0509,
+       "median": 0.067,
+       "high": 0.0824,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-conv3": 0.7526,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0474,
+       "median": -0.035,
+       "high": -0.0227,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0517,
+       "median": 0.0704,
+       "high": 0.088,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7848,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0114,
+        "median": -0.0049,
+        "high": 0.0024,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0018,
+        "median": 0.0121,
+        "high": 0.0208,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7854,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0078,
+        "median": -0.0025,
+        "high": 0.0037,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0035,
+        "median": 0.0138,
+        "high": 0.0241,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-conv6": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4684,
+   "minutes": 13.19,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-conv6": 0.75,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0532,
+       "median": -0.0396,
+       "high": -0.0267,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0631,
+       "median": 0.0831,
+       "high": 0.1068,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-conv6": 0.7523,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0488,
+       "median": -0.0353,
+       "high": -0.0225,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0614,
+       "median": 0.0851,
+       "high": 0.1088,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7874,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0081,
+        "median": -0.0025,
+        "high": 0.0033,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0123,
+        "median": 0.0235,
+        "high": 0.0347,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7866,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0072,
+        "median": -0.0013,
+        "high": 0.0045,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0122,
+        "median": 0.0236,
+        "high": 0.036,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-h96": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4689,
+   "minutes": 11.15,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-h96": 0.7468,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0587,
+       "median": -0.0427,
+       "high": -0.0292,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.056,
+       "median": 0.0757,
+       "high": 0.0964,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-h96": 0.7537,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0481,
+       "median": -0.0337,
+       "high": -0.0228,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0595,
+       "median": 0.0802,
+       "high": 0.0984,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7854,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0114,
+        "median": -0.0046,
+        "high": 0.0018,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0099,
+        "median": 0.0201,
+        "high": 0.0299,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7865,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.008,
+        "median": -0.0014,
+        "high": 0.0043,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0117,
+        "median": 0.0226,
+        "high": 0.032,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-h192": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4657,
+   "minutes": 11.79,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-h192": 0.7491,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0547,
+       "median": -0.0402,
+       "high": -0.027,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0588,
+       "median": 0.0746,
+       "high": 0.0916,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-h192": 0.7531,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0491,
+       "median": -0.0347,
+       "high": -0.0228,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0579,
+       "median": 0.0748,
+       "high": 0.0905,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7852,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0114,
+        "median": -0.0044,
+        "high": 0.002,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0062,
+        "median": 0.0165,
+        "high": 0.0255,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7855,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0085,
+        "median": -0.0025,
+        "high": 0.003,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0066,
+        "median": 0.0165,
+        "high": 0.0253,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-lr5e-4": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4771,
+   "minutes": 11.12,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-lr5e-4": 0.743,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0617,
+       "median": -0.0459,
+       "high": -0.0313,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0588,
+       "median": 0.0767,
+       "high": 0.0925,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-lr5e-4": 0.7481,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0523,
+       "median": -0.0395,
+       "high": -0.0259,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0586,
+       "median": 0.0757,
+       "high": 0.0908,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7842,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.013,
+        "median": -0.0053,
+        "high": 0.0017,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0087,
+        "median": 0.0178,
+        "high": 0.0262,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7849,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0088,
+        "median": -0.0031,
+        "high": 0.0032,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.01,
+        "median": 0.0181,
+        "high": 0.0267,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-lr2e-3": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4699,
+   "minutes": 10.57,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-lr2e-3": 0.7536,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.05,
+       "median": -0.0362,
+       "high": -0.0224,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0598,
+       "median": 0.0809,
+       "high": 0.1028,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-lr2e-3": 0.7595,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0424,
+       "median": -0.0287,
+       "high": -0.0168,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0598,
+       "median": 0.0811,
+       "high": 0.1063,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7884,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0074,
+        "median": -0.0014,
+        "high": 0.0046,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0099,
+        "median": 0.0208,
+        "high": 0.0328,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7893,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0047,
+        "median": 0.0012,
+        "high": 0.0069,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0104,
+        "median": 0.0219,
+        "high": 0.0347,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-drop0": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4673,
+   "minutes": 10.33,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-drop0": 0.7487,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0558,
+       "median": -0.0406,
+       "high": -0.0276,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0646,
+       "median": 0.0841,
+       "high": 0.1053,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-drop0": 0.7554,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0457,
+       "median": -0.0324,
+       "high": -0.0187,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0645,
+       "median": 0.0871,
+       "high": 0.1099,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7854,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0118,
+        "median": -0.0043,
+        "high": 0.002,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0127,
+        "median": 0.0222,
+        "high": 0.0311,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7864,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0082,
+        "median": -0.0016,
+        "high": 0.0046,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0144,
+        "median": 0.0241,
+        "high": 0.0342,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-drop0.25": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.465,
+   "minutes": 10.73,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-drop0.25": 0.7437,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0609,
+       "median": -0.0458,
+       "high": -0.0326,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0598,
+       "median": 0.08,
+       "high": 0.1007,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-drop0.25": 0.7503,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0498,
+       "median": -0.0371,
+       "high": -0.0253,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0615,
+       "median": 0.081,
+       "high": 0.1019,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7838,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0134,
+        "median": -0.006,
+        "high": 0.0002,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0096,
+        "median": 0.0213,
+        "high": 0.0314,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7852,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0085,
+        "median": -0.0028,
+        "high": 0.0027,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0123,
+        "median": 0.0225,
+        "high": 0.0326,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-aux0": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4682,
+   "minutes": 9.65,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-aux0": 0.7414,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0626,
+       "median": -0.048,
+       "high": -0.0354,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 1.3676,
+       "median": 1.479,
+       "high": 1.6078,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-aux0": 0.747,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0543,
+       "median": -0.0413,
+       "high": -0.0295,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 1.249,
+       "median": 1.3717,
+       "high": 1.51,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7843,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0122,
+        "median": -0.0054,
+        "high": 0.0008,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.5259,
+        "median": 0.5853,
+        "high": 0.6513,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7851,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0093,
+        "median": -0.0031,
+        "high": 0.0028,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.4626,
+        "median": 0.5318,
+        "high": 0.6007,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-xh256": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4645,
+   "minutes": 9.93,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-xh256": 0.7488,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0539,
+       "median": -0.0407,
+       "high": -0.0289,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0697,
+       "median": 0.0913,
+       "high": 0.1126,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-xh256": 0.7512,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0474,
+       "median": -0.0373,
+       "high": -0.0257,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0734,
+       "median": 0.095,
+       "high": 0.1191,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7855,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0106,
+        "median": -0.0045,
+        "high": 0.0011,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0139,
+        "median": 0.025,
+        "high": 0.0359,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7846,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0089,
+        "median": -0.0036,
+        "high": 0.0019,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0151,
+        "median": 0.0273,
+        "high": 0.0396,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-batch64": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4616,
+   "minutes": 20.74,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-batch64": 0.7516,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0506,
+       "median": -0.0383,
+       "high": -0.0247,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0568,
+       "median": 0.0736,
+       "high": 0.094,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-batch64": 0.7538,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0454,
+       "median": -0.034,
+       "high": -0.0213,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0567,
+       "median": 0.0769,
+       "high": 0.0995,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7873,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0082,
+        "median": -0.0029,
+        "high": 0.0036,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0083,
+        "median": 0.0185,
+        "high": 0.0292,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7865,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0068,
+        "median": -0.0014,
+        "high": 0.0041,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0084,
+        "median": 0.0202,
+        "high": 0.0329,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "sweep-wd1e-3": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4674,
+   "minutes": 11.23,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "sweep-wd1e-3": 0.7534,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0508,
+       "median": -0.036,
+       "high": -0.0232,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0533,
+       "median": 0.0689,
+       "high": 0.084,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "sweep-wd1e-3": 0.7596,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0419,
+       "median": -0.0287,
+       "high": -0.0152,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0522,
+       "median": 0.0705,
+       "high": 0.0882,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7875,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0098,
+        "median": -0.002,
+        "high": 0.0045,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0082,
+        "median": 0.0176,
+        "high": 0.0258,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7892,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0048,
+        "median": 0.0012,
+        "high": 0.0075,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0096,
+        "median": 0.0186,
+        "high": 0.0277,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "final-A": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid_all",
+   "mean_validation_bce": 0.4644,
+   "minutes": 102.73,
+   "compared": true,
+   "against_record": {
+    "rows": 9765,
+    "all": {
+     "auc": {
+      "final-A": 0.7622,
+      "cycle6": 0.7899
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0392,
+       "median": -0.027,
+       "high": -0.0155,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0421,
+       "median": 0.0599,
+       "high": 0.0762,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "final-A": 0.7658,
+      "cycle6": 0.7882
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0348,
+       "median": -0.0221,
+       "high": -0.0115,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0433,
+       "median": 0.0626,
+       "high": 0.0801,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 9765,
+     "all": {
+      "auc": {
+       "blend": 0.7896,
+       "cycle6": 0.7899
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0058,
+        "median": -0.0002,
+        "high": 0.0055,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0047,
+        "median": 0.0147,
+        "high": 0.0235,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7897,
+       "cycle6": 0.7882
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0043,
+        "median": 0.0017,
+        "high": 0.0063,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.005,
+        "median": 0.0157,
+        "high": 0.0258,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  },
+  "final-S": {
+   "status": "done",
+   "kind": "structure",
+   "model": "hybrid",
+   "mean_validation_bce": 0.5329,
+   "minutes": 9.33,
+   "compared": true,
+   "against_record": {
+    "rows": 4263,
+    "all": {
+     "auc": {
+      "final-S": 0.7557,
+      "cycle6": 0.8035
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0656,
+       "median": -0.0475,
+       "high": -0.0302,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0689,
+       "median": 0.1034,
+       "high": 0.14,
+       "resamples": 300
+      }
+     }
+    },
+    "not cuprates": {
+     "auc": {
+      "final-S": 0.7573,
+      "cycle6": 0.8021
+     },
+     "difference": {
+      "auc": {
+       "low": -0.0608,
+       "median": -0.0449,
+       "high": -0.0272,
+       "resamples": 300
+      },
+      "tc_log_mae": {
+       "low": 0.0674,
+       "median": 0.1021,
+       "high": 0.1372,
+       "resamples": 300
+      }
+     }
+    },
+    "blend_with_record": {
+     "rows": 4263,
+     "all": {
+      "auc": {
+       "blend": 0.7938,
+       "cycle6": 0.8035
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0166,
+        "median": -0.0097,
+        "high": -0.0016,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0132,
+        "median": 0.0315,
+        "high": 0.0513,
+        "resamples": 300
+       }
+      }
+     },
+     "not cuprates": {
+      "auc": {
+       "blend": 0.7935,
+       "cycle6": 0.8021
+      },
+      "difference": {
+       "auc": {
+        "low": -0.0166,
+        "median": -0.0088,
+        "high": 0.0002,
+        "resamples": 300
+       },
+       "tc_log_mae": {
+        "low": 0.0138,
+        "median": 0.0312,
+        "high": 0.0487,
+        "resamples": 300
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

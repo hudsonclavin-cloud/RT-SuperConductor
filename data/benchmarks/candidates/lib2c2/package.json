@@ -1,0 +1,47 @@
+{
+ "name": "lib2c2",
+ "formula": "LiB2C2",
+ "alexandria_id": "agm005413625",
+ "atoms": 5,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  16,
+  16,
+  8
+ ],
+ "fit_k_mesh": [
+  32,
+  32,
+  16
+ ],
+ "q_mesh": [
+  4,
+  4,
+  2
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   2.7110662226758455,
+   0.0,
+   0.0
+  ],
+  [
+   -1.3555331113379228,
+   2.347852220179202,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   7.267986309
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "B_ONCV_PBE_sr.upf": "81a927efe8734a1d427c03a7e4bff9e0814ea26d4f0023077c2cb3acf375e0b4",
+  "C_ONCV_PBE_sr.upf": "4ab09685e4bd338d8ef84a93cad9f02f5b0e948a0ce4eb8ae9abc615368ee259",
+  "Li_ONCV_PBE_sr.upf": "c618f91dc57000278fdc6db70b87c73b37a96b2c30ccd1074c0e1920a2032faa"
+ },
+ "relaxed_from": "Alexandria structure, vc-relax with these pseudopotentials and cutoff"
+}

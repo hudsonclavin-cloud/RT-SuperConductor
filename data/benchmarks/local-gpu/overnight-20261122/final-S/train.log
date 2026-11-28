@@ -1,0 +1,32 @@
+07:06:53 hybrid: 4931 items, folds [0, 1, 2, 3, 4], device cuda, pretrained=False
+07:07:13   fold 0 seed 0: best epoch 4 of 29, validation BCE 0.60454, 17.3 s
+07:07:28   fold 0 seed 1: best epoch 3 of 28, validation BCE 0.57318, 15.0 s
+07:07:46   fold 0 seed 2: best epoch 7 of 32, validation BCE 0.58226, 18.4 s
+07:08:02   fold 0 seed 3: best epoch 5 of 30, validation BCE 0.61038, 16.1 s
+07:08:19   fold 0 seed 4: best epoch 5 of 30, validation BCE 0.56393, 16.1 s
+07:08:34   fold 0 seed 5: best epoch 2 of 27, validation BCE 0.61167, 15.1 s
+07:08:56   fold 1 seed 0: best epoch 6 of 31, validation BCE 0.5517, 16.2 s
+07:09:17   fold 1 seed 1: best epoch 14 of 39, validation BCE 0.56833, 21.3 s
+07:09:37   fold 1 seed 2: best epoch 11 of 36, validation BCE 0.57545, 19.5 s
+07:09:56   fold 1 seed 3: best epoch 9 of 34, validation BCE 0.56681, 19.2 s
+07:10:12   fold 1 seed 4: best epoch 5 of 30, validation BCE 0.55887, 16.2 s
+07:10:32   fold 1 seed 5: best epoch 11 of 36, validation BCE 0.57434, 19.8 s
+07:10:58   fold 2 seed 0: best epoch 11 of 36, validation BCE 0.53023, 19.9 s
+07:11:15   fold 2 seed 1: best epoch 7 of 32, validation BCE 0.50741, 17.1 s
+07:11:31   fold 2 seed 2: best epoch 4 of 29, validation BCE 0.54556, 16.3 s
+07:11:49   fold 2 seed 3: best epoch 8 of 33, validation BCE 0.49614, 17.9 s
+07:12:07   fold 2 seed 4: best epoch 7 of 32, validation BCE 0.51562, 17.5 s
+07:12:26   fold 2 seed 5: best epoch 10 of 35, validation BCE 0.50031, 19.8 s
+07:12:47   fold 3 seed 0: best epoch 3 of 28, validation BCE 0.53912, 15.1 s
+07:13:05   fold 3 seed 1: best epoch 6 of 31, validation BCE 0.52986, 17.4 s
+07:13:20   fold 3 seed 2: best epoch 3 of 28, validation BCE 0.55492, 14.6 s
+07:13:36   fold 3 seed 3: best epoch 5 of 30, validation BCE 0.53599, 16.4 s
+07:13:54   fold 3 seed 4: best epoch 10 of 35, validation BCE 0.55202, 18.5 s
+07:14:12   fold 3 seed 5: best epoch 9 of 34, validation BCE 0.53004, 18.0 s
+07:14:37   fold 4 seed 0: best epoch 10 of 35, validation BCE 0.44418, 18.0 s
+07:14:55   fold 4 seed 1: best epoch 9 of 34, validation BCE 0.47198, 18.2 s
+07:15:13   fold 4 seed 2: best epoch 9 of 34, validation BCE 0.43304, 18.5 s
+07:15:29   fold 4 seed 3: best epoch 3 of 28, validation BCE 0.47681, 15.5 s
+07:15:50   fold 4 seed 4: best epoch 14 of 39, validation BCE 0.45242, 21.5 s
+07:16:06   fold 4 seed 5: best epoch 5 of 30, validation BCE 0.42971, 16.0 s
+07:16:12 wrote C:\Users\hudso\RT-SuperConductor\runs\overnight-20261122\final-S: mean validation BCE 0.53289, 9.33 min

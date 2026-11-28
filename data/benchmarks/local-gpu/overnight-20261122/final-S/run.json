@@ -1,0 +1,303 @@
+{
+ "bundle_kind": "structure",
+ "bundle_content_sha256": "42bd135e4432252048b7c2cb8591eb5e3e8b0ce579afd49d7bf069d3eba20f3e",
+ "formula_bundle_content_sha256": null,
+ "device": "cuda",
+ "torch": "2.15.0+cu132",
+ "python": "3.12.10",
+ "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+ "memory_gb": 7.96,
+ "capability": "12.0",
+ "cuda": "13.2",
+ "peak_memory_gb": 0.589,
+ "settings": {
+  "command": "train",
+  "bundle": "C:\\Users\\hudso\\RT-SuperConductor\\data\\processed\\local-gpu\\structures.npz",
+  "out": "C:\\Users\\hudso\\RT-SuperConductor\\runs\\overnight-20261122\\final-S",
+  "device": "cuda",
+  "conv": 4,
+  "hidden": 128,
+  "embed": 64,
+  "rbf": 41,
+  "cutoff": 8.0,
+  "head": 128,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch": 128,
+  "epochs": 200,
+  "patience": 25,
+  "seed_base": 100,
+  "model": "hybrid",
+  "formula_bundle": null,
+  "pretrained": null,
+  "encoder_lr_scale": 0.3,
+  "x_hidden": 128,
+  "dropout": 0.1,
+  "aux_weight": 0.3,
+  "seeds": 6,
+  "folds": "",
+  "candidates": ""
+ },
+ "pretrain_config": null,
+ "folds": [
+  {
+   "fold": 0,
+   "fit_items": 3824,
+   "valid_items": 361,
+   "test_items": 746,
+   "test_compositions": 743,
+   "networks": [
+    {
+     "seed": 100,
+     "best_epoch": 4,
+     "epochs_run": 29,
+     "best_validation_bce": 0.60454,
+     "seconds": 17.3
+    },
+    {
+     "seed": 101,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.57318,
+     "seconds": 15.0
+    },
+    {
+     "seed": 102,
+     "best_epoch": 7,
+     "epochs_run": 32,
+     "best_validation_bce": 0.58226,
+     "seconds": 18.4
+    },
+    {
+     "seed": 103,
+     "best_epoch": 5,
+     "epochs_run": 30,
+     "best_validation_bce": 0.61038,
+     "seconds": 16.1
+    },
+    {
+     "seed": 104,
+     "best_epoch": 5,
+     "epochs_run": 30,
+     "best_validation_bce": 0.56393,
+     "seconds": 16.1
+    },
+    {
+     "seed": 105,
+     "best_epoch": 2,
+     "epochs_run": 27,
+     "best_validation_bce": 0.61167,
+     "seconds": 15.1
+    }
+   ]
+  },
+  {
+   "fold": 1,
+   "fit_items": 3685,
+   "valid_items": 420,
+   "test_items": 826,
+   "test_compositions": 820,
+   "networks": [
+    {
+     "seed": 1100,
+     "best_epoch": 6,
+     "epochs_run": 31,
+     "best_validation_bce": 0.5517,
+     "seconds": 16.2
+    },
+    {
+     "seed": 1101,
+     "best_epoch": 14,
+     "epochs_run": 39,
+     "best_validation_bce": 0.56833,
+     "seconds": 21.3
+    },
+    {
+     "seed": 1102,
+     "best_epoch": 11,
+     "epochs_run": 36,
+     "best_validation_bce": 0.57545,
+     "seconds": 19.5
+    },
+    {
+     "seed": 1103,
+     "best_epoch": 9,
+     "epochs_run": 34,
+     "best_validation_bce": 0.56681,
+     "seconds": 19.2
+    },
+    {
+     "seed": 1104,
+     "best_epoch": 5,
+     "epochs_run": 30,
+     "best_validation_bce": 0.55887,
+     "seconds": 16.2
+    },
+    {
+     "seed": 1105,
+     "best_epoch": 11,
+     "epochs_run": 36,
+     "best_validation_bce": 0.57434,
+     "seconds": 19.8
+    }
+   ]
+  },
+  {
+   "fold": 2,
+   "fit_items": 3758,
+   "valid_items": 295,
+   "test_items": 878,
+   "test_compositions": 865,
+   "networks": [
+    {
+     "seed": 2100,
+     "best_epoch": 11,
+     "epochs_run": 36,
+     "best_validation_bce": 0.53023,
+     "seconds": 19.9
+    },
+    {
+     "seed": 2101,
+     "best_epoch": 7,
+     "epochs_run": 32,
+     "best_validation_bce": 0.50741,
+     "seconds": 17.1
+    },
+    {
+     "seed": 2102,
+     "best_epoch": 4,
+     "epochs_run": 29,
+     "best_validation_bce": 0.54556,
+     "seconds": 16.3
+    },
+    {
+     "seed": 2103,
+     "best_epoch": 8,
+     "epochs_run": 33,
+     "best_validation_bce": 0.49614,
+     "seconds": 17.9
+    },
+    {
+     "seed": 2104,
+     "best_epoch": 7,
+     "epochs_run": 32,
+     "best_validation_bce": 0.51562,
+     "seconds": 17.5
+    },
+    {
+     "seed": 2105,
+     "best_epoch": 10,
+     "epochs_run": 35,
+     "best_validation_bce": 0.50031,
+     "seconds": 19.8
+    }
+   ]
+  },
+  {
+   "fold": 3,
+   "fit_items": 3694,
+   "valid_items": 353,
+   "test_items": 884,
+   "test_compositions": 875,
+   "networks": [
+    {
+     "seed": 3100,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.53912,
+     "seconds": 15.1
+    },
+    {
+     "seed": 3101,
+     "best_epoch": 6,
+     "epochs_run": 31,
+     "best_validation_bce": 0.52986,
+     "seconds": 17.4
+    },
+    {
+     "seed": 3102,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.55492,
+     "seconds": 14.6
+    },
+    {
+     "seed": 3103,
+     "best_epoch": 5,
+     "epochs_run": 30,
+     "best_validation_bce": 0.53599,
+     "seconds": 16.4
+    },
+    {
+     "seed": 3104,
+     "best_epoch": 10,
+     "epochs_run": 35,
+     "best_validation_bce": 0.55202,
+     "seconds": 18.5
+    },
+    {
+     "seed": 3105,
+     "best_epoch": 9,
+     "epochs_run": 34,
+     "best_validation_bce": 0.53004,
+     "seconds": 18.0
+    }
+   ]
+  },
+  {
+   "fold": 4,
+   "fit_items": 3506,
+   "valid_items": 458,
+   "test_items": 967,
+   "test_compositions": 960,
+   "networks": [
+    {
+     "seed": 4100,
+     "best_epoch": 10,
+     "epochs_run": 35,
+     "best_validation_bce": 0.44418,
+     "seconds": 18.0
+    },
+    {
+     "seed": 4101,
+     "best_epoch": 9,
+     "epochs_run": 34,
+     "best_validation_bce": 0.47198,
+     "seconds": 18.2
+    },
+    {
+     "seed": 4102,
+     "best_epoch": 9,
+     "epochs_run": 34,
+     "best_validation_bce": 0.43304,
+     "seconds": 18.5
+    },
+    {
+     "seed": 4103,
+     "best_epoch": 3,
+     "epochs_run": 28,
+     "best_validation_bce": 0.47681,
+     "seconds": 15.5
+    },
+    {
+     "seed": 4104,
+     "best_epoch": 14,
+     "epochs_run": 39,
+     "best_validation_bce": 0.45242,
+     "seconds": 21.5
+    },
+    {
+     "seed": 4105,
+     "best_epoch": 5,
+     "epochs_run": 30,
+     "best_validation_bce": 0.42971,
+     "seconds": 16.0
+    }
+   ]
+  }
+ ],
+ "mean_validation_bce": 0.53289,
+ "seconds_per_network": 17.5,
+ "minutes": 9.33,
+ "complete": true
+}

@@ -1,0 +1,74 @@
+{
+ "model": "cycle6",
+ "steps": {
+  "filtered_pool": 571,
+  "8_verdicts_carried_forward": 552,
+  "9_solid_solution_systems_dropped": 551
+ },
+ "shortlist": 10,
+ "rank_correlation_with_previous": 0.9505,
+ "shortlist_p_range": [
+  0.861,
+  0.938
+ ],
+ "watched_ranks_among_filtered": {
+  "NaMgPb2": 2,
+  "LiMgPb2": 3,
+  "SbTe2": 1,
+  "Cs(PIr)2": 107,
+  "Re3Ir": 4,
+  "Ti2NbAl": 14
+ },
+ "previously_checked_in_cycle6_top20": [
+  {
+   "formula": "SbTe2",
+   "rank": 1,
+   "verdict": "not_found_as_made"
+  },
+  {
+   "formula": "NaMgPb2",
+   "rank": 2,
+   "verdict": "not_found_as_made"
+  },
+  {
+   "formula": "LiMgPb2",
+   "rank": 3,
+   "verdict": "not_found_as_made"
+  },
+  {
+   "formula": "Re3Ir",
+   "rank": 4,
+   "verdict": "not_found_as_made"
+  },
+  {
+   "formula": "Hf2CS",
+   "rank": 7,
+   "verdict": "not_found_as_made"
+  },
+  {
+   "formula": "ReIr3",
+   "rank": 8,
+   "verdict": "not_found_as_made"
+  },
+  {
+   "formula": "CaAl3Au",
+   "rank": 10,
+   "verdict": "unclear"
+  },
+  {
+   "formula": "Nb2GeC",
+   "rank": 12,
+   "verdict": "made_superconductor"
+  },
+  {
+   "formula": "ScTaN2",
+   "rank": 13,
+   "verdict": "made_no_low_temperature_data"
+  },
+  {
+   "formula": "Ti2NbAl",
+   "rank": 14,
+   "verdict": "made_no_low_temperature_data"
+  }
+ ]
+}

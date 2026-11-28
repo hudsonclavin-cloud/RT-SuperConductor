@@ -1,0 +1,77 @@
+{
+ "plan": "docs/high-tc-target.md",
+ "data_sha256": "2ebf1a2c9ed95b7120d0453539dda75129e71f2bca1ff96d222f366060fd3dc1",
+ "added_rows": 851,
+ "cross_validation": [
+  {
+   "fold": 0,
+   "classifier_trees": 277,
+   "regressor_trees": 374,
+   "added_rows_fitted": 655
+  },
+  {
+   "fold": 1,
+   "classifier_trees": 165,
+   "regressor_trees": 78,
+   "added_rows_fitted": 640
+  },
+  {
+   "fold": 2,
+   "classifier_trees": 283,
+   "regressor_trees": 334,
+   "added_rows_fitted": 599
+  },
+  {
+   "fold": 3,
+   "classifier_trees": 177,
+   "regressor_trees": 113,
+   "added_rows_fitted": 629
+  },
+  {
+   "fold": 4,
+   "classifier_trees": 264,
+   "regressor_trees": 349,
+   "added_rows_fitted": 677
+  }
+ ],
+ "rule": "New model minus the incumbent's better score (probability or expected Tc), non-cuprate AUC for Tc >= 10 K: median gain >= +0.01 with the 95% interval above zero -> a second, high-Tc ranking for the room-temperature track. Anything else -> the incumbent's better score serves. The ranking of record is unchanged either way.",
+ "not cuprates, Tc >= 10 K": {
+  "rows": 8598,
+  "positives": 1901,
+  "auc": {
+   "new (trained on Tc >= 10 K)": 0.9364,
+   "incumbent p": 0.6682,
+   "incumbent expected Tc": 0.9409
+  }
+ },
+ "not cuprates, Tc >= 20 K (second reading; models as trained for 10 K)": {
+  "rows": 8598,
+  "positives": 760,
+  "auc": {
+   "new (trained on Tc >= 10 K)": 0.9323,
+   "incumbent p": 0.6061,
+   "incumbent expected Tc": 0.9633
+  }
+ },
+ "all development rows, Tc >= 10 K": {
+  "rows": 9399,
+  "positives": 2352,
+  "auc": {
+   "new (trained on Tc >= 10 K)": 0.9294,
+   "incumbent p": 0.6327,
+   "incumbent expected Tc": 0.9309
+  }
+ },
+ "incumbent_better_score": "incumbent expected Tc",
+ "new_minus_better_incumbent": {
+  "low": -0.0145,
+  "median": -0.0045,
+  "high": 0.0039,
+  "resamples": 1000
+ },
+ "reading": {
+  "adopt_high_tc_ranking": false,
+  "what_follows": "the incumbent's better score serves the high-Tc question"
+ },
+ "disclosure": "The table differs from cycle 6's by one corrected train-only cuprate row (YBa2Cu3O6.32)."
+}

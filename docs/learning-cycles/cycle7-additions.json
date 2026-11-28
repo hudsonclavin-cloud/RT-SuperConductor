@@ -1,0 +1,39 @@
+{
+ "nemad_compositions_with_a_label_in_the_usable_subset": 10431,
+ "novelty_classes": {
+  "held": 4166,
+  "new system": 983,
+  "near twin": 3334,
+  "known parent": 1752,
+  "new parent": 98
+ },
+ "new_compositions": 2833,
+ "placed": {
+  "left out: tied to a locked group": 726,
+  "new group": 1022,
+  "joins a development group": 1061,
+  "left out: tied to more than one fold": 24
+ },
+ "nemad_rows_added": 2083,
+ "nemad_labels": {
+  "1": 1572,
+  "0": 511
+ },
+ "nemad_by_family": {
+  "Other": 1364,
+  "Cuprates": 257,
+  "Ferrites": 199,
+  "Oxides": 263
+ },
+ "nemad_by_fold": {
+  "0": 434,
+  "1": 380,
+  "2": 416,
+  "3": 437,
+  "4": 416
+ },
+ "nims_rows_kept": 851,
+ "table_sha256": "2ebf1a2c9ed95b7120d0453539dda75129e71f2bca1ff96d222f366060fd3dc1",
+ "nims_additions_sha256": "e7507a3fe14ab2ce88bb4b5bd3c9d72d444fcd0bc1763f99bc5af6e8e8acac74",
+ "additions_sha256": "1f9f8f7a5531521b4bd81f15d8f6c7834e1bfce1a803e00b1479c037ff0a4fe1"
+}

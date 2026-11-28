@@ -1,0 +1,469 @@
+{
+ "plan": "docs/nemad-outside-test.md",
+ "tag": "nemad-tabicl-20261127",
+ "record_models_check_largest_gap": 0.0005,
+ "tabicl_reproduces_record_on_made_metals_overlap": {
+  "rows": 245,
+  "rows_with_identical_inputs": 239,
+  "rows_whose_inputs_differ_by_rounding": 6,
+  "threshold": 0.02,
+  "record_run": "fm-tabicl-20261123",
+  "largest_gap": 0.0,
+  "median_gap": 0.0,
+  "reproduced": true,
+  "largest_gap_where_inputs_differ": 0.0011
+ },
+ "run": {
+  "bundle_kind": "formula",
+  "bundle_sha256": "1327a6d6756b81f3bb4f9bf41354961a61773722feb1c11b89c8d8208d8e2b2d",
+  "bundle_content_sha256": "daed58cb32f4a25f50cfa5a39a321926f79a59b42f5751bc72e8042df844eb01",
+  "model": "tabicl",
+  "libraries": {
+   "tabicl": "2.2.0"
+  },
+  "context": "fit and validation rows together; no early stopping",
+  "device": "cuda",
+  "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "python": "3.12.10",
+  "settings": {
+   "bundle": "data\\processed\\local-gpu\\bundle.npz",
+   "model": "tabicl",
+   "out": "runs\\nemad-tabicl",
+   "device": "cuda",
+   "estimators": 8,
+   "max_context": 0,
+   "predict_batch": 4096,
+   "patience": 50,
+   "catboost_gpu": false,
+   "seed": 0,
+   "folds": "",
+   "candidates": "nemad",
+   "extra_candidates": "data\\processed\\local-gpu\\nemad-features.npz"
+  },
+  "folds": [
+   {
+    "fold": 0,
+    "classifier_rows": 12654,
+    "regressor_rows": 9660,
+    "validation_rows": 0,
+    "test_rows": 1719,
+    "fit_seconds": 5.6,
+    "seconds": 70.1
+   },
+   {
+    "fold": 1,
+    "classifier_rows": 12512,
+    "regressor_rows": 9523,
+    "validation_rows": 0,
+    "test_rows": 1854,
+    "fit_seconds": 4.3,
+    "seconds": 60.2
+   },
+   {
+    "fold": 2,
+    "classifier_rows": 12249,
+    "regressor_rows": 9387,
+    "validation_rows": 0,
+    "test_rows": 2058,
+    "fit_seconds": 4.2,
+    "seconds": 58.8
+   },
+   {
+    "fold": 3,
+    "classifier_rows": 12367,
+    "regressor_rows": 9460,
+    "validation_rows": 0,
+    "test_rows": 1968,
+    "fit_seconds": 4.2,
+    "seconds": 59.4
+   },
+   {
+    "fold": 4,
+    "classifier_rows": 12239,
+    "regressor_rows": 9330,
+    "validation_rows": 0,
+    "test_rows": 2166,
+    "fit_seconds": 4.6,
+    "seconds": 59.5
+   }
+  ],
+  "minutes": 5.42,
+  "complete": true,
+  "extra_candidates": {
+   "file": "nemad-features.npz",
+   "sha256": "1b8b4d6bea398e4d0704305b4db39e896eca0b88f4978a5368a3e45e9e2310a6",
+   "lists": {
+    "nemad": 2833
+   }
+  }
+ },
+ "rows": 2833,
+ "superconductors": 2233,
+ "nulls": 600,
+ "groups": 1245,
+ "rows_in_groups_with_no_training_row": 1232,
+ "scores": {
+  "all": {
+   "cycle6": {
+    "rows": 2833,
+    "labelled_rows": 2833,
+    "superconductor_rows": 1890,
+    "auc": 0.7994,
+    "brier": 0.1431,
+    "tc_mae_k": 12.751,
+    "tc_log_mae": 0.5216,
+    "tc_spearman": 0.8085,
+    "expected_tc_spearman": 0.5473,
+    "top_decile_recall": 0.6219
+   },
+   "tabicl": {
+    "rows": 2833,
+    "labelled_rows": 2833,
+    "superconductor_rows": 1890,
+    "auc": 0.821,
+    "brier": 0.1435,
+    "tc_mae_k": 12.3037,
+    "tc_log_mae": 0.5,
+    "tc_spearman": 0.8144,
+    "expected_tc_spearman": 0.5968,
+    "top_decile_recall": 0.6148
+   },
+   "blend": {
+    "rows": 2833,
+    "labelled_rows": 2833,
+    "superconductor_rows": 1890,
+    "auc": 0.8179,
+    "brier": 0.1396,
+    "tc_mae_k": 12.5342,
+    "tc_log_mae": 0.5042,
+    "tc_spearman": 0.8156,
+    "expected_tc_spearman": 0.5751,
+    "top_decile_recall": 0.6184
+   }
+  },
+  "not cuprates": {
+   "cycle6": {
+    "rows": 2004,
+    "labelled_rows": 2004,
+    "superconductor_rows": 1267,
+    "auc": 0.7786,
+    "brier": 0.1535,
+    "tc_mae_k": 7.4806,
+    "tc_log_mae": 0.5778,
+    "tc_spearman": 0.5564,
+    "expected_tc_spearman": 0.3644,
+    "top_decile_recall": 0.425
+   },
+   "tabicl": {
+    "rows": 2004,
+    "labelled_rows": 2004,
+    "superconductor_rows": 1267,
+    "auc": 0.8045,
+    "brier": 0.1488,
+    "tc_mae_k": 7.1819,
+    "tc_log_mae": 0.5602,
+    "tc_spearman": 0.554,
+    "expected_tc_spearman": 0.4342,
+    "top_decile_recall": 0.48
+   },
+   "blend": {
+    "rows": 2004,
+    "labelled_rows": 2004,
+    "superconductor_rows": 1267,
+    "auc": 0.7994,
+    "brier": 0.1476,
+    "tc_mae_k": 7.3213,
+    "tc_log_mae": 0.5617,
+    "tc_spearman": 0.5632,
+    "expected_tc_spearman": 0.4039,
+    "top_decile_recall": 0.455
+   }
+  },
+  "other families (mostly intermetallic)": {
+   "cycle6": {
+    "rows": 1505,
+    "labelled_rows": 1505,
+    "superconductor_rows": 1041,
+    "auc": 0.7575,
+    "brier": 0.1371,
+    "tc_mae_k": 5.6601,
+    "tc_log_mae": 0.5512,
+    "tc_spearman": 0.4596,
+    "expected_tc_spearman": 0.4384,
+    "top_decile_recall": 0.3733
+   },
+   "tabicl": {
+    "rows": 1505,
+    "labelled_rows": 1505,
+    "superconductor_rows": 1041,
+    "auc": 0.7734,
+    "brier": 0.1391,
+    "tc_mae_k": 5.4004,
+    "tc_log_mae": 0.5321,
+    "tc_spearman": 0.4673,
+    "expected_tc_spearman": 0.4385,
+    "top_decile_recall": 0.44
+   },
+   "blend": {
+    "rows": 1505,
+    "labelled_rows": 1505,
+    "superconductor_rows": 1041,
+    "auc": 0.7735,
+    "brier": 0.135,
+    "tc_mae_k": 5.5432,
+    "tc_log_mae": 0.5357,
+    "tc_spearman": 0.4724,
+    "expected_tc_spearman": 0.4454,
+    "top_decile_recall": 0.4133
+   }
+  },
+  "not cuprates, groups with no training row": {
+   "cycle6": {
+    "rows": 1037,
+    "labelled_rows": 1037,
+    "superconductor_rows": 652,
+    "auc": 0.7608,
+    "brier": 0.1654,
+    "tc_mae_k": 11.2696,
+    "tc_log_mae": 0.7021,
+    "tc_spearman": 0.437,
+    "expected_tc_spearman": 0.2464,
+    "top_decile_recall": 0.2692
+   },
+   "tabicl": {
+    "rows": 1037,
+    "labelled_rows": 1037,
+    "superconductor_rows": 652,
+    "auc": 0.7767,
+    "brier": 0.1659,
+    "tc_mae_k": 10.7864,
+    "tc_log_mae": 0.6887,
+    "tc_spearman": 0.411,
+    "expected_tc_spearman": 0.3249,
+    "top_decile_recall": 0.3942
+   },
+   "blend": {
+    "rows": 1037,
+    "labelled_rows": 1037,
+    "superconductor_rows": 652,
+    "auc": 0.7736,
+    "brier": 0.162,
+    "tc_mae_k": 11.0556,
+    "tc_log_mae": 0.6884,
+    "tc_spearman": 0.4318,
+    "expected_tc_spearman": 0.2891,
+    "top_decile_recall": 0.3558
+   }
+  },
+  "not cuprates, groups with training rows": {
+   "cycle6": {
+    "rows": 967,
+    "labelled_rows": 967,
+    "superconductor_rows": 615,
+    "auc": 0.7959,
+    "brier": 0.1408,
+    "tc_mae_k": 3.4637,
+    "tc_log_mae": 0.446,
+    "tc_spearman": 0.6812,
+    "expected_tc_spearman": 0.491,
+    "top_decile_recall": 0.6082
+   },
+   "tabicl": {
+    "rows": 967,
+    "labelled_rows": 967,
+    "superconductor_rows": 615,
+    "auc": 0.8326,
+    "brier": 0.1305,
+    "tc_mae_k": 3.3605,
+    "tc_log_mae": 0.424,
+    "tc_spearman": 0.7041,
+    "expected_tc_spearman": 0.5518,
+    "top_decile_recall": 0.6082
+   },
+   "blend": {
+    "rows": 967,
+    "labelled_rows": 967,
+    "superconductor_rows": 615,
+    "auc": 0.826,
+    "brier": 0.1322,
+    "tc_mae_k": 3.3624,
+    "tc_log_mae": 0.4274,
+    "tc_spearman": 0.7005,
+    "expected_tc_spearman": 0.5276,
+    "top_decile_recall": 0.6186
+   }
+  }
+ },
+ "paired": {
+  "all": {
+   "blend_minus_cycle6": {
+    "auc": {
+     "low": 0.0102,
+     "median": 0.0184,
+     "high": 0.0288,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0248,
+     "median": -0.0173,
+     "high": -0.0112,
+     "resamples": 300
+    }
+   },
+   "tabicl_minus_cycle6": {
+    "auc": {
+     "low": 0.0061,
+     "median": 0.0214,
+     "high": 0.038,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0349,
+     "median": -0.0212,
+     "high": -0.0083,
+     "resamples": 300
+    }
+   }
+  },
+  "not cuprates": {
+   "blend_minus_cycle6": {
+    "auc": {
+     "low": 0.0094,
+     "median": 0.0204,
+     "high": 0.033,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0253,
+     "median": -0.0166,
+     "high": -0.007,
+     "resamples": 300
+    }
+   },
+   "tabicl_minus_cycle6": {
+    "auc": {
+     "low": 0.0071,
+     "median": 0.0251,
+     "high": 0.0451,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0353,
+     "median": -0.0176,
+     "high": 0.0002,
+     "resamples": 300
+    }
+   }
+  },
+  "other families (mostly intermetallic)": {
+   "blend_minus_cycle6": {
+    "auc": {
+     "low": 0.0027,
+     "median": 0.0163,
+     "high": 0.029,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0252,
+     "median": -0.0157,
+     "high": -0.0058,
+     "resamples": 300
+    }
+   },
+   "tabicl_minus_cycle6": {
+    "auc": {
+     "low": -0.008,
+     "median": 0.0163,
+     "high": 0.0381,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0377,
+     "median": -0.0193,
+     "high": -0.0016,
+     "resamples": 300
+    }
+   }
+  },
+  "not cuprates, groups with no training row": {
+   "blend_minus_cycle6": {
+    "auc": {
+     "low": -0.0004,
+     "median": 0.0119,
+     "high": 0.0247,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.026,
+     "median": -0.0135,
+     "high": -0.0015,
+     "resamples": 300
+    }
+   },
+   "tabicl_minus_cycle6": {
+    "auc": {
+     "low": -0.0046,
+     "median": 0.0141,
+     "high": 0.0361,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0396,
+     "median": -0.013,
+     "high": 0.0121,
+     "resamples": 300
+    }
+   }
+  },
+  "not cuprates, groups with training rows": {
+   "blend_minus_cycle6": {
+    "auc": {
+     "low": 0.0137,
+     "median": 0.0301,
+     "high": 0.0504,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0298,
+     "median": -0.0185,
+     "high": -0.0066,
+     "resamples": 300
+    }
+   },
+   "tabicl_minus_cycle6": {
+    "auc": {
+     "low": 0.0074,
+     "median": 0.0369,
+     "high": 0.0661,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": -0.0413,
+     "median": -0.022,
+     "high": -0.0028,
+     "resamples": 300
+    }
+   }
+  }
+ },
+ "reading": {
+  "rule": "A check, not an adoption test: the ranking of record is already the blend. Two readings, blend minus cycle 6 in AUC: main = all non-cuprates; outside = non-cuprates whose group holds no training row. Outcome, first match wins: (1) either paired interval entirely below zero: propose going back to cycle 6 alone, the owner decides; (2) main and outside both at least cycle 6's: supported; (3) main at least cycle 6's, outside lower: supported on the main reading, a mark on the outside one; (4) otherwise: a mark against the blend. Scored once.",
+  "main": {
+   "slice": "not cuprates",
+   "blend_auc": 0.7994,
+   "cycle6_auc": 0.7786,
+   "blend_at_least_cycle6": true,
+   "interval_entirely_below_zero": false
+  },
+  "outside": {
+   "slice": "not cuprates, groups with no training row",
+   "blend_auc": 0.7736,
+   "cycle6_auc": 0.7608,
+   "blend_at_least_cycle6": true,
+   "interval_entirely_below_zero": false
+  },
+  "propose_going_back_to_cycle6": false,
+  "outcome": "supported",
+  "what_follows": "Main and outside readings are both at least cycle 6's: the decision is supported; nothing changes."
+ }
+}

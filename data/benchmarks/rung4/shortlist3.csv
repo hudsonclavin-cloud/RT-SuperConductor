@@ -1,0 +1,11 @@
+mp_id,formula,element_system,prototype,known_superconductors_in_prototype,spacegroup_number,num_sites,formation_energy_ev_per_atom,rank_after_filters,p_superconductor,tc_if_superconductor_k,rank_under_previous,champion_percentile
+mp-aaabxbva,TaAlRu2,Al-Ru-Ta,0.500-0.250-0.250|sg225,19,225,4,-0.832,5,0.938,3.95,13,89.9
+mp-aaafuprd,V2GaN,Ga-N-V,0.500-0.250-0.250|sg194,7,194,8,-0.8607,6,0.934,7.16,25,97.7
+mp-aaabxglu,VGaRu2,Ga-Ru-V,0.500-0.250-0.250|sg225,19,225,4,-0.5507,9,0.929,4.03,9,91.6
+mp-aaaaaqon,VAuS2,Au-S-V,0.500-0.250-0.250|sg194,7,194,8,-0.8138,33,0.893,4.2,38,95.1
+mp-aaacqrxq,LiGaIr,Ga-Ir-Li,0.333-0.333-0.333|sg194,4,194,6,-0.4812,35,0.892,4.42,42,57.4
+mp-aaacridg,SrIn3Au,Au-In-Sr,0.600-0.200-0.200|sg107,13,107,5,-0.4141,41,0.89,2.9,54,65.8
+mp-aaacrihz,SrAl3Ag,Ag-Al-Sr,0.600-0.200-0.200|sg107,13,107,5,-0.2973,44,0.889,2.16,49,59.9
+mp-aaaekscj,Ca(GePt)2,Ca-Ge-Pt,0.400-0.400-0.200|sg129,15,129,10,-0.8472,60,0.88,2.3,72,87.4
+mp-aaacrgyn,TePtPb,Pb-Pt-Te,0.333-0.333-0.333|sg198,7,198,12,-0.4301,72,0.872,1.31,144,86.5
+mp-aaabxcgs,SrNiSn2,Ni-Sn-Sr,0.500-0.250-0.250|sg63,3,63,8,-0.481,84,0.861,3.08,76,51.8

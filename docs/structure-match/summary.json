@@ -1,0 +1,26 @@
+{
+ "compounds": 3345,
+ "status": {
+  "parent structure (MP)": 187,
+  "experimental (COD)": 265,
+  "parent structure (COD)": 802,
+  "none": 2050,
+  "experimental via MP": 22,
+  "calculated only (MP)": 19
+ },
+ "with_an_experimental_structure": 287,
+ "polymorphs": 62,
+ "with_an_experimental_structure_or_parent": 1276,
+ "confidence": {
+  "medium": 613,
+  "high": 287,
+  "low": 376
+ },
+ "cod_exact": 143,
+ "element_sets_fetched": 1378,
+ "element_sets": 1378,
+ "sources": {
+  "COD": "https://www.crystallography.net/cod/result (CC0)",
+  "Materials Project": "data/candidates/mp-stable-summary.csv.gz (CC BY 4.0)"
+ }
+}

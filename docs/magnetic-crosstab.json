@@ -1,0 +1,136 @@
+{
+ "FM": {
+  "compositions": 16337,
+  "by_class": {
+   "held": 159,
+   "near twin": 455,
+   "known parent": 2459,
+   "new parent": 113,
+   "new system": 13151
+  },
+  "held_with_readable_label": 122,
+  "of_those_superconductor": 37,
+  "of_those_not": 85
+ },
+ "AFM": {
+  "compositions": 6791,
+  "by_class": {
+   "held": 345,
+   "near twin": 266,
+   "known parent": 729,
+   "new parent": 60,
+   "new system": 5391
+  },
+  "held_with_readable_label": 281,
+  "of_those_superconductor": 117,
+  "of_those_not": 164
+ },
+ "NM (computed, Materials Project)": {
+  "compositions": 11136,
+  "by_class": {
+   "held": 687,
+   "near twin": 37,
+   "known parent": 1195,
+   "new parent": 54,
+   "new system": 9163
+  },
+  "held_with_readable_label": 538,
+  "of_those_superconductor": 308,
+  "of_those_not": 230
+ },
+ "ferromagnets_by_curie": {
+  "Curie 0-10 K": {
+   "compositions": 675,
+   "held_with_label": 38,
+   "superconductor": 11,
+   "not": 27
+  },
+  "Curie 10-50 K": {
+   "compositions": 1457,
+   "held_with_label": 30,
+   "superconductor": 6,
+   "not": 24
+  },
+  "Curie 50-300 K": {
+   "compositions": 5122,
+   "held_with_label": 36,
+   "superconductor": 9,
+   "not": 27
+  },
+  "Curie 300-5000 K": {
+   "compositions": 8038,
+   "held_with_label": 20,
+   "superconductor": 8,
+   "not": 12
+  }
+ },
+ "antiferromagnets_by_neel": {
+  "Neel 0-10 K": {
+   "compositions": 1969,
+   "held_with_label": 138,
+   "superconductor": 71,
+   "not": 67
+  },
+  "Neel 10-50 K": {
+   "compositions": 2357,
+   "held_with_label": 91,
+   "superconductor": 25,
+   "not": 66
+  },
+  "Neel 50-300 K": {
+   "compositions": 2403,
+   "held_with_label": 73,
+   "superconductor": 27,
+   "not": 46
+  },
+  "Neel 300-5000 K": {
+   "compositions": 1086,
+   "held_with_label": 22,
+   "superconductor": 9,
+   "not": 13
+  }
+ },
+ "ferromagnets_curie_50_plus": {
+  "compositions": 13160,
+  "by_class": {
+   "held": 78,
+   "new system": 10588,
+   "known parent": 2033,
+   "near twin": 361,
+   "new parent": 100
+  },
+  "by_family_not_held_or_twin": {
+   "Oxides": 3891,
+   "Other": 8086,
+   "Ferrites": 391,
+   "Cuprates": 353
+  }
+ },
+ "examples_fm_labelled_superconductor": [
+  "Al0.333Gd0.333Rh0.333 (Curie 30 K)",
+  "Al0.615Fe0.308Yb0.077 (Curie 103 K)",
+  "Al0.667Ce0.333 (Curie 6 K)",
+  "As0.500Cr0.500 (Curie 400 K)",
+  "B0.333C0.167Er0.167Ni0.333 (Curie 6 K)",
+  "B0.333C0.167Ho0.167Ni0.333 (Curie 5 K)",
+  "B0.333C0.167Ni0.333Tb0.050Y0.117 (Curie 1 K)",
+  "Bi0.500Ni0.500 (Curie 640 K)",
+  "C0.250Fe0.750 (Curie 480 K)",
+  "Ce0.035Cu0.118Gd0.082O0.588Ru0.059Sr0.118 (Curie 110 K)",
+  "Ce0.200Co0.200Ge0.600 (Curie 21 K)",
+  "Ce0.200Pt0.606Si0.194 (Curie 3 K)",
+  "Co0.250Lu0.750 (Curie 2 K)",
+  "Co0.250Y0.750 (Curie 2 K)",
+  "Co0.429Y0.571 (Curie 7 K)",
+  "Co0.438Y0.562 (Curie 4 K)",
+  "Cr0.237Cu0.250Fe0.013O0.500 (Curie 550 K)",
+  "Cu0.143Eu0.071O0.571Ru0.071Sr0.143 (Curie 135 K)",
+  "Cu0.143Gd0.071O0.571Ru0.071Sr0.143 (Curie 138 K)",
+  "Cu0.143O0.571Ru0.071Sm0.071Sr0.143 (Curie 146 K)",
+  "Cu0.143O0.571Ru0.071Sr0.143Y0.071 (Curie 148 K)",
+  "Cu0.333S0.667 (Curie 23 K)",
+  "Cu0.333Se0.667 (Curie 31 K)",
+  "Fe1.000 (Curie 1043 K)",
+  "Ga0.500N0.500 (Curie 298 K)"
+ ]
+}

@@ -92,3 +92,87 @@ unverified and are not part of the training corpus.
 The current pinned importer run sees 5,773 CSV rows and links 5,773 CIFs, so
 archive version and row-count definitions need reconciliation before those
 counts are combined.
+
+## What more data is worth, measured 2026-11-27
+
+A learning curve on the ranking learner (`docs/learning-curve.md`) found
+about +0.03 AUC for each doubling of the labelled training rows, with no
+sign yet of levelling off. That makes one large, new source worth far more
+than many small ones. In order of expected value:
+
+1. **NEMAD superconductor database** (Itani, Zhang, Itani and Zang, *J.
+   Magn. Magn. Mater.* 652, 174189, 2026; https://nemad.org).
+   - 78,203 records over 19,058 compositions, extracted from papers by
+     language models.
+   - The site describes its data as CC BY 4.0.
+   - A visitor who is not signed in sees 10 results per search, so getting
+     the bulk file means asking the authors or signing in.
+   - Every row needs the same checks as SuperCon2.
+2. **Measured nulls from full-text reading** (library text-mining access) and
+   from authors of make-and-measure papers. They are small in number, but
+   they fill the blind table and the negatives the curve cannot measure.
+3. **Larger calculated electron-phonon sets**, such as the 20,000+ metals in
+   Gao et al., *Nat. Commun.* 2025 (10.1038/s41467-025-63702-w), against
+   the 8,203 Alexandria calculations already here.
+   - They help a physics-based screen.
+   - A formula-only model of them did not help predict experiments
+     (`docs/physics-proxy2.md`).
+
+## NEMAD's magnetic datasets, checked 2026-11-27
+
+The owner supplied the paper (Itani, Zhang and Zang, "The northeast
+materials database for magnetic materials", *Nat. Commun.* 16, 9415, 2025,
+10.1038/s41467-025-64458-z) and its repository
+(github.com/sumanitani/NEMAD-MagneticML, also Zenodo 10.5281/zenodo.17042814).
+
+**What it holds.** No superconductor data. Three tables of compositions:
+
+| Table | Compositions usable here | Where the label comes from |
+| --- | --- | --- |
+| Ferromagnets, with Curie temperature | 16,337 | extracted from papers by language models |
+| Antiferromagnets, with Néel temperature | 6,791 | the same |
+| Non-magnetic | 11,136 | calculated (Materials Project), not measured |
+
+**Could ferromagnets serve as non-superconductors?** They would be
+*assumed* negatives: nobody cooled them to check. Measured here
+(`python scripts/magnetic_negatives_check.py`, results in
+`docs/magnetic-crosstab.json` and `docs/magnetic-ferromagnet-scores.json`):
+
+- [Certain] Nearly all are new to us. Of 13,160 ferromagnets with a Curie
+  temperature of 50 K or more, 12,721 are neither held nor a doping step
+  from a held composition.
+- [Certain] The assumption has real exceptions. Of the 122 ferromagnets we
+  hold with a label we may read, 37 (30%) are labelled superconductors.
+  - That sample is biased upward: a ferromagnet is in a superconductor
+    table because someone looked for superconductivity in it.
+  - Some are real coexistence (RuSr2GdCu2O8, ErNi2B2C). Some are a
+    pressure effect our table does not mark (iron, CrAs).
+  - Antiferromagnets are worse: 117 of 281 (42%). They are not usable as
+    negatives.
+- [Certain] Cycle 6 already discounts most ferromagnets. On 3,000 it has
+  never seen, its mean probability is 0.39. For scale, on the development
+  rows it gives known superconductors 0.79 and known nulls 0.53.
+  - 30% of the ferromagnets still score 0.5 or more, and 4% score 0.8 or
+    more.
+- [Likely] The ones it scores highest are mostly errors in the magnetic
+  table, not in the model. The top of the list holds Ba0.05Pb0.95 and
+  Pb0.95Sr0.05 with "Curie temperatures" of 263 K and 103 K. Lead with 5%
+  of a second metal is a superconductor.
+  - So adding every ferromagnet as a negative would put wrong labels
+    exactly where the model is being asked to decide.
+
+**Reading.** Not a source of superconductor rows. A possible source of
+assumed negatives, but only with a filter (for example Curie temperature of
+300 K or more, and a magnetic element making up a real share of the
+formula) and only as a planned learning cycle judged on the development
+rows. Nothing was added to any training table here.
+
+## The NEMAD superconductor database, downloaded and checked 2026-11-27
+
+With the owner's API key, the whole superconductor database was downloaded
+and checked against this project's data and, for a random sample, against
+the source papers (`docs/nemad-superconductor.md`).
+- About 2,900 of its compositions are new to us and pass a filter that
+  proved reliable in the paper check: NEMAD's own experimental flag, at
+  normal or unstated pressure.
+- Records without that flag were never right in the sample.

@@ -1,0 +1,26 @@
+{
+ "stage": "1, pattern match only",
+ "phrases": [
+  "no superconductivity down to",
+  "no superconducting transition down to",
+  "not superconducting down to",
+  "no sign of superconductivity down to",
+  "no evidence of superconductivity down to",
+  "absence of superconductivity down to",
+  "does not superconduct down to",
+  "no superconductivity above",
+  "no superconducting transition was observed down to",
+  "remains normal down to"
+ ],
+ "since": "2010-01-01",
+ "candidate_works": 3191,
+ "with_arxiv": 1775,
+ "texts_fetched": 199,
+ "null_sentences_with_a_floor": 102,
+ "papers_with_one": 74,
+ "floor_k_quartiles": [
+  0.5,
+  1.8,
+  2.0
+ ]
+}

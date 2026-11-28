@@ -14,3 +14,7 @@ namgpb2tet,NaMgPb2,0 0 0,12x12x6,package scf.in unchanged (relaxed cell),"44.7 4
 namgpb2tet,NaMgPb2,0.5 0.5 0.5,12x12x6,package scf.in unchanged (relaxed cell),"13.0 13.0 44.9 44.9 62.7 74.6 124.9 131.1 131.1 151.0 155.0 155.0",,13.0,no
 namgpb2tet,NaMgPb2,0.5 0.5 0,12x12x6,package scf.in unchanged (relaxed cell),"-14.5 -14.5 59.1 59.1 60.0 62.7 124.5 126.0 126.0 153.5 155.0 155.0",,-14.5,yes
 namgpb2tet,NaMgPb2,0.5 0.5 0,16x16x8,denser mesh on the cell relaxed at 16x16x8 (check chosen after the failure),"-17.3 -17.3 58.0 58.0 58.3 58.9 124.8 126.4 126.4 152.1 152.1 152.1",,-17.3,yes
+ligair,LiGaIr,0 0 0,12x12x8,package scf.in unchanged (relaxed cell),"63.7 78.1 78.1 107.5 145.4 145.4 154.3 156.9 156.9 316.4 344.5 537.3 537.3 543.1 543.1","-5.5 -5.5 -4.2",63.7,no
+ligair,LiGaIr,0 0 0.5,12x12x8,package scf.in unchanged (relaxed cell),"65.2 65.2 65.2 65.2 115.5 115.5 138.6 138.6 156.6 156.6 156.6 156.6 320.0 320.0 541.9 541.9 541.9 541.9",,65.2,no
+ligair,LiGaIr,0 0.5 0,12x12x8,package scf.in unchanged (relaxed cell),"42.4 80.0 80.4 90.3 90.8 105.9 111.8 124.1 137.7 138.0 187.1 192.7 320.8 332.1 530.5 534.6 540.1 550.2",,42.4,no
+ligair,LiGaIr,0 0.5 0.5,12x12x8,package scf.in unchanged (relaxed cell),"87.7 87.7 95.1 95.1 120.6 120.6 130.3 130.3 132.3 132.3 187.1 187.1 316.4 316.4 532.7 532.7 545.5 545.5",,87.7,no

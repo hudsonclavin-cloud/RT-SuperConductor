@@ -1,0 +1,47 @@
+{
+ "name": "kinh3",
+ "formula": "KInH3",
+ "alexandria_id": "agm002490653",
+ "atoms": 5,
+ "ecutwfc_ry": 90,
+ "smearing": "mv",
+ "degauss_ry": 0.02,
+ "k_mesh": [
+  12,
+  12,
+  12
+ ],
+ "fit_k_mesh": [
+  24,
+  24,
+  24
+ ],
+ "q_mesh": [
+  4,
+  4,
+  4
+ ],
+ "relaxed_cell_angstrom": [
+  [
+   4.263598814,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   4.263598814,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   4.263598814
+  ]
+ ],
+ "pseudopotential_sha256": {
+  "H_ONCV_PBE_sr.upf": "e5ee4b2f74aa051d63f35b53fccb2d9b78fdd987c65d720bba7919a991eca0aa",
+  "In_ONCV_PBE_sr.upf": "18371a1b702aa5c971760ed2c7c1447fd23b9fb756915b2e00467e48a890f0e4",
+  "K_ONCV_PBE_sr.upf": "6a12ec924cf2af52dfbd16a1a96d97deba1c3d292887280aaa40da0bf9915647"
+ },
+ "relaxed_from": "Alexandria structure, vc-relax with these pseudopotentials and cutoff"
+}

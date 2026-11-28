@@ -1,0 +1,114 @@
+{
+ "plan": "docs/structure-cycle.md",
+ "data_sha256": "2ebf1a2c9ed95b7120d0453539dda75129e71f2bca1ff96d222f366060fd3dc1",
+ "features": "data/processed/structures/features.csv.gz",
+ "rows": {
+  "E1 (non-cuprate, labelled, with a structure)": 4968,
+  "E2 (non-cuprate, labelled)": 8598,
+  "E3 (Tc >= 10 K, with a structure)": 4968
+ },
+ "auc": {
+  "E1": {
+   "A": 0.805,
+   "B": 0.8081
+  },
+  "E2": {
+   "A": 0.7834,
+   "B": 0.7886
+  },
+  "E3 (expected Tc, Tc >= 10 K)": {
+   "A": 0.9363,
+   "B": 0.9385
+  }
+ },
+ "B_minus_A": {
+  "E1": {
+   "low": -0.0035,
+   "median": 0.0029,
+   "high": 0.0096,
+   "resamples": 1000
+  },
+  "E2": {
+   "low": 0.0001,
+   "median": 0.0052,
+   "high": 0.0102,
+   "resamples": 1000
+  },
+  "E3": {
+   "low": -0.0017,
+   "median": 0.0021,
+   "high": 0.0057,
+   "resamples": 1000
+  }
+ },
+ "cross_validation": {
+  "A": [
+   {
+    "fold": 0,
+    "classifier_trees": 220,
+    "regressor_trees": 1033,
+    "added_rows_fitted": 655
+   },
+   {
+    "fold": 1,
+    "classifier_trees": 157,
+    "regressor_trees": 339,
+    "added_rows_fitted": 640
+   },
+   {
+    "fold": 2,
+    "classifier_trees": 272,
+    "regressor_trees": 342,
+    "added_rows_fitted": 599
+   },
+   {
+    "fold": 3,
+    "classifier_trees": 428,
+    "regressor_trees": 162,
+    "added_rows_fitted": 629
+   },
+   {
+    "fold": 4,
+    "classifier_trees": 240,
+    "regressor_trees": 780,
+    "added_rows_fitted": 677
+   }
+  ],
+  "B": [
+   {
+    "fold": 0,
+    "classifier_trees": 299,
+    "regressor_trees": 359,
+    "added_rows_fitted": 655
+   },
+   {
+    "fold": 1,
+    "classifier_trees": 232,
+    "regressor_trees": 378,
+    "added_rows_fitted": 640
+   },
+   {
+    "fold": 2,
+    "classifier_trees": 218,
+    "regressor_trees": 372,
+    "added_rows_fitted": 599
+   },
+   {
+    "fold": 3,
+    "classifier_trees": 415,
+    "regressor_trees": 248,
+    "added_rows_fitted": 629
+   },
+   {
+    "fold": 4,
+    "classifier_trees": 266,
+    "regressor_trees": 755,
+    "added_rows_fitted": 677
+   }
+  ]
+ },
+ "reading": {
+  "adopt_structure_features": false,
+  "what_follows": "no change"
+ }
+}

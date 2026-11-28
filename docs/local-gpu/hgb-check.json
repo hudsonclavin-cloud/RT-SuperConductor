@@ -1,0 +1,227 @@
+{
+ "tag": "hgb-check",
+ "record": "cycle6",
+ "run": {
+  "bundle_kind": "formula",
+  "bundle_sha256": "1327a6d6756b81f3bb4f9bf41354961a61773722feb1c11b89c8d8208d8e2b2d",
+  "bundle_content_sha256": "daed58cb32f4a25f50cfa5a39a321926f79a59b42f5751bc72e8042df844eb01",
+  "model": "hgb",
+  "libraries": {
+   "scikit-learn": "1.9.1"
+  },
+  "context": "fit rows; early stopping on validation rows",
+  "device": "auto",
+  "device_name": "x86_64",
+  "python": "3.13.18",
+  "settings": {
+   "bundle": "data/processed/local-gpu/bundle.npz",
+   "model": "hgb",
+   "out": "data/processed/local-gpu/hgb-check",
+   "device": "auto",
+   "estimators": 8,
+   "max_context": 0,
+   "predict_batch": 4096,
+   "patience": 50,
+   "catboost_gpu": false,
+   "seed": 0,
+   "folds": "",
+   "candidates": "shortlist_pool"
+  },
+  "folds": [
+   {
+    "fold": 0,
+    "classifier_rows": 11745,
+    "regressor_rows": 8973,
+    "validation_rows": 909,
+    "test_rows": 1719,
+    "fit_seconds": 8.5,
+    "seconds": 8.6
+   },
+   {
+    "fold": 1,
+    "classifier_rows": 11626,
+    "regressor_rows": 8864,
+    "validation_rows": 886,
+    "test_rows": 1854,
+    "fit_seconds": 6.3,
+    "seconds": 6.4
+   },
+   {
+    "fold": 2,
+    "classifier_rows": 11585,
+    "regressor_rows": 8893,
+    "validation_rows": 664,
+    "test_rows": 2058,
+    "fit_seconds": 5.4,
+    "seconds": 5.4
+   },
+   {
+    "fold": 3,
+    "classifier_rows": 11566,
+    "regressor_rows": 8853,
+    "validation_rows": 801,
+    "test_rows": 1968,
+    "fit_seconds": 5.5,
+    "seconds": 5.6
+   },
+   {
+    "fold": 4,
+    "classifier_rows": 11377,
+    "regressor_rows": 8667,
+    "validation_rows": 862,
+    "test_rows": 2166,
+    "fit_seconds": 4.8,
+    "seconds": 4.9
+   }
+  ],
+  "minutes": 0.87,
+  "complete": true
+ },
+ "rows_compared": 9765,
+ "development_rows": 9765,
+ "scores": {
+  "all": {
+   "network": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7125,
+    "auc": 0.7899,
+    "brier": 0.144,
+    "tc_mae_k": 3.9541,
+    "tc_log_mae": 0.3852,
+    "tc_spearman": 0.8411,
+    "expected_tc_spearman": 0.6414,
+    "top_decile_recall": 0.6755
+   },
+   "cycle6": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7125,
+    "auc": 0.7899,
+    "brier": 0.144,
+    "tc_mae_k": 3.9541,
+    "tc_log_mae": 0.3852,
+    "tc_spearman": 0.8411,
+    "expected_tc_spearman": 0.6414,
+    "top_decile_recall": 0.6755
+   },
+   "blend": {
+    "rows": 9765,
+    "labelled_rows": 9399,
+    "superconductor_rows": 7125,
+    "auc": 0.7899,
+    "brier": 0.144,
+    "tc_mae_k": 3.9541,
+    "tc_log_mae": 0.3852,
+    "tc_spearman": 0.8411,
+    "expected_tc_spearman": 0.6414,
+    "top_decile_recall": 0.6755
+   }
+  },
+  "not cuprates": {
+   "network": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6642,
+    "auc": 0.7882,
+    "brier": 0.1393,
+    "tc_mae_k": 3.3859,
+    "tc_log_mae": 0.3868,
+    "tc_spearman": 0.8182,
+    "expected_tc_spearman": 0.6868,
+    "top_decile_recall": 0.6977
+   },
+   "cycle6": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6642,
+    "auc": 0.7882,
+    "brier": 0.1393,
+    "tc_mae_k": 3.3859,
+    "tc_log_mae": 0.3868,
+    "tc_spearman": 0.8182,
+    "expected_tc_spearman": 0.6868,
+    "top_decile_recall": 0.6977
+   },
+   "blend": {
+    "rows": 8942,
+    "labelled_rows": 8598,
+    "superconductor_rows": 6642,
+    "auc": 0.7882,
+    "brier": 0.1393,
+    "tc_mae_k": 3.3859,
+    "tc_log_mae": 0.3868,
+    "tc_spearman": 0.8182,
+    "expected_tc_spearman": 0.6868,
+    "top_decile_recall": 0.6977
+   }
+  }
+ },
+ "paired": {
+  "all": {
+   "network_minus_record": {
+    "auc": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    }
+   },
+   "blend_minus_record": {
+    "auc": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    }
+   }
+  },
+  "not cuprates": {
+   "network_minus_record": {
+    "auc": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    }
+   },
+   "blend_minus_record": {
+    "auc": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    },
+    "tc_log_mae": {
+     "low": 0.0,
+     "median": 0.0,
+     "high": 0.0,
+     "resamples": 300
+    }
+   }
+  }
+ },
+ "reading": {
+  "network_beats_record": false,
+  "blend_beats_record": false,
+  "rule": "A model replaces or joins the ranking of record only if its paired non-cuprate AUC interval against the record is above zero, and the owner accepts it. Otherwise it is a second opinion."
+ }
+}

@@ -43,17 +43,59 @@ CANDIDATES = {
                 "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
     "csir2p2": {"mp_id": "mp-aaacqsbd", "formula": "CsIr2P2", "k": (8, 8, 8), "q": (4, 4, 4),
                 "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "12:00:00"},
+    # Shortlist 3 (docs/rung4-shortlist3.md): the two never-made compounds with six atoms or fewer. k spacing about
+    # 0.15 per angstrom (2 pi / (|a_i| k_i)) on the symmetrised cell.
+    "ligair": {"mp_id": "mp-aaacqrxq", "formula": "LiGaIr", "k": (12, 12, 8), "q": (4, 4, 2),
+               "smoke_k": (6, 6, 4), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 16), "ph_time": "24:00:00"},
+    "sral3ag": {"mp_id": "mp-aaacrihz", "formula": "SrAl3Ag", "k": (10, 10, 12), "q": (2, 2, 2),
+                "smoke_k": (4, 4, 6), "smoke_q": (2, 2, 2), "matdyn_k": (20, 20, 24), "ph_time": "24:00:00"},
     # The layered tetragonal NaMgPb2 (P4/mmm), lower in energy than the cubic form in "namgpb2"
     # (docs/rung4-shortlist2.md, "Alexandria check"). Not in the Materials Project snapshot, so the starting
     # structure is Alexandria's. k spacing about 0.14 per angstrom, a little denser than the cubic package's 0.18.
     "namgpb2tet": {"alexandria_id": "agm001144382", "formula": "NaMgPb2", "k": (12, 12, 6), "q": (4, 4, 2),
                    "smoke_k": (4, 4, 2), "smoke_q": (2, 2, 1), "matdyn_k": (24, 24, 12), "ph_time": "24:00:00"},
+    # Room-temperature track (docs/hazel-candidates.md, "Room-temperature track"): starting structures from the
+    # Alexandria PBEsol phonon release 2025.08.11 (CC BY 4.0; data/processed/alexandria-eph-2025/), relaxed again here
+    # at the package settings. press_kbar is the pressure of the variable-cell relaxation (10 kbar = 1 GPa).
+    "mg2rhh6": {"alexandria_id": "agm002153628", "formula": "Mg2RhH6", "k": (8, 8, 8), "q": (4, 4, 4),
+                "smoke_k": (4, 4, 4), "smoke_q": (2, 2, 2), "matdyn_k": (16, 16, 16), "ph_time": "24:00:00",
+                "press_kbar": 500.0},
+    "lib2c2": {"alexandria_id": "agm005413625", "formula": "LiB2C2", "k": (16, 16, 8), "q": (4, 4, 2),
+               "smoke_k": (8, 8, 4), "smoke_q": (2, 2, 1), "matdyn_k": (32, 32, 16), "ph_time": "24:00:00"},
+    "srb3c3": {"alexandria_id": "agm000999969", "formula": "SrB3C3", "k": (8, 8, 8), "q": (2, 2, 2),
+               "smoke_k": (4, 4, 4), "smoke_q": (1, 1, 1), "matdyn_k": (16, 16, 16), "ph_time": "24:00:00",
+               "press_kbar": 400.0},
+    "srauh3": {"alexandria_id": "agm002494931", "formula": "SrAuH3", "k": (12, 12, 12), "q": (4, 4, 4),
+               "smoke_k": (6, 6, 6), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 24), "ph_time": "24:00:00"},
+    "kinh3": {"alexandria_id": "agm002490653", "formula": "KInH3", "k": (12, 12, 12), "q": (4, 4, 4),
+              "smoke_k": (6, 6, 6), "smoke_q": (2, 2, 2), "matdyn_k": (24, 24, 24), "ph_time": "24:00:00"},
 }
 
 # Starting structures that are not in the Materials Project snapshot: the Alexandria PBE database
 # (alexandria.icams.rub.de, OPTIMADE endpoint /pbe/v1/structures), copied as published. Cell rows in angstrom,
 # positions in crystal coordinates.
 ALEXANDRIA = {
+    # Room-temperature track: the Alexandria PBEsol phonon release 2025.08.11 (CC BY 4.0), copied as published.
+    "agm002153628": {
+        "cell": [[-3.2751100223097764, 0.0, 3.2751100223097764], [0.0, 3.2751100223097764, 3.2751100223097764], [-3.2751100223097764, 3.2751100223097764, 0.0]],
+        "sites": [('Mg', [0.25, 0.24999999999999997, 0.25]), ('Mg', [0.7499999999999999, 0.75, 0.7499999999999999]), ('H', [0.2600666000000001, 0.7399333999999999, 0.7399334]), ('H', [0.2600666, 0.7399334, 0.2600665999999999]), ('H', [0.7399333999999999, 0.7399333999999999, 0.2600666000000001]), ('H', [0.7399334, 0.2600666, 0.2600665999999999]), ('H', [0.7399333999999999, 0.2600666000000001, 0.7399333999999997]), ('H', [0.2600666, 0.2600666, 0.7399334000000001]), ('Rh', [0.0, 0.0, 0.0])],
+    },
+    "agm005413625": {
+        "cell": [[2.712538557045877, 0.0, 0.0], [-1.3562692785229384, 2.3491262038656555, 0.0], [0.0, 0.0, 6.3829612798184785]],
+        "sites": [('Li', [0.0, 0.0, 0.500000084993107]), ('B', [0.6666667244017205, 0.33333344880344107, 0.7756535120001767]), ('B', [0.33333350653849486, 0.6666670130769897, 0.22434665798603734]), ('C', [0.6666667244017205, 0.33333344880344107, 0.23400123749963878]), ('C', [0.33333350653849486, 0.6666670130769897, 0.7659988899900217])],
+    },
+    "agm000999969": {
+        "cell": [[4.846409136504156, 0.0, 0.0], [0.0, 4.846409136504156, 0.0], [0.0, 0.0, 4.846409136504156]],
+        "sites": [('Sr', [0.5, 0.5, 0.5]), ('Sr', [0.0, 0.0, 0.0]), ('B', [0.25, 0.0, 0.5]), ('B', [0.0, 0.5, 0.25]), ('B', [0.5, 0.75, 0.0]), ('B', [0.75, 0.0, 0.5]), ('B', [0.0, 0.5, 0.75]), ('B', [0.5, 0.25, 0.0]), ('C', [0.0, 0.25, 0.5]), ('C', [0.0, 0.75, 0.5]), ('C', [0.5, 0.0, 0.75]), ('C', [0.75, 0.5, 0.0]), ('C', [0.5, 0.0, 0.25]), ('C', [0.25, 0.5, 0.0])],
+    },
+    "agm002494931": {
+        "cell": [[4.2604723807826135, 0.0, 0.0], [0.0, 4.2604723807826135, 0.0], [0.0, 0.0, 4.2604723807826135]],
+        "sites": [('Sr', [0.0, 0.0, 0.0]), ('H', [0.0, 0.5, 0.0]), ('H', [0.0, 0.0, 0.5]), ('H', [0.5, 0.0, 0.0]), ('Au', [0.5, 0.5, 0.5])],
+    },
+    "agm002490653": {
+        "cell": [[4.1854980247258755, 0.0, 0.0], [0.0, 4.1854980247258755, 0.0], [0.0, 0.0, 4.1854980247258755]],
+        "sites": [('K', [0.5, 0.5, 0.5]), ('In', [0.0, 0.0, 0.0]), ('H', [0.0, 0.5, 0.0]), ('H', [0.0, 0.0, 0.5]), ('H', [0.5, 0.0, 0.0])],
+    },
     "agm001144382": {
         "cell": [[3.76869961, 0.0, 0.0], [0.0, 3.76869961, 0.0], [0.0, 0.0, 7.76526153]],
         "sites": [("Pb", [0.0, 0.0, 0.77283445]), ("Pb", [0.0, 0.0, 0.22716555]),
@@ -163,7 +205,8 @@ def masses() -> dict[str, float]:
     return {el.symbol: float(el.atomic_mass) for el in Element}
 
 
-def pw_input(name: str, calculation: str, cell, sites, kmesh, la2f: bool, pseudo_dir: str = "../pp/") -> str:
+def pw_input(name: str, calculation: str, cell, sites, kmesh, la2f: bool, pseudo_dir: str = "../pp/",
+             press_kbar: float = 0.0) -> str:
     species = sorted({s for s, _ in sites})
     mass = masses()
     lines = [" &control", f"    calculation = '{calculation}'", f"    prefix      = '{name}'",
@@ -175,7 +218,8 @@ def pw_input(name: str, calculation: str, cell, sites, kmesh, la2f: bool, pseudo
         lines.append("    la2F        = .true.")
     lines += [" /", " &electrons", "    mixing_beta = 0.4", "    conv_thr    = 1.0d-12", " /"]
     if calculation == "vc-relax":
-        lines += [" &ions", " /", " &cell", "    press_conv_thr = 0.1", " /"]
+        lines += [" &ions", " /", " &cell"] + ([f"    press = {press_kbar}"] if press_kbar else []) + \
+                 ["    press_conv_thr = 0.1", " /"]
     lines.append("ATOMIC_SPECIES")
     lines += [f" {s} {mass[s]:.5f} {s}_ONCV_PBE_sr.upf" for s in species]
     lines.append("CELL_PARAMETERS angstrom")
@@ -218,7 +262,8 @@ def cmd_relax_input(name: str, directory: Path) -> None:
     cell, sites = symmetrise(*initial_structure(spec))
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "relax.in").write_text(pw_input(name, "vc-relax", cell, sites, spec["k"], la2f=False,
-                                                 pseudo_dir=str(PP_SOURCE) + "/"), encoding="utf-8")
+                                                 pseudo_dir=str(PP_SOURCE) + "/",
+                                                 press_kbar=spec.get("press_kbar", 0.0)), encoding="utf-8")
     print(directory / "relax.in")
 
 
@@ -253,7 +298,8 @@ def cmd_package(name: str, relax_out: Path) -> None:
         f"CHAIN_NAME={name}", f"PREFIX={name}", "RUN_DIR=run", 'COPY_ITEMS="../pp run"',
         f"FULL_PH_TIME={spec['ph_time']}", ""]), encoding="utf-8")
     source = "Materials Project" if "mp_id" in spec else "Alexandria"
-    meta = {"name": name, "formula": spec["formula"], **source_fields(spec), "atoms": len(sites),
+    meta = {"name": name, "formula": spec["formula"], **source_fields(spec),
+            **({"target_pressure_kbar": spec["press_kbar"]} if spec.get("press_kbar") else {}), "atoms": len(sites),
             "ecutwfc_ry": ECUTWFC, "smearing": SMEARING, "degauss_ry": DEGAUSS, "k_mesh": spec["k"], "fit_k_mesh": fit,
             "q_mesh": spec["q"], "relaxed_cell_angstrom": cell, "pseudopotential_sha256": checksums,
             "relaxed_from": f"{source} structure, vc-relax with these pseudopotentials and cutoff"}

@@ -614,3 +614,240 @@ SbTe2, then cubic NaMgPb2 last.
 - The first version of this section (2026-11-19, written before M had
   finished) put the tetragonal package second in the queue. That is
   withdrawn.
+
+## Update, 2026-11-22: the request to the Office of Research Commercialization is sent
+
+The owner reports that the email to NC State's Office of Research
+Commercialization has been sent. Nothing changes until the Office says it
+has reviewed the results:
+- Hazel results for candidate compounds stay under `data/raw/hazel/`.
+- They are not committed or quoted (AGENTS.md).
+- The Zr6Ga2Ni benchmark stays exempt.
+
+The queue is also unchanged: CsIr2P2, then SbTe2, then cubic NaMgPb2.
+Cycle 6 moved CsIr2P2 from cycle 3's top 50 to 107th of shortlist 3's 571.
+That is a mark against it, not a reason to reorder: it is in the queue
+for its family and its calculation (`docs/rung4-shortlist3.md`).
+
+## LiGaIr added to the Hazel queue, 2026-11-23 18:14 UTC
+
+**Main idea:** the owner asked for LiGaIr to be queued (2026-11-23). It
+passed its stability pre-check at all four points, and its package ran
+the whole six-step chain here in smoke mode with nothing to fix.
+
+| Folder in `data/benchmarks/candidates/` | Compound | Structure | Atoms | Status |
+| --- | --- | --- | --- | --- |
+| `ligair` | LiGaIr, rank 35 of shortlist 3's 571 (`docs/rung4-shortlist3.md`) | P6₃/mmc, from the Materials Project (`mp-aaacqrxq`), relaxed at the package settings | 6 | **queued.** Passed the pre-check at Γ, A, M and L (lowest counted mode 42.4 cm⁻¹, at M). Rehearsed end to end in smoke mode |
+
+**Package**
+- Meshes: k 12×12×8 for the ground state, 24×24×16 for the dense ground
+  state, q 4×4×2 for phonons, 24×24×16 for the interpolation.
+- 90 Ry; phonon job limit 24 hours.
+- The package's `run/scf.in` is the file the pre-check used, unchanged.
+- The pseudopotentials are the shared ONCV set in `pp/`.
+
+**Smoke rehearsal on this machine** (`LOCAL=1`, 4 cores, coarse meshes)
+
+| Step | Time |
+| --- | --- |
+| Dense ground state | 217 s |
+| Ground state | 51 s |
+| Phonons with electron-phonon coupling (4 coarse points) | 3 h 49 min |
+| Force constants | 2 s |
+| a2F and λ | 34 s |
+| Report | 3 s |
+| **Whole chain** | **about 3 h 55 min** |
+
+- The report says `"verdict": "smoke run: checks the tools only, no
+  verdict"`, as it should.
+- Its zone-centre translations (−5.7, −5.7, −4.2 cm⁻¹) were set aside, and
+  no mode was called imaginary.
+- The smoke coupling numbers are not quoted. Smoke runs give no verdict,
+  and candidate coupling values stay out of the repository under the
+  2026-11-19 rule.
+
+**Time on Hazel** [Speculative, scaled from the full-mesh pre-check here]
+- The full phonon step has about 8 to 10 irreducible points on the 4×4×2
+  grid. The four pre-check points took 2 to 6 hours each on 4 cores.
+- Estimate: 12 to 24 hours on 16 cores.
+- If the job hits its 24-hour limit, resubmit with `START_AT=ph`. It
+  continues where it stopped.
+
+**Candidate order after the benchmark passes (changed 2026-11-23):**
+CsIr2P2, then **LiGaIr**, then SbTe2, then cubic NaMgPb2 last.
+- LiGaIr goes ahead of SbTe2 because it passed its pre-check at four
+  points against SbTe2's one.
+- Its relative LiGa2Ir has been made and superconducts at 2.94 K.
+- It stays behind CsIr2P2, which was queued first for its family.
+- The order before this change is kept above, in "Tetragonal NaMgPb2" and
+  "Update, 2026-11-22".
+
+**Commands on Hazel**, the same as for every candidate ("Running it on
+Hazel", steps 1 to 8):
+
+```bash
+DRY_RUN=1 scripts/hpc/submit_phonon_chain.sh data/benchmarks/candidates/ligair /share/<group>/<unity_id>/rtsc/ligair-full compute normal 16
+```
+```bash
+CHAIN_MODE=full scripts/hpc/submit_phonon_chain.sh data/benchmarks/candidates/ligair /share/<group>/<unity_id>/rtsc/ligair-full compute normal 16
+```
+
+Its `report.json` and output files go under `results/ligair/`, which Git
+ignores. Like every candidate result, they stay private until NC State's
+Office of Research Commercialization has reviewed them.
+
+## Queue order changed by the owner, 2026-11-27
+
+The ranking of record is now the blend of cycle 6 and TabICLv2
+(`docs/lockbox-blend.md`). The owner approved the reordering proposed from
+it.
+
+**Candidate order after the benchmark passes (changed 2026-11-27):**
+SbTe2, then LiGaIr, then CsIr2P2, then cubic NaMgPb2 last.
+
+| Candidate | Rank under the blend (shortlist 3, 571 compounds) | Rank under cycle 6 |
+| --- | --- | --- |
+| SbTe2 | 1 | 1 |
+| LiGaIr | 64 | 36 |
+| CsIr2P2 | 141 | 106 |
+| Cubic NaMgPb2 | 12 | 2 |
+
+- The Zr6Ga2Ni benchmark still runs first, and the cubic NaMgPb2 smoke run
+  stays the first Hazel job, to check the tools.
+- Cubic NaMgPb2 stays last, despite its rank. Its cubic form is probably not
+  NaMgPb2's stable structure (2026-11-19 and 2026-11-20 sections above).
+- Nothing else changes. Candidate results stay private under
+  `data/raw/hazel/` (AGENTS.md).
+
+## Room-temperature track, approved by the owner 2026-11-27
+
+**Main idea:** a second track that points the pipeline at the chemistries
+theory flags for high Tc at or near ambient pressure: hydrides and
+boron-carbon frameworks.
+- **It calibrates first.** It starts with three published compounds whose
+  measured answer is known, so the method's error on these chemistries is
+  measured before any candidate number is read.
+- **Where the compounds came from:** `docs/training-data-sources.md`
+  (round 2).
+- **When it runs:** it starts once the Zr6Ga2Ni benchmark passes, and runs
+  alongside the current queue if the allocation allows.
+
+Written before any package is built or run. Nothing here has run anywhere.
+
+**Order**
+
+| # | Compound | Pressure | Role | What is known [from the papers] |
+| --- | --- | --- | --- | --- |
+| C1 | Mg2RhH6 (Fm-3m, 9 atoms) | about 50 GPa | Calibration: a hydride with a measured Tc | Measured onset 18–29 K at 30–74 GPa (29 K at 53 GPa); published calculations about 60 K |
+| C2 | Ordered Li0.5BC | 0 | Calibration: a predicted high Tc that measured nothing | Calculated about 65 K; measured, no superconductivity |
+| C3 | SrB3C3 (Pm-3n, 14 atoms) | 40 GPa | Calibration: a covalent B-C framework with a measured Tc | Measured about 20 K at 40 GPa |
+| R1 | SrAuH3 (Pm-3m, 5 atoms) | 0 | Candidate | Calculated 132 K (Allen-Dynes); stable only above about 7 GPa |
+| R2 | KInH3 (Pm-3m, 5 atoms) | 0 | Candidate | Calculated 73 K; its dynamical stability at 0 GPa is disputed |
+| R3 | LiZrH6Ru (F-43m, 9 atoms) | 0 | Candidate: the one on the convex hull | Calculated 17–32 K |
+
+**Rules**
+1. **Calibration result:** calculated Tc (Allen-Dynes, μ* = 0.13, 0.020 Ry
+   broadening) divided by measured Tc, for C1 and C3.
+   - For C2 it is the calculated Tc itself. A high value shows how large a
+     false positive the method can give.
+2. **Candidates** go forward only if:
+   - they have no imaginary mode (nothing below −5 cm⁻¹), and
+   - their calculated Tc is still above 77 K after dividing by the
+     calibration ratio.
+3. **Smoke runs give no verdict.**
+
+**Predictions [Speculative]**
+
+| Outcome | Chance |
+| --- | --- |
+| C1: calculated / measured between 1.3 and 3 | 65% |
+| C2: calculated Tc above 30 K (the false positive reproduced) | 70% |
+| C3: calculated / measured between 1 and 2.5 | 55% |
+| R1 (SrAuH3) has an imaginary mode at 0 GPa in a harmonic run | 50% |
+| R2 (KInH3) has an imaginary mode at 0 GPa | 55% |
+| R3 (LiZrH6Ru) has no imaginary mode | 75% |
+| Any candidate passes rule 2 | 10% |
+
+**Building the packages: what is still needed**
+- **Pseudopotentials** for H, Rh, B, C, Au, K, In and Ru, from the same ONCV
+  set as the others. All are listed upstream (`pp-available.txt`).
+- **Structures:**
+  - Mg2RhH6: Mg 8c, Rh 4a, H 24e, x about 0.26, relaxed at pressure here.
+  - Li0.5BC: ordered model, from the published supplementary data.
+  - SrB3C3: Pm-3n, published.
+  - SrAuH3: Sr 1b, Au 1a, H 3d, a = 3.828 Å, published.
+  - KInH3: cubic perovskite.
+  - LiZrH6Ru: the GNoME CIF, which is under CC BY-NC.
+- **Pressure.** C1 and C3 need a variable-cell relaxation at pressure (`press`
+  in `pw.x`). The current packages do not have this, so the job script needs
+  a pressure option.
+- **Limits:**
+  - [Certain] The chain is harmonic. Hydrogen needs anharmonic phonons, and
+    published anharmonic corrections change hydride Tc by tens of percent.
+  - The calibration ratio is the guard against this.
+- **Privacy.** AGENTS.md exempts only the Zr6Ga2Ni benchmark. The calibration
+  compounds are published, but their results stay private under
+  `data/raw/hazel/` unless the owner extends the exemption to them.
+  Candidate results stay private under the same rule.
+
+## Re-ranked by expected Tc, owner approved 2026-11-27: proposed queue order
+
+**Why:**
+- The 10 K test (`docs/high-tc-target.md`) found that ranking by chance of
+  superconducting, the order used until now, scores AUC 0.67 on the
+  high-Tc question.
+- Ranking by expected Tc (probability × predicted Tc) scores 0.94.
+- The owner approved re-ranking shortlist 3 by expected Tc and a proposed
+  queue order.
+
+**The queued and packaged candidates, by expected Tc** (571 in shortlist 3):
+
+| Candidate | Rank by chance | Rank by expected Tc | Predicted Tc |
+| --- | --- | --- | --- |
+| LiMgPb2 (packaged, pre-checked, not queued) | 9 | 7 | 5.0 K |
+| Cubic NaMgPb2 | 12 | 9 | 5.0 K |
+| LiGaIr | 64 | 30 | 4.3 K |
+| SbTe2 | 1 | 33 | 3.5 K |
+| CsIr2P2 | 141 | 143 | 2.5 K |
+
+**Proposed order after the Zr6Ga2Ni benchmark:**
+1. LiGaIr.
+2. SbTe2.
+3. CsIr2P2.
+4. Cubic NaMgPb2, last, as before: its cubic form is probably not the stable
+   structure.
+
+LiMgPb2 has the same structural concern as NaMgPb2, so it stays out.
+
+**The new top of the list, for packaging next** (each needs the literature
+check first):
+
+| Compound | Rank by expected Tc | Predicted Tc |
+| --- | --- | --- |
+| Nb2GeC | 1 | 7.6 K |
+| ScTaN2 | 2 | 8.4 K |
+| V2GaN | 3 | 7.5 K |
+| LiRuN | 4 | 7.0 K |
+| TaNbRe2 | 5 | 5.9 K |
+
+- [Certain] Every predicted Tc here is below 10 K. Rung 4 looks for new
+  superconductors in known families. The room-temperature track is the
+  route to high Tc.
+- This order is a proposal; the queue above stays as it was until the owner
+  confirms it.
+
+**Room-temperature track: packages built so far (2026-11-27)**
+
+| Package | Relaxed here (PBE, ONCV, 90 Ry) | Alexandria (PBEsol) | Status |
+| --- | --- | --- | --- |
+| `kinh3` | a = 4.264 Å, relaxation 23 min, residual 0.01 kbar | a = 4.185 Å (+1.9%) | built |
+| `srauh3` | a = 4.381 Å, relaxation 81 min, residual 0.09 kbar | a = 4.26 Å (+2.8%) | built |
+| `lib2c2` | a = 2.711 Å, **c = 7.268 Å**; 14 steps, residual 1.04 kbar | a = 2.713 Å, c = 6.383 Å (**c +14%**) | **built but not usable**: plain PBE has no van der Waals attraction, so the layered cell swells along c. To be relaxed again with a D3 correction |
+| `mg2rhh6` (50 GPa), `srb3c3` (40 GPa) | relaxing | — | pending |
+
+- **Why the cells differ.** PBE cells come out a few per cent larger than
+  PBEsol ones.
+- **Why it matters.** For hydrides a looser cell softens the hydrogen modes,
+  which can shift both the stability verdict and λ. This is one reason the
+  calibration compounds run first.
+- **Before Hazel.** No pre-check has been run on these packages yet.

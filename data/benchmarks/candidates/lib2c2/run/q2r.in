@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'lib2c2.dyn'
+    flfrc  = 'lib2c2.fc'
+    la2F   = .true.
+ /

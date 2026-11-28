@@ -218,7 +218,23 @@ def load_additions(path: Path, ds: C.Dataset) -> dict:
             "tc_k": np.array([float(row["tc_k"]) if row["tc_k"] != "" else np.nan for row in rows]),
             "fold": np.array([int(row["fold"]) for row in rows]), "tied": tied,
             "group": np.array([row["group"] for row in rows]),
+            "origin": np.array([row.get("source") or "added" for row in rows]),
             "cuprate": np.array([M.family(set(f)) == "Cuprates" for f in fractions]), "score": True}
+
+
+def permute_labels(extra: dict, origin: str, seed: int) -> dict:
+    """A placebo block (cycle 7): the same added rows, with the labels and Tc of one source shuffled among themselves.
+    Same rows, same features, same label balance; only the link between a composition and its label is broken."""
+    rows = np.flatnonzero(extra["origin"] == origin)
+    if not len(rows):
+        raise SystemExit(f"no added rows from source {origin!r}")
+    order = rows[np.random.default_rng(seed).permutation(len(rows))]
+    out = dict(extra)
+    out["label"], out["tc_k"] = extra["label"].copy(), extra["tc_k"].copy()
+    out["label"][rows], out["tc_k"][rows] = extra["label"][order], extra["tc_k"][order]
+    out["source"] = f"placebo: labels of the {origin} rows of {extra['source']} permuted, seed {seed}"
+    out["score"] = False
+    return out
 
 
 def duplicate_rows(ds: C.Dataset, X: np.ndarray, count: int, seed: int) -> dict:
@@ -242,6 +258,13 @@ def score_added_rows(extra: dict, resamples: int = 1000) -> dict:
         out[name] = {"rows": int(keep.sum()), "superconductors": int((yk == 1).sum()), "nulls": int((yk == 0).sum()),
                      "auc_with_added_rows": T.roc_auc(yk, a), "auc_without": T.roc_auc(yk, b),
                      "difference": T.roc_auc(yk, a) - T.roc_auc(yk, b), "difference_interval_95": gap}
+    origins = sorted(set(extra.get("origin", np.array(["added"])).tolist()))
+    if len(origins) > 1 and "by_source" not in extra:
+        for origin in origins:
+            part = {k: (v[extra["origin"] == origin] if isinstance(v, np.ndarray) and len(v) == len(y) else v)
+                    for k, v in extra.items()}
+            part["by_source"] = True
+            out[f"source {origin}"] = score_added_rows(part, resamples)
     return out
 
 
@@ -349,7 +372,7 @@ def load_previous(name: str) -> tuple[dict, dict, list[dict]]:
 
 
 def run(name: str, previous: str | None, seed_offset: int = 0, placebo_flips: int = 0, placebo_seed: int = 0,
-        additions: Path | None = None, duplicates: int = 0) -> dict:
+        additions: Path | None = None, duplicates: int = 0, permute: str | None = None) -> dict:
     import joblib  # noqa: F401  (fail early if missing)
 
     started = time.time()
@@ -373,8 +396,12 @@ def run(name: str, previous: str | None, seed_offset: int = 0, placebo_flips: in
     extra = None
     if additions and duplicates:
         raise SystemExit("--additions and --duplicate-rows are separate runs")
+    if permute and not additions:
+        raise SystemExit("--permute-added-labels needs --additions")
     if additions:
         extra = load_additions(additions, ds)
+        if permute:
+            extra = permute_labels(extra, permute, placebo_seed)
     elif duplicates:
         extra = duplicate_rows(ds, X, duplicates, placebo_seed)
     dev, prediction, distance, cv_info = cross_validate(ds, X, settings, seed_offset, extra)
@@ -454,13 +481,16 @@ def main() -> int:
     parser.add_argument("--additions", type=Path,
                         help="a block of added training rows from build_nims_additions.py (cycle 4); the table itself "
                              "is unchanged and the added rows are never scored as development rows")
+    parser.add_argument("--permute-added-labels", default=None,
+                        help="a control for --additions (cycle 7): shuffle the labels of the added rows from this source "
+                             "among themselves (use with --placebo-seed)")
     parser.add_argument("--duplicate-rows", type=int, default=0,
                         help="a control for --additions: add this many random development rows a second time "
                              "(--placebo-seed picks them)")
     args = parser.parse_args()
     additions = args.additions.resolve() if args.additions else None
     run(args.name, args.previous, args.seed_offset, args.placebo_flips, args.placebo_seed, additions,
-        args.duplicate_rows)
+        args.duplicate_rows, args.permute_added_labels)
     return 0
 
 

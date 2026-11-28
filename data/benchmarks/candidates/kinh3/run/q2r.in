@@ -1,0 +1,6 @@
+ &input
+    zasr   = 'simple'
+    fildyn = 'kinh3.dyn'
+    flfrc  = 'kinh3.fc'
+    la2F   = .true.
+ /

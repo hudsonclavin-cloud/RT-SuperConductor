@@ -1,0 +1,383 @@
+# An outside test of the ranking of record on NEMAD compounds: plan, fixed before any look
+
+*Amended before any score; the amendments below override the title and the opening paragraph too.*
+
+**Main idea:** test the ranking of record (the 50/50 blend of cycle 6 and
+TabICLv2) on 2,833 NEMAD compositions that neither model has seen. The
+question is whether the blend beats cycle 6 alone outside this project's
+own data, as it did on the development rows and on the locked rows.
+
+Written 2026-11-27, before TabICLv2 has predicted these compounds. The owner
+approved the test the same day.
+(Superseded in part: "before any look" means before any score, and
+"outside this project's own data" means compositions new to the project.
+TabICLv2's record run had already predicted 245 of these rows; see
+amendments 2 and 5. The owner's approval came before the amendments,
+which await the owner's OK.)
+The owner approved the amendments on 2026-11-27, after the laptop run and
+before any score.
+
+## Amendments before the laptop run (2026-11-27)
+
+A second review found the problems below. It came before the laptop run and
+before any score. **This section overrides anything later in the plan that
+disagrees with it.** A third review extended it to the title and opening
+paragraph above, and added the points marked "(third review)". The earlier text is kept and marked "superseded".
+
+**1. Training rows are the labelled ones.**
+- 366 bundle rows have no label, and neither model fits them.
+- Counting only labelled rows as training:
+
+| | Compositions | Superconductors | Not superconductors |
+| --- | --- | --- | --- |
+| Not cuprates, groups with no training row (the outside reading) | 1,037 | 767 | 270 |
+| Not cuprates, groups with training rows | 967 | 761 | 206 |
+
+- 1,601 of the 2,833 rows share a group with training rows (was 1,626).
+- Still 1,245 groups.
+
+**2. What was already known, in full.** The plan said nobody had seen
+TabICLv2's or the blend's scores on these rows. That was wrong.
+- **The made-metals list.**
+  - 245 of the rows are on it: 232 non-cuprates, 131 of them in the outside
+    slice.
+  - The ranking of record's TabICLv2 run predicted that list. Those
+    predictions are committed (`data/benchmarks/local-gpu/fm-tabicl-20261123/`).
+  - Four of the rows appear with their probabilities in the committed blend
+    top 50 (`docs/learning-cycles/blend6-made-metals-top50.csv`), and two in
+    cycle 6's.
+  - (Third review.) In full, committed files print predictions by the models
+    under test for 6 of the rows:
+    - the blend's for all 6: Ba(Mo3S4)2, LaGeIr, LaIr3 and NbPbS2 in the
+      blend top 50, and MgSbPd2 and Ti2Sb in
+      `data/benchmarks/rung4/shortlist3-blend-ranked.csv`, which also gives
+      cycle 6's and TabICLv2's;
+    - cycle 6's for 4: Ba(Mo3S4)2 and NbPbS2 in its top 50, and MgSbPd2 and
+      Ti2Sb in `shortlist3-ranked.csv`. Ba(Mo3S4)2 and NbPbS2 are among the
+      750 rows cycle 7 left out.
+  - (Third review.) Older committed lists print predictions by earlier models
+    (earlier cycles, placebos, physics proxies, the provisional EPW lists) for
+    76 of the rows. (Superseded: see the fourth-review points below.)
+  - (Fourth review.) Committed rank lists add more, as probability ranks
+    among the untested made metals, which is the same order the AUC uses:
+    - the blend's rank for one more row, Bi2Rh3S2 (`blend6.json`);
+    - cycle 6's ranks for seven more: Bi2Rh3S2, LuNiC2, Ta2PdS6, Zr5Pt3,
+      HgTe, Ta2S2C and a Nb-Hg-F compound (`blend6.json`, `cycle7*.json`).
+    - In all, the blend has committed values (probabilities or ranks) on 7
+      rows, and cycle 6 on 11.
+  - (Fourth review.) Older models: readable committed lists print predictions
+    for 99 rows, not 76; `docs/bercx-made-metals-join.csv` was missed. Counting
+    compressed files too, every one of the 245 made-metals rows has an older
+    model's prediction (`data/candidates/mp-sc-classifier-scores.csv.gz` and
+    the `overnight-20261122` runs), plus CrC: 246 rows.
+  - Nobody has compared any of these with NEMAD's labels.
+- **Cycle 6's side of the outside reading was mostly known when the reading
+  was added.**
+  - Cycle 6's AUC on nearly the same two slices was already on file
+    (`docs/learning-cycles/cycle6-on-nemad-rows.json`):
+    - 0.777 on cycle 7's 859 "new group" non-cuprates;
+    - 0.788 on its 967 non-cuprates that joined a development group.
+  - Those rows cover 884 of the 1,037 outside rows and 942 of the 967 others.
+  - The reading was added because a review asked for it, not because of
+    those numbers. But it was not chosen blind.
+  - The commit message that added it ("no result seen") overstates this.
+
+**3. The 245 rows double as a check.**
+- `score` reports how far the laptop's TabICLv2 is from the record run on
+  those rows.
+- "Reproduced" means the largest probability gap is at most 0.02.
+- (Third review.) The verdict uses the 239 rows whose features are identical
+  in both lists. In the other 6, rounding of the composition changes the
+  inputs slightly, so they are reported apart.
+- If the gap is larger, the result is still reported, flagged as not quite
+  the record's TabICLv2.
+
+**4. The outcome, in order; the first match wins.** This replaces the
+reading table further down. `score` writes it as `reading.outcome`.
+
+| | Result | What follows |
+| --- | --- | --- |
+| 1 | On either reading, the blend's paired interval lies entirely below zero | I propose going back to cycle 6 alone. The owner decides |
+| 2 | On both readings, the blend's AUC is at least cycle 6's | Supported. Nothing changes |
+| 3 | Main at least cycle 6's; outside lower, interval includes zero | Nothing changes. Recorded as a mark on the outside reading |
+| 4 | Main lower, interval includes zero | Nothing changes. Recorded as a mark against the blend |
+
+**5. Wording.**
+- "From outside the project's data" overstated it. These are compositions
+  new to the project, from NEMAD. About half are in families the models
+  trained on, and 245 are on the project's made-metals list.
+- "An independent review" means separate review agents run in this session,
+  not reviewers outside it.
+- "Those rows are more like 'new compositions in known families'" meant the
+  rows that share a group with training rows, not the development and
+  locked rows.
+- "Intermetallic" is the family "Other": no cuprates, not iron-based, no
+  oxygen.
+  - 672 of its 1,505 rows (45%) contain B, C, N, P, S, Se, Te, H or a
+    halogen.
+  - It is now labelled "other families (mostly intermetallic)".
+
+**6. Added predictions [Speculative].**
+
+| Outcome | Chance |
+| --- | --- |
+| TabICLv2 reproduces the record run on the 245 rows (largest gap ≤ 0.02) | 85% |
+| Outcome 2, supported | 45% |
+| Outcome 3, mark on the outside reading | 20% |
+| Outcome 4, mark against the blend | 25% |
+| Outcome 1, propose going back | 10% |
+
+## The rows
+
+The usable NEMAD subset (`docs/nemad-superconductor.md`): records flagged
+experimental, at normal or unstated pressure. Of those, only compositions
+new to the project: not in the table (locked rows included), not in the
+NIMS file, and not a near twin of either (`build_nemad_additions.select_new`).
+
+| | Compositions | Superconductors | Not superconductors |
+| --- | --- | --- | --- |
+| All | 2,833 | 2,233 | 600 |
+| Not cuprates (the main reading) | 2,004 | 1,528 | 476 |
+| Intermetallic (superseded: other families, mostly intermetallic) | 1,505 | 1,264 | 241 |
+| Not cuprates, groups with no training row (the outside reading; superseded: 1,037) | 1,012 | 754 | 258 |
+| Not cuprates, groups with training rows (superseded: 967) | 992 | 774 | 218 |
+
+**What the selection guarantees, and what it does not.**
+- Guaranteed:
+  - no row matches a composition either model trained on, or any locked row;
+  - every row differs from each of those by more than 0.02 atomic fraction
+    on at least one element. The closest is 0.021.
+- Not guaranteed: that a row's group is new.
+  - Group here means the table's rule: main elements, tied together through
+    near twins, applied to the training and test compositions together.
+  - By that rule, 1,626 of the 2,833 rows share a group with training rows.
+    That includes 992 of the 2,004 non-cuprates. (Superseded: 1,601 and 967,
+    counting only labelled rows as training.)
+  - Development and locked rows never share a group with training rows.
+    Those rows are more like "new compositions in known families", which is
+    how the ranking is used on shortlists. (Superseded wording: "those rows"
+    means the rows that share a group with training rows.)
+- So the test has two readings, both fixed now: all non-cuprates, and the
+  1,012 non-cuprates in groups with no training row. This was found by an
+  independent review before the laptop run, and added then. (Superseded:
+  1,037 rows; the review ran in this session; see amendment 2 on what was
+  already known.)
+
+- The 750 compositions cycle 7 left out are included here: 726 tied to
+  locked groups and 24 tied to more than one fold. This test trains
+  nothing, so ties do not matter.
+- **What is already known.** Cycle 6 alone has been scored on the 2,083
+  rows cycle 7 added: AUC 0.784 on their 1,826 non-cuprates
+  (`docs/learning-cycles/cycle6-on-nemad-rows.json`). Its scores on the
+  other 750 have not been looked at, and nobody has seen TabICLv2's or the
+  blend's scores on any of the 2,833. (Superseded: wrong for 245 rows, and
+  cycle 6's probabilities for two of the other 750 are in its committed
+  top 50; see amendment 2.)
+- **Expected run time.** About 7 to 9 minutes on the laptop. The locked-row
+  run, with 1,950 rows, took 6.66.
+- **The labels are NEMAD's.** The paper check found about one wrong in ten
+  for this subset.
+  - Both models are scored against the same labels, so noise shrinks the
+    differences between them.
+  - [Speculative] It could favour one model if that model shares NEMAD's
+    mistakes. There is no way to check that here.
+
+## How each model predicts them
+
+The same way as for the locked rows (`docs/lockbox-blend.md`):
+
+| Model | Prediction |
+| --- | --- |
+| Cycle 6 | The mean of its five saved final models, applied here |
+| TabICLv2 | The mean of its five fold models, run on the owner's laptop against the same bundle as before (`daed58cb…`) |
+| Blend | 50/50: probabilities averaged, Tc averaged on the log scale |
+
+- The laptop gets the features and composition keys only
+  (`python scripts/nemad_outside_test.py export`).
+- The labels are read here once, by
+  `python scripts/nemad_outside_test.py score <folder>`, which refuses to
+  run a second time.
+- Intervals resample whole groups, formed by the table's rule over the
+  training and test compositions together. Test rows chained through a
+  training row therefore share a group: 1,245 groups for the 2,833 rows.
+- `score` accepts only a TabICLv2 run that matches the ranking of record's:
+  - the same bundle;
+  - all five folds;
+  - 8 estimators, no context limit, seed 0.
+
+## Reading, fixed now
+
+This is a check, not an adoption test: the blend is already the ranking of
+record. There are two readings:
+- **main:** all non-cuprates;
+- **outside:** the non-cuprates in groups with no training row.
+
+Superseded by amendment 4, which orders these rows and settles overlaps:
+
+| Result | What follows |
+| --- | --- |
+| On the main reading, the blend's AUC is at least cycle 6's | The decision is supported by a third set of rows, from outside the project's data. Nothing changes |
+| The blend's is lower, but its paired interval includes zero | Nothing changes. The result is recorded as a mark against the blend |
+| On either reading, the blend's paired interval lies entirely below zero | I propose going back to cycle 6 alone. The owner decides |
+
+- The outside reading is reported beside the main one.
+- If the two point the opposite way, the write-up says so plainly. It does not
+  pick the reading that favours the blend.
+
+Also reported:
+- TabICLv2 alone;
+- all rows and the intermetallic rows (superseded: other families, mostly intermetallic);
+- the Tc error.
+
+## Predictions [Speculative]
+
+| Outcome | Chance |
+| --- | --- |
+| The blend's non-cuprate AUC is at least cycle 6's | 65% |
+| The blend's paired non-cuprate interval lies above zero | 30% |
+| The blend's paired non-cuprate interval lies entirely below zero | 7% |
+| Outside reading: the blend's AUC is at least cycle 6's | 60% |
+| On either reading, the paired interval lies entirely below zero | 10% |
+| TabICLv2 alone is at least cycle 6 (non-cuprates) | 50% |
+| The blend is at least cycle 6 on the intermetallic rows (other families) | 60% |
+| The laptop run takes under 12 minutes | 80% |
+
+## Commands
+
+**Here, already done (2026-11-27):**
+
+```bash
+python scripts/nemad_outside_test.py export
+```
+
+That wrote `data/processed/local-gpu/nemad-features.npz`:
+- 2,833 rows and 155 features, with no label;
+- SHA-256 `1b8b4d6bea398e4d0704305b4db39e896eca0b88f4978a5368a3e45e9e2310a6`.
+
+The file is sent to the owner in chat and is not committed.
+
+**On the laptop** (Windows PowerShell, in `C:\Users\hudso\RT-SuperConductor`):
+
+```powershell
+git checkout claude/practical-tesla-ctf6oq
+```
+```powershell
+git pull origin claude/practical-tesla-ctf6oq
+```
+```powershell
+Move-Item $HOME\Downloads\nemad-features.npz data\processed\local-gpu\
+```
+
+This must show `1B8B4D6BEA398E4D0704305B4DB39E896ECA0B88F4978A5368A3E45E9E2310A6`:
+
+```powershell
+Get-FileHash data\processed\local-gpu\nemad-features.npz -Algorithm SHA256
+```
+
+This must list no `python.exe`:
+
+```powershell
+nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv
+```
+```powershell
+.venv\Scripts\python.exe scripts\foundation_gpu_train.py data\processed\local-gpu\bundle.npz --model tabicl --extra-candidates data\processed\local-gpu\nemad-features.npz --candidates nemad --out runs\nemad-tabicl --device cuda
+```
+
+Then send the predictions back:
+
+```powershell
+git checkout -b nemad-results-20261127
+```
+```powershell
+Copy-Item runs\nemad-tabicl data\benchmarks\local-gpu\nemad-tabicl-20261127 -Recurse
+```
+```powershell
+git add data/benchmarks/local-gpu/nemad-tabicl-20261127
+```
+```powershell
+git commit -m "TabICLv2 predictions for the NEMAD outside test (features only)"
+```
+```powershell
+git push -u origin nemad-results-20261127
+```
+
+**Here, once:**
+
+```bash
+python scripts/nemad_outside_test.py score nemad-tabicl-20261127
+```
+
+## Result (scored once, 2026-11-27)
+
+**Outcome: supported** (amendment 4, row 2). Nothing changes: the blend of
+cycle 6 and TabICLv2 stays the ranking of record.
+Record: `docs/local-gpu/nemad-outside-test.json`.
+
+**Checks before reading, all passed.**
+- **The laptop run matched the record's:** same bundle, all five folds, the
+  same settings, and the features file sent. It took 5.4 minutes.
+- **TabICLv2 reproduced the record run exactly.**
+  - Largest gap 0.0000 on the 239 overlap rows with identical inputs.
+  - 0.0011 on the 6 rows whose inputs differ by rounding.
+- **Cycle 6's final models reproduced the published shortlist** (largest
+  gap 0.0005).
+
+**AUC, and the paired difference with its 95% interval.** Intervals
+resample 1,245 groups.
+
+| Slice | Rows | Cycle 6 | TabICLv2 | Blend | Blend − cycle 6 |
+| --- | --- | --- | --- | --- | --- |
+| All | 2,833 | 0.799 | 0.821 | 0.818 | +0.018 (+0.010 to +0.029) |
+| **Not cuprates (main reading)** | 2,004 | 0.779 | 0.805 | 0.799 | **+0.020 (+0.009 to +0.033)** |
+| **Not cuprates, groups with no training row (outside reading)** | 1,037 | 0.761 | 0.777 | 0.774 | **+0.012 (−0.000 to +0.025)** |
+| Not cuprates, groups with training rows | 967 | 0.796 | 0.833 | 0.826 | +0.030 (+0.014 to +0.050) |
+| Other families (mostly intermetallic) | 1,505 | 0.758 | 0.773 | 0.774 | +0.016 (+0.003 to +0.029) |
+
+**Tc.** The blend's error on the log scale is lower than cycle 6's on every
+slice, and every interval lies below zero. On the main reading:
+−0.017 (−0.025 to −0.007).
+
+**What it means.**
+- [Likely] This is the third set of rows on which the blend beats cycle 6,
+  after the development rows and the locked rows. It is the first set from
+  another source, and on the main reading the interval lies above zero.
+- [Likely] The gain is mostly near known chemistry.
+  - It is +0.030 where a composition's group holds training rows, and +0.012
+    where it holds none; the second interval only just reaches zero.
+  - This fits how TabICLv2 works: it predicts by comparing a compound with
+    the training rows it is given, so close relatives help it most.
+  - On shortlists of new compositions in known families, which is how the
+    ranking is used, that is the case that matters.
+- **TabICLv2 alone scored higher than the blend** (0.805 against 0.799 on the
+  main reading), with wider intervals.
+  - This was not an adoption test.
+  - TabICLv2 alone failed its own test on the development rows
+    (`docs/training-methods-review.md`).
+  - Switching on this result alone would be choosing after the fact. A
+    planned test would be needed first.
+- **Limits:**
+  - NEMAD's labels are about one in ten wrong.
+  - The test was not fully blind (amendment 2):
+    - cycle 6's side of the outside reading was mostly known;
+    - the models under test had committed values on 7 rows (the blend) and
+      11 rows (cycle 6).
+
+**Predictions against results.**
+
+| Prediction | Chance given | Result |
+| --- | --- | --- |
+| The blend's non-cuprate AUC is at least cycle 6's | 65% | Yes |
+| Its paired non-cuprate interval lies above zero | 30% | Yes |
+| Its paired non-cuprate interval lies entirely below zero | 7% | No |
+| Outside reading: the blend is at least cycle 6 | 60% | Yes |
+| On either reading, the interval lies entirely below zero | 10% | No |
+| TabICLv2 alone is at least cycle 6 (non-cuprates) | 50% | Yes |
+| The blend is at least cycle 6 on the other families | 60% | Yes |
+| The laptop run takes under 12 minutes | 80% | Yes (5.4) |
+| TabICLv2 reproduces the record run on the overlap | 85% | Yes (gap 0.0000) |
+| Outcome 2, supported | 45% | Yes |
+
+- Ten of ten went the way I gave more than even odds, and the long shots
+  did not happen.
+- The 30% for an interval above zero was too low. I had expected NEMAD's
+  label noise to blur the difference more than it did.
