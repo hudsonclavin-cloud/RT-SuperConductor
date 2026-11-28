@@ -1,0 +1,72 @@
+{
+ "plan": "docs/eph-surrogate.md",
+ "run": "data/benchmarks/local-gpu/eph-20261128",
+ "rule": {
+  "auc_tc_at_least_10k": 0.9507,
+  "needs_at_least": 0.85,
+  "tc_mae_k": 2.095,
+  "baseline_mae_k": 5.376,
+  "needs_at_most": 3.763,
+  "ensemble_used": true
+ },
+ "reported_only": {
+  "element_set_groups_in_test": 1894,
+  "auc_tc_at_least_10k_interval": [
+   0.9404,
+   0.9505,
+   0.9594
+  ],
+  "mae_over_median_baseline_interval": [
+   0.3625,
+   0.3915,
+   0.4186
+  ],
+  "by_spread_third": {
+   "low spread": {
+    "rows": 1101,
+    "auc_tc_at_least_10k": 0.9937,
+    "tc_mae_k": 0.541
+   },
+   "middle": {
+    "rows": 1101,
+    "auc_tc_at_least_10k": 0.9751,
+    "tc_mae_k": 1.803
+   },
+   "high spread": {
+    "rows": 1101,
+    "auc_tc_at_least_10k": 0.8794,
+    "tc_mae_k": 3.942
+   }
+  },
+  "test_tc_at_least_77k": 3,
+  "test_tc_at_least_77k_predicted_at_least_40k": 3
+ },
+ "flag_rule": {
+  "max_sites": 68,
+  "min_element_cells": 20,
+  "spread_cut_ln1p": 0.3262,
+  "spread_quantile": 0.9
+ },
+ "candidates": {
+  "made_metals": 26911,
+  "flagged": 14070,
+  "not_metallic": 8759,
+  "magnetic": 3793,
+  "flagged_by_pre_set_rules": 6748,
+  "already_in_alexandria": 3445,
+  "known_superconductors": 1892,
+  "new_unflagged": 9185,
+  "new_unflagged_net_tc_at_least_10k": 12,
+  "new_unflagged_net_tc_at_least_20k": 0,
+  "new_unflagged_net_tc_at_least_40k": 0,
+  "new_unflagged_max_net_tc_k": 19.02
+ },
+ "transfer_check": {
+  "compositions": 549,
+  "spearman": 0.843,
+  "mae_k": 0.911,
+  "mae_k_median_baseline": 1.797,
+  "alexandria_tc_at_least_10k": 26,
+  "auc_tc_at_least_10k": 0.951
+ }
+}

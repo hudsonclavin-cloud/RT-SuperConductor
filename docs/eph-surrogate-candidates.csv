@@ -1,0 +1,672 @@
+table,list,mp_id,formula,composition,net_lambda,net_wlog_k,net_tc_k,net_tc_spread_ln,sites,flags,alexandria,alexandria_status,alexandria_split,e_above_hull,known_match,icsd,pool_rank,p_superconductor,ranking_tc_k
+top 100 new made metals,made_metals,mp-aaabgkoj,La3(CrN3)2,Cr:0.182;La:0.273;N:0.545,0.918,290.2,19.02,0.237,11,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaabcrv,NaVO2,Na:0.250;O:0.500;V:0.250,1.175,240.7,16.24,0.075,4,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaaoru,SrRhF6,F:0.750;Rh:0.125;Sr:0.125,1.443,129.5,13.75,0.174,8,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaacxy,CeB4,B:0.800;Ce:0.200,0.967,252.3,13.0,0.238,20,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaansv,Ce2CrN3,Ce:0.333;Cr:0.167;N:0.500,0.728,320.5,12.35,0.235,6,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrxuk,AlV6Sn,Al:0.125;Sn:0.125;V:0.750,0.891,230.5,12.1,0.198,8,,,,,0.007078069999995051,,no,,,
+top 100 new made metals,made_metals,mp-aaaabqfb,Li2Ta3N5,Li:0.200;N:0.500;Ta:0.300,0.743,289.8,11.95,0.141,20,,,,,0.02131291999999263,,yes,,,
+top 100 new made metals,made_metals,mp-aaaabdij,Cr2GeC,C:0.250;Cr:0.500;Ge:0.250,0.788,251.0,11.22,0.159,8,,,,,0.005458072812501769,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrfma,V6GaGe,Ga:0.125;Ge:0.125;V:0.750,0.736,291.9,11.18,0.117,8,,,,,0.0014005462500001897,,no,,,
+top 100 new made metals,made_metals,mp-aaacrpbo,LaCeOs4,Ce:0.167;La:0.167;Os:0.667,1.312,105.4,10.72,0.051,6,,,,,0.012938482777780536,,no,,,
+top 100 new made metals,made_metals,mp-aaacgoop,LiRuN,Li:0.333;N:0.333;Ru:0.333,0.793,270.5,10.45,0.316,12,,,,,0.0,,no,62,0.879,7.81
+top 100 new made metals,made_metals,mp-aaabctzg,Cr3IrN,Cr:0.600;Ir:0.200;N:0.200,0.741,239.7,10.27,0.104,5,,,,,0.011030992666661632,,yes,,,
+top 100 new made metals,made_metals,mp-aaacryfq,Al(V4Sn)3,Al:0.062;Sn:0.188;V:0.750,0.827,233.7,9.73,0.209,16,,,,,0.0035472793749971032,,no,,,
+top 100 new made metals,made_metals,mp-aaacrejw,Zr3Mn8Al,Al:0.083;Mn:0.667;Zr:0.250,0.812,192.7,9.59,0.09,12,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacrhbn,Ti13Pb3,Pb:0.188;Ti:0.812,0.957,133.3,9.53,0.073,16,,,,,0.006348488958330734,,no,,,
+top 100 new made metals,made_metals,mp-aaacrlwg,Nb12IrAu3,Au:0.188;Ir:0.062;Nb:0.750,0.854,170.7,9.27,0.086,16,,,,,0.012120519062502666,,no,,,
+top 100 new made metals,made_metals,mp-aaacrxut,AlV6Sb,Al:0.125;Sb:0.125;V:0.750,0.731,248.2,8.97,0.181,8,,,,,0.009849447499995279,,no,,,
+top 100 new made metals,made_metals,mp-aaacduvd,VFeRu2,Fe:0.250;Ru:0.500;V:0.250,0.826,206.3,8.95,0.243,4,,,,,0.0,,no,369,0.662,3.23
+top 100 new made metals,made_metals,mp-aaacruyc,Ce4H11,Ce:0.267;H:0.733,0.778,283.3,8.88,0.305,15,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaaabcin,NaNiO2,Na:0.250;Ni:0.250;O:0.500,0.871,289.6,8.86,0.274,4,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacdmmc,Rb2Bi2O5,Bi:0.222;O:0.556;Rb:0.222,0.73,223.5,8.8,0.175,9,,,,,0.0033229466666657714,,no,,,
+top 100 new made metals,made_metals,mp-aaaaailw,Ba(Mo3S4)2,Ba:0.067;Mo:0.400;S:0.533,0.865,147.1,8.24,0.092,15,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrulq,CeOsRu,Ce:0.333;Os:0.333;Ru:0.333,0.996,122.5,8.05,0.12,6,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaabxghc,PmSi3,Pm:0.250;Si:0.750,0.809,164.9,8.05,0.177,8,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaaacdye,Sc(TiN)9,N:0.474;Sc:0.053;Ti:0.474,0.594,415.9,7.96,0.215,19,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacrjnt,Sm2Si3Ge,Ge:0.167;Si:0.500;Sm:0.333,0.855,148.9,7.9,0.129,6,,,,,0.011901888499997071,,no,,,
+top 100 new made metals,made_metals,mp-aaacrfeo,W2N3,N:0.600;W:0.400,0.717,299.2,7.49,0.314,10,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacrhsu,TaB2Mo3C2,B:0.250;C:0.250;Mo:0.375;Ta:0.125,0.712,284.7,7.48,0.192,8,,,,,0.006233564531250124,,no,,,
+top 100 new made metals,made_metals,mp-aaacfycw,PaC2,C:0.667;Pa:0.333,0.618,342.7,7.44,0.25,3,,,,,0.008208153333335133,,yes,,,
+top 100 new made metals,made_metals,mp-aaackxdw,NbBRu,B:0.333;Nb:0.333;Ru:0.333,0.745,209.6,7.36,0.268,18,,,,,0.010994721868685886,,yes,,,
+top 100 new made metals,made_metals,mp-aaacksdb,ZrGeRh,Ge:0.333;Rh:0.333;Zr:0.333,0.92,133.7,7.23,0.177,12,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaaliq,BaRhF6,Ba:0.125;F:0.750;Rh:0.125,1.021,158.7,7.21,0.291,8,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrjvs,Sc3Nb3(B2Ru5)2,B:0.200;Nb:0.150;Ru:0.500;Sc:0.150,0.778,170.0,7.08,0.179,20,,,,,0.0025227289999936175,,no,,,
+top 100 new made metals,made_metals,mp-aaabxcps,PmB3,B:0.750;Pm:0.250,0.681,268.1,7.07,0.175,8,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaabctvw,TiAsRh,As:0.333;Rh:0.333;Ti:0.333,0.79,168.0,7.0,0.055,12,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaaepj,Nb4AlC3,Al:0.125;C:0.375;Nb:0.500,0.63,314.2,6.99,0.21,16,,,,,0.0068075204687492175,,yes,,,
+top 100 new made metals,made_metals,mp-aaabxjtj,TaMnRu2,Mn:0.250;Ru:0.500;Ta:0.250,0.776,175.1,6.97,0.326,4,,,,,0.0,,no,17,0.913,4.72
+top 100 new made metals,made_metals,mp-aaaaarwy,Dy(SiOs)2,Dy:0.200;Os:0.400;Si:0.400,0.887,125.5,6.92,0.162,5,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaanwv,Zr6FeTe2,Fe:0.111;Te:0.222;Zr:0.667,0.816,137.6,6.92,0.179,9,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaabdrv,Na5OsO6,Na:0.417;O:0.500;Os:0.083,0.739,312.5,6.91,0.273,12,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacjmss,Ce(BOs)2,B:0.400;Ce:0.200;Os:0.400,0.755,144.4,6.9,0.111,10,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacqpzh,Zr6CoTe2,Co:0.111;Te:0.222;Zr:0.667,0.846,130.4,6.79,0.21,9,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacrutj,Ce2CoRu3,Ce:0.333;Co:0.167;Ru:0.500,0.989,129.1,6.68,0.225,6,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaabxfge,Ta2FeOs,Fe:0.250;Os:0.250;Ta:0.500,0.746,157.5,6.66,0.233,4,,,,,0.004915379374999418,,no,,,
+top 100 new made metals,made_metals,mp-aaackhuf,MgGa3,Ga:0.750;Mg:0.250,0.836,129.8,6.62,0.15,4,,,,,0.020106949687500375,,no,,,
+top 100 new made metals,made_metals,mp-aaaaahbj,Ce(SiOs)2,Ce:0.200;Os:0.400;Si:0.400,0.836,132.9,6.53,0.134,5,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrjry,ScNb2B2Ru5,B:0.200;Nb:0.200;Ru:0.500;Sc:0.100,0.731,178.6,6.5,0.245,20,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaackvnj,Sb2F13,F:0.867;Sb:0.133,0.901,148.7,6.5,0.187,15,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaabxfqz,MnRu3,Mn:0.250;Ru:0.750,0.637,245.5,6.44,0.251,8,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacrnfv,Mn6PtRh,Mn:0.750;Pt:0.125;Rh:0.125,0.676,206.8,6.43,0.132,8,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaaaaoxg,Ce2MnN3,Ce:0.333;Mn:0.167;N:0.500,0.712,180.8,6.41,0.211,6,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaafip,Ce3(BN2)2,B:0.222;Ce:0.333;N:0.444,0.609,272.2,6.35,0.254,9,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrlah,Nd4Si7,Nd:0.364;Si:0.636,0.723,169.0,6.35,0.17,11,,,,,0.007644316818183228,,no,,,
+top 100 new made metals,made_metals,mp-aaacdijg,Ti2IrRh,Ir:0.250;Rh:0.250;Ti:0.500,0.804,144.8,6.32,0.323,4,,,,,0.012968122499998458,,no,,,
+top 100 new made metals,made_metals,mp-aaacjkfw,V3PN,N:0.200;P:0.200;V:0.600,0.594,286.7,6.3,0.319,10,,,,,0.017273955047619083,,yes,,,
+top 100 new made metals,made_metals,mp-aaabxfqm,Mn2PtRh,Mn:0.500;Pt:0.250;Rh:0.250,0.728,153.3,6.28,0.118,4,,,,,0.0,,no,438,0.589,1.14
+top 100 new made metals,made_metals,mp-aaackssg,ThTc2,Tc:0.667;Th:0.333,0.839,123.3,6.17,0.221,12,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaaiav,Tb(SiOs)2,Os:0.400;Si:0.400;Tb:0.200,0.842,129.2,6.11,0.168,5,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrkie,PrNd,Nd:0.500;Pr:0.500,0.877,96.7,6.1,0.297,4,,,,,0.005263965416670402,,no,,,
+top 100 new made metals,made_metals,mp-aaaaabpx,TiIr3,Ir:0.750;Ti:0.250,0.814,145.4,6.09,0.14,4,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacppru,Ta3B2Ru5,B:0.200;Ru:0.500;Ta:0.300,0.741,166.7,6.03,0.299,20,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacjknv,Tb(BIr)2,B:0.400;Ir:0.400;Tb:0.200,0.777,129.4,6.03,0.053,10,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaabtix,MgGa2,Ga:0.667;Mg:0.333,0.856,115.3,6.03,0.237,6,,,,,0.004995789999999722,,yes,,,
+top 100 new made metals,made_metals,mp-aaabxjwd,La3Pb,La:0.750;Pb:0.250,0.849,111.3,6.02,0.183,4,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacrukx,CeThB8,B:0.800;Ce:0.100;Th:0.100,0.648,285.1,5.99,0.317,20,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaaaavqk,Y(BIr)2,B:0.400;Ir:0.400;Y:0.200,0.745,145.9,5.95,0.212,10,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaaxbo,Ce(BRu)2,B:0.400;Ce:0.200;Ru:0.400,0.697,170.8,5.94,0.252,10,,,,,0.0019292222499949219,,yes,,,
+top 100 new made metals,made_metals,mp-aaabxfnn,Mn2CrCo,Co:0.250;Cr:0.250;Mn:0.500,0.622,236.2,5.89,0.147,4,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaaaahst,Ho(SiOs)2,Ho:0.200;Os:0.400;Si:0.400,0.814,129.5,5.89,0.109,5,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacpmit,Mn3Pt,Mn:0.750;Pt:0.250,0.66,215.8,5.87,0.157,8,,,,,0.01074812103448508,,no,,,
+top 100 new made metals,made_metals,mp-aaaaaqio,Zr6Al2Fe,Al:0.222;Fe:0.111;Zr:0.667,0.742,157.8,5.86,0.186,9,,,,,0.009750137222219735,,yes,,,
+top 100 new made metals,made_metals,mp-aaacjmks,Zr6Ga2Fe,Fe:0.111;Ga:0.222;Zr:0.667,0.747,151.5,5.82,0.162,9,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrjnr,Sm2Si3Pt,Pt:0.167;Si:0.500;Sm:0.333,0.744,141.3,5.76,0.15,6,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacpfcr,HoWC2,C:0.500;Ho:0.250;W:0.250,0.64,227.4,5.73,0.259,16,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacdrtm,Sm(BOs)2,B:0.400;Os:0.400;Sm:0.200,0.741,133.4,5.71,0.113,10,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacpsmy,TbWC2,C:0.500;Tb:0.250;W:0.250,0.637,218.1,5.71,0.26,16,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaabghjk,Sm(SiOs)2,Os:0.400;Si:0.400;Sm:0.200,0.795,130.1,5.7,0.183,5,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaackhwn,Dy(BIr)2,B:0.400;Dy:0.200;Ir:0.400,0.764,130.4,5.69,0.081,10,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacqrvi,SmSi3Pt,Pt:0.200;Si:0.600;Sm:0.200,0.712,154.6,5.69,0.155,5,,,,,0.004658607499998801,,no,,,
+top 100 new made metals,made_metals,mp-aaacjwst,Tc3B,B:0.250;Tc:0.750,0.611,262.4,5.68,0.279,8,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacgpio,BaCrN2,Ba:0.250;Cr:0.250;N:0.500,0.632,245.3,5.68,0.311,16,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacqqnn,PrSiNi,Ni:0.333;Pr:0.333;Si:0.333,0.761,130.1,5.68,0.136,6,,,,,0.0,,no,,,
+top 100 new made metals,made_metals,mp-aaacktxe,TiGeIr,Ge:0.333;Ir:0.333;Ti:0.333,0.785,135.9,5.63,0.262,12,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacppsv,La(BOs)4,B:0.444;La:0.111;Os:0.444,0.73,161.6,5.61,0.103,18,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacpfro,DyWC2,C:0.500;Dy:0.250;W:0.250,0.631,222.2,5.6,0.128,16,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacpppo,CeB2Ru,B:0.500;Ce:0.250;Ru:0.250,0.647,204.2,5.58,0.165,16,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaagrc,ZrNbP,Nb:0.333;P:0.333;Zr:0.333,0.721,178.1,5.57,0.324,12,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaabfugu,Ta6S,S:0.143;Ta:0.857,0.758,144.8,5.55,0.304,14,,,,,0.012509170285712301,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaarxp,RbO2,O:0.667;Rb:0.333,0.64,228.3,5.54,0.16,3,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacpmuu,PmNd3,Nd:0.750;Pm:0.250,0.847,94.9,5.52,0.29,4,,,,,0.019321415000000286,,no,,,
+top 100 new made metals,made_metals,mp-aaaabswk,Ti5FeSb2,Fe:0.125;Sb:0.250;Ti:0.625,0.709,170.1,5.46,0.211,16,,,,,0.022383648125000377,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaacqz,Zr3Te,Te:0.250;Zr:0.750,0.783,126.8,5.46,0.094,16,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacjhmc,NdSiGe,Ge:0.333;Nd:0.333;Si:0.333,0.697,164.6,5.44,0.308,6,,,,,0.02160604166666502,,yes,,,
+top 100 new made metals,made_metals,mp-aaacrqob,HoFeRu,Fe:0.333;Ho:0.333;Ru:0.333,0.716,176.6,5.43,0.319,6,,,,,0.000716427604168679,,no,,,
+top 100 new made metals,made_metals,mp-aaabxdaf,LiGa3,Ga:0.750;Li:0.250,0.746,135.9,5.42,0.122,4,,,,,0.008717875749999493,,no,,,
+top 100 new made metals,made_metals,mp-aaaaamvw,Ce(BIr)2,B:0.400;Ce:0.200;Ir:0.400,0.746,137.2,5.41,0.266,10,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaabxfwc,Hf2IrRh,Hf:0.500;Ir:0.250;Rh:0.250,0.822,115.7,5.41,0.19,4,,,,,0.0,,no,46,0.887,1.7
+top 100 new made metals,made_metals,mp-aaacfydk,LaH3,H:0.750;La:0.250,0.644,254.0,5.37,0.213,4,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaaaaaqb,MnRh,Mn:0.500;Rh:0.500,0.66,176.5,5.37,0.201,2,,,,,0.0,,yes,,,
+top 100 new made metals,made_metals,mp-aaacdnqd,PrNd3,Nd:0.750;Pr:0.250,0.828,96.6,5.36,0.315,4,,,,,0.022200343958335367,,no,,,
+shortlist 3 pool,shortlist_pool,mp-aaacquke,ScTaN2,N:0.500;Sc:0.250;Ta:0.250,0.875,244.9,12.84,0.176,8,,,flagged,fit,0.0,,no,13,0.922,9.4
+shortlist 3 pool,shortlist_pool,mp-aaacgoop,LiRuN,Li:0.333;N:0.333;Ru:0.333,0.793,270.5,10.45,0.316,12,,,,,0.0,,no,62,0.879,7.81
+shortlist 3 pool,shortlist_pool,mp-aaacpmtj,Nb2ReRu,Nb:0.500;Re:0.250;Ru:0.250,0.841,180.6,9.86,0.024,4,,10.12,calculated,fit,0.0,,no,63,0.878,4.19
+shortlist 3 pool,shortlist_pool,mp-aaacduvd,VFeRu2,Fe:0.250;Ru:0.500;V:0.250,0.826,206.3,8.95,0.243,4,,,,,0.0,,no,369,0.662,3.23
+shortlist 3 pool,shortlist_pool,mp-aaabxfop,MnVRu2,Mn:0.250;Ru:0.500;V:0.250,0.814,211.9,8.72,0.444,4,high spread,,,,0.0,,no,239,0.78,2.5
+shortlist 3 pool,shortlist_pool,mp-aaabxbai,TaTiRu2,Ru:0.500;Ta:0.250;Ti:0.250,0.751,201.3,8.2,0.078,4,,8.73,calculated,fit,0.0,,no,26,0.898,3.46
+shortlist 3 pool,shortlist_pool,mp-aaabxhiu,Ti3Pb,Pb:0.250;Ti:0.750,0.86,138.4,7.66,0.082,8,,5.63,calculated,fit,0.0,,no,517,0.425,2.96
+shortlist 3 pool,shortlist_pool,mp-aaabxfoy,MnNbRu2,Mn:0.250;Nb:0.250;Ru:0.500,0.793,183.7,7.33,0.349,4,high spread,,,,0.0,,no,74,0.871,3.42
+shortlist 3 pool,shortlist_pool,mp-aaabxjtj,TaMnRu2,Mn:0.250;Ru:0.500;Ta:0.250,0.776,175.1,6.97,0.326,4,,,,,0.0,,no,17,0.913,4.72
+shortlist 3 pool,shortlist_pool,mp-aaacdpur,Ta2ReRu,Re:0.250;Ru:0.250;Ta:0.500,0.742,173.5,6.95,0.067,4,,6.39,calculated,fit,0.0,,no,53,0.883,3.12
+shortlist 3 pool,shortlist_pool,mp-aaacdifu,Ti2VIr,Ir:0.250;Ti:0.500;V:0.250,0.736,208.3,6.36,0.431,4,high spread,,,,0.0,,no,122,0.846,3.83
+shortlist 3 pool,shortlist_pool,mp-aaabxfqm,Mn2PtRh,Mn:0.500;Pt:0.250;Rh:0.250,0.728,153.3,6.28,0.118,4,,,,,0.0,,no,438,0.589,1.14
+shortlist 3 pool,shortlist_pool,mp-aaabxgvm,LiSiRu2,Li:0.250;Ru:0.500;Si:0.250,0.701,177.7,5.73,0.095,4,,6.37,calculated,fit,0.0,,no,132,0.842,5.14
+shortlist 3 pool,shortlist_pool,mp-aaacsyle,LiCoN,Co:0.333;Li:0.333;N:0.333,0.596,305.7,5.69,0.259,12,,7.33,calculated,fit,0.0,,no,461,0.548,6.8
+shortlist 3 pool,shortlist_pool,mp-aaabxiue,ScGaRu2,Ga:0.250;Ru:0.500;Sc:0.250,0.712,152.9,5.58,0.103,4,,6.09,calculated,fit,0.0,,no,36,0.892,3.97
+shortlist 3 pool,shortlist_pool,mp-aaabxfwc,Hf2IrRh,Hf:0.500;Ir:0.250;Rh:0.250,0.822,115.7,5.41,0.19,4,,,,,0.0,,no,46,0.887,1.7
+shortlist 3 pool,shortlist_pool,mp-aaabxapz,Ti2CoIr,Co:0.250;Ir:0.250;Ti:0.500,0.838,149.4,5.26,0.524,4,high spread,0.62,calculated,valid,0.0,,no,147,0.834,2.27
+shortlist 3 pool,shortlist_pool,mp-aaacrglh,Ti2NbAl,Al:0.250;Nb:0.250;Ti:0.500,0.648,204.5,5.25,0.264,8,,8.19,calculated,fit,0.0,,no,14,0.921,6.01
+shortlist 3 pool,shortlist_pool,mp-aaacpmkr,Mn2IrRh,Ir:0.250;Mn:0.500;Rh:0.250,0.671,172.0,5.18,0.206,4,,,,,0.0,,no,411,0.626,0.93
+shortlist 3 pool,shortlist_pool,mp-aaabxghz,VZnRh2,Rh:0.500;V:0.250;Zn:0.250,0.727,144.3,5.03,0.084,4,,4.75,calculated,fit,0.0,,no,342,0.693,1.34
+shortlist 3 pool,shortlist_pool,mp-aaabxffb,Mn3Ir,Ir:0.250;Mn:0.750,0.59,242.5,5.0,0.225,8,,,,,0.0,,no,470,0.535,1.16
+shortlist 3 pool,shortlist_pool,mp-aaacpnuc,Re3Ir,Ir:0.250;Re:0.750,0.61,191.0,4.11,0.113,4,,,,,0.0,,no,4,0.944,2.34
+shortlist 3 pool,shortlist_pool,mp-aaacqtvg,TaVP,P:0.333;Ta:0.333;V:0.333,0.557,217.4,3.88,0.238,12,,,,,0.0,,no,459,0.549,4.06
+shortlist 3 pool,shortlist_pool,mp-aaabxiwm,TaFeRu2,Fe:0.250;Ru:0.500;Ta:0.250,0.626,183.9,3.86,0.465,4,high spread,,,,0.0,,no,154,0.83,5.18
+shortlist 3 pool,shortlist_pool,mp-aaacfycr,Ti2Re,Re:0.333;Ti:0.667,0.551,251.5,3.76,0.338,3,high spread,3.15,calculated,valid,0.0,,yes,281,0.749,3.92
+shortlist 3 pool,shortlist_pool,mp-aaacrrfw,Hf3N2,Hf:0.600;N:0.400,0.545,236.7,3.61,0.163,5,,1.29,calculated,valid,0.0,,no,359,0.672,7.02
+shortlist 3 pool,shortlist_pool,mp-aaabxghy,VZnRu2,Ru:0.500;V:0.250;Zn:0.250,0.554,202.0,3.39,0.084,4,,3.02,calculated,fit,0.0,,no,45,0.888,2.18
+shortlist 3 pool,shortlist_pool,mp-aaabxcan,Re3Pt,Pt:0.250;Re:0.750,0.586,185.2,3.36,0.117,8,,,,,0.0,,no,246,0.775,1.82
+shortlist 3 pool,shortlist_pool,mp-aaacqqxm,CrGeRu2,Cr:0.250;Ge:0.250;Ru:0.500,0.586,182.9,3.27,0.447,4,high spread,,,,0.0,,no,181,0.807,2.97
+shortlist 3 pool,shortlist_pool,mp-aaabxgjp,Ti2NiIr,Ir:0.250;Ni:0.250;Ti:0.500,0.61,148.9,3.2,0.204,4,,,,,0.0,,no,170,0.816,2.11
+shortlist 3 pool,shortlist_pool,mp-aaacqreq,Ti2Sb,Sb:0.333;Ti:0.667,0.609,182.3,3.2,0.229,6,,,imaginary mode,fit,0.0,,no,543,0.322,2.29
+shortlist 3 pool,shortlist_pool,mp-aaacjijm,NbFe2,Fe:0.667;Nb:0.333,0.577,217.9,3.17,0.441,6,high spread,,imaginary mode,valid,0.0,,yes,537,0.341,4.01
+shortlist 3 pool,shortlist_pool,mp-aaadjmuy,MnIr,Ir:0.500;Mn:0.500,0.55,196.1,3.16,0.169,4,,,,,0.0,,no,464,0.548,0.98
+shortlist 3 pool,shortlist_pool,mp-aaacpmio,Mn2PdPt,Mn:0.500;Pd:0.250;Pt:0.250,0.59,153.0,3.13,0.33,4,high spread,,,,0.0,,no,484,0.49,0.96
+shortlist 3 pool,shortlist_pool,mp-aaacgiiv,TiGaPd,Ga:0.333;Pd:0.333;Ti:0.333,0.562,162.4,2.99,0.187,6,,,,,0.0,,no,500,0.453,2.34
+shortlist 3 pool,shortlist_pool,mp-aaacpjam,CrGaRu2,Cr:0.250;Ga:0.250;Ru:0.500,0.534,210.4,2.93,0.134,4,,,,,0.0,,no,38,0.891,2.78
+shortlist 3 pool,shortlist_pool,mp-aaabxgxr,GaGeRu2,Ga:0.250;Ge:0.250;Ru:0.500,0.572,144.9,2.81,0.083,4,,2.64,calculated,fit,0.0,,no,285,0.748,2.67
+shortlist 3 pool,shortlist_pool,mp-aaabxcbc,Re3Ni,Ni:0.250;Re:0.750,0.509,210.4,2.79,0.277,8,,,,,0.0,,no,232,0.782,1.93
+shortlist 3 pool,shortlist_pool,mp-aaabxhht,TiGaRh2,Ga:0.250;Rh:0.500;Ti:0.250,0.575,139.2,2.72,0.078,4,,,imaginary mode,fit,0.0,,no,89,0.86,2.49
+shortlist 3 pool,shortlist_pool,mp-aaacdqch,MgNbRh2,Mg:0.250;Nb:0.250;Rh:0.500,0.573,145.4,2.51,0.179,4,,2.5,calculated,fit,0.0,,no,59,0.88,3.27
+shortlist 3 pool,shortlist_pool,mp-aaacqrpl,Ba(AlGa)2,Al:0.400;Ba:0.200;Ga:0.400,0.557,143.6,2.5,0.059,5,,,,,0.0,,no,267,0.759,2.47
+shortlist 3 pool,shortlist_pool,mp-aaabxjsq,ReIr3,Ir:0.750;Re:0.250,0.508,190.5,2.45,0.185,8,,,,,0.0,,no,8,0.93,0.89
+shortlist 3 pool,shortlist_pool,mp-aaabxfbk,Ta2NbIr,Ir:0.250;Nb:0.250;Ta:0.500,0.549,166.9,2.44,0.262,4,,4.26,calculated,test,0.0,,no,312,0.719,2.2
+shortlist 3 pool,shortlist_pool,mp-aaabxfor,MnZnIr2,Ir:0.500;Mn:0.250;Zn:0.250,0.576,146.2,2.4,0.636,4,high spread,,,,0.0,,no,175,0.814,1.03
+shortlist 3 pool,shortlist_pool,mp-aaacjjwt,Nb2GeC,C:0.250;Ge:0.250;Nb:0.500,0.469,270.3,2.39,0.144,8,,1.39,calculated,test,0.0,,yes,12,0.924,7.56
+shortlist 3 pool,shortlist_pool,mp-aaabxfqc,MnIr3,Ir:0.750;Mn:0.250,0.495,216.1,2.32,0.157,8,,,,,0.0,,no,258,0.764,0.73
+shortlist 3 pool,shortlist_pool,mp-aaacrkbd,ReIr,Ir:0.500;Re:0.500,0.481,197.2,2.28,0.174,2,,,,,0.0,,no,67,0.877,1.43
+shortlist 3 pool,shortlist_pool,mp-aaabxhhc,TiGaPd2,Ga:0.250;Pd:0.500;Ti:0.250,0.563,117.7,2.28,0.149,4,,1.7,calculated,fit,0.0,,no,348,0.685,2.44
+shortlist 3 pool,shortlist_pool,mp-aaacpnux,Re3Rh,Re:0.750;Rh:0.250,0.49,201.0,2.21,0.134,8,,2.04,calculated,fit,0.0,,no,25,0.899,2.38
+shortlist 3 pool,shortlist_pool,mp-aaabxcch,ScSbRh2,Rh:0.500;Sb:0.250;Sc:0.250,0.557,133.4,2.2,0.244,4,,2.26,calculated,fit,0.0,,no,202,0.799,2.47
+shortlist 3 pool,shortlist_pool,mp-aaacpnwy,Sc3Sn,Sc:0.750;Sn:0.250,0.523,189.9,2.17,0.499,8,high spread,,,,0.0,,no,551,0.274,3.22
+shortlist 3 pool,shortlist_pool,mp-aaabxfpd,LiSiPd2,Li:0.250;Pd:0.500;Si:0.250,0.529,147.4,2.16,0.108,4,,1.84,calculated,fit,0.0,,no,92,0.859,3.86
+shortlist 3 pool,shortlist_pool,mp-aaacpnow,Ta2MoIr,Ir:0.250;Mo:0.250;Ta:0.500,0.529,173.7,2.11,0.145,4,,,,,0.0,,no,42,0.89,2.29
+shortlist 3 pool,shortlist_pool,mp-aaabxgjj,TiMnRh2,Mn:0.250;Rh:0.500;Ti:0.250,0.51,181.7,2.06,0.306,4,,,,,0.0,,no,268,0.759,2.4
+shortlist 3 pool,shortlist_pool,mp-aaacqzer,HfMnP,Hf:0.333;Mn:0.333;P:0.333,0.497,231.9,2.02,0.493,12,high spread,,,,0.0,,no,177,0.811,4.53
+shortlist 3 pool,shortlist_pool,mp-aaabxgue,TaZnRh2,Rh:0.500;Ta:0.250;Zn:0.250,0.572,121.7,1.96,0.158,4,,0.0,calculated,fit,0.0,,no,150,0.833,1.72
+shortlist 3 pool,shortlist_pool,mp-aaabxjza,TaInRu2,In:0.250;Ru:0.500;Ta:0.250,0.61,130.5,1.95,0.399,4,high spread,0.0,calculated,fit,0.0,,no,83,0.861,3.4
+shortlist 3 pool,shortlist_pool,mp-aaabxgql,TiSnRh2,Rh:0.500;Sn:0.250;Ti:0.250,0.553,130.0,1.91,0.178,4,,0.16,calculated,fit,0.0,,no,247,0.774,2.67
+shortlist 3 pool,shortlist_pool,mp-aaabgkwy,LiZnGe,Ge:0.333;Li:0.333;Zn:0.333,0.528,128.8,1.87,0.239,9,,,,,0.0,,no,454,0.555,3.53
+shortlist 3 pool,shortlist_pool,mp-aaabxbnw,ScZn3,Sc:0.250;Zn:0.750,0.562,122.5,1.87,0.341,8,high spread,0.19,calculated,fit,0.0,,no,541,0.329,1.37
+shortlist 3 pool,shortlist_pool,mp-aaabxfit,NbZnRh2,Nb:0.250;Rh:0.500;Zn:0.250,0.55,140.4,1.86,0.202,4,,3.96,calculated,test,0.0,,no,75,0.87,2.02
+shortlist 3 pool,shortlist_pool,mp-aaabxggf,TiAlPd2,Al:0.250;Pd:0.500;Ti:0.250,0.527,121.3,1.86,0.145,4,,,imaginary mode,fit,0.0,,no,474,0.518,2.12
+shortlist 3 pool,shortlist_pool,mp-aaacpibo,ZrSe,Se:0.500;Zr:0.500,0.469,185.5,1.81,0.317,2,,,,,0.0,,no,298,0.73,3.13
+shortlist 3 pool,shortlist_pool,mp-aaabxfla,Hf2FeIr,Fe:0.250;Hf:0.500;Ir:0.250,0.537,142.7,1.8,0.546,4,high spread,,,,0.0,,no,172,0.815,3.09
+shortlist 3 pool,shortlist_pool,mp-aaacpjzk,FeIr3,Fe:0.250;Ir:0.750,0.443,232.1,1.78,0.215,4,,,,,0.0,,no,306,0.723,1.05
+shortlist 3 pool,shortlist_pool,mp-aaacdsqy,Ta2NbRh,Nb:0.250;Rh:0.250;Ta:0.500,0.5,151.4,1.78,0.065,4,,0.14,calculated,fit,0.0,,no,332,0.699,2.46
+shortlist 3 pool,shortlist_pool,mp-aaacqtgc,TiVP,P:0.333;Ti:0.333;V:0.333,0.432,283.3,1.74,0.318,12,,,,,0.0,,no,477,0.509,5.55
+shortlist 3 pool,shortlist_pool,mp-aaabxhhp,TiAlRh2,Al:0.250;Rh:0.500;Ti:0.250,0.507,143.0,1.69,0.171,4,,0.33,calculated,fit,0.0,,no,319,0.712,2.09
+shortlist 3 pool,shortlist_pool,mp-aaabxats,LiSbPd2,Li:0.250;Pd:0.500;Sb:0.250,0.539,108.4,1.65,0.167,4,,2.11,calculated,test,0.0,,no,253,0.766,3.7
+shortlist 3 pool,shortlist_pool,mp-aaabxgmx,GaSiRu2,Ga:0.250;Ru:0.500;Si:0.250,0.479,158.5,1.63,0.334,4,high spread,,imaginary mode,fit,0.0,,no,299,0.73,2.55
+shortlist 3 pool,shortlist_pool,mp-aaacpple,ZrMnRh2,Mn:0.250;Rh:0.500;Zr:0.250,0.483,161.1,1.62,0.282,4,,,,,0.0,,no,254,0.766,2.72
+shortlist 3 pool,shortlist_pool,mp-aaafuprd,V2GaN,Ga:0.250;N:0.250;V:0.500,0.415,341.8,1.56,0.412,8,high spread,0.85,calculated,valid,0.0,,no,6,0.934,7.16
+shortlist 3 pool,shortlist_pool,mp-aaabxarg,Ti2FeIr,Fe:0.250;Ir:0.250;Ti:0.500,0.461,195.0,1.56,0.391,4,high spread,,,,0.0,,no,189,0.802,4.06
+shortlist 3 pool,shortlist_pool,mp-aaabxfnf,ZrSnRh2,Rh:0.500;Sn:0.250;Zr:0.250,0.514,126.8,1.52,0.078,4,,0.54,calculated,fit,0.0,,no,179,0.81,2.58
+shortlist 3 pool,shortlist_pool,mp-aaabxfny,MnSiRu2,Mn:0.250;Ru:0.500;Si:0.250,0.451,227.6,1.5,0.59,4,high spread,,,,0.0,,no,339,0.694,2.81
+shortlist 3 pool,shortlist_pool,mp-aaacplks,LiCrRh2,Cr:0.250;Li:0.250;Rh:0.500,0.442,200.8,1.48,0.316,4,,,imaginary mode,fit,0.0,,no,157,0.829,3.08
+shortlist 3 pool,shortlist_pool,mp-aaacplni,LiMgPb2,Li:0.250;Mg:0.250;Pb:0.500,0.5,110.8,1.44,0.257,4,,,flagged,fit,0.0,,no,3,0.947,5.24
+shortlist 3 pool,shortlist_pool,mp-aaacpklj,HfZrCo2,Co:0.500;Hf:0.250;Zr:0.250,0.466,157.6,1.43,0.309,4,,,,,0.0,,no,382,0.65,1.74
+shortlist 3 pool,shortlist_pool,mp-aaacrvfc,CaGa3Pt,Ca:0.200;Ga:0.600;Pt:0.200,0.475,137.4,1.38,0.145,5,,,,,0.0,,no,93,0.858,3.92
+shortlist 3 pool,shortlist_pool,mp-aaacpjao,CrGaRh2,Cr:0.250;Ga:0.250;Rh:0.500,0.441,199.1,1.38,0.336,4,high spread,,,,0.0,,no,208,0.796,2.17
+shortlist 3 pool,shortlist_pool,mp-aaabxhem,MgTaRh2,Mg:0.250;Rh:0.500;Ta:0.250,0.48,142.5,1.37,0.178,4,,1.15,calculated,fit,0.0,,no,81,0.862,3.41
+shortlist 3 pool,shortlist_pool,mp-aaacrihw,SrAlGa,Al:0.333;Ga:0.333;Sr:0.333,0.492,120.9,1.37,0.35,3,high spread,0.51,calculated,test,0.0,,no,395,0.64,2.94
+shortlist 3 pool,shortlist_pool,mp-aaabxaqq,Ti2CrIr,Cr:0.250;Ir:0.250;Ti:0.500,0.41,258.4,1.35,0.496,4,high spread,,,,0.0,,no,178,0.81,3.18
+shortlist 3 pool,shortlist_pool,mp-aaabxgko,Mn2VGe,Ge:0.250;Mn:0.500;V:0.250,0.398,275.6,1.34,0.371,4,high spread,,,,0.0,,no,337,0.696,3.37
+shortlist 3 pool,shortlist_pool,mp-aaabxbnu,Sc2ZnPt,Pt:0.250;Sc:0.500;Zn:0.250,0.506,107.2,1.34,0.072,4,,,,,0.0,,no,389,0.645,1.89
+shortlist 3 pool,shortlist_pool,mp-aaabxhkf,HfSnRh2,Hf:0.250;Rh:0.500;Sn:0.250,0.5,126.7,1.31,0.144,4,,0.47,calculated,fit,0.0,,no,257,0.764,2.35
+shortlist 3 pool,shortlist_pool,mp-aaacqskm,YZnRh,Rh:0.333;Y:0.333;Zn:0.333,0.474,127.6,1.31,0.072,12,,,,,0.0,,no,481,0.503,2.2
+shortlist 3 pool,shortlist_pool,mp-aaabxhep,MgTaIr2,Ir:0.500;Mg:0.250;Ta:0.250,0.52,114.5,1.29,0.387,4,high spread,,,,0.0,,no,29,0.896,2.97
+shortlist 3 pool,shortlist_pool,mp-aaabxftj,NaMgPb2,Mg:0.250;Na:0.250;Pb:0.500,0.473,114.4,1.28,0.21,4,,,,,0.0,,no,2,0.952,5.37
+shortlist 3 pool,shortlist_pool,mp-aaabxhig,TiInRh2,In:0.250;Rh:0.500;Ti:0.250,0.495,120.6,1.23,0.062,4,,0.0,calculated,fit,0.0,,no,174,0.814,2.37
+shortlist 3 pool,shortlist_pool,mp-aaacqqea,YSi2Ni,Ni:0.250;Si:0.500;Y:0.250,0.423,234.4,1.22,0.155,8,,,,,0.0,,no,231,0.782,2.05
+shortlist 3 pool,shortlist_pool,mp-aaabxchx,AlCrRu2,Al:0.250;Cr:0.250;Ru:0.500,0.391,264.0,1.2,0.198,4,,,,,0.0,,no,225,0.784,2.85
+shortlist 3 pool,shortlist_pool,mp-aaabxgde,Zn3Ir,Ir:0.250;Zn:0.750,0.487,106.3,1.2,0.209,4,,,,,0.0,,no,385,0.649,0.67
+shortlist 3 pool,shortlist_pool,mp-aaabxfhm,HfZnIr2,Hf:0.250;Ir:0.500;Zn:0.250,0.5,110.1,1.17,0.514,4,high spread,,,,0.0,,no,143,0.838,2.33
+shortlist 3 pool,shortlist_pool,mp-aaacpibm,ZrZnIr2,Ir:0.500;Zn:0.250;Zr:0.250,0.495,114.1,1.16,0.45,4,high spread,,,,0.0,,no,65,0.877,2.79
+shortlist 3 pool,shortlist_pool,mp-aaacponx,Ti2MoPd,Mo:0.250;Pd:0.250;Ti:0.500,0.387,236.3,1.16,0.179,4,,1.45,calculated,test,0.0,,no,134,0.841,2.33
+shortlist 3 pool,shortlist_pool,mp-aaacrbut,CaSbPd,Ca:0.333;Pd:0.333;Sb:0.333,0.458,116.2,1.15,0.236,12,,,,,0.0,,no,391,0.644,2.56
+shortlist 3 pool,shortlist_pool,mp-aaacdpxr,ZrAlRh2,Al:0.250;Rh:0.500;Zr:0.250,0.494,118.6,1.14,0.04,4,,1.12,calculated,fit,0.0,,no,182,0.807,2.46
+shortlist 3 pool,shortlist_pool,mp-aaabxhie,TiInPd2,In:0.250;Pd:0.500;Ti:0.250,0.493,110.0,1.12,0.203,4,,,,,0.0,,no,364,0.667,2.36
+shortlist 3 pool,shortlist_pool,mp-aaabxbrv,Sc2PdPt,Pd:0.250;Pt:0.250;Sc:0.500,0.467,107.8,1.11,0.056,4,,0.86,calculated,fit,0.0,,no,427,0.604,1.78
+shortlist 3 pool,shortlist_pool,mp-aaabxgmg,YGa3,Ga:0.750;Y:0.250,0.447,144.7,1.09,0.313,8,,2.35,calculated,fit,0.0,,no,371,0.661,1.74
+shortlist 3 pool,shortlist_pool,mp-aaabxfqv,HfScRh2,Hf:0.250;Rh:0.500;Sc:0.250,0.432,154.2,1.08,0.113,4,,1.0,calculated,fit,0.0,,no,171,0.816,1.77
+shortlist 3 pool,shortlist_pool,mp-aaacpjop,GaFeRu2,Fe:0.250;Ga:0.250;Ru:0.500,0.416,211.5,1.08,0.291,4,,,,,0.0,,no,255,0.764,3.56
+shortlist 3 pool,shortlist_pool,mp-aaacpkmo,Hf2FeRh,Fe:0.250;Hf:0.500;Rh:0.250,0.408,168.4,1.03,0.359,4,high spread,,,,0.0,,no,186,0.804,2.58
+shortlist 3 pool,shortlist_pool,mp-aaabxcrj,LiIn3,In:0.750;Li:0.250,0.457,119.1,1.03,0.326,4,high spread,,,,0.0,,no,310,0.719,2.77
+shortlist 3 pool,shortlist_pool,mp-aaacqrdm,CrPt,Cr:0.500;Pt:0.500,0.388,218.8,0.99,0.384,2,high spread,,,,0.0,,no,556,0.261,1.04
+shortlist 3 pool,shortlist_pool,mp-aaabxgri,TiZnAu2,Au:0.500;Ti:0.250;Zn:0.250,0.462,117.1,0.97,0.249,4,,,,,0.0,,no,355,0.68,1.88
+shortlist 3 pool,shortlist_pool,mp-aaaekscj,Ca(GePt)2,Ca:0.200;Ge:0.400;Pt:0.400,0.441,132.5,0.96,0.238,10,,,,,0.0,,no,60,0.88,2.3
+shortlist 3 pool,shortlist_pool,mp-aaacdqdf,MgSbPd2,Mg:0.250;Pd:0.500;Sb:0.250,0.472,107.2,0.96,0.168,4,,,flagged,test,0.0,,no,344,0.688,1.89
+shortlist 3 pool,shortlist_pool,mp-aaabxfou,Mn2AlCr,Al:0.250;Cr:0.250;Mn:0.500,0.403,258.3,0.93,0.389,4,high spread,,,,0.0,,no,566,0.178,1.95
+shortlist 3 pool,shortlist_pool,mp-aaacplwu,MgVRu2,Mg:0.250;Ru:0.500;V:0.250,0.397,224.3,0.92,0.101,4,,2.02,calculated,fit,0.0,,no,245,0.775,3.86
+shortlist 3 pool,shortlist_pool,mp-aaabxbnt,Sc2ZnAu,Au:0.250;Sc:0.500;Zn:0.250,0.446,114.4,0.92,0.268,4,,,,,0.0,,no,261,0.762,2.05
+shortlist 3 pool,shortlist_pool,mp-aaacplpk,LiTi2Ir,Ir:0.250;Li:0.250;Ti:0.500,0.393,187.9,0.91,0.354,4,high spread,,,,0.0,,no,23,0.901,3.28
+shortlist 3 pool,shortlist_pool,mp-aaabxbzl,ScSbRu2,Ru:0.500;Sb:0.250;Sc:0.250,0.41,174.3,0.9,0.275,4,,,flagged,fit,0.0,,no,70,0.873,3.31
+shortlist 3 pool,shortlist_pool,mp-aaacppld,ZrGaRh2,Ga:0.250;Rh:0.500;Zr:0.250,0.434,125.6,0.89,0.178,4,,0.01,calculated,fit,0.0,,no,114,0.85,2.9
+shortlist 3 pool,shortlist_pool,mp-aaacrjyk,SbTe2,Sb:0.333;Te:0.667,0.438,101.6,0.87,0.165,3,,,imaginary mode,fit,0.0,,no,1,0.965,2.89
+shortlist 3 pool,shortlist_pool,mp-aaabxfrc,TiZnIr2,Ir:0.500;Ti:0.250;Zn:0.250,0.413,147.0,0.86,0.324,4,,,,,0.0,,no,138,0.84,2.52
+shortlist 3 pool,shortlist_pool,mp-aaabxfst,HfMnRh2,Hf:0.250;Mn:0.250;Rh:0.500,0.396,179.8,0.86,0.336,4,high spread,,,,0.0,,no,251,0.768,2.42
+shortlist 3 pool,shortlist_pool,mp-aaacqtuz,TaSiNi,Ni:0.333;Si:0.333;Ta:0.333,0.389,185.2,0.83,0.356,12,high spread,,,,0.0,,no,424,0.61,2.29
+shortlist 3 pool,shortlist_pool,mp-aaabxfdc,Hf2MoIr,Hf:0.500;Ir:0.250;Mo:0.250,0.378,177.2,0.82,0.285,4,,,,,0.0,,no,324,0.706,2.22
+shortlist 3 pool,shortlist_pool,mp-aaabxfqg,Mn2VSi,Mn:0.500;Si:0.250;V:0.250,0.357,306.8,0.81,0.23,4,,,,,0.0,,no,449,0.559,4.49
+shortlist 3 pool,shortlist_pool,mp-aaacfzdb,NbGeSb,Ge:0.333;Nb:0.333;Sb:0.333,0.389,177.1,0.8,0.242,6,,,,,0.0,,yes,300,0.729,4.23
+shortlist 3 pool,shortlist_pool,mp-aaacqrkh,Hf2Se,Hf:0.667;Se:0.333,0.427,135.5,0.8,0.299,6,,,imaginary mode,fit,0.0,,no,407,0.631,1.98
+shortlist 3 pool,shortlist_pool,mp-aaabxfsv,TiZnNi2,Ni:0.500;Ti:0.250;Zn:0.250,0.402,163.5,0.79,0.135,4,,,imaginary mode,fit,0.0,,no,545,0.298,2.1
+shortlist 3 pool,shortlist_pool,mp-aaabxbpa,LiFeRh2,Fe:0.250;Li:0.250;Rh:0.500,0.36,215.6,0.77,0.233,4,,,,,0.0,,no,103,0.856,4.18
+shortlist 3 pool,shortlist_pool,mp-aaacpmjg,MgSbRh2,Mg:0.250;Rh:0.500;Sb:0.250,0.42,133.0,0.77,0.131,4,,0.63,calculated,fit,0.0,,no,368,0.664,2.94
+shortlist 3 pool,shortlist_pool,mp-aaabxfhc,NbInRu2,In:0.250;Nb:0.250;Ru:0.500,0.419,172.3,0.75,0.305,4,,0.02,calculated,valid,0.0,,no,95,0.858,3.33
+shortlist 3 pool,shortlist_pool,mp-aaacdiem,V2MoRu,Mo:0.250;Ru:0.250;V:0.500,0.353,295.1,0.75,0.085,4,,0.77,calculated,fit,0.0,,no,192,0.802,2.38
+shortlist 3 pool,shortlist_pool,mp-aaabxixz,LiZn2Au,Au:0.250;Li:0.250;Zn:0.500,0.425,117.7,0.74,0.067,4,,0.64,calculated,fit,0.0,,no,363,0.668,2.17
+shortlist 3 pool,shortlist_pool,mp-aaacfsit,Ti2ZnN,N:0.250;Ti:0.500;Zn:0.250,0.362,285.3,0.73,0.193,8,,,,,0.0,,no,91,0.859,4.45
+shortlist 3 pool,shortlist_pool,mp-aaacqrdf,HfS,Hf:0.500;S:0.500,0.353,199.6,0.72,0.325,2,,,,,0.0,,no,118,0.847,4.13
+shortlist 3 pool,shortlist_pool,mp-aaacqrra,Sr(AlGa)2,Al:0.400;Ga:0.400;Sr:0.200,0.386,172.7,0.71,0.16,5,,,,,0.0,,no,269,0.758,2.27
+shortlist 3 pool,shortlist_pool,mp-aaabxgqv,Ti2ReIr,Ir:0.250;Re:0.250;Ti:0.500,0.369,209.5,0.7,0.298,4,,,,,0.0,,no,330,0.702,3.05
+shortlist 3 pool,shortlist_pool,mp-aaabxftz,MgGaPd2,Ga:0.250;Mg:0.250;Pd:0.500,0.426,115.2,0.7,0.055,4,,0.6,calculated,fit,0.0,,no,365,0.666,1.8
+shortlist 3 pool,shortlist_pool,mp-aaacgiol,ScGa5Ni,Ga:0.714;Ni:0.143;Sc:0.143,0.388,168.0,0.69,0.082,7,,,,,0.0,,no,127,0.845,3.93
+shortlist 3 pool,shortlist_pool,mp-aaacrhlp,SrZnIn3,In:0.600;Sr:0.200;Zn:0.200,0.424,106.5,0.69,0.154,5,,,,,0.0,,no,148,0.834,2.07
+shortlist 3 pool,shortlist_pool,mp-aaacqpua,YAgGe,Ag:0.333;Ge:0.333;Y:0.333,0.404,123.4,0.68,0.09,9,,,,,0.0,,no,463,0.548,2.05
+shortlist 3 pool,shortlist_pool,mp-aaacrxnq,Ba(GeAu)2,Au:0.400;Ba:0.200;Ge:0.400,0.411,114.5,0.67,0.219,5,,,,,0.0,,no,120,0.847,2.93
+shortlist 3 pool,shortlist_pool,mp-aaabxgrp,Li2InSn,In:0.250;Li:0.500;Sn:0.250,0.403,121.4,0.67,0.255,4,,,imaginary mode,fit,0.0,,no,233,0.781,4.69
+shortlist 3 pool,shortlist_pool,mp-aaacpibl,ZrZnAu2,Au:0.500;Zn:0.250;Zr:0.250,0.417,111.7,0.67,0.076,4,,,,,0.0,,no,341,0.693,2.01
+shortlist 3 pool,shortlist_pool,mp-aaabxflr,MgZrPd2,Mg:0.250;Pd:0.500;Zr:0.250,0.427,124.5,0.67,0.299,4,,,,,0.0,,no,475,0.513,2.72
+shortlist 3 pool,shortlist_pool,mp-aaacrhsx,SrPPt,P:0.333;Pt:0.333;Sr:0.333,0.383,168.6,0.66,0.193,3,,,,,0.0,,no,244,0.775,5.57
+shortlist 3 pool,shortlist_pool,mp-aaacpops,TiAlIr2,Al:0.250;Ir:0.500;Ti:0.250,0.39,151.4,0.65,0.365,4,high spread,,,,0.0,,no,168,0.816,3.07
+shortlist 3 pool,shortlist_pool,mp-aaacixbr,K(FeS)2,Fe:0.400;K:0.200;S:0.400,0.348,241.3,0.65,0.242,5,,,,,0.0,,yes,216,0.79,7.99
+shortlist 3 pool,shortlist_pool,mp-aaacdord,NaIn3,In:0.750;Na:0.250,0.42,112.1,0.65,0.269,4,,,,,0.0,,no,282,0.749,2.9
+shortlist 3 pool,shortlist_pool,mp-aaacreiu,YZnSi,Si:0.333;Y:0.333;Zn:0.333,0.39,185.0,0.65,0.105,3,,0.31,calculated,valid,0.0,,no,446,0.565,2.53
+shortlist 3 pool,shortlist_pool,mp-aaabxfnh,MnGaRh2,Ga:0.250;Mn:0.250;Rh:0.500,0.368,176.2,0.64,0.406,4,high spread,,,,0.0,,no,213,0.793,1.83
+shortlist 3 pool,shortlist_pool,mp-aaacdpyt,MgMnRh2,Mg:0.250;Mn:0.250;Rh:0.500,0.356,185.7,0.64,0.294,4,,,,,0.0,,no,331,0.7,2.65
+shortlist 3 pool,shortlist_pool,mp-aaabxhgf,HfZnAu2,Au:0.500;Hf:0.250;Zn:0.250,0.416,104.7,0.63,0.112,4,,,,,0.0,,no,243,0.776,1.66
+shortlist 3 pool,shortlist_pool,mp-aaabxbdf,Ti2MnFe,Fe:0.250;Mn:0.250;Ti:0.500,0.327,267.3,0.62,0.2,4,,,,,0.0,,no,414,0.624,2.87
+shortlist 3 pool,shortlist_pool,mp-aaabxjxv,LiVIr2,Ir:0.500;Li:0.250;V:0.250,0.344,208.3,0.61,0.283,4,,,,,0.0,,no,18,0.912,3.07
+shortlist 3 pool,shortlist_pool,mp-aaacdqbv,ZrInRh2,In:0.250;Rh:0.500;Zr:0.250,0.426,121.4,0.61,0.05,4,,0.0,calculated,fit,0.0,,no,140,0.84,2.26
+shortlist 3 pool,shortlist_pool,mp-aaabxbsa,Sc2NiPt,Ni:0.250;Pt:0.250;Sc:0.500,0.402,125.7,0.61,0.169,4,,0.58,calculated,valid,0.0,,no,252,0.767,1.56
+shortlist 3 pool,shortlist_pool,mp-aaabxixu,LiZn2Pd,Li:0.250;Pd:0.250;Zn:0.500,0.412,124.4,0.61,0.082,4,,0.58,calculated,fit,0.0,,no,408,0.631,1.96
+shortlist 3 pool,shortlist_pool,mp-aaabxfcn,NbGeRu2,Ge:0.250;Nb:0.250;Ru:0.500,0.34,185.6,0.6,0.236,4,,,imaginary mode,fit,0.0,,no,156,0.83,3.66
+shortlist 3 pool,shortlist_pool,mp-aaabxgtm,CrPd3,Cr:0.250;Pd:0.750,0.357,191.8,0.6,0.251,4,,,,,0.0,,no,552,0.274,0.54
+shortlist 3 pool,shortlist_pool,mp-aaacpnox,Ta2NbRe,Nb:0.250;Re:0.250;Ta:0.500,0.369,193.6,0.59,0.079,4,,0.12,calculated,fit,0.0,,no,113,0.85,4.01
+shortlist 3 pool,shortlist_pool,mp-aaacpmjw,MgScAu2,Au:0.500;Mg:0.250;Sc:0.250,0.417,101.9,0.59,0.034,4,,0.47,calculated,fit,0.0,,no,204,0.798,3.42
+shortlist 3 pool,shortlist_pool,mp-aaabxgjr,TiMn2Al,Al:0.250;Mn:0.500;Ti:0.250,0.347,253.1,0.59,0.201,4,,,,,0.0,,no,497,0.459,2.12
+shortlist 3 pool,shortlist_pool,mp-aaabxgck,Zn3Rh,Rh:0.250;Zn:0.750,0.39,144.6,0.59,0.118,4,,0.27,calculated,fit,0.0,,no,509,0.44,0.6
+shortlist 3 pool,shortlist_pool,mp-aaabxglt,VGeRu2,Ge:0.250;Ru:0.500;V:0.250,0.344,219.1,0.58,0.354,4,high spread,,,,0.0,,no,97,0.857,4.11
+shortlist 3 pool,shortlist_pool,mp-aaabxgit,VSiRu2,Ru:0.500;Si:0.250;V:0.250,0.347,244.5,0.57,0.254,4,,,,,0.0,,no,90,0.859,4.48
+shortlist 3 pool,shortlist_pool,mp-aaabxapn,Ti2AlMo,Al:0.250;Mo:0.250;Ti:0.500,0.347,249.1,0.57,0.062,4,,1.88,calculated,fit,0.0,,no,142,0.838,5.56
+shortlist 3 pool,shortlist_pool,mp-aaabxjuw,ScMnRh2,Mn:0.250;Rh:0.500;Sc:0.250,0.332,201.8,0.57,0.32,4,,,,,0.0,,no,270,0.757,2.45
+shortlist 3 pool,shortlist_pool,mp-aaabxgma,Y2ZnRu,Ru:0.250;Y:0.500;Zn:0.250,0.392,132.7,0.57,0.102,4,,0.52,calculated,fit,0.0,,no,373,0.658,2.34
+shortlist 3 pool,shortlist_pool,mp-aaacplwv,MgZn2Ir,Ir:0.250;Mg:0.250;Zn:0.500,0.398,110.8,0.56,0.22,4,,,,,0.0,,no,116,0.85,1.49
+shortlist 3 pool,shortlist_pool,mp-aaabxazh,LiGeAu2,Au:0.500;Ge:0.250;Li:0.250,0.407,116.9,0.56,0.212,4,,,,,0.0,,no,196,0.8,3.67
+shortlist 3 pool,shortlist_pool,mp-aaabxfhv,HfZnNi2,Hf:0.250;Ni:0.500;Zn:0.250,0.396,126.4,0.55,0.065,4,,,,,0.0,,no,259,0.763,1.56
+shortlist 3 pool,shortlist_pool,mp-aaabxglz,Ti2NiMo,Mo:0.250;Ni:0.250;Ti:0.500,0.335,249.4,0.54,0.078,4,,2.56,calculated,fit,0.0,,no,317,0.713,2.74
+shortlist 3 pool,shortlist_pool,mp-aaabxfme,MgZrAu2,Au:0.500;Mg:0.250;Zr:0.250,0.395,110.1,0.53,0.185,4,,,flagged,fit,0.0,,no,291,0.739,2.91
+shortlist 3 pool,shortlist_pool,mp-aaabxjwy,AlGeRu2,Al:0.250;Ge:0.250;Ru:0.500,0.36,199.7,0.53,0.143,4,,1.64,calculated,fit,0.0,,no,345,0.686,2.29
+shortlist 3 pool,shortlist_pool,mp-aaabxfkz,ZrZn3,Zn:0.750;Zr:0.250,0.408,131.9,0.53,0.112,8,,,imaginary mode,fit,0.0,,no,533,0.36,1.37
+shortlist 3 pool,shortlist_pool,mp-aaacridg,SrIn3Au,Au:0.200;In:0.600;Sr:0.200,0.403,102.9,0.52,0.075,5,,,,,0.0,,no,41,0.89,2.9
+shortlist 3 pool,shortlist_pool,mp-aaacfrht,VS2,S:0.667;V:0.333,0.332,258.4,0.52,0.435,6,high spread,,,,0.0,,no,346,0.685,3.81
+shortlist 3 pool,shortlist_pool,mp-aaacrwej,BaSiAu,Au:0.333;Ba:0.333;Si:0.333,0.389,135.4,0.52,0.168,3,,,,,0.0,,no,377,0.654,3.78
+shortlist 3 pool,shortlist_pool,mp-aaacgiqk,ScGa5Co,Co:0.143;Ga:0.714;Sc:0.143,0.369,170.5,0.51,0.11,7,,,,,0.0,,no,224,0.784,3.85
+shortlist 3 pool,shortlist_pool,mp-aaabxfpz,HfGaRh2,Ga:0.250;Hf:0.250;Rh:0.500,0.374,129.6,0.5,0.164,4,,0.0,calculated,fit,0.0,,no,149,0.833,2.03
+shortlist 3 pool,shortlist_pool,mp-aaacrbvr,CaBiPd,Bi:0.333;Ca:0.333;Pd:0.333,0.36,109.2,0.5,0.117,12,,,,,0.0,,no,274,0.754,2.8
+shortlist 3 pool,shortlist_pool,mp-aaacdqcn,LiTaIr2,Ir:0.500;Li:0.250;Ta:0.250,0.328,159.8,0.49,0.412,4,high spread,,,,0.0,,no,50,0.884,2.83
+shortlist 3 pool,shortlist_pool,mp-aaacqrhq,Rb(PRu)2,P:0.400;Rb:0.200;Ru:0.400,0.342,216.6,0.49,0.232,5,,,,,0.0,,no,352,0.683,4.69
+shortlist 3 pool,shortlist_pool,mp-aaabxfsh,TiZnPd2,Pd:0.500;Ti:0.250;Zn:0.250,0.37,149.2,0.48,0.161,4,,0.0,calculated,fit,0.0,,no,442,0.574,2.12
+shortlist 3 pool,shortlist_pool,mp-aaabxfgc,LiMg2Zn,Li:0.250;Mg:0.500;Zn:0.250,0.356,178.4,0.48,0.053,4,,0.0,calculated,test,0.0,,no,514,0.429,1.76
+shortlist 3 pool,shortlist_pool,mp-aaabxfcp,HfAlRh2,Al:0.250;Hf:0.250;Rh:0.500,0.39,124.7,0.47,0.083,4,,0.0,calculated,fit,0.0,,no,220,0.786,2.28
+shortlist 3 pool,shortlist_pool,mp-aaacrgyn,TePtPb,Pb:0.333;Pt:0.333;Te:0.333,0.395,104.0,0.46,0.177,12,,,,,0.0,,no,72,0.872,1.31
+shortlist 3 pool,shortlist_pool,mp-aaacplwz,MgZrPt2,Mg:0.250;Pt:0.500;Zr:0.250,0.387,120.8,0.46,0.121,4,,,,,0.0,,no,340,0.693,2.42
+shortlist 3 pool,shortlist_pool,mp-aaacrhlb,SrZnGe,Ge:0.333;Sr:0.333;Zn:0.333,0.38,128.9,0.46,0.14,3,,,,,0.0,,no,434,0.596,2.04
+shortlist 3 pool,shortlist_pool,mp-aaabxbqv,Sc2InAg,Ag:0.250;In:0.250;Sc:0.500,0.396,105.6,0.46,0.067,4,,,,,0.0,,no,494,0.465,2.19
+shortlist 3 pool,shortlist_pool,mp-aaacqxbl,Li2Al,Al:0.333;Li:0.667,0.35,274.4,0.46,0.093,6,,1.63,calculated,fit,0.0,,no,501,0.451,8.95
+shortlist 3 pool,shortlist_pool,mp-aaabxfom,MnAlRu2,Al:0.250;Mn:0.250;Ru:0.500,0.314,255.9,0.45,0.4,4,high spread,,,,0.0,,no,309,0.72,2.2
+shortlist 3 pool,shortlist_pool,mp-aaabxfsq,MnGaIr2,Ga:0.250;Ir:0.500;Mn:0.250,0.349,161.0,0.44,0.343,4,high spread,,,,0.0,,no,242,0.776,1.95
+shortlist 3 pool,shortlist_pool,mp-aaabxfnp,MnSbRu2,Mn:0.250;Ru:0.500;Sb:0.250,0.338,183.3,0.44,0.221,4,,,,,0.0,,no,392,0.642,2.52
+shortlist 3 pool,shortlist_pool,mp-aaacdqdb,MgSbRu2,Mg:0.250;Ru:0.500;Sb:0.250,0.36,163.7,0.44,0.355,4,high spread,0.0,calculated,test,0.0,,no,402,0.634,4.05
+shortlist 3 pool,shortlist_pool,mp-aaabxfpv,MnSiRh2,Mn:0.250;Rh:0.500;Si:0.250,0.333,191.8,0.44,0.356,4,high spread,,,,0.0,,no,420,0.618,2.16
+shortlist 3 pool,shortlist_pool,mp-aaacqqjy,YIn5Rh,In:0.714;Rh:0.143;Y:0.143,0.384,125.8,0.43,0.119,7,,,,,0.0,,no,21,0.907,3.09
+shortlist 3 pool,shortlist_pool,mp-aaabxhdh,Ga2IrRu,Ga:0.500;Ir:0.250;Ru:0.250,0.339,157.4,0.43,0.198,4,,,,,0.0,,no,176,0.813,2.65
+shortlist 3 pool,shortlist_pool,mp-aaabxfoa,MnInRh2,In:0.250;Mn:0.250;Rh:0.500,0.335,163.4,0.43,0.351,4,high spread,,,,0.0,,no,279,0.751,1.84
+shortlist 3 pool,shortlist_pool,mp-aaacpphg,ZnGeRh2,Ge:0.250;Rh:0.500;Zn:0.250,0.363,153.2,0.43,0.077,4,,0.72,calculated,fit,0.0,,no,314,0.718,1.79
+shortlist 3 pool,shortlist_pool,mp-aaackqjs,ZrZnPd2,Pd:0.500;Zn:0.250;Zr:0.250,0.368,127.3,0.43,0.378,4,high spread,0.08,calculated,test,0.0,,no,378,0.654,2.61
+shortlist 3 pool,shortlist_pool,mp-aaaaaqon,VAuS2,Au:0.250;S:0.500;V:0.250,0.322,191.4,0.42,0.332,8,high spread,,,,0.0,,yes,33,0.893,4.2
+shortlist 3 pool,shortlist_pool,mp-aaabxbaf,LiBiPd2,Bi:0.250;Li:0.250;Pd:0.500,0.367,104.3,0.42,0.275,4,,,,,0.0,,no,362,0.669,4.13
+shortlist 3 pool,shortlist_pool,mp-aaabxggm,TiGaRu2,Ga:0.250;Ru:0.500;Ti:0.250,0.344,230.2,0.41,0.136,4,,0.07,calculated,fit,0.0,,no,30,0.895,3.57
+shortlist 3 pool,shortlist_pool,mp-aaacgiut,ZrGa5Co,Co:0.143;Ga:0.714;Zr:0.143,0.357,167.3,0.41,0.159,7,,,,,0.0,,no,39,0.89,4.29
+shortlist 3 pool,shortlist_pool,mp-aaabxixv,LiZn2Pt,Li:0.250;Pt:0.250;Zn:0.500,0.386,116.8,0.41,0.052,4,,0.35,calculated,fit,0.0,,no,307,0.722,2.53
+shortlist 3 pool,shortlist_pool,mp-aaacqrke,Ba(ZnGe)2,Ba:0.200;Ge:0.400;Zn:0.400,0.358,143.8,0.41,0.124,5,,,,,0.0,,no,336,0.697,1.87
+shortlist 3 pool,shortlist_pool,mp-aaaempiv,BPt2,B:0.333;Pt:0.667,0.333,146.3,0.41,0.198,6,,,imaginary mode,fit,0.0,,no,524,0.396,1.36
+shortlist 3 pool,shortlist_pool,mp-aaabxcgs,SrNiSn2,Ni:0.250;Sn:0.500;Sr:0.250,0.369,126.4,0.4,0.234,8,,,,,0.0,,no,84,0.861,3.08
+shortlist 3 pool,shortlist_pool,mp-aaacqrnr,Cs(PRu)2,Cs:0.200;P:0.400;Ru:0.400,0.316,186.2,0.4,0.299,5,,,,,0.0,,no,293,0.737,4.43
+shortlist 3 pool,shortlist_pool,mp-aaabxfrd,HfMgPd2,Hf:0.250;Mg:0.250;Pd:0.500,0.392,115.9,0.4,0.183,4,,,,,0.0,,no,327,0.703,3.05
+shortlist 3 pool,shortlist_pool,mp-aaabxfmu,MnGeRu2,Ge:0.250;Mn:0.250;Ru:0.500,0.328,207.7,0.4,0.316,4,,,,,0.0,,no,334,0.698,2.4
+shortlist 3 pool,shortlist_pool,mp-aaabxjse,Al3Cr,Al:0.750;Cr:0.250,0.298,269.7,0.4,0.283,4,,,,,0.0,,no,547,0.291,1.65
+shortlist 3 pool,shortlist_pool,mp-aaacgion,HfGa5Co,Co:0.143;Ga:0.714;Hf:0.143,0.354,165.5,0.39,0.143,7,,,,,0.0,,no,155,0.83,4.32
+shortlist 3 pool,shortlist_pool,mp-aaacjaxk,Hf2Bi,Bi:0.333;Hf:0.667,0.366,118.0,0.39,0.128,6,,,imaginary mode,fit,0.0,,yes,372,0.659,1.92
+shortlist 3 pool,shortlist_pool,mp-aaabxfkt,MgSnPd2,Mg:0.250;Pd:0.500;Sn:0.250,0.387,121.2,0.38,0.025,4,,0.43,calculated,fit,0.0,,no,376,0.656,1.82
+shortlist 3 pool,shortlist_pool,mp-aaacqrgd,ZnIr,Ir:0.500;Zn:0.500,0.363,145.7,0.38,0.226,2,,,,,0.0,,no,412,0.625,0.85
+shortlist 3 pool,shortlist_pool,mp-aaabxfwh,MgGaAg2,Ag:0.500;Ga:0.250;Mg:0.250,0.375,114.0,0.38,0.116,4,,,,,0.0,,no,443,0.572,1.54
+shortlist 3 pool,shortlist_pool,mp-aaabxfjc,NbZnRu2,Nb:0.250;Ru:0.500;Zn:0.250,0.346,195.3,0.37,0.067,4,,0.51,calculated,fit,0.0,,no,15,0.921,2.74
+shortlist 3 pool,shortlist_pool,mp-aaabxcjf,LiScAu2,Au:0.500;Li:0.250;Sc:0.250,0.363,122.8,0.37,0.151,4,,,,,0.0,,no,286,0.747,4.7
+shortlist 3 pool,shortlist_pool,mp-aaabxfvm,MgGeRh2,Ge:0.250;Mg:0.250;Rh:0.500,0.364,139.0,0.37,0.114,4,,0.01,calculated,fit,0.0,,no,328,0.703,2.84
+shortlist 3 pool,shortlist_pool,mp-aaacppln,ZrScCo2,Co:0.500;Sc:0.250;Zr:0.250,0.307,175.0,0.37,0.065,4,,,,,0.0,,no,417,0.621,1.36
+shortlist 3 pool,shortlist_pool,mp-aaacpphv,ZnGaNi2,Ga:0.250;Ni:0.500;Zn:0.250,0.352,143.5,0.36,0.111,4,,0.01,calculated,test,0.0,,no,548,0.288,1.37
+shortlist 3 pool,shortlist_pool,mp-aaacfirk,HfPd,Hf:0.500;Pd:0.500,0.372,121.6,0.36,0.115,4,,,,,0.0,,yes,558,0.226,1.63
+shortlist 3 pool,shortlist_pool,mp-aaacdqcp,LiNbIr2,Ir:0.500;Li:0.250;Nb:0.250,0.3,175.6,0.35,0.407,4,high spread,,,,0.0,,no,19,0.909,3.46
+shortlist 3 pool,shortlist_pool,mp-aaacrwne,BaGeAu3,Au:0.600;Ba:0.200;Ge:0.200,0.377,100.9,0.35,0.283,5,,,,,0.0,,no,230,0.782,2.36
+shortlist 3 pool,shortlist_pool,mp-aaabxgqq,Ti2MnNi,Mn:0.250;Ni:0.250;Ti:0.500,0.309,243.1,0.35,0.058,4,,0.05,calculated,fit,0.0,,no,262,0.762,2.01
+shortlist 3 pool,shortlist_pool,mp-aaabxbbg,LiZnAu2,Au:0.500;Li:0.250;Zn:0.250,0.352,125.4,0.35,0.15,4,,,imaginary mode,fit,0.0,,no,381,0.651,1.73
+shortlist 3 pool,shortlist_pool,mp-aaabxfvp,HfScCo2,Co:0.500;Hf:0.250;Sc:0.250,0.305,166.7,0.34,0.092,4,,,,,0.0,,no,321,0.709,1.66
+shortlist 3 pool,shortlist_pool,mp-aaabxhah,LiGaAg2,Ag:0.500;Ga:0.250;Li:0.250,0.349,130.3,0.34,0.134,4,,0.16,calculated,test,0.0,,no,353,0.682,1.98
+shortlist 3 pool,shortlist_pool,mp-aaacqznb,HfBi,Bi:0.500;Hf:0.500,0.363,109.2,0.34,0.125,12,,,,,0.0,,no,370,0.662,2.24
+shortlist 3 pool,shortlist_pool,mp-aaacpkia,HfZnPd2,Hf:0.250;Pd:0.500;Zn:0.250,0.36,119.6,0.33,0.045,4,,0.01,calculated,fit,0.0,,no,187,0.804,2.16
+shortlist 3 pool,shortlist_pool,mp-aaabxfmg,MgZnAu2,Au:0.500;Mg:0.250;Zn:0.250,0.368,107.7,0.33,0.18,4,,,flagged,fit,0.0,,no,444,0.57,1.03
+shortlist 3 pool,shortlist_pool,mp-aaacfkyg,MnTe,Mn:0.500;Te:0.500,0.354,117.0,0.33,0.273,2,,,,,0.0,,yes,555,0.261,3.04
+shortlist 3 pool,shortlist_pool,mp-aaabxgjx,TiMnCo2,Co:0.500;Mn:0.250;Ti:0.250,0.277,268.9,0.33,0.345,4,high spread,,,,0.0,,no,562,0.206,2.58
+shortlist 3 pool,shortlist_pool,mp-aaabxhit,Ti2ZnRe,Re:0.250;Ti:0.500;Zn:0.250,0.335,218.4,0.32,0.099,4,,0.44,calculated,test,0.0,,no,32,0.894,2.49
+shortlist 3 pool,shortlist_pool,mp-aaabxfru,HfInRh2,Hf:0.250;In:0.250;Rh:0.500,0.358,123.1,0.32,0.046,4,,0.29,calculated,fit,0.0,,no,164,0.821,1.95
+shortlist 3 pool,shortlist_pool,mp-aaabxhhr,TiAlRu2,Al:0.250;Ru:0.500;Ti:0.250,0.332,255.6,0.32,0.091,4,,0.92,calculated,fit,0.0,,no,205,0.798,3.16
+shortlist 3 pool,shortlist_pool,mp-aaabxjrs,ScZnPt2,Pt:0.500;Sc:0.250;Zn:0.250,0.35,115.2,0.32,0.174,4,,,,,0.0,,no,343,0.69,2.01
+shortlist 3 pool,shortlist_pool,mp-aaabxgxo,Li2CaPb,Ca:0.250;Li:0.500;Pb:0.250,0.343,138.6,0.32,0.171,4,,0.0,calculated,valid,0.0,,no,466,0.542,5.48
+shortlist 3 pool,shortlist_pool,mp-aaabxgjb,YMgZn2,Mg:0.250;Y:0.250;Zn:0.500,0.35,143.6,0.32,0.137,4,,0.03,calculated,test,0.0,,no,471,0.534,1.76
+shortlist 3 pool,shortlist_pool,mp-aaabxgjy,Ti2RePd,Pd:0.250;Re:0.250;Ti:0.500,0.313,204.3,0.31,0.106,4,,0.35,calculated,fit,0.0,,no,66,0.877,2.27
+shortlist 3 pool,shortlist_pool,mp-aaacpmll,MnZnPd2,Mn:0.250;Pd:0.500;Zn:0.250,0.305,154.1,0.31,0.244,4,,,,,0.0,,no,489,0.479,0.99
+shortlist 3 pool,shortlist_pool,mp-aaacpmlp,MnZnNi2,Mn:0.250;Ni:0.500;Zn:0.250,0.311,196.3,0.31,0.154,4,,,,,0.0,,no,570,0.116,1.09
+shortlist 3 pool,shortlist_pool,mp-aaabxfyg,TaZnRu2,Ru:0.500;Ta:0.250;Zn:0.250,0.341,187.8,0.3,0.057,4,,0.34,calculated,fit,0.0,,no,24,0.9,2.86
+shortlist 3 pool,shortlist_pool,mp-aaacdpxz,ZrGeRu2,Ge:0.250;Ru:0.500;Zr:0.250,0.311,182.1,0.3,0.26,4,,,,,0.0,,no,73,0.871,3.67
+shortlist 3 pool,shortlist_pool,mp-aaabxfni,MnAlIr2,Al:0.250;Ir:0.500;Mn:0.250,0.3,180.4,0.3,0.264,4,,,,,0.0,,no,159,0.827,2.24
+shortlist 3 pool,shortlist_pool,mp-aaabxbaa,LiGaAu2,Au:0.500;Ga:0.250;Li:0.250,0.362,122.2,0.3,0.108,4,,,imaginary mode,fit,0.0,,no,217,0.789,3.01
+shortlist 3 pool,shortlist_pool,mp-aaacdyil,HfMgAu2,Au:0.500;Hf:0.250;Mg:0.250,0.374,100.8,0.3,0.107,4,,,,,0.0,,no,316,0.716,2.56
+shortlist 3 pool,shortlist_pool,mp-aaaaatlh,Hf2CS,C:0.250;Hf:0.500;S:0.250,0.263,283.2,0.29,0.175,8,,,,,0.0,,yes,7,0.934,6.01
+shortlist 3 pool,shortlist_pool,mp-aaabxgqo,LiSnAu2,Au:0.500;Li:0.250;Sn:0.250,0.357,108.5,0.29,0.135,4,,,,,0.0,,no,264,0.76,3.68
+shortlist 3 pool,shortlist_pool,mp-aaacpmln,MnZnAu2,Au:0.500;Mn:0.250;Zn:0.250,0.336,122.2,0.29,0.118,4,,,,,0.0,,no,397,0.64,1.23
+shortlist 3 pool,shortlist_pool,mp-aaabxgpi,TiMn2V,Mn:0.500;Ti:0.250;V:0.250,0.304,293.0,0.29,0.08,4,,0.1,calculated,fit,0.0,,no,499,0.453,2.65
+shortlist 3 pool,shortlist_pool,mp-aaacpigg,AlFe3,Al:0.250;Fe:0.750,0.269,328.2,0.29,0.212,4,,,,,0.0,,no,571,0.083,3.1
+shortlist 3 pool,shortlist_pool,mp-aaacpled,KBr3,Br:0.750;K:0.250,0.323,118.3,0.28,0.206,8,,,,,0.0,,no,308,0.721,6.57
+shortlist 3 pool,shortlist_pool,mp-aaabxfwr,Co3Pt,Co:0.750;Pt:0.250,0.301,245.2,0.28,0.109,8,,,,,0.0,,no,550,0.278,0.97
+shortlist 3 pool,shortlist_pool,mp-aaabxazb,LiHf2Re,Hf:0.500;Li:0.250;Re:0.250,0.333,150.3,0.27,0.159,4,,0.42,calculated,test,0.0,,no,87,0.86,3.31
+shortlist 3 pool,shortlist_pool,mp-aaabxcfl,LiAlAu2,Al:0.250;Au:0.500;Li:0.250,0.337,139.8,0.27,0.103,4,,0.33,calculated,valid,0.0,,no,145,0.836,2.81
+shortlist 3 pool,shortlist_pool,mp-aaacdmxv,RbBr3,Br:0.750;Rb:0.250,0.324,114.3,0.27,0.069,4,,,,,0.0,,no,221,0.785,7.06
+shortlist 3 pool,shortlist_pool,mp-aaabxixd,Sc2ZnIr,Ir:0.250;Sc:0.500;Zn:0.250,0.342,155.1,0.27,0.043,4,,0.18,calculated,fit,0.0,,no,287,0.747,2.29
+shortlist 3 pool,shortlist_pool,mp-aaabxgoi,TiMn2Si,Mn:0.500;Si:0.250;Ti:0.250,0.306,296.8,0.27,0.22,4,,,,,0.0,,no,516,0.426,4.01
+shortlist 3 pool,shortlist_pool,mp-aaacfyzu,HfVGe,Ge:0.333;Hf:0.333;V:0.333,0.315,199.4,0.26,0.125,6,,,,,0.0,,yes,235,0.781,3.22
+shortlist 3 pool,shortlist_pool,mp-aaabxgif,VI3,I:0.750;V:0.250,0.272,130.0,0.26,0.166,8,rare element,,,,0.0,,no,350,0.684,2.74
+shortlist 3 pool,shortlist_pool,mp-aaabxiuw,SrLi2Pb,Li:0.500;Pb:0.250;Sr:0.250,0.342,120.9,0.25,0.055,4,,,,,0.0,,no,462,0.548,5.47
+shortlist 3 pool,shortlist_pool,mp-aaacqrrx,Cs(FeP)2,Cs:0.200;Fe:0.400;P:0.400,0.297,233.5,0.24,0.147,5,,,imaginary mode,fit,0.0,,no,96,0.857,6.31
+shortlist 3 pool,shortlist_pool,mp-aaabxgud,Ti2MoPt,Mo:0.250;Pt:0.250;Ti:0.500,0.28,230.4,0.24,0.072,4,,1.66,calculated,fit,0.0,,no,100,0.857,2.59
+shortlist 3 pool,shortlist_pool,mp-aaabxgrv,Ga2IrRh,Ga:0.500;Ir:0.250;Rh:0.250,0.308,140.2,0.24,0.188,4,,,,,0.0,,no,139,0.84,2.33
+shortlist 3 pool,shortlist_pool,mp-aaabxhdd,GaNiRh2,Ga:0.250;Ni:0.250;Rh:0.500,0.322,152.1,0.24,0.094,4,,0.13,calculated,fit,0.0,,no,240,0.778,1.64
+shortlist 3 pool,shortlist_pool,mp-aaacrvec,CaSiAu,Au:0.333;Ca:0.333;Si:0.333,0.297,171.9,0.23,0.117,3,,,,,0.0,,no,198,0.8,2.85
+shortlist 3 pool,shortlist_pool,mp-aaabxgld,Ti2MnIr,Ir:0.250;Mn:0.250;Ti:0.500,0.275,264.0,0.23,0.318,4,,,,,0.0,,no,260,0.762,2.99
+shortlist 3 pool,shortlist_pool,mp-aaabxcfk,LiAg3,Ag:0.750;Li:0.250,0.266,154.5,0.23,0.322,4,,,,,0.0,,no,531,0.361,0.72
+shortlist 3 pool,shortlist_pool,mp-aaabxglu,VGaRu2,Ga:0.250;Ru:0.500;V:0.250,0.296,243.3,0.22,0.141,4,,0.12,calculated,fit,0.0,,no,9,0.929,4.03
+shortlist 3 pool,shortlist_pool,mp-aaabxgzs,Ti2ReRh,Re:0.250;Rh:0.250;Ti:0.500,0.271,234.4,0.22,0.343,4,high spread,0.0,calculated,test,0.0,,no,190,0.802,2.88
+shortlist 3 pool,shortlist_pool,mp-aaacpmjx,MgScZn2,Mg:0.250;Sc:0.250;Zn:0.500,0.338,153.4,0.22,0.061,4,,0.27,calculated,valid,0.0,,no,472,0.522,2.44
+shortlist 3 pool,shortlist_pool,mp-aaabxgcx,Zn3Pt,Pt:0.250;Zn:0.750,0.337,132.3,0.22,0.1,4,,,,,0.0,,no,495,0.465,0.87
+shortlist 3 pool,shortlist_pool,mp-aaacqquz,Rb(PIr)2,Ir:0.400;P:0.400;Rb:0.200,0.328,181.8,0.21,0.117,5,,,,,0.0,,no,133,0.842,3.26
+shortlist 3 pool,shortlist_pool,mp-aaacpnot,Ta2MoW,Mo:0.250;Ta:0.500;W:0.250,0.315,200.0,0.21,0.019,4,,0.21,calculated,fit,0.0,,no,227,0.784,1.9
+shortlist 3 pool,shortlist_pool,mp-aaacqpra,YMgAu,Au:0.333;Mg:0.333;Y:0.333,0.338,121.5,0.21,0.058,9,,,,,0.0,,no,248,0.774,2.05
+shortlist 3 pool,shortlist_pool,mp-aaabxitj,ScZnPd2,Pd:0.500;Sc:0.250;Zn:0.250,0.316,129.0,0.21,0.174,4,,0.0,calculated,fit,0.0,,no,437,0.593,2.24
+shortlist 3 pool,shortlist_pool,mp-aaabxbda,Hf2ReIr,Hf:0.500;Ir:0.250;Re:0.250,0.292,168.2,0.21,0.14,4,,,,,0.0,,no,467,0.54,2.06
+shortlist 3 pool,shortlist_pool,mp-aaabxhce,Hf2ZnRe,Hf:0.500;Re:0.250;Zn:0.250,0.337,142.6,0.2,0.079,4,,0.24,calculated,fit,0.0,,no,16,0.914,2.14
+shortlist 3 pool,shortlist_pool,mp-aaacgjbc,BaIn2Pd,Ba:0.250;In:0.500;Pd:0.250,0.337,104.2,0.2,0.078,8,,,,,0.0,,no,31,0.895,3.2
+shortlist 3 pool,shortlist_pool,mp-aaabxgtv,LiSc2Ru,Li:0.250;Ru:0.250;Sc:0.500,0.317,201.2,0.2,0.058,4,,0.0,calculated,test,0.0,,no,375,0.656,3.53
+shortlist 3 pool,shortlist_pool,mp-aaabxapp,LiMnPd2,Li:0.250;Mn:0.250;Pd:0.500,0.283,171.8,0.2,0.092,4,,,,,0.0,,no,418,0.619,2.41
+shortlist 3 pool,shortlist_pool,mp-aaabxgnw,TiGeRu2,Ge:0.250;Ru:0.500;Ti:0.250,0.288,216.6,0.19,0.176,4,,,,,0.0,,no,136,0.84,3.44
+shortlist 3 pool,shortlist_pool,mp-aaacpmti,Nb2MoRu,Mo:0.250;Nb:0.500;Ru:0.250,0.308,250.9,0.19,0.075,4,,0.14,calculated,fit,0.0,,no,144,0.836,2.9
+shortlist 3 pool,shortlist_pool,mp-aaacdpxw,LiTiPt2,Li:0.250;Pt:0.500;Ti:0.250,0.285,144.7,0.19,0.143,4,,0.0,calculated,fit,0.0,,no,194,0.801,2.97
+shortlist 3 pool,shortlist_pool,mp-aaacpmuj,NbSnRu2,Nb:0.250;Ru:0.500;Sn:0.250,0.249,204.6,0.19,0.103,4,,,imaginary mode,valid,0.0,,no,209,0.795,3.51
+shortlist 3 pool,shortlist_pool,mp-aaacqqqj,K(FeP)2,Fe:0.400;K:0.200;P:0.400,0.271,273.7,0.19,0.164,5,,0.0,calculated,valid,0.0,,no,277,0.751,5.82
+shortlist 3 pool,shortlist_pool,mp-aaabxizf,LiInAu2,Au:0.500;In:0.250;Li:0.250,0.348,107.7,0.19,0.137,4,,,,,0.0,,no,278,0.751,2.8
+shortlist 3 pool,shortlist_pool,mp-aaacdput,CaSnAu2,Au:0.500;Ca:0.250;Sn:0.250,0.325,106.0,0.19,0.146,4,,,,,0.0,,no,280,0.75,2.66
+shortlist 3 pool,shortlist_pool,mp-aaabxfod,MnSnRu2,Mn:0.250;Ru:0.500;Sn:0.250,0.26,215.0,0.19,0.109,4,,,,,0.0,,no,356,0.678,2.57
+shortlist 3 pool,shortlist_pool,mp-aaabxdse,InPd2Au,Au:0.250;In:0.250;Pd:0.500,0.333,98.9,0.19,0.138,4,,,,,0.0,,no,383,0.65,1.06
+shortlist 3 pool,shortlist_pool,mp-aaabxbzf,LiY2Al,Al:0.250;Li:0.250;Y:0.500,0.319,182.7,0.19,0.027,4,,0.34,calculated,fit,0.0,,no,498,0.453,3.98
+shortlist 3 pool,shortlist_pool,mp-aaacqrfe,LiAu,Au:0.500;Li:0.500,0.276,152.4,0.19,0.184,2,,,flagged,fit,0.0,,no,518,0.424,4.31
+shortlist 3 pool,shortlist_pool,mp-aaabxaqa,Ti2AlRe,Al:0.250;Re:0.250;Ti:0.500,0.286,241.5,0.18,0.062,4,,0.19,calculated,valid,0.0,,no,58,0.88,3.91
+shortlist 3 pool,shortlist_pool,mp-aaabxgpl,TiSiRu2,Ru:0.500;Si:0.250;Ti:0.250,0.274,252.8,0.18,0.155,4,,,flagged,valid,0.0,,no,197,0.8,3.53
+shortlist 3 pool,shortlist_pool,mp-aaabxizk,Ga2RuRh,Ga:0.500;Rh:0.250;Ru:0.250,0.268,188.4,0.18,0.114,4,,0.0,calculated,test,0.0,,no,215,0.791,2.86
+shortlist 3 pool,shortlist_pool,mp-aaabxgja,YSnAu2,Au:0.500;Sn:0.250;Y:0.250,0.326,105.6,0.18,0.092,4,,,,,0.0,,no,229,0.783,2.29
+shortlist 3 pool,shortlist_pool,mp-aaacposh,TiZn3,Ti:0.250;Zn:0.750,0.314,188.9,0.18,0.047,8,,0.15,calculated,fit,0.0,,no,557,0.24,1.11
+shortlist 3 pool,shortlist_pool,mp-aaabxixx,LiZn2Ir,Ir:0.250;Li:0.250;Zn:0.500,0.299,131.6,0.17,0.19,4,,,,,0.0,,no,54,0.883,2.59
+shortlist 3 pool,shortlist_pool,mp-aaacqsbd,Cs(PIr)2,Cs:0.200;Ir:0.400;P:0.400,0.331,167.0,0.17,0.107,5,,,,,0.0,,no,107,0.854,3.28
+shortlist 3 pool,shortlist_pool,mp-aaacppag,VSnRu2,Ru:0.500;Sn:0.250;V:0.250,0.235,236.0,0.17,0.206,4,,,,,0.0,,no,152,0.831,4.1
+shortlist 3 pool,shortlist_pool,mp-aaacpkim,HfMgPt2,Hf:0.250;Mg:0.250;Pt:0.500,0.334,114.8,0.17,0.122,4,,,,,0.0,,no,354,0.68,2.2
+shortlist 3 pool,shortlist_pool,mp-aaabxchu,AlSiRu2,Al:0.250;Ru:0.500;Si:0.250,0.304,230.8,0.17,0.077,4,,0.06,calculated,fit,0.0,,no,403,0.632,2.49
+shortlist 3 pool,shortlist_pool,mp-aaabxbnx,Sc2ZnRu,Ru:0.250;Sc:0.500;Zn:0.250,0.322,182.0,0.17,0.086,4,,0.2,calculated,fit,0.0,,no,410,0.627,2.47
+shortlist 3 pool,shortlist_pool,mp-aaaceszv,NiAuO2,Au:0.250;Ni:0.250;O:0.500,0.285,218.0,0.17,0.223,8,,,,,0.0,,no,476,0.51,2.45
+shortlist 3 pool,shortlist_pool,mp-aaacdpxm,MgNbRu2,Mg:0.250;Nb:0.250;Ru:0.500,0.305,212.2,0.16,0.052,4,,0.02,calculated,fit,0.0,,no,22,0.901,3.74
+shortlist 3 pool,shortlist_pool,mp-aaacrihz,SrAl3Ag,Ag:0.200;Al:0.600;Sr:0.200,0.297,198.3,0.16,0.07,5,,0.14,calculated,fit,0.0,,no,44,0.889,2.16
+shortlist 3 pool,shortlist_pool,mp-aaacporn,TiRe2Mo,Mo:0.250;Re:0.500;Ti:0.250,0.271,252.5,0.16,0.033,4,,0.29,calculated,test,0.0,,no,69,0.874,4.36
+shortlist 3 pool,shortlist_pool,mp-aaabxfjg,Zn2RhAu,Au:0.250;Rh:0.250;Zn:0.500,0.339,99.9,0.16,0.068,4,,0.15,calculated,fit,0.0,,no,366,0.666,0.9
+shortlist 3 pool,shortlist_pool,mp-aaacqrny,K(PRu)2,K:0.200;P:0.400;Ru:0.400,0.282,216.0,0.16,0.154,5,,,,,0.0,,no,413,0.624,4.52
+shortlist 3 pool,shortlist_pool,mp-aaabxggi,LiSc2Pt,Li:0.250;Pt:0.250;Sc:0.500,0.295,166.0,0.15,0.081,4,,,,,0.0,,no,419,0.618,2.75
+shortlist 3 pool,shortlist_pool,mp-aaacppmi,ZrGaCo2,Co:0.500;Ga:0.250;Zr:0.250,0.261,172.3,0.15,0.117,4,,,,,0.0,,no,423,0.61,3.24
+shortlist 3 pool,shortlist_pool,mp-aaabxgrg,Ti2ReNi,Ni:0.250;Re:0.250;Ti:0.500,0.286,227.3,0.14,0.093,4,,0.03,calculated,fit,0.0,,no,191,0.802,2.62
+shortlist 3 pool,shortlist_pool,mp-aaabxhih,YMgAu2,Au:0.500;Mg:0.250;Y:0.250,0.335,102.7,0.14,0.047,4,,,flagged,fit,0.0,,no,288,0.746,3.43
+shortlist 3 pool,shortlist_pool,mp-aaacdpxa,LiMgAu2,Au:0.500;Li:0.250;Mg:0.250,0.292,129.3,0.14,0.108,4,,,,,0.0,,no,425,0.606,2.88
+shortlist 3 pool,shortlist_pool,mp-aaabxhaj,Li2CaSi,Ca:0.250;Li:0.500;Si:0.250,0.258,233.5,0.14,0.144,4,,,,,0.0,,no,483,0.491,7.18
+shortlist 3 pool,shortlist_pool,mp-aaabxgxm,Li2CaIn,Ca:0.250;In:0.250;Li:0.500,0.29,160.1,0.14,0.06,4,,,,,0.0,,no,513,0.433,5.14
+shortlist 3 pool,shortlist_pool,mp-aaacdpuv,ZnFeRh2,Fe:0.250;Rh:0.500;Zn:0.250,0.243,206.9,0.14,0.187,4,,,,,0.0,,no,527,0.385,2.62
+shortlist 3 pool,shortlist_pool,mp-aaaabtnt,MgPt3,Mg:0.250;Pt:0.750,0.292,151.3,0.14,0.045,4,,0.12,calculated,test,0.0,,no,539,0.331,0.97
+shortlist 3 pool,shortlist_pool,mp-aaabxfln,MgTaRu2,Mg:0.250;Ru:0.500;Ta:0.250,0.294,203.7,0.13,0.05,4,,0.09,calculated,fit,0.0,,no,28,0.896,4.06
+shortlist 3 pool,shortlist_pool,mp-aaacppmp,ZrGaRu2,Ga:0.250;Ru:0.500;Zr:0.250,0.298,199.0,0.13,0.074,4,,0.27,calculated,fit,0.0,,no,47,0.886,4.16
+shortlist 3 pool,shortlist_pool,mp-aaacpphh,ZnRu2W,Ru:0.500;W:0.250;Zn:0.250,0.286,207.2,0.13,0.069,4,,0.0,calculated,test,0.0,,no,76,0.867,2.43
+shortlist 3 pool,shortlist_pool,mp-aaacqrrl,Rb(PRh)2,P:0.400;Rb:0.200;Rh:0.400,0.301,204.9,0.13,0.108,5,,,,,0.0,,no,163,0.823,3.8
+shortlist 3 pool,shortlist_pool,mp-aaabxivu,LiGaPd2,Ga:0.250;Li:0.250;Pd:0.500,0.276,140.9,0.13,0.101,4,,0.0,calculated,test,0.0,,no,223,0.785,2.37
+shortlist 3 pool,shortlist_pool,mp-aaabxjtt,TaTiMn2,Mn:0.500;Ta:0.250;Ti:0.250,0.253,282.2,0.13,0.094,4,,0.01,calculated,valid,0.0,,no,289,0.745,3.49
+shortlist 3 pool,shortlist_pool,mp-aaabxfmd,MgTiRh2,Mg:0.250;Rh:0.500;Ti:0.250,0.252,175.0,0.13,0.096,4,,0.0,calculated,fit,0.0,,no,295,0.734,2.98
+shortlist 3 pool,shortlist_pool,mp-aaabxfvu,GaFeRh2,Fe:0.250;Ga:0.250;Rh:0.500,0.222,208.4,0.13,0.219,4,,,,,0.0,,no,315,0.717,3.68
+shortlist 3 pool,shortlist_pool,mp-aaabxfwl,MgFeRh2,Fe:0.250;Mg:0.250;Rh:0.500,0.243,219.0,0.13,0.216,4,,,,,0.0,,no,361,0.669,4.4
+shortlist 3 pool,shortlist_pool,mp-aaabxfvc,MgAlPd2,Al:0.250;Mg:0.250;Pd:0.500,0.31,147.3,0.13,0.026,4,,0.08,calculated,fit,0.0,,no,367,0.665,1.78
+shortlist 3 pool,shortlist_pool,mp-aaacdqcg,MgScAg2,Ag:0.500;Mg:0.250;Sc:0.250,0.31,127.2,0.13,0.039,4,,0.06,calculated,test,0.0,,no,398,0.639,2.75
+shortlist 3 pool,shortlist_pool,mp-aaabxapl,LiZnAg2,Ag:0.500;Li:0.250;Zn:0.250,0.281,140.2,0.13,0.096,4,,0.05,calculated,valid,0.0,,no,515,0.429,0.95
+shortlist 3 pool,shortlist_pool,mp-aaacpmlf,MnPd2Au,Au:0.250;Mn:0.250;Pd:0.500,0.263,140.4,0.13,0.127,4,,,,,0.0,,no,530,0.364,0.8
+shortlist 3 pool,shortlist_pool,mp-aaacqrxq,LiGaIr,Ga:0.333;Ir:0.333;Li:0.333,0.285,162.4,0.12,0.084,6,,,,,0.0,,no,35,0.892,4.42
+shortlist 3 pool,shortlist_pool,mp-aaabxjxw,ScGaRh2,Ga:0.250;Rh:0.500;Sc:0.250,0.231,179.0,0.12,0.051,4,,0.0,calculated,test,0.0,,no,80,0.864,2.85
+shortlist 3 pool,shortlist_pool,mp-aaabxcce,LiCa2Al,Al:0.250;Ca:0.500;Li:0.250,0.287,195.9,0.12,0.049,4,,0.09,calculated,fit,0.0,,no,490,0.478,4.02
+shortlist 3 pool,shortlist_pool,mp-aaabxhfw,HfZn3,Hf:0.250;Zn:0.750,0.317,138.7,0.12,0.066,8,,,,,0.0,,no,493,0.47,1.42
+shortlist 3 pool,shortlist_pool,mp-aaacdjfn,Sc2AlAg,Ag:0.250;Al:0.250;Sc:0.500,0.332,118.5,0.11,0.117,4,,,imaginary mode,fit,0.0,,no,479,0.504,2.75
+shortlist 3 pool,shortlist_pool,mp-aaabxgcz,Zn3Pd,Pd:0.250;Zn:0.750,0.316,138.6,0.11,0.059,4,,0.07,calculated,fit,0.0,,no,520,0.415,0.56
+shortlist 3 pool,shortlist_pool,mp-aaaaabvt,BaAg2,Ag:0.667;Ba:0.333,0.255,95.0,0.11,0.182,6,,,imaginary mode,fit,0.0,,no,564,0.199,1.66
+shortlist 3 pool,shortlist_pool,mp-aaacqqqf,Cs(PRh)2,Cs:0.200;P:0.400;Rh:0.400,0.3,191.5,0.1,0.14,5,,,,,0.0,,no,94,0.858,3.64
+shortlist 3 pool,shortlist_pool,mp-aaabxflt,HfAlRu2,Al:0.250;Hf:0.250;Ru:0.500,0.294,206.9,0.1,0.062,4,,0.24,calculated,test,0.0,,no,109,0.853,3.4
+shortlist 3 pool,shortlist_pool,mp-aaacgozk,Ca2CoN2,Ca:0.400;Co:0.200;N:0.400,0.211,272.7,0.1,0.138,5,,,,,0.0,,no,358,0.672,8.94
+shortlist 3 pool,shortlist_pool,mp-aaabxgxb,Li2AgAu,Ag:0.250;Au:0.250;Li:0.500,0.248,155.6,0.1,0.07,4,,0.12,calculated,test,0.0,,no,421,0.615,3.18
+shortlist 3 pool,shortlist_pool,mp-aaabxfqx,MgInPd2,In:0.250;Mg:0.250;Pd:0.500,0.313,115.9,0.1,0.04,4,,0.11,calculated,fit,0.0,,no,436,0.594,1.64
+shortlist 3 pool,shortlist_pool,mp-aaabxfnl,MnV2Cr,Cr:0.250;Mn:0.250;V:0.500,0.273,319.2,0.1,0.146,4,,0.08,calculated,fit,0.0,,no,510,0.439,1.47
+shortlist 3 pool,shortlist_pool,mp-aaabxjsf,TaGaRu2,Ga:0.250;Ru:0.500;Ta:0.250,0.235,209.0,0.09,0.165,4,,,flagged,fit,0.0,,no,49,0.885,3.62
+shortlist 3 pool,shortlist_pool,mp-aaabxjug,LiHfPt2,Hf:0.250;Li:0.250;Pt:0.500,0.255,117.6,0.09,0.049,4,,,,,0.0,,no,88,0.86,2.89
+shortlist 3 pool,shortlist_pool,mp-aaabxius,LiGaPt2,Ga:0.250;Li:0.250;Pt:0.500,0.292,109.4,0.09,0.025,4,,0.03,calculated,fit,0.0,,no,110,0.852,2.87
+shortlist 3 pool,shortlist_pool,mp-aaabxgxk,TiSnRu2,Ru:0.500;Sn:0.250;Ti:0.250,0.217,233.3,0.09,0.109,4,,,flagged,fit,0.0,,no,131,0.843,3.71
+shortlist 3 pool,shortlist_pool,mp-aaabxapc,LiSc2Ir,Ir:0.250;Li:0.250;Sc:0.500,0.281,194.9,0.09,0.033,4,,0.03,calculated,fit,0.0,,no,153,0.831,3.15
+shortlist 3 pool,shortlist_pool,mp-aaabxfyt,GaFeIr2,Fe:0.250;Ga:0.250;Ir:0.500,0.233,188.6,0.09,0.235,4,,,,,0.0,,no,234,0.781,3.88
+shortlist 3 pool,shortlist_pool,mp-aaabxgym,TiVRe2,Re:0.500;Ti:0.250;V:0.250,0.279,259.1,0.09,0.045,4,,0.02,calculated,fit,0.0,,no,275,0.753,4.86
+shortlist 3 pool,shortlist_pool,mp-aaacdqbz,MgZnRh2,Mg:0.250;Rh:0.500;Zn:0.250,0.28,147.2,0.09,0.046,4,,0.16,calculated,fit,0.0,,no,329,0.703,2.12
+shortlist 3 pool,shortlist_pool,mp-aaabxcdt,LiY2Ru,Li:0.250;Ru:0.250;Y:0.500,0.298,157.8,0.09,0.06,4,,0.09,calculated,fit,0.0,,no,482,0.501,3.36
+shortlist 3 pool,shortlist_pool,mp-aaacpmhg,MgMnPd2,Mg:0.250;Mn:0.250;Pd:0.500,0.269,160.3,0.09,0.079,4,,,,,0.0,,no,491,0.473,1.43
+shortlist 3 pool,shortlist_pool,mp-aaabxfsu,MgGaNi2,Ga:0.250;Mg:0.250;Ni:0.500,0.263,175.5,0.09,0.148,4,,0.05,calculated,test,0.0,,no,508,0.442,3.04
+shortlist 3 pool,shortlist_pool,mp-aaacqsbs,ZrIn,In:0.500;Zr:0.500,0.31,159.2,0.09,0.058,2,,0.09,calculated,fit,0.0,,no,528,0.384,2.41
+shortlist 3 pool,shortlist_pool,mp-aaabxiwh,LiCa2In,Ca:0.500;In:0.250;Li:0.250,0.301,126.6,0.09,0.024,4,,0.08,calculated,fit,0.0,,no,536,0.345,3.58
+shortlist 3 pool,shortlist_pool,mp-aaabxgki,TiInCo2,Co:0.500;In:0.250;Ti:0.250,0.201,209.7,0.09,0.118,4,,0.0,calculated,valid,0.0,,no,549,0.287,3.12
+shortlist 3 pool,shortlist_pool,mp-aaacpoys,VZnCo2,Co:0.500;V:0.250;Zn:0.250,0.229,275.5,0.09,0.125,4,,,,,0.0,,no,569,0.128,2.33
+shortlist 3 pool,shortlist_pool,mp-aaabxfpq,HfGaRu2,Ga:0.250;Hf:0.250;Ru:0.500,0.278,190.2,0.08,0.059,4,,0.04,calculated,fit,0.0,,no,55,0.882,3.64
+shortlist 3 pool,shortlist_pool,mp-aaabxhbt,AlVRu2,Al:0.250;Ru:0.500;V:0.250,0.255,284.0,0.08,0.074,4,,0.0,calculated,test,0.0,,no,117,0.848,3.84
+shortlist 3 pool,shortlist_pool,mp-aaabxjxu,LiInPd2,In:0.250;Li:0.250;Pd:0.500,0.234,130.7,0.08,0.051,4,,,flagged,fit,0.0,,no,241,0.776,2.34
+shortlist 3 pool,shortlist_pool,mp-aaacqrkv,Rb(CoP)2,Co:0.400;P:0.400;Rb:0.200,0.277,246.6,0.08,0.076,5,,,,,0.0,,no,394,0.64,3.42
+shortlist 3 pool,shortlist_pool,mp-aaabxfmf,MgZrIr2,Ir:0.500;Mg:0.250;Zr:0.250,0.263,136.9,0.07,0.182,4,,,,,0.0,,no,64,0.877,3.41
+shortlist 3 pool,shortlist_pool,mp-aaacdspv,V2ReMo,Mo:0.250;Re:0.250;V:0.500,0.267,295.0,0.07,0.083,4,,0.03,calculated,fit,0.0,,no,79,0.865,3.49
+shortlist 3 pool,shortlist_pool,mp-aaabxfwk,MgGaIr2,Ga:0.250;Ir:0.500;Mg:0.250,0.237,138.1,0.07,0.098,4,,,,,0.0,,no,125,0.846,2.81
+shortlist 3 pool,shortlist_pool,mp-aaabxhfb,MgSiRh2,Mg:0.250;Rh:0.500;Si:0.250,0.224,198.4,0.07,0.121,4,,0.28,calculated,test,0.0,,no,357,0.675,3.16
+shortlist 3 pool,shortlist_pool,mp-aaabxbva,TaAlRu2,Al:0.250;Ru:0.500;Ta:0.250,0.192,240.6,0.06,0.098,4,,,flagged,fit,0.0,,no,5,0.938,3.95
+shortlist 3 pool,shortlist_pool,mp-aaacdpwj,NbGaRu2,Ga:0.250;Nb:0.250;Ru:0.500,0.217,219.8,0.06,0.163,4,,,flagged,fit,0.0,,no,11,0.927,3.71
+shortlist 3 pool,shortlist_pool,mp-aaabxhhs,YGaRh2,Ga:0.250;Rh:0.500;Y:0.250,0.24,142.4,0.06,0.052,4,,0.0,calculated,fit,0.0,,no,124,0.846,3.04
+shortlist 3 pool,shortlist_pool,mp-aaacdokc,MgMnPt2,Mg:0.250;Mn:0.250;Pt:0.500,0.237,160.1,0.06,0.089,4,,,,,0.0,,no,304,0.724,2.16
+shortlist 3 pool,shortlist_pool,mp-aaabxbad,LiBiRh2,Bi:0.250;Li:0.250;Rh:0.500,0.295,117.5,0.06,0.026,4,,0.06,calculated,fit,0.0,,no,322,0.707,3.96
+shortlist 3 pool,shortlist_pool,mp-aaabxbcj,TiZnRh2,Rh:0.500;Ti:0.250;Zn:0.250,0.221,204.2,0.06,0.061,4,,0.0,calculated,fit,0.0,,no,323,0.706,2.35
+shortlist 3 pool,shortlist_pool,mp-aaacqslk,YCoSi,Co:0.333;Si:0.333;Y:0.333,0.282,237.9,0.06,0.063,12,,0.07,calculated,fit,0.0,,no,448,0.564,2.06
+shortlist 3 pool,shortlist_pool,mp-aaabxixw,LiZn2Ni,Li:0.250;Ni:0.250;Zn:0.500,0.282,181.6,0.06,0.039,4,,0.11,calculated,fit,0.0,,no,451,0.558,2.28
+shortlist 3 pool,shortlist_pool,mp-aaabxbbf,LiPt3,Li:0.250;Pt:0.750,0.264,148.2,0.06,0.028,4,,,,,0.0,,no,452,0.558,1.86
+shortlist 3 pool,shortlist_pool,mp-aaabxjqy,ScSnRu2,Ru:0.500;Sc:0.250;Sn:0.250,0.232,206.8,0.05,0.059,4,,0.21,calculated,fit,0.0,,no,43,0.889,4.17
+shortlist 3 pool,shortlist_pool,mp-aaacpibw,ZrSnRu2,Ru:0.500;Sn:0.250;Zr:0.250,0.2,205.7,0.05,0.089,4,,,flagged,valid,0.0,,no,104,0.856,3.91
+shortlist 3 pool,shortlist_pool,mp-aaabxjts,LiAlPd2,Al:0.250;Li:0.250;Pd:0.500,0.182,193.8,0.05,0.042,4,,0.0,calculated,test,0.0,,no,111,0.852,2.74
+shortlist 3 pool,shortlist_pool,mp-aaacpkmu,HfGeRu2,Ge:0.250;Hf:0.250;Ru:0.500,0.253,184.8,0.05,0.267,4,,,flagged,test,0.0,,no,135,0.84,3.59
+shortlist 3 pool,shortlist_pool,mp-aaabxgmi,Y2IrPd,Ir:0.250;Pd:0.250;Y:0.500,0.276,116.7,0.05,0.138,4,,,,,0.0,,no,313,0.719,1.85
+shortlist 3 pool,shortlist_pool,mp-aaacdjel,Sc2RuAu,Au:0.250;Ru:0.250;Sc:0.500,0.255,173.0,0.05,0.07,4,,,,,0.0,,no,320,0.709,1.81
+shortlist 3 pool,shortlist_pool,mp-aaacpphz,ZnSnRh2,Rh:0.500;Sn:0.250;Zn:0.250,0.278,130.6,0.05,0.027,4,,0.05,calculated,fit,0.0,,no,351,0.684,1.71
+shortlist 3 pool,shortlist_pool,mp-aaabxhhy,YMgAg2,Ag:0.500;Mg:0.250;Y:0.250,0.288,112.1,0.05,0.097,4,,,flagged,test,0.0,,no,396,0.64,2.75
+shortlist 3 pool,shortlist_pool,mp-aaacdqcs,MgScPd2,Mg:0.250;Pd:0.500;Sc:0.250,0.277,134.3,0.05,0.049,4,,0.04,calculated,fit,0.0,,no,503,0.447,2.53
+shortlist 3 pool,shortlist_pool,mp-aaacqrqy,ScIn,In:0.500;Sc:0.500,0.283,157.2,0.05,0.088,2,,,,,0.0,,no,568,0.141,2.4
+shortlist 3 pool,shortlist_pool,mp-aaabxgzd,LiSiIr2,Ir:0.500;Li:0.250;Si:0.250,0.175,218.5,0.04,0.049,4,,,,,0.0,,no,85,0.86,4.17
+shortlist 3 pool,shortlist_pool,mp-aaacpigh,AlFeIr2,Al:0.250;Fe:0.250;Ir:0.500,0.194,218.2,0.04,0.096,4,,,,,0.0,,no,98,0.857,3.38
+shortlist 3 pool,shortlist_pool,mp-aaabxfqa,HfMgIr2,Hf:0.250;Ir:0.500;Mg:0.250,0.243,121.7,0.04,0.115,4,,,,,0.0,,no,108,0.854,3.11
+shortlist 3 pool,shortlist_pool,mp-aaacrcze,Ba(InPt)2,Ba:0.200;In:0.400;Pt:0.400,0.294,101.8,0.04,0.032,5,,,,,0.0,,no,167,0.817,2.78
+shortlist 3 pool,shortlist_pool,mp-aaacplpa,LiZnPt2,Li:0.250;Pt:0.500;Zn:0.250,0.239,119.8,0.04,0.171,4,,,,,0.0,,no,185,0.805,2.1
+shortlist 3 pool,shortlist_pool,mp-aaacqpzu,CaAgPb,Ag:0.333;Ca:0.333;Pb:0.333,0.271,112.9,0.04,0.168,9,,,,,0.0,,no,236,0.781,2.47
+shortlist 3 pool,shortlist_pool,mp-aaabxgtt,LiSc2Rh,Li:0.250;Rh:0.250;Sc:0.500,0.267,196.3,0.04,0.029,4,,0.07,calculated,fit,0.0,,no,409,0.627,3.25
+shortlist 3 pool,shortlist_pool,mp-aaabxivt,LiGaNi2,Ga:0.250;Li:0.250;Ni:0.500,0.223,191.8,0.04,0.057,4,,0.0,calculated,valid,0.0,,no,422,0.614,3.06
+shortlist 3 pool,shortlist_pool,mp-aaabxbpv,Sc2GaRu,Ga:0.250;Ru:0.250;Sc:0.500,0.277,182.2,0.04,0.035,4,,0.02,calculated,fit,0.0,,no,450,0.559,3.94
+shortlist 3 pool,shortlist_pool,mp-aaabxbwb,Sc2AgRu,Ag:0.250;Ru:0.250;Sc:0.500,0.236,184.1,0.04,0.089,4,,0.01,calculated,fit,0.0,,no,465,0.543,1.86
+shortlist 3 pool,shortlist_pool,mp-aaacdpxs,ZrAlRu2,Al:0.250;Ru:0.500;Zr:0.250,0.265,226.5,0.03,0.025,4,,0.07,calculated,fit,0.0,,no,82,0.861,3.91
+shortlist 3 pool,shortlist_pool,mp-aaacsdcu,LiMg2Ir,Ir:0.250;Li:0.250;Mg:0.500,0.199,215.8,0.03,0.093,4,,,,,0.0,,no,151,0.832,2.92
+shortlist 3 pool,shortlist_pool,mp-aaabxflq,MgSnIr2,Ir:0.500;Mg:0.250;Sn:0.250,0.185,138.4,0.03,0.036,4,,,,,0.0,,no,184,0.805,2.6
+shortlist 3 pool,shortlist_pool,mp-aaabxgyr,MgAlIr2,Al:0.250;Ir:0.500;Mg:0.250,0.164,188.3,0.03,0.036,4,,,,,0.0,,no,214,0.792,3.12
+shortlist 3 pool,shortlist_pool,mp-aaabxgyi,LiZn2Rh,Li:0.250;Rh:0.250;Zn:0.500,0.258,171.2,0.03,0.041,4,,0.01,calculated,fit,0.0,,no,266,0.759,3.01
+shortlist 3 pool,shortlist_pool,mp-aaabxghh,Ti2MnRu,Mn:0.250;Ru:0.250;Ti:0.500,0.237,287.1,0.03,0.128,4,,,,,0.0,,no,311,0.719,2.39
+shortlist 3 pool,shortlist_pool,mp-aaabxbcb,AlFeRh2,Al:0.250;Fe:0.250;Rh:0.500,0.186,240.0,0.03,0.111,4,,,,,0.0,,no,388,0.645,2.88
+shortlist 3 pool,shortlist_pool,mp-aaabxbqu,Sc2IrPd,Ir:0.250;Pd:0.250;Sc:0.500,0.245,154.1,0.03,0.036,4,,0.0,calculated,fit,0.0,,no,404,0.632,2.0
+shortlist 3 pool,shortlist_pool,mp-aaabxgyp,MgAlAg2,Ag:0.500;Al:0.250;Mg:0.250,0.285,134.7,0.03,0.035,4,,0.03,calculated,fit,0.0,,no,415,0.622,1.63
+shortlist 3 pool,shortlist_pool,mp-aaabxguf,TaZnCo2,Co:0.500;Ta:0.250;Zn:0.250,0.191,219.9,0.03,0.087,4,,,imaginary mode,fit,0.0,,no,458,0.551,2.3
+shortlist 3 pool,shortlist_pool,mp-aaacplhx,Li2YIn,In:0.250;Li:0.500;Y:0.250,0.257,154.3,0.03,0.041,4,,0.0,calculated,test,0.0,,no,512,0.435,5.58
+shortlist 3 pool,shortlist_pool,mp-aaacpmil,MgPd2Au,Au:0.250;Mg:0.250;Pd:0.500,0.204,116.3,0.03,0.043,4,,,,,0.0,,no,525,0.393,0.98
+shortlist 3 pool,shortlist_pool,mp-aaabxbbk,LiPd3,Li:0.250;Pd:0.750,0.224,172.4,0.03,0.058,4,,,,,0.0,,no,538,0.337,1.63
+shortlist 3 pool,shortlist_pool,mp-aaabxfms,MgAg3,Ag:0.750;Mg:0.250,0.222,130.4,0.03,0.072,8,,,,,0.0,,no,561,0.207,0.48
+shortlist 3 pool,shortlist_pool,mp-aaacrtrh,CoNiP,Co:0.333;Ni:0.333;P:0.333,0.208,276.8,0.03,0.051,9,,0.0,calculated,test,0.0,,no,567,0.164,2.66
+shortlist 3 pool,shortlist_pool,mp-aaacruuh,CaAl3Au,Al:0.600;Au:0.200;Ca:0.200,0.246,203.2,0.02,0.079,5,,0.14,calculated,valid,0.0,,no,10,0.928,2.12
+shortlist 3 pool,shortlist_pool,mp-aaabxcez,AlZnIr2,Al:0.250;Ir:0.500;Zn:0.250,0.199,152.8,0.02,0.077,4,,,,,0.0,,no,165,0.82,1.9
+shortlist 3 pool,shortlist_pool,mp-aaabxjxq,ScAlRh2,Al:0.250;Rh:0.500;Sc:0.250,0.164,210.9,0.02,0.048,4,,,flagged,fit,0.0,,no,169,0.816,2.38
+shortlist 3 pool,shortlist_pool,mp-aaabxchq,LiInPt2,In:0.250;Li:0.250;Pt:0.500,0.265,113.6,0.02,0.059,4,,,imaginary mode,fit,0.0,,no,222,0.785,2.61
+shortlist 3 pool,shortlist_pool,mp-aaabxfbv,Ta2NbRu,Nb:0.250;Ru:0.250;Ta:0.500,0.266,215.2,0.02,0.078,4,,0.25,calculated,fit,0.0,,no,250,0.769,2.59
+shortlist 3 pool,shortlist_pool,mp-aaacpmju,MgScPt2,Mg:0.250;Pt:0.500;Sc:0.250,0.252,131.5,0.02,0.095,4,,0.0,calculated,test,0.0,,no,303,0.724,2.58
+shortlist 3 pool,shortlist_pool,mp-aaacdpvo,LiMg2Pd,Li:0.250;Mg:0.500;Pd:0.250,0.236,185.8,0.02,0.043,4,,0.01,calculated,fit,0.0,,no,480,0.504,2.4
+shortlist 3 pool,shortlist_pool,mp-aaabxbrz,Sc2NiRu,Ni:0.250;Ru:0.250;Sc:0.500,0.133,223.6,0.02,0.07,4,,0.0,calculated,fit,0.0,,no,496,0.463,1.64
+shortlist 3 pool,shortlist_pool,mp-aaabxcba,ScAlCo2,Al:0.250;Co:0.500;Sc:0.250,0.147,261.9,0.02,0.048,4,,,flagged,fit,0.0,,no,519,0.423,2.66
+shortlist 3 pool,shortlist_pool,mp-aaabxjuo,ScInRh2,In:0.250;Rh:0.500;Sc:0.250,0.144,182.3,0.01,0.064,4,,,flagged,fit,0.0,,no,56,0.882,2.64
+shortlist 3 pool,shortlist_pool,mp-aaacpkjg,Hf2RePd,Hf:0.500;Pd:0.250;Re:0.250,0.251,161.8,0.01,0.081,4,,0.01,calculated,fit,0.0,,no,102,0.857,1.7
+shortlist 3 pool,shortlist_pool,mp-aaabxccb,ScRh2Pb,Pb:0.250;Rh:0.500;Sc:0.250,0.277,130.4,0.01,0.091,4,,0.0,calculated,fit,0.0,,no,121,0.847,2.27
+shortlist 3 pool,shortlist_pool,mp-aaabxhkd,HfSnRu2,Hf:0.250;Ru:0.500;Sn:0.250,0.199,192.8,0.01,0.086,4,,,flagged,fit,0.0,,no,126,0.845,4.14
+shortlist 3 pool,shortlist_pool,mp-aaabxfbb,LiNbRh2,Li:0.250;Nb:0.250;Rh:0.500,0.221,195.7,0.01,0.033,4,,0.0,calculated,fit,0.0,,no,130,0.843,3.98
+shortlist 3 pool,shortlist_pool,mp-aaabxbpg,LiAlPt2,Al:0.250;Li:0.250;Pt:0.500,0.187,154.0,0.01,0.026,4,,0.0,calculated,fit,0.0,,no,158,0.829,2.64
+shortlist 3 pool,shortlist_pool,mp-aaabxakx,ScAlIr2,Al:0.250;Ir:0.500;Sc:0.250,0.152,184.7,0.01,0.076,4,,,flagged,fit,0.0,,no,160,0.826,3.41
+shortlist 3 pool,shortlist_pool,mp-aaacdpuq,ZnGaIr2,Ga:0.250;Ir:0.500;Zn:0.250,0.202,132.1,0.01,0.116,4,,,,,0.0,,no,228,0.784,1.8
+shortlist 3 pool,shortlist_pool,mp-aaabxhfa,MgSiIr2,Ir:0.500;Mg:0.250;Si:0.250,0.126,206.0,0.01,0.045,4,,,,,0.0,,no,265,0.76,3.29
+shortlist 3 pool,shortlist_pool,mp-aaabxcfj,Al2PdRu,Al:0.500;Pd:0.250;Ru:0.250,0.144,253.3,0.01,0.049,4,,0.0,calculated,fit,0.0,,no,284,0.749,1.95
+shortlist 3 pool,shortlist_pool,mp-aaabxbrs,Sc2NiIr,Ir:0.250;Ni:0.250;Sc:0.500,0.211,172.9,0.01,0.028,4,,0.0,calculated,fit,0.0,,no,386,0.648,1.76
+shortlist 3 pool,shortlist_pool,mp-aaacdpvs,ZnSiRh2,Rh:0.500;Si:0.250;Zn:0.250,0.187,196.4,0.01,0.064,4,,0.23,calculated,valid,0.0,,no,390,0.645,1.88
+shortlist 3 pool,shortlist_pool,mp-aaaabfbb,V2InC,C:0.250;In:0.250;V:0.500,0.256,356.1,0.01,0.115,8,,0.06,calculated,fit,0.0,,yes,401,0.635,6.42
+shortlist 3 pool,shortlist_pool,mp-aaabxfby,Zn2NiRh,Ni:0.250;Rh:0.250;Zn:0.500,0.159,163.4,0.01,0.046,4,,,flagged,fit,0.0,,no,529,0.369,0.73
+shortlist 3 pool,shortlist_pool,mp-aaabxgmk,Y2MgAl,Al:0.250;Mg:0.250;Y:0.500,0.249,175.9,0.01,0.028,4,,0.1,calculated,fit,0.0,,no,532,0.36,2.48
+shortlist 3 pool,shortlist_pool,mp-aaacpohe,TaNbRe2,Nb:0.250;Re:0.500;Ta:0.250,0.217,232.7,0.0,0.067,4,,0.0,calculated,fit,0.0,,no,20,0.907,5.05
+shortlist 3 pool,shortlist_pool,mp-aaabxcfy,LiGaRh2,Ga:0.250;Li:0.250;Rh:0.500,0.152,209.9,0.0,0.058,4,,0.12,calculated,test,0.0,,no,27,0.897,3.26
+shortlist 3 pool,shortlist_pool,mp-aaabxbbz,LiTaRh2,Li:0.250;Rh:0.500;Ta:0.250,0.179,191.8,0.0,0.054,4,,0.0,calculated,fit,0.0,,no,34,0.893,2.98
+shortlist 3 pool,shortlist_pool,mp-aaabxfmo,LiTiIr2,Ir:0.500;Li:0.250;Ti:0.250,0.111,212.7,0.0,0.106,4,,,,,0.0,,no,37,0.892,3.34
+shortlist 3 pool,shortlist_pool,mp-aaabxgyv,LiZrIr2,Ir:0.500;Li:0.250;Zr:0.250,0.18,168.2,0.0,0.05,4,,,,,0.0,,no,40,0.89,3.41
+shortlist 3 pool,shortlist_pool,mp-aaabxivj,ScInIr2,In:0.250;Ir:0.500;Sc:0.250,0.153,154.4,0.0,0.062,4,,0.0,calculated,fit,0.0,,no,48,0.886,2.76
+shortlist 3 pool,shortlist_pool,mp-aaabxhhz,YInRh2,In:0.250;Rh:0.500;Y:0.250,0.149,157.1,0.0,0.038,4,,0.0,calculated,fit,0.0,,no,51,0.884,2.78
+shortlist 3 pool,shortlist_pool,mp-aaabxgou,TiRe2W,Re:0.500;Ti:0.250;W:0.250,0.219,247.2,0.0,0.078,4,,0.0,calculated,fit,0.0,,no,52,0.883,4.86
+shortlist 3 pool,shortlist_pool,mp-aaabxcbi,LiHfIr2,Hf:0.250;Ir:0.500;Li:0.250,0.117,163.2,0.0,0.047,4,,,,,0.0,,no,57,0.881,2.98
+shortlist 3 pool,shortlist_pool,mp-aaabxceo,Al2IrRh,Al:0.500;Ir:0.250;Rh:0.250,0.134,220.7,0.0,0.067,4,,,,,0.0,,no,61,0.88,1.64
+shortlist 3 pool,shortlist_pool,mp-aaabxitw,LiHfRh2,Hf:0.250;Li:0.250;Rh:0.500,0.191,179.7,0.0,0.065,4,,0.0,calculated,test,0.0,,no,68,0.875,3.16
+shortlist 3 pool,shortlist_pool,mp-aaacpnor,Ta2MnRe,Mn:0.250;Re:0.250;Ta:0.500,0.187,246.0,0.0,0.065,4,,0.0,calculated,fit,0.0,,no,71,0.872,3.12
+shortlist 3 pool,shortlist_pool,mp-aaabxgjf,YTaRu2,Ru:0.500;Ta:0.250;Y:0.250,0.166,193.8,0.0,0.117,4,,0.0,calculated,fit,0.0,,no,77,0.866,3.18
+shortlist 3 pool,shortlist_pool,mp-aaabxbph,LiAlRh2,Al:0.250;Li:0.250;Rh:0.500,0.169,241.3,0.0,0.013,4,,0.27,calculated,valid,0.0,,no,78,0.866,2.95
+shortlist 3 pool,shortlist_pool,mp-aaabxazi,LiGeIr2,Ge:0.250;Ir:0.500;Li:0.250,0.128,193.8,0.0,0.046,4,,,,,0.0,,no,86,0.86,3.84
+shortlist 3 pool,shortlist_pool,mp-aaabghni,BaSn2,Ba:0.333;Sn:0.667,0.143,114.3,0.0,0.172,3,,0.0,calculated,fit,0.0,,no,99,0.857,3.31
+shortlist 3 pool,shortlist_pool,mp-aaacdjhl,ScTiRu2,Ru:0.500;Sc:0.250;Ti:0.250,0.23,247.6,0.0,0.092,4,,0.0,calculated,fit,0.0,,no,101,0.857,2.43
+shortlist 3 pool,shortlist_pool,mp-aaacpmjf,MgRu2W,Mg:0.250;Ru:0.500;W:0.250,0.153,241.2,0.0,0.017,4,,0.0,calculated,fit,0.0,,no,105,0.855,3.86
+shortlist 3 pool,shortlist_pool,mp-aaabxaqx,LiRh2Pb,Li:0.250;Pb:0.250;Rh:0.500,0.138,150.2,0.0,0.026,4,,0.0,calculated,fit,0.0,,no,106,0.854,3.61
+shortlist 3 pool,shortlist_pool,mp-aaabxhbh,Al2IrRu,Al:0.500;Ir:0.250;Ru:0.250,0.175,239.4,0.0,0.041,4,,,,,0.0,,no,112,0.851,2.25
+shortlist 3 pool,shortlist_pool,mp-aaacpkiu,HfZnRh2,Hf:0.250;Rh:0.500;Zn:0.250,0.135,178.6,0.0,0.031,4,,0.0,calculated,fit,0.0,,no,115,0.85,1.87
+shortlist 3 pool,shortlist_pool,mp-aaabxjwr,ScTaRu2,Ru:0.500;Sc:0.250;Ta:0.250,0.124,247.4,0.0,0.082,4,,0.0,calculated,valid,0.0,,no,119,0.847,3.18
+shortlist 3 pool,shortlist_pool,mp-aaacdhne,V2ReW,Re:0.250;V:0.500;W:0.250,0.235,279.1,0.0,0.069,4,,0.0,calculated,fit,0.0,,no,123,0.846,3.58
+shortlist 3 pool,shortlist_pool,mp-aaacppkw,ZrScRu2,Ru:0.500;Sc:0.250;Zr:0.250,0.172,229.6,0.0,0.071,4,,0.0,calculated,fit,0.0,,no,128,0.845,2.84
+shortlist 3 pool,shortlist_pool,mp-aaabxitl,ScVRu2,Ru:0.500;Sc:0.250;V:0.250,0.169,277.6,0.0,0.038,4,,0.0,calculated,fit,0.0,,no,129,0.845,2.79
+shortlist 3 pool,shortlist_pool,mp-aaabxjxk,ScGaIr2,Ga:0.250;Ir:0.500;Sc:0.250,0.158,159.1,0.0,0.083,4,,0.0,calculated,fit,0.0,,no,137,0.84,3.0
+shortlist 3 pool,shortlist_pool,mp-aaabxfqk,HfScRu2,Hf:0.250;Ru:0.500;Sc:0.250,0.166,218.8,0.0,0.091,4,,0.0,calculated,fit,0.0,,no,141,0.839,2.37
+shortlist 3 pool,shortlist_pool,mp-aaabxjww,LiSiRh2,Li:0.250;Rh:0.500;Si:0.250,0.205,245.7,0.0,0.025,4,,0.0,calculated,test,0.0,,no,146,0.835,3.87
+shortlist 3 pool,shortlist_pool,mp-aaabxjub,LiVRh2,Li:0.250;Rh:0.500;V:0.250,0.216,246.3,0.0,0.124,4,,0.0,calculated,fit,0.0,,no,161,0.826,2.86
+shortlist 3 pool,shortlist_pool,mp-aaabxitu,ScNbRu2,Nb:0.250;Ru:0.500;Sc:0.250,0.154,255.4,0.0,0.144,4,,0.0,calculated,fit,0.0,,no,162,0.825,3.12
+shortlist 3 pool,shortlist_pool,mp-aaacdsqd,Ta2FeMo,Fe:0.250;Mo:0.250;Ta:0.500,0.228,241.5,0.0,0.061,4,,0.0,calculated,fit,0.0,,no,166,0.819,2.49
+shortlist 3 pool,shortlist_pool,mp-aaabxhib,YMgRh2,Mg:0.250;Rh:0.500;Y:0.250,0.156,166.5,0.0,0.024,4,,0.0,calculated,fit,0.0,,no,173,0.814,2.9
+shortlist 3 pool,shortlist_pool,mp-aaabxjus,TaTiRe2,Re:0.500;Ta:0.250;Ti:0.250,0.25,230.7,0.0,0.052,4,,0.01,calculated,fit,0.0,,no,180,0.807,4.84
+shortlist 3 pool,shortlist_pool,mp-aaabxflu,MgZrRh2,Mg:0.250;Rh:0.500;Zr:0.250,0.167,188.5,0.0,0.039,4,,0.0,calculated,fit,0.0,,no,183,0.806,3.22
+shortlist 3 pool,shortlist_pool,mp-aaabxbbj,CaSnRh2,Ca:0.250;Rh:0.500;Sn:0.250,0.157,160.3,0.0,0.046,4,,0.0,calculated,fit,0.0,,no,188,0.803,4.82
+shortlist 3 pool,shortlist_pool,mp-aaabxfgy,LiSnRh2,Li:0.250;Rh:0.500;Sn:0.250,0.18,167.1,0.0,0.042,4,,,flagged,fit,0.0,,no,193,0.801,3.75
+shortlist 3 pool,shortlist_pool,mp-aaabxgoj,TiNbRe2,Nb:0.250;Re:0.500;Ti:0.250,0.252,244.2,0.0,0.056,4,,0.04,calculated,fit,0.0,,no,195,0.8,4.53
+shortlist 3 pool,shortlist_pool,mp-aaabxfgw,Ta2MoRu,Mo:0.250;Ru:0.250;Ta:0.500,0.205,232.9,0.0,0.148,4,,0.1,calculated,fit,0.0,,no,199,0.8,2.52
+shortlist 3 pool,shortlist_pool,mp-aaabxjal,Al2CoIr,Al:0.500;Co:0.250;Ir:0.250,0.128,217.5,0.0,0.064,4,,,,,0.0,,no,200,0.8,2.05
+shortlist 3 pool,shortlist_pool,mp-aaabxfre,HfMgRh2,Hf:0.250;Mg:0.250;Rh:0.500,0.148,179.0,0.0,0.056,4,,0.0,calculated,test,0.0,,no,201,0.799,2.84
+shortlist 3 pool,shortlist_pool,mp-aaabxisz,Al2RuPt,Al:0.500;Pt:0.250;Ru:0.250,0.143,239.0,0.0,0.027,4,,0.0,calculated,fit,0.0,,no,203,0.799,1.95
+shortlist 3 pool,shortlist_pool,mp-aaacqrka,K(PIr)2,Ir:0.400;K:0.200;P:0.400,0.241,209.7,0.0,0.064,5,,0.02,calculated,fit,0.0,,no,206,0.797,3.33
+shortlist 3 pool,shortlist_pool,mp-aaabxhej,MgScRh2,Mg:0.250;Rh:0.500;Sc:0.250,0.138,207.1,0.0,0.024,4,,0.0,calculated,fit,0.0,,no,207,0.797,2.84
+shortlist 3 pool,shortlist_pool,mp-aaabxfub,MgGaRh2,Ga:0.250;Mg:0.250;Rh:0.500,0.125,198.8,0.0,0.05,4,,0.0,calculated,fit,0.0,,no,210,0.794,3.15
+shortlist 3 pool,shortlist_pool,mp-aaacpmgb,MgGaPt2,Ga:0.250;Mg:0.250;Pt:0.500,0.257,116.2,0.0,0.04,4,,0.0,calculated,fit,0.0,,no,211,0.794,2.37
+shortlist 3 pool,shortlist_pool,mp-aaabxixf,LiY2Ir,Ir:0.250;Li:0.250;Y:0.500,0.271,142.5,0.0,0.084,4,,,,,0.0,,no,212,0.793,3.25
+shortlist 3 pool,shortlist_pool,mp-aaabxdsh,LiTiRh2,Li:0.250;Rh:0.500;Ti:0.250,0.196,211.9,0.0,0.054,4,,0.05,calculated,test,0.0,,no,218,0.788,3.07
+shortlist 3 pool,shortlist_pool,mp-aaabxgom,TiMn2W,Mn:0.500;Ti:0.250;W:0.250,0.201,304.7,0.0,0.085,4,,0.0,calculated,fit,0.0,,no,219,0.788,3.04
+shortlist 3 pool,shortlist_pool,mp-aaabxjrt,ScZnRh2,Rh:0.500;Sc:0.250;Zn:0.250,0.158,194.8,0.0,0.026,4,,0.0,calculated,fit,0.0,,no,226,0.784,2.38
+shortlist 3 pool,shortlist_pool,mp-aaabxarb,LiSbRh2,Li:0.250;Rh:0.500;Sb:0.250,0.213,164.1,0.0,0.009,4,,0.0,calculated,fit,0.0,,no,237,0.78,3.74
+shortlist 3 pool,shortlist_pool,mp-aaacdpun,Ta2ReMo,Mo:0.250;Re:0.250;Ta:0.500,0.23,221.7,0.0,0.047,4,,0.0,calculated,fit,0.0,,no,238,0.78,2.59
+shortlist 3 pool,shortlist_pool,mp-aaacdpxh,Ta2CrRu,Cr:0.250;Ru:0.250;Ta:0.500,0.208,247.6,0.0,0.084,4,,0.08,calculated,test,0.0,,no,249,0.77,2.64
+shortlist 3 pool,shortlist_pool,mp-aaacdqdi,ZrZnRh2,Rh:0.500;Zn:0.250;Zr:0.250,0.143,184.0,0.0,0.041,4,,0.0,calculated,fit,0.0,,no,256,0.764,2.56
+shortlist 3 pool,shortlist_pool,mp-aaacdpuw,ZnGaRh2,Ga:0.250;Rh:0.500;Zn:0.250,0.115,192.2,0.0,0.069,4,,0.0,calculated,fit,0.0,,no,263,0.762,1.78
+shortlist 3 pool,shortlist_pool,mp-aaabxgwq,LiZrRh2,Li:0.250;Rh:0.500;Zr:0.250,0.208,173.0,0.0,0.038,4,,0.0,calculated,fit,0.0,,no,271,0.756,3.37
+shortlist 3 pool,shortlist_pool,mp-aaabxfya,LiScPt2,Li:0.250;Pt:0.500;Sc:0.250,0.198,132.3,0.0,0.076,4,,0.0,calculated,fit,0.0,,no,272,0.756,3.25
+shortlist 3 pool,shortlist_pool,mp-aaacdpxu,MgInRh2,In:0.250;Mg:0.250;Rh:0.500,0.135,162.4,0.0,0.047,4,,,flagged,fit,0.0,,no,273,0.755,2.84
+shortlist 3 pool,shortlist_pool,mp-aaacdqcx,MgRh2Pb,Mg:0.250;Pb:0.250;Rh:0.500,0.222,134.6,0.0,0.024,4,,0.0,calculated,fit,0.0,,no,276,0.753,2.44
+shortlist 3 pool,shortlist_pool,mp-aaabxaqb,Ti2CoRe,Co:0.250;Re:0.250;Ti:0.500,0.229,261.5,0.0,0.121,4,,0.02,calculated,test,0.0,,no,283,0.749,2.44
+shortlist 3 pool,shortlist_pool,mp-aaacdpvq,Ta2VRu,Ru:0.250;Ta:0.500;V:0.250,0.243,234.0,0.0,0.111,4,,0.14,calculated,valid,0.0,,no,290,0.742,2.74
+shortlist 3 pool,shortlist_pool,mp-aaacdpxj,Zn2PtRh,Pt:0.250;Rh:0.250;Zn:0.500,0.127,159.9,0.0,0.059,4,,0.0,calculated,fit,0.0,,no,292,0.739,0.63
+shortlist 3 pool,shortlist_pool,mp-aaacpkjc,Hf2MoPt,Hf:0.500;Mo:0.250;Pt:0.250,0.195,187.5,0.0,0.142,4,,,,,0.0,,no,294,0.737,2.01
+shortlist 3 pool,shortlist_pool,mp-aaabxezx,LiMg2Rh,Li:0.250;Mg:0.500;Rh:0.250,0.208,197.7,0.0,0.023,4,,0.0,calculated,fit,0.0,,no,296,0.733,3.11
+shortlist 3 pool,shortlist_pool,mp-aaacpmcm,Mg2IrPt,Ir:0.250;Mg:0.500;Pt:0.250,0.094,163.0,0.0,0.127,4,,,,,0.0,,no,297,0.731,2.12
+shortlist 3 pool,shortlist_pool,mp-aaabxfvf,MgAlRh2,Al:0.250;Mg:0.250;Rh:0.500,0.118,238.1,0.0,0.046,4,,0.0,calculated,fit,0.0,,no,301,0.727,2.65
+shortlist 3 pool,shortlist_pool,mp-aaabxbqc,LiAl2Ni,Al:0.500;Li:0.250;Ni:0.250,0.214,329.5,0.0,0.055,4,,0.0,calculated,fit,0.0,,no,302,0.726,3.04
+shortlist 3 pool,shortlist_pool,mp-aaabxjas,Al2RuRh,Al:0.500;Rh:0.250;Ru:0.250,0.147,271.4,0.0,0.037,4,,0.0,calculated,valid,0.0,,no,305,0.723,1.98
+shortlist 3 pool,shortlist_pool,mp-aaacpofz,Ta2RuW,Ru:0.250;Ta:0.500;W:0.250,0.245,215.3,0.0,0.137,4,,0.35,calculated,valid,0.0,,no,318,0.712,2.26
+shortlist 3 pool,shortlist_pool,mp-aaabxhkc,Ti2MnRh,Mn:0.250;Rh:0.250;Ti:0.500,0.176,285.4,0.0,0.139,4,,0.0,calculated,fit,0.0,,no,325,0.706,2.12
+shortlist 3 pool,shortlist_pool,mp-aaabxgml,Y2IrRh,Ir:0.250;Rh:0.250;Y:0.500,0.147,133.3,0.0,0.054,4,,,,,0.0,,no,326,0.704,1.61
+shortlist 3 pool,shortlist_pool,mp-aaacdqcy,Hf2MnRh,Hf:0.500;Mn:0.250;Rh:0.250,0.144,219.4,0.0,0.138,4,,0.0,calculated,fit,0.0,,no,333,0.699,2.37
+shortlist 3 pool,shortlist_pool,mp-aaabxhen,MgSnRh2,Mg:0.250;Rh:0.500;Sn:0.250,0.211,143.1,0.0,0.058,4,,0.0,calculated,fit,0.0,,no,335,0.697,2.93
+shortlist 3 pool,shortlist_pool,mp-aaacpphi,ZnInRh2,In:0.250;Rh:0.500;Zn:0.250,0.154,151.3,0.0,0.056,4,,,flagged,test,0.0,,no,338,0.695,1.54
+shortlist 3 pool,shortlist_pool,mp-aaabxfak,LiMg2Pt,Li:0.250;Mg:0.500;Pt:0.250,0.23,178.6,0.0,0.052,4,,0.01,calculated,fit,0.0,,no,347,0.685,2.66
+shortlist 3 pool,shortlist_pool,mp-aaabxfmy,Mg2PtRh,Mg:0.500;Pt:0.250;Rh:0.250,0.108,171.4,0.0,0.029,4,,0.0,calculated,fit,0.0,,no,349,0.685,1.69
+shortlist 3 pool,shortlist_pool,mp-aaabxjrz,Al2NiRu,Al:0.500;Ni:0.250;Ru:0.250,0.13,279.7,0.0,0.06,4,,0.0,calculated,fit,0.0,,no,360,0.672,2.12
+shortlist 3 pool,shortlist_pool,mp-aaabxfuo,Hf2MnIr,Hf:0.500;Ir:0.250;Mn:0.250,0.199,209.9,0.0,0.152,4,,,,,0.0,,no,374,0.657,2.46
+shortlist 3 pool,shortlist_pool,mp-aaabxgkv,Y2AgRu,Ag:0.250;Ru:0.250;Y:0.500,0.241,139.9,0.0,0.067,4,,0.0,calculated,fit,0.0,,no,379,0.653,2.01
+shortlist 3 pool,shortlist_pool,mp-aaabxbsd,Sc2RuPt,Pt:0.250;Ru:0.250;Sc:0.500,0.131,194.8,0.0,0.143,4,,0.0,calculated,valid,0.0,,no,380,0.652,1.69
+shortlist 3 pool,shortlist_pool,mp-aaabxdqw,Ti2MnCo,Co:0.250;Mn:0.250;Ti:0.500,0.178,299.7,0.0,0.124,4,,0.0,calculated,fit,0.0,,no,384,0.649,2.28
+shortlist 3 pool,shortlist_pool,mp-aaabxfjb,Zn2PdRh,Pd:0.250;Rh:0.250;Zn:0.500,0.154,165.6,0.0,0.055,4,,0.0,calculated,valid,0.0,,no,387,0.648,0.63
+shortlist 3 pool,shortlist_pool,mp-aaabxhim,Li2PdAu,Au:0.250;Li:0.500;Pd:0.250,0.201,141.3,0.0,0.117,4,,0.0,calculated,valid,0.0,,no,393,0.641,3.98
+shortlist 3 pool,shortlist_pool,mp-aaacdpwp,Hf2ReRh,Hf:0.500;Re:0.250;Rh:0.250,0.159,196.2,0.0,0.071,4,,0.0,calculated,fit,0.0,,no,399,0.639,2.35
+shortlist 3 pool,shortlist_pool,mp-aaacqqob,K(CoP)2,Co:0.400;K:0.200;P:0.400,0.23,260.7,0.0,0.033,5,,0.0,calculated,fit,0.0,,no,400,0.637,2.92
+shortlist 3 pool,shortlist_pool,mp-aaabxhcz,AlZnRh2,Al:0.250;Rh:0.500;Zn:0.250,0.122,220.3,0.0,0.048,4,,0.0,calculated,fit,0.0,,no,405,0.632,1.53
+shortlist 3 pool,shortlist_pool,mp-aaacplmz,LiMg2Au,Au:0.250;Li:0.250;Mg:0.500,0.242,192.5,0.0,0.033,4,,0.02,calculated,fit,0.0,,no,406,0.631,2.23
+shortlist 3 pool,shortlist_pool,mp-aaabxbsb,Sc2IrRu,Ir:0.250;Ru:0.250;Sc:0.500,0.168,223.4,0.0,0.058,4,,0.0,calculated,fit,0.0,,no,416,0.621,1.92
+shortlist 3 pool,shortlist_pool,mp-aaabxfmq,Mg2AgPt,Ag:0.250;Mg:0.500;Pt:0.250,0.215,127.7,0.0,0.039,4,,0.0,calculated,fit,0.0,,no,426,0.605,1.52
+shortlist 3 pool,shortlist_pool,mp-aaabxfnx,Mg2RhAu,Au:0.250;Mg:0.500;Rh:0.250,0.177,141.0,0.0,0.04,4,,0.0,calculated,fit,0.0,,no,428,0.604,1.57
+shortlist 3 pool,shortlist_pool,mp-aaabxfqf,HfTaRe2,Hf:0.250;Re:0.500;Ta:0.250,0.231,198.9,0.0,0.041,4,,0.01,calculated,fit,0.0,,no,429,0.601,3.92
+shortlist 3 pool,shortlist_pool,mp-aaacpofw,Ta2ReW,Re:0.250;Ta:0.500;W:0.250,0.216,206.8,0.0,0.055,4,,0.0,calculated,test,0.0,,no,430,0.601,2.18
+shortlist 3 pool,shortlist_pool,mp-aaabxfok,Mg2AgAu,Ag:0.250;Au:0.250;Mg:0.500,0.237,122.3,0.0,0.048,4,,0.01,calculated,fit,0.0,,no,431,0.6,1.37
+shortlist 3 pool,shortlist_pool,mp-aaacgito,SiSnPt5,Pt:0.714;Si:0.143;Sn:0.143,0.242,135.2,0.0,0.094,7,,,,,0.0,,no,432,0.598,1.29
+shortlist 3 pool,shortlist_pool,mp-aaabxfeh,HfInCo2,Co:0.500;Hf:0.250;In:0.250,0.177,180.5,0.0,0.047,4,,,,,0.0,,no,433,0.596,2.45
+shortlist 3 pool,shortlist_pool,mp-aaacdpwh,LiMgPd2,Li:0.250;Mg:0.250;Pd:0.500,0.138,160.9,0.0,0.028,4,,0.0,calculated,fit,0.0,,no,435,0.595,3.04
+shortlist 3 pool,shortlist_pool,mp-aaabxcep,Al2CoRu,Al:0.500;Co:0.250;Ru:0.250,0.146,278.1,0.0,0.046,4,,0.0,calculated,fit,0.0,,no,439,0.583,2.27
+shortlist 3 pool,shortlist_pool,mp-aaabxfob,Mg2PdRh,Mg:0.500;Pd:0.250;Rh:0.250,0.113,183.4,0.0,0.038,4,,0.0,calculated,fit,0.0,,no,440,0.578,1.86
+shortlist 3 pool,shortlist_pool,mp-aaabxcfg,Sc2CoIr,Co:0.250;Ir:0.250;Sc:0.500,0.149,189.0,0.0,0.071,4,,,,,0.0,,no,441,0.578,1.74
+shortlist 3 pool,shortlist_pool,mp-aaabxiyc,LiZnPd2,Li:0.250;Pd:0.500;Zn:0.250,0.135,178.7,0.0,0.05,4,,0.0,calculated,fit,0.0,,no,445,0.569,2.01
+shortlist 3 pool,shortlist_pool,mp-aaabxfoh,Mg2PdPt,Mg:0.500;Pd:0.250;Pt:0.250,0.172,131.0,0.0,0.047,4,,0.0,calculated,fit,0.0,,no,447,0.565,1.52
+shortlist 3 pool,shortlist_pool,mp-aaabxbse,Sc2RuRh,Rh:0.250;Ru:0.250;Sc:0.500,0.145,230.8,0.0,0.07,4,,0.0,calculated,fit,0.0,,no,453,0.557,1.81
+shortlist 3 pool,shortlist_pool,mp-aaaemifn,CaAgSn,Ag:0.333;Ca:0.333;Sn:0.333,0.245,126.2,0.0,0.043,9,,,,,0.0,,no,455,0.555,2.29
+shortlist 3 pool,shortlist_pool,mp-aaacplpd,LiZnNi2,Li:0.250;Ni:0.500;Zn:0.250,0.169,191.0,0.0,0.018,4,,0.0,calculated,fit,0.0,,no,456,0.554,2.47
+shortlist 3 pool,shortlist_pool,mp-aaabxfmr,Mg2AgRh,Ag:0.250;Mg:0.500;Rh:0.250,0.148,162.2,0.0,0.055,4,,0.0,calculated,fit,0.0,,no,457,0.553,1.89
+shortlist 3 pool,shortlist_pool,mp-aaabxfwi,LiScPd2,Li:0.250;Pd:0.500;Sc:0.250,0.17,155.2,0.0,0.144,4,,0.03,calculated,test,0.0,,no,460,0.549,3.19
+shortlist 3 pool,shortlist_pool,mp-aaacpibp,ZrZnCo2,Co:0.500;Zn:0.250;Zr:0.250,0.115,219.2,0.0,0.057,4,,0.0,calculated,fit,0.0,,no,468,0.539,2.42
+shortlist 3 pool,shortlist_pool,mp-aaabxjrb,Ca2AgSn,Ag:0.250;Ca:0.500;Sn:0.250,0.207,123.3,0.0,0.142,4,,,,,0.0,,no,469,0.535,3.52
+shortlist 3 pool,shortlist_pool,mp-aaacqvrr,Ni2PPd,Ni:0.500;P:0.250;Pd:0.250,0.208,210.4,0.0,0.064,8,,,,,0.0,,no,473,0.52,1.97
+shortlist 3 pool,shortlist_pool,mp-aaabxhbf,Li2AgPd,Ag:0.250;Li:0.500;Pd:0.250,0.182,140.4,0.0,0.048,4,,0.0,calculated,fit,0.0,,no,478,0.506,3.94
+shortlist 3 pool,shortlist_pool,mp-aaabxfmh,MgZnPd2,Mg:0.250;Pd:0.500;Zn:0.250,0.209,150.2,0.0,0.064,4,,0.0,calculated,test,0.0,,no,485,0.489,1.27
+shortlist 3 pool,shortlist_pool,mp-aaabxfjt,NbZnCo2,Co:0.500;Nb:0.250;Zn:0.250,0.143,239.7,0.0,0.085,4,,,,,0.0,,no,486,0.486,3.2
+shortlist 3 pool,shortlist_pool,mp-aaacrbui,CaZnPd,Ca:0.333;Pd:0.333;Zn:0.333,0.264,139.6,0.0,0.08,12,,,,,0.0,,no,487,0.485,1.35
+shortlist 3 pool,shortlist_pool,mp-aaabxjrl,Sc2CoRu,Co:0.250;Ru:0.250;Sc:0.500,0.156,233.3,0.0,0.077,4,,0.0,calculated,fit,0.0,,no,488,0.479,1.92
+shortlist 3 pool,shortlist_pool,mp-aaabxhic,Y2PdRu,Pd:0.250;Ru:0.250;Y:0.500,0.178,148.9,0.0,0.076,4,,0.0,calculated,fit,0.0,,no,492,0.471,1.85
+shortlist 3 pool,shortlist_pool,mp-aaabxjbq,Ca2MgIn,Ca:0.500;In:0.250;Mg:0.250,0.261,127.1,0.0,0.121,4,,,,,0.0,,no,502,0.45,2.52
+shortlist 3 pool,shortlist_pool,mp-aaabxezu,LiMg2Ag,Ag:0.250;Li:0.250;Mg:0.500,0.212,237.7,0.0,0.052,4,,0.0,calculated,fit,0.0,,no,504,0.447,2.04
+shortlist 3 pool,shortlist_pool,mp-aaabxizl,LiCo2Si,Co:0.500;Li:0.250;Si:0.250,0.154,329.6,0.0,0.055,4,,0.0,calculated,fit,0.0,,no,505,0.446,4.52
+shortlist 3 pool,shortlist_pool,mp-aaabxhai,Li2CaSn,Ca:0.250;Li:0.500;Sn:0.250,0.144,198.6,0.0,0.074,4,,0.0,calculated,fit,0.0,,no,506,0.445,5.33
+shortlist 3 pool,shortlist_pool,mp-aaabxixm,Sc2ZnGa,Ga:0.250;Sc:0.500;Zn:0.250,0.202,186.6,0.0,0.045,4,,0.0,calculated,test,0.0,,no,507,0.444,2.41
+shortlist 3 pool,shortlist_pool,mp-aaacplmy,LiMgAg2,Ag:0.500;Li:0.250;Mg:0.250,0.215,160.0,0.0,0.038,4,,0.0,calculated,fit,0.0,,no,511,0.436,2.08
+shortlist 3 pool,shortlist_pool,mp-aaabxbyy,Sc2AlZn,Al:0.250;Sc:0.500;Zn:0.250,0.221,194.7,0.0,0.074,4,,0.0,calculated,fit,0.0,,no,521,0.408,2.57
+shortlist 3 pool,shortlist_pool,mp-aaabxbsc,Sc2PdRu,Pd:0.250;Ru:0.250;Sc:0.500,0.132,212.8,0.0,0.044,4,,0.0,calculated,fit,0.0,,no,522,0.408,1.86
+shortlist 3 pool,shortlist_pool,mp-aaaaavan,LiYGe,Ge:0.333;Li:0.333;Y:0.333,0.226,201.9,0.0,0.097,9,,,,,0.0,,no,523,0.398,5.52
+shortlist 3 pool,shortlist_pool,mp-aaacdqdm,MgSc2In,In:0.250;Mg:0.250;Sc:0.500,0.185,183.0,0.0,0.061,4,,0.0,calculated,fit,0.0,,no,526,0.392,2.65
+shortlist 3 pool,shortlist_pool,mp-aaabxiut,SrLi2Sn,Li:0.500;Sn:0.250;Sr:0.250,0.19,149.2,0.0,0.104,4,,0.0,calculated,fit,0.0,,no,534,0.356,5.46
+shortlist 3 pool,shortlist_pool,mp-aaacdqdg,MgSc2Al,Al:0.250;Mg:0.250;Sc:0.500,0.2,228.3,0.0,0.055,4,,0.0,calculated,fit,0.0,,no,535,0.356,3.41
+shortlist 3 pool,shortlist_pool,mp-aaabxgxu,TiZnCo2,Co:0.500;Ti:0.250;Zn:0.250,0.118,262.7,0.0,0.08,4,,,imaginary mode,test,0.0,,no,540,0.33,2.73
+shortlist 3 pool,shortlist_pool,mp-aaaaavam,LiYSi,Li:0.333;Si:0.333;Y:0.333,0.234,235.7,0.0,0.087,9,,,,,0.0,,yes,542,0.327,5.41
+shortlist 3 pool,shortlist_pool,mp-aaaekzye,Mg2Ag,Ag:0.333;Mg:0.667,0.187,176.8,0.0,0.086,6,,,imaginary mode,fit,0.0,,no,544,0.299,1.06
+shortlist 3 pool,shortlist_pool,mp-aaacionf,BaPd,Ba:0.500;Pd:0.500,0.186,105.5,0.0,0.114,4,,,,,0.0,,no,546,0.291,3.07
+shortlist 3 pool,shortlist_pool,mp-aaacrihp,SrAg3Pd2,Ag:0.500;Pd:0.333;Sr:0.167,0.168,107.8,0.0,0.034,6,,0.0,calculated,fit,0.0,,no,553,0.273,1.19
+shortlist 3 pool,shortlist_pool,mp-aaabxdrn,KNa2Bi,Bi:0.250;K:0.250;Na:0.500,0.264,122.2,0.0,0.155,4,,,,,0.0,,no,554,0.271,7.07
+shortlist 3 pool,shortlist_pool,mp-aaabxjvy,AlFe2Si,Al:0.250;Fe:0.500;Si:0.250,0.168,349.6,0.0,0.092,4,,0.0,calculated,fit,0.0,,no,559,0.21,4.13
+shortlist 3 pool,shortlist_pool,mp-aaacfsiw,TiZn,Ti:0.500;Zn:0.500,0.255,153.9,0.0,0.051,2,,0.02,calculated,fit,0.0,,no,560,0.21,1.15
+shortlist 3 pool,shortlist_pool,mp-aaacrgaz,TiIn,In:0.500;Ti:0.500,0.25,209.2,0.0,0.037,4,,0.01,calculated,fit,0.0,,no,563,0.205,2.4
+shortlist 3 pool,shortlist_pool,mp-aaacdpxi,NbCo3,Co:0.750;Nb:0.250,0.239,287.5,0.0,0.11,8,,,,,0.0,,no,565,0.186,2.93

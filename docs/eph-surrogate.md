@@ -159,3 +159,141 @@ trained on these targets yet, and nothing below was chosen from a result.
 Not changed: the 300-epoch cosine schedule with patience 30. A reviewer
 flagged it, and the verifier measured no gain from shortening it. Each
 member keeps its best-validation epoch either way.
+
+## Result, 2026-11-28 (run of 2026-11-27 to 28, scored once by the script)
+
+**Main idea:** the network reproduces Alexandria's calculated Tc on whole
+held-out chemical systems, so the plan's rule says to use it. Applied to the
+26,911 made compounds, it finds **nothing that a calculation would put above
+19 K** once insulators, magnetic compounds and compounds unlike the training
+set are removed. It is a tool for spending Hazel time. It does not find a
+room-temperature superconductor among known compounds.
+
+Record: `data/benchmarks/local-gpu/eph-20261128/` (the run), the reading in
+`docs/eph-surrogate.json` and `docs/eph-surrogate-candidates.csv`, by
+`scripts/eph_read.py`. The run: 41 networks in 5.75 h on an RTX 5070 laptop
+GPU, five averaged.
+
+### The plan's rule
+
+| Measure (3,303 test rows, 1,894 chemical systems) | Result | Needed |
+| --- | --- | --- |
+| AUC, calculated Tc ≥ 10 K | **0.951** (95% interval 0.940–0.959) | at least 0.85 |
+| Tc error | **2.10 K**, 0.39 × the median baseline (interval 0.36–0.42) | at most 0.7 × 5.38 K = 3.76 K |
+| Spearman correlation of Tc | 0.895 | not set |
+| AUC, Tc ≥ 20 K | 0.961 | not set |
+| λ error, ln ωlog error | 0.11, 0.12 | not set |
+
+**Both conditions are met. The ensemble is used.** Intervals resample whole
+chemical systems; they are reported only.
+
+**Predictions against outcomes:**
+- AUC at least 0.85: 65%; happened, by a wide margin.
+- Error at most 0.7 × baseline: 60%; happened.
+- Both: 50%; happened.
+- Any made metal at 77 K or more with a small spread: 15%; did not happen.
+
+### Reported only
+
+- **The spread says when to trust a prediction.** Test AUC for Tc ≥ 10 K is
+  0.994 in the third of rows where the five networks agree most, 0.975 in the
+  middle third and 0.879 in the third where they disagree most. Errors are
+  0.54, 1.80 and 3.94 K.
+- **The top end.** Three test rows have calculated Tc of at least 77 K. All
+  three were predicted at 40 K or more.
+- **Transfer to Materials Project cells, the plan's check 7.** 549 candidate
+  compositions are also in Alexandria's held-out systems. The prediction on
+  the Materials Project cell against Alexandria's own value: Spearman 0.84,
+  error 0.91 K against 1.80 K for the median, AUC 0.95 for Tc ≥ 10 K (only
+  26 of the 549 are above 10 K). [Likely] The PBEsol and Materials Project
+  cells do not matter much for ranking.
+- **The ranking is coarse below a few K.** [Likely] The network tells 10 K
+  from 1 K. It does not tell 0.1 K from 1 K, where its error is about the
+  size of the values.
+
+### The candidates: what the first list got wrong
+
+The first list put 28 K to 47 K compounds at the top. They were lithium
+oxides and Mg(BC)2, which have band gaps of 1.6 to 3.8 eV in Materials
+Project. The "made metals" list is not limited to metallic compounds:
+**8,759 of its 26,911 have a Materials Project band gap above zero.** The network has
+only ever seen metals, so its output for an insulator is meaningless, and its
+spread did not warn of it. 66 of the top 100 were insulators.
+
+Two flags were therefore **added after seeing that list** (not metallic, and
+magnetic in Materials Project, because Alexandria's calculations are not
+spin-polarised [Likely]). The three flags fixed in advance are unchanged.
+
+| Funnel | Compounds |
+| --- | --- |
+| Made compounds listed | 26,911 |
+| Not metallic in Materials Project | 8,759 |
+| Magnetic in Materials Project | 3,793 |
+| Flagged by the three pre-set rules | 6,748 |
+| Flagged by any rule (overlapping) | 14,070 |
+| Already in Alexandria (its own value is used) | 3,445 |
+| Matching a known superconductor | 1,892 |
+| **New and unflagged** | **9,185** |
+| of those: predicted at least 10 K / 20 K / 40 K | **12 / 0 / 0** |
+
+- **The strongest new ones** are 8 to 19 K: La3(CrN3)2 (19.0 K),
+  NaVO2 (16.2), SrRhF6 (13.8), CeB4 (13.0), Ce2CrN3 (12.4), AlV6Sn (12.1),
+  Li2Ta3N5 (12.0), Cr2GeC (11.2), V6GaGe (11.2), LaCeOs4 (10.7), LiRuN
+  (10.5) and Cr3IrN (10.3).
+- **Read these with suspicion.** [Likely] Cr, V, Mn and Ce compounds are
+  where a calculation without spin fluctuations is most too high, and the
+  oxide and fluoride entries (NaVO2, SrRhF6) are probably Mott or magnetic
+  insulators that Materials Project calls metals. None is a Hazel
+  candidate until someone has read why.
+- **Mg(BC)2** (47 K before the metallic flag) is a calculated semiconductor.
+  It belongs to the LiBC family of the room-temperature track (C2, Li0.5BC),
+  where doping is what would make it metallic. That is a reason to read the
+  track, not evidence for it.
+
+### The queue
+
+| Compound | Network Tc (K) | Spread | Alexandria | Pool rank in the ranking of record |
+| --- | --- | --- | --- | --- |
+| ScTaN2 | 12.8 | 0.18 | entry flagged unreliable | 13 |
+| LiRuN | 10.5 | 0.32 | none | 62 |
+| Re3Ir | 4.1 | 0.11 | none | 4 |
+| Nb2GeC | 2.4 | 0.14 | 1.4 | 12 |
+| V2GaN | 1.6 | 0.41 (high) | 0.9 | 6 |
+| NaMgPb2 | 1.3 | 0.21 | none | 2 |
+| SbTe2 | 0.9 | 0.17 | imaginary mode | 1 |
+| SrAl3Ag | 0.2 | 0.07 | 0.14 | 44 |
+| LiGaIr | 0.1 | 0.08 | none | 35 |
+| TaNbRe2 | 0.0 | 0.07 | 0.0 | 20 |
+
+- **The two rankings answer different questions.** The ranking of record
+  scores the chance of a *measured* superconductor. The network scores a
+  *calculated* Tc. A compound can be a real superconductor with a small
+  calculated Tc, which is what Hazel would then show.
+- **What the network says about the queue** [Likely]: most of it is a
+  one-to-few-kelvin calculation. Of the pool, ScTaN2 (12.8 K) and LiRuN
+  (10.5 K) stand out. Nb2ReRu, TaTiRu2, Ta2ReRu and Ti3Pb already have
+  Alexandria values (10.1, 8.7, 6.4 and 5.6 K).
+- **No change to the queue is made here.** It is the owner's decision, and
+  the Hazel runs test the calculation itself, which the network only
+  imitates.
+
+### Where calculated Tc above 77 K sits
+
+Alexandria's own calculations: 24 stable, unflagged compositions with
+Allen–Dynes Tc of at least 77 K. They are hydrides (H6KPt, H6NiRb, H6CsNi,
+H6CuLi2, H3AlK, H6Mg2Pt, H4Pd and others) and boron–carbon frameworks (C8B2X,
+CB, C7B5, B2Be4N2). KInH3 and SrAuH3 of the room-temperature track are
+in the same perovskite-hydride family as H3AlK (87.6 K).
+- [Certain] These are calculations on cells that are mostly hypothetical.
+- [Likely] They are the right place to test how far a PBE Hazel run
+  agrees with a published PBEsol calculation at the high end.
+- **No made compound in the 26,911 is predicted anywhere near them.**
+
+### What follows
+
+1. The ensemble orders Hazel candidates within the rung-4 and
+   room-temperature tracks, as the plan said.
+2. A reading of the 12 new compounds at 10 K or more, for magnetism and
+   for what is already known, comes before any of them is proposed.
+3. The Alexandria high-Tc entries are the next thing to compare with a
+   Hazel run, once the benchmark has run on Hazel.

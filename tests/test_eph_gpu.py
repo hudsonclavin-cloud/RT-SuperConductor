@@ -39,3 +39,14 @@ def test_a_sleep_is_charged_as_one_usual_epoch():
     assert clock.charge(7 * 3600.0, epoch=True) == 10.0          # a 7 h gap mid-member
     assert abs(clock.spent - 170.0) < 1e-9 and said
     assert clock.charge(50.0, epoch=True) == 50.0                # slower epochs are charged in full
+
+
+def test_recorded_reading_matches_the_run_it_reads():
+    import json
+    root = Path(__file__).resolve().parents[1]
+    reading = json.loads((root / "docs/eph-surrogate.json").read_text())
+    run = json.loads((root / reading["run"] / "result.json").read_text())["test"]
+    rule = reading["rule"]
+    assert rule["auc_tc_at_least_10k"] == run["auc_tc_at_least_10k"] and rule["tc_mae_k"] == run["tc_mae_k"]
+    assert rule["needs_at_most"] == round(0.7 * run["tc_mae_k_fit_median_baseline"], 3)
+    assert rule["ensemble_used"] == (run["auc_tc_at_least_10k"] >= 0.85 and run["tc_mae_k"] <= rule["needs_at_most"])
