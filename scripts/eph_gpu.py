@@ -17,14 +17,21 @@ hash of the element set, so no test compound has a sibling of the same elements 
 The train command trains networks one after another until the time is used: first different settings, then more seeds
 of the three best. Members are chosen on validation rows only. The five best are averaged; the test rows are scored once,
 at the end, and the candidates are predicted (in a smoke run, validation rows stand in for the test rows). Each finished member is saved, so a stopped run resumes where it was.
-Outputs in --out/share (predictions and logs, no weights) are what to commit.
+Outputs in --out/share (predictions and logs, no weights) are what to commit: copy them to data/benchmarks/local-gpu/.
+
+Time is counted as training time, not wall time: the script asks Windows not to sleep, and if the machine sleeps anyway
+(a closed lid), the gap is charged as one ordinary epoch, so the budget is not used up while nothing trains. Keep the
+lid open, or set "When I close the lid" to "Do nothing" while plugged in. A finished run (share/result.json) refuses to
+train or score again: the test rows are scored once.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import itertools
 import json
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -149,11 +156,58 @@ def auc(y: np.ndarray, score: np.ndarray) -> float:
 
 
 def configs(seed: int) -> list[dict]:
-    rng = np.random.default_rng(seed)
-    return [{k: v[int(rng.integers(len(v)))] for k, v in GRID.items()} for _ in range(500)]
+    """Every combination of GRID once, in a seeded random order."""
+    combos = [dict(zip(GRID, values)) for values in itertools.product(*GRID.values())]
+    order = np.random.default_rng(seed).permutation(len(combos))
+    return [combos[k] for k in order]
 
 
-def train_member(torch, S, graphs, elem, cfg, seed, data, max_epochs, patience, deadline, device):
+def keep_awake(on: bool) -> None:
+    """Windows only: ask the system not to sleep while this runs (the display may still turn off)."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+        ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
+        ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | (ES_SYSTEM_REQUIRED if on else 0))
+    except Exception:  # noqa: BLE001 - never let this stop a run
+        pass
+
+
+class Clock:
+    """Training time spent, across sessions. A step far longer than the usual epoch (the machine slept) counts as one
+    usual epoch, so a sleep cannot use up the budget."""
+
+    def __init__(self, spent: float, budget: float, say=print):
+        self.spent, self.budget, self.say = spent, budget, say
+        self.last, self.epochs = time.time(), []
+
+    def charge(self, dt: float, epoch: bool) -> float:
+        typical = float(np.median(self.epochs[-50:])) if len(self.epochs) >= 5 else None
+        if typical is not None and dt > max(10 * typical, 120.0):
+            self.say(f"a {dt / 60:.1f} min gap (the machine slept?) is counted as {typical:.0f} s")
+            dt = typical
+        if epoch:
+            self.epochs.append(dt)
+        self.spent += dt
+        return dt
+
+    def tick(self, epoch: bool = False) -> float:
+        now = time.time()
+        dt, self.last = now - self.last, now
+        return self.charge(dt, epoch)
+
+    def left(self) -> float:
+        return self.budget - self.spent
+
+
+def write_atomic(path: Path, text: str) -> None:
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def train_member(torch, S, graphs, elem, cfg, seed, data, max_epochs, patience, clock, device):
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
     ns = SimpleNamespace(conv=cfg["conv"], hidden=cfg["hidden"], embed=64, rbf=41, cutoff=8.0)
@@ -193,7 +247,8 @@ def train_member(torch, S, graphs, elem, cfg, seed, data, max_epochs, patience, 
                           "head": {k: v.detach().cpu().clone() for k, v in head.state_dict().items()}}
         else:
             waited += 1
-        if waited >= patience or time.time() > deadline:
+        clock.tick(epoch=True)
+        if waited >= patience or clock.left() < 300:
             break
     return {"best_state": best_state, "valid_mse": round(best, 5), "valid_mse_tc": round(best_tc, 5),
             "best_epoch": best_epoch, "epochs_run": epoch}, (encoder, head)
@@ -207,7 +262,7 @@ def cmd_train(args) -> int:
     device = S.pick_device(torch, args.device)
     b = np.load(args.bundle, allow_pickle=False)
     sha = hashlib.sha256(args.bundle.read_bytes()).hexdigest()
-    if args.expect_sha256 and sha != args.expect_sha256:
+    if args.expect_sha256 and sha != args.expect_sha256.strip().lower():
         raise SystemExit(f"bundle sha256 {sha} is not the expected {args.expect_sha256}")
     graphs = S.Graphs(torch, b, device)
     elem = b["elem_features"]
@@ -217,6 +272,8 @@ def cmd_train(args) -> int:
     if smoke:                                    # a rehearsal never touches the test rows: it scores validation rows
         fit, valid = fit[:400], valid[:100]
         test = valid
+    if (args.out / "share" / "result.json").is_file():
+        raise SystemExit(f"{args.out} is finished (share/result.json exists): the test rows are scored once")
     mean, std = raw[fit].mean(axis=0), raw[fit].std(axis=0)
     data = {"G": torch.as_tensor(b["eph_graph"].astype(np.int64), device=device),
             "Y": torch.as_tensor(((raw - mean) / std).astype(np.float32), device=device),
@@ -225,40 +282,65 @@ def cmd_train(args) -> int:
     members_dir.mkdir(parents=True, exist_ok=True)
     share = args.out / "share"
     share.mkdir(exist_ok=True)
+    log_path = share / "log.txt"
+
+    def say(message: str) -> None:
+        S.log(message)
+        with open(log_path, "a", encoding="utf-8") as handle:
+            handle.write(time.strftime("%Y-%m-%d %H:%M:%S ") + message + "\n")
+
     state_path = args.out / "state.json"
-    state = json.loads(state_path.read_text()) if state_path.is_file() else {"spent_s": 0.0}
+    settings = {"profile": args.profile, "bundle_sha256": sha, "seed": args.seed, "epochs": args.epochs,
+                "patience": args.patience}
+    state = json.loads(state_path.read_text()) if state_path.is_file() else {"spent_s": 0.0, "settings": settings}
+    if state.get("settings") != settings:                           # a resume must continue the same run
+        raise SystemExit(f"{args.out} was started with {state.get('settings')}, not {settings}: use a new --out")
     budget = args.hours * 3600.0
     max_epochs, patience, max_members = (2, 1, 2) if smoke else (args.epochs, args.patience, 10 ** 6)
     grid = configs(args.seed)
-    S.log(f"device {device}; {len(fit)} fit, {len(valid)} validation, {len(test)} test rows; budget {args.hours} h")
+    say(f"device {device}; {len(fit)} fit, {len(valid)} validation, {len(test)} test rows; budget {args.hours} h, "
+        f"{state['spent_s'] / 3600:.2f} h already spent")
 
     def done_members():
-        return sorted((json.loads(p.read_text()) for p in members_dir.glob("*.json")), key=lambda m: m["index"])
+        found = []
+        for path in members_dir.glob("*.json"):
+            try:
+                m = json.loads(path.read_text())
+                if (members_dir / f"{m['index']:03d}.pt").is_file():
+                    found.append(m)
+                    continue
+            except (ValueError, KeyError):
+                pass
+            say(f"{path.name} is unreadable or has no weights: that member is trained again")
+        return sorted(found, key=lambda m: m["index"])
 
-    session_start, spent0 = time.time(), state["spent_s"]
+    clock = Clock(state["spent_s"], budget, say)
     while True:
+        clock.tick()
         members = done_members()
-        spent = spent0 + time.time() - session_start
         typical = float(np.median([m["minutes"] for m in members])) * 60 if members else 0.0
-        if len(members) >= max_members or spent + 1.2 * typical + 600 > budget:
+        if len(members) >= max_members or clock.spent + 1.2 * typical + 600 > budget:
             break
-        i = len(members)
-        if spent < 0.5 * budget or len(members) < 3:                # explore settings, one seed each
-            cfg, phase = grid[i], "explore"
+        done = {m["index"] for m in members}
+        i = min(set(range(len(members) + 1)) - done)
+        if clock.spent < 0.5 * budget or len(members) < 3:          # explore settings, one seed each
+            cfg, phase = grid[i % len(grid)], "explore"
         else:                                                       # more seeds of the three best settings
             explored = sorted((m for m in members if m["phase"] == "explore"), key=lambda m: m["valid_mse_tc"])[:3]
-            cfg, phase = explored[i % 3]["config"], "seeds"
-        t0 = time.time()
-        deadline = session_start + (budget - spent0) - 300
+            cfg, phase = explored[i % len(explored)]["config"], "seeds"
+        before = clock.spent
         result, _ = train_member(torch, S, graphs, elem, cfg, args.seed * 1000 + i, data, max_epochs, patience,
-                                 deadline, device)
-        torch.save(result.pop("best_state"), members_dir / f"{i:03d}.pt")
-        record = {"index": i, "phase": phase, "config": cfg, **result, "minutes": round((time.time() - t0) / 60, 2)}
-        (members_dir / f"{i:03d}.json").write_text(json.dumps(record) + "\n")
-        state["spent_s"] = spent0 + time.time() - session_start
-        state_path.write_text(json.dumps(state) + "\n")
-        S.log(f"member {i} ({phase}) {cfg}: validation MSE {result['valid_mse']:.4f}, Tc column "
-              f"{result['valid_mse_tc']:.4f}, {record['minutes']} min")
+                                 clock, device)
+        tmp = members_dir / f"{i:03d}.pt.tmp"
+        torch.save(result.pop("best_state"), tmp)
+        os.replace(tmp, members_dir / f"{i:03d}.pt")
+        clock.tick()
+        record = {"index": i, "phase": phase, "config": cfg, **result, "minutes": round((clock.spent - before) / 60, 2)}
+        write_atomic(members_dir / f"{i:03d}.json", json.dumps(record) + "\n")
+        state["spent_s"] = clock.spent
+        write_atomic(state_path, json.dumps(state) + "\n")
+        say(f"member {i} ({phase}) {cfg}: validation MSE {result['valid_mse']:.4f}, Tc column "
+            f"{result['valid_mse_tc']:.4f}, {record['minutes']} min")
 
     members = done_members()
     if not members:
@@ -283,7 +365,7 @@ def cmd_train(args) -> int:
 
     test_out = ensemble(b["eph_graph"][test])                       # the one scoring of the test rows
     pred, spread = test_out.mean(axis=0), test_out[:, :, TC].std(axis=0)
-    tc_true, tc_pred = np.expm1(raw[test, TC]), np.expm1(pred[:, TC])
+    tc_true, tc_pred = np.expm1(raw[test, TC]), np.clip(np.expm1(pred[:, TC]), 0.0, None)   # Tc is never negative
     tc_fit_median = float(np.median(np.expm1(raw[fit, TC])))
     result = {"plan": "docs/eph-surrogate.md", "bundle_sha256": sha, "profile": args.profile, **S.device_info(torch, device),
               "rows": {"fit": int(len(fit)), "valid": int(len(valid)), "test": int(len(test))},
@@ -296,16 +378,34 @@ def cmd_train(args) -> int:
                        "auc_tc_at_least_20k": round(auc((tc_true >= 20).astype(float), tc_pred), 4),
                        "lambda_mae": round(float(np.mean(np.abs(pred[:, 0] - raw[test, 0]))), 4),
                        "ln_wlog_mae": round(float(np.mean(np.abs(pred[:, 1] - raw[test, 1]))), 4)}}
-    np.savez_compressed(share / "test_predictions.npz", ids=b["eph_ids"][test], true=raw[test], pred=pred, tc_spread=spread)
+    names = np.array(TARGETS)
+    np.savez_compressed(share / "test_predictions.npz", ids=b["eph_ids"][test], true=raw[test], pred=pred,
+                        ln1p_tc_spread=spread, target_names=names)
+    # For marking candidates unlike the training rows: their size, and how often their rarest element is in fit rows
+    node_graph = np.repeat(np.arange(len(b["graph_sites"])), np.diff(b["node_offsets"]))
+    present = b["node_occ"].astype(np.float32) > 0
+    pairs = np.unique(np.stack([np.repeat(node_graph, 4)[present.ravel()], b["node_species"].ravel()[present.ravel()]], 1), axis=0)
+    fit_graphs = np.zeros(len(b["graph_sites"]), bool)
+    fit_graphs[b["eph_graph"][fit]] = True
+    element_fit_count = np.bincount(pairs[fit_graphs[pairs[:, 0]], 1], minlength=len(elem))
+    result["fit_max_sites"] = int(b["graph_sites"][b["eph_graph"][fit]].max())
     for key in (k for k in b.files if k.startswith("cand_") and k.endswith("_graph")):
         name = key[5:-6]
-        out = ensemble(b[key])
-        np.savez_compressed(share / f"candidates_{name}.npz", keys=b[f"cand_{name}_keys"], pred=out.mean(axis=0),
-                            ln1p_tc_spread=out[:, :, TC].std(axis=0))
-        result[f"candidates_{name}"] = int(len(b[key]))
-    (share / "members.json").write_text(json.dumps(members, indent=1) + "\n")
-    (share / "result.json").write_text(json.dumps(result, indent=1) + "\n")
-    S.log(json.dumps(result["test"]))
+        gids = b[key][:200] if smoke else b[key]
+        out = ensemble(gids)
+        rarest = np.full(len(gids), np.iinfo(np.int64).max)
+        mine = np.isin(pairs[:, 0], gids)
+        position = {g: k for k, g in enumerate(gids)}
+        for g, species in pairs[mine]:
+            k = position[g]
+            rarest[k] = min(rarest[k], element_fit_count[species])
+        np.savez_compressed(share / f"candidates_{name}.npz", keys=b[f"cand_{name}_keys"][:len(gids)], pred=out.mean(axis=0),
+                            ln1p_tc_spread=out[:, :, TC].std(axis=0), target_names=names,
+                            sites=b["graph_sites"][gids], rarest_element_fit_graphs=rarest)
+        result[f"candidates_{name}"] = int(len(gids))
+    write_atomic(share / "members.json", json.dumps(members, indent=1) + "\n")
+    write_atomic(share / "result.json", json.dumps(result, indent=1) + "\n")
+    say(json.dumps(result["test"]))
     return 0
 
 
@@ -328,7 +428,11 @@ def main(argv=None) -> int:
     if args.command == "export":
         cmd_export(args.workers)
         return 0
-    return cmd_train(args)
+    keep_awake(True)
+    try:
+        return cmd_train(args)
+    finally:
+        keep_awake(False)
 
 
 if __name__ == "__main__":

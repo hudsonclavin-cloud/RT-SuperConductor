@@ -113,3 +113,49 @@ for tonight". Script: `scripts/eph_gpu.py`.
   well below room temperature in every large calculated set so far
   [Likely]. This tool spends Hazel time better. It does not change that
   physics.
+
+## Amendments before training (2026-11-28)
+
+Written after an independent review of the script. No network had been
+trained on these targets yet, and nothing below was chosen from a result.
+
+1. **The laptop is kept awake, and time is counted as training time.**
+   - The review found that nothing stopped Windows from sleeping, and that
+     the budget ran on the wall clock. One idle sleep would have used up
+     the 6 h. The script would then have spent the one test scoring on a
+     few early networks, and a rerun could not recover.
+   - Now the script asks Windows not to sleep, as the 2026-11-22 driver
+     did.
+   - Any gap far longer than a usual epoch (more than 10 times, and more
+     than 2 min) is charged as one usual epoch.
+   - **Owner:** keep the lid open, or set "When I close the lid" to "Do
+     nothing" while plugged in. The sleep request does not cover a closed
+     lid.
+2. **The test rows can only be scored once.** A finished run (with
+   `share/result.json`) refuses to train or score again. A resume must
+   have the same profile, bundle, seed, epochs and patience as the run it
+   continues.
+3. **A crash cannot break a resume.** Files are written whole or not at
+   all, and an unreadable member is trained again.
+4. **Settings are drawn without repeats.** Each of the 432 combinations is
+   used once, in a seeded order. The three settings given more seeds are
+   therefore always three different ones.
+5. **Predicted Tc below 0 K counts as 0 K** in the Tc error. Tc is never
+   negative. This can only lower the error, and the rule above is
+   unchanged.
+6. **Outputs for the morning:**
+   - column names, and the spread named in its units (ln(1 + Tc));
+   - each candidate's number of sites, and how many fit rows contain its
+     rarest element;
+   - the largest training cell's size, in `result.json`;
+   - a log in `share/log.txt`.
+7. **Reported only, read in the morning: a transfer check.** Some
+   candidates' compositions are also in Alexandria's validation or test
+   rows. For those, the prediction on the Materials Project structure is
+   compared with Alexandria's own value. This shows how much is lost
+   between PBEsol cells and Materials Project cells. It does not change
+   the rule above.
+
+Not changed: the 300-epoch cosine schedule with patience 30. A reviewer
+flagged it, and the verifier measured no gain from shortening it. Each
+member keeps its best-validation epoch either way.
